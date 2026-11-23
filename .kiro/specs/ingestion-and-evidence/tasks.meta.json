@@ -1,0 +1,72 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "0.1 Create the root workspace and shared TypeScript and lint config": [
+      {
+        "executionId": "90e97f16-d193-4d90-976e-b1dbb7787d0c",
+        "chatSessionId": "sess_de695d04-dac5-46ca-8646-f2a0e014b74e",
+        "timestamp": 1795456784339
+      },
+      {
+        "executionId": "90e97f16-d193-4d90-976e-b1dbb7787d0c",
+        "chatSessionId": "sess_de695d04-dac5-46ca-8646-f2a0e014b74e",
+        "timestamp": 1795456817290
+      }
+    ],
+    "0.2 Create the three workspace packages": [
+      {
+        "executionId": "6a118557-3a73-4ff4-815a-4071dc732a51",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795456889152
+      },
+      {
+        "executionId": "6a118557-3a73-4ff4-815a-4071dc732a51",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795456993596
+      }
+    ],
+    "0.3 Configure Vitest and Playwright": [
+      {
+        "executionId": "be1f9bc0-5310-45f5-bd5c-f31ad8f7d501",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795457083174
+      },
+      {
+        "executionId": "be1f9bc0-5310-45f5-bd5c-f31ad8f7d501",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795457368069
+      }
+    ],
+    "0.4 Add the GitHub Actions workflow": [
+      {
+        "executionId": "a2263177-8103-4a6f-af7f-6af69379e866",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795457670986
+      },
+      {
+        "executionId": "a2263177-8103-4a6f-af7f-6af69379e866",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795457782522
+      }
+    ],
+    "0.5 Update the steering commands if they changed": [
+      {
+        "executionId": "88b6a74c-b898-4997-a5cf-6d426e100127",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795457834602
+      },
+      {
+        "executionId": "88b6a74c-b898-4997-a5cf-6d426e100127",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795457852211
+      }
+    ],
+    "0. Scaffold the workspace": [
+      {
+        "executionId": "88b6a74c-b898-4997-a5cf-6d426e100127",
+        "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
+        "timestamp": 1795457852256
+      }
+    ]
+  }
+}

@@ -8,7 +8,7 @@ All test tasks are required and part of done. Property tests for one module are 
 
 ## Tasks
 
-- [ ] 0. Scaffold the workspace
+- [x] 0. Scaffold the workspace
   - [x] 0.1 Create the root workspace and shared TypeScript and lint config
     - Create root `package.json` (private, Node 22 engines, scripts `dev`, `test`, `lint`, `typecheck`, `e2e`) and `pnpm-workspace.yaml` covering `apps/*` and `packages/*`
     - Create `tsconfig.base.json` with `strict` on, `noUncheckedIndexedAccess`, and no implicit `any`
@@ -28,12 +28,12 @@ All test tasks are required and part of done. Property tests for one module are 
     - Add `apps/web/playwright.config.ts` with `testDir: './e2e'` and `testMatch: '**/*.e2e.ts'` (so Playwright never picks up `*.test.ts` files) and three projects: Chromium, Firefox and a Pixel emulation (Android Chrome profile), starting the Vite preview server as `webServer`
     - _Requirements: 12.4_
 
-  - [ ] 0.4 Add the GitHub Actions workflow
+  - [x] 0.4 Add the GitHub Actions workflow
     - Create `.github/workflows/ci.yml` triggered on every push, using Node 22 and pnpm with a frozen lockfile install
     - Run `pnpm lint`, `pnpm typecheck` and `pnpm test` as separate steps
     - _Requirements: 12.4_
 
-  - [ ] 0.5 Update the steering commands if they changed
+  - [x] 0.5 Update the steering commands if they changed
     - Compare the root scripts with the Commands list in `.kiro/steering/tech.md` and edit that list only if a script name or behaviour differs
     - Keep the file otherwise unchanged and add no logs or user content under `.kiro/`
     - _Requirements: 12.4_
