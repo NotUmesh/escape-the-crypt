@@ -247,15 +247,18 @@ All test tasks are required and part of done. Property tests for one module are 
     - Check file size before creating any worker and reject without starting one
     - Apply a wall-clock timeout with the injected clock as a second guard; terminate the worker (or run `loadingTask.destroy()`, document destroy and pdf.js worker termination in fallback mode) on cancel, timeout or error, and drop buffer references
     - Send the page choice with `start` so pages are chosen before extraction begins
+    - Build the pdf.js worker URL from `import.meta.env.BASE_URL` (helper `pdf-worker-url.ts`), not a root-relative path, so a subpath deploy works
+    - Add `pdf-worker-version.test.ts`: the `pdfjsVersion` stamp in `apps/web/public/pdf.worker.min.mjs` equals the installed `pdfjs-dist` version, so an upgrade cannot leave a stale worker file
     - _Requirements: 2.2, 2.3, 2.6, 2.7, 3.2, 3.5_
 
-  - [ ] 9.3 Create fixture PDFs
+  - [x] 9.3 Create fixture PDFs
     - Add a generator script and small fixtures under `apps/web/src/features/ingest/fixtures/`: a PDF padded just over 5 MB, an 11-page PDF, a PDF over 6,000 words, an `ok` prose page, an image-only page, a garbled and table-like page, a PDF with embedded JavaScript, and a three-paragraph PDF with a hyphenated word break ("exam-" then "ple")
     - The encrypted PDF is not produced by the generator script, because pdf-lib cannot encrypt PDFs. Commit a small pre-made encrypted PDF, generated once with a tool that supports encryption (for example `qpdf --encrypt user owner 256 -- in.pdf out.pdf`), and note the tool and exact command in a fixtures `README.md` in the same folder
     - _Requirements: 14.1, 14.2_
 
   - [ ] 9.4 Write limit tests with fixture PDFs and an injected clock
     - File: `apps/web/src/features/ingest/extraction-limits.test.ts`
+    - Test approach for 9.4 to 9.6: Vitest runs in Node with no real `Worker`, so every "real pdf.js path" test calls `runExtraction` from `extraction-core.ts` directly with the `pdfjs-dist/legacy/build/pdf.mjs` build (no worker). Worker lifecycle (9.6) uses a mocked `WorkerLike`. No Playwright for these
     - Test the file-size, page-count and word-count limits with the fixtures, and the 20-second limit with an injected clock that jumps past the limit instead of a slow fixture
     - Assert the file-size rejection never starts the worker
     - _Requirements: 3.2, 3.3, 3.4, 3.5, 14.1_

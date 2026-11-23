@@ -3,6 +3,7 @@ import * as pdfjs from 'pdfjs-dist';
 import type { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api';
 import { EXTRACTION_MODE } from './extraction-mode';
 import { mapPdfError, runExtraction } from './extraction-core';
+import { pdfWorkerUrl } from './pdf-worker-url';
 import type {
   Clock,
   ExtractionMessageIn,
@@ -10,8 +11,6 @@ import type {
   PdfDocumentLike,
 } from './extraction-core';
 
-/** Self-hosted, same-origin pdf.js worker file (apps/web/public). */
-const PDF_WORKER_PATH = '/pdf.worker.min.mjs';
 
 const clock: Clock = { now: () => Date.now() };
 let cancelled = false;
@@ -29,7 +28,10 @@ async function start(msg: Extract<ExtractionMessageIn, { type: 'start' }>): Prom
   }
   // Both "nested-worker" and "in-thread" load the same self-hosted file:
   // pdf.js starts it as a worker, or imports it for its in-thread mode.
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(PDF_WORKER_PATH, self.location.origin).href;
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl(
+    import.meta.env.BASE_URL,
+    self.location.origin,
+  );
 
   // No password callback is set; scripting is off; cMap and standard-font
   // fetching are off, so nothing is requested from another origin.
