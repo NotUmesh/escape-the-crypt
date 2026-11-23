@@ -23,6 +23,11 @@ The design has two halves:
 | Chunk IDs are `chk_<digest12>_<position>` | Deterministic for identical text, distinct for duplicate paragraphs because position is part of the ID (6.8, 6.9). |
 | Edited flag is computed per chunk by comparison with original extraction text | Marks only chunks that actually differ, not whole pages (5.3, 5.4). |
 | Preview text is rendered only as React text children | No `dangerouslySetInnerHTML`, consistent with `security.md` (5.7). |
+| All colours come from `tokens.css`; fonts are self-hosted woff2 | One palette source (design-system.md) and no third-party font request, so the network guarantee in 2.4 still holds (16.1 to 16.6). |
+| Ingest components carry no layout; each draws its own surface | A later open-book screen can host them unchanged, and legibility never depends on the parent's background (17.x, always-lit rule). |
+| Responsive text size uses a container query, not the viewport | The 18px/16px rule (16.9) must follow the width the parent gives, and viewport units are forbidden (17.2). |
+| Notes record is `{ schemaVersion, documentDigest, chunks }`, keyed by digest, in its own IndexedDB object store | A later spec can add saved crypts as new stores that reference the digest, with no data migration of existing records (18.3). |
+| Storage sits behind a `NotesStore` interface with an IndexedDB adapter and an in-memory adapter | Lets the flow fall back to memory when IndexedDB fails (18.8) and lets tests inject failures. |
 
 ### Research summary
 
@@ -97,6 +102,7 @@ The spike extracts a small fixture PDF on each browser and checks that text come
 ### Boundaries
 
 - The Extraction Worker only talks to the state machine through typed messages (`progress`, `page`, `error`, `done`). It contains no code that sends file content or extracted text anywhere. The guarantee is: **no request leaves to another origin and no request body contains file content.** The pdf.js worker and any other assets are self-hosted and served from the same origin. The Playwright test allows same-origin static asset requests (GET without a body) and fails on any cross-origin request or any request that carries a body during extraction (2.4).
+- **Fonts and the network guarantee.** The Title and Body fonts load through `@font-face` from `/fonts/*.woff2`, served from the app's own origin. These are same-origin static `GET` requests with no body, which is exactly what the network guard allows. A font request can therefore appear during extraction without failing the test. A request to `fonts.googleapis.com`, `fonts.gstatic.com` or any other origin would fail it, and so would the static origin scan described in the Testing Strategy.
 - Only the **confirmed text** and chunk records leave the ingest feature, and only to browser storage in this spec. Sending confirmed text for later generation is a separate spec. The privacy notice states this (10.1, 10.2).
 - Files stay under 300 lines and are named in kebab-case (12.4).
 
@@ -116,7 +122,14 @@ packages/core/src/
   quote-resolver.ts        resolveQuote
   citation-labeller.ts     citationLabel
   copy.ts                  ingest message catalogue
+  notes-record.ts          only the NotesRecord type, NOTES_SCHEMA_VERSION and pure helpers (makeNotesRecord, parseNotesRecord)
   *.test.ts                one test file per module
+apps/web/src/styles/
+  tokens.css               design tokens (the only file with colour literals)
+  fonts.css                @font-face rules for the self-hosted woff2 files
+apps/web/public/fonts/
+  cinzel-*.woff2           Title font (Cinzel, Cinzel Decorative)
+  crimson-pro-*.woff2      Body font (Crimson Pro)
 apps/web/src/features/ingest/
   ingest-flow.tsx          top-level screen
   privacy-notice.tsx
@@ -125,10 +138,16 @@ apps/web/src/features/ingest/
   page-list.tsx            page flags, remove page
   preview-editor.tsx       per-page / per-paragraph editing
   live-announcer.tsx       polite live region
+  ingest.css               component styles: tokens only, no layout (split per component if over 300 lines)
+  notes-store.ts           NotesStore interface, StorageError, createSessionStore
+  notes-store-idb.ts       IndexedDB adapter
+  notes-store-memory.ts    in-memory adapter (fallback and tests)
   ingest-machine.ts        state machine (single source of truth)
   extraction-worker.ts     pdf.js wrapper, runs in a web worker
   extraction-client.ts     main-thread handle: start, cancel, terminate
   ingest.e2e.ts            Playwright paste flow
+  test-parent.tsx          minimal 360px test parent layout (test only)
+  style-guard.test.ts      scans apps/web for colour literals and foreign origins; scans only this folder for layout bans
 ```
 
 ## Components and Interfaces
@@ -177,7 +196,14 @@ export type IngestError =
   | LimitError
   | { kind: 'encrypted' }
   | { kind: 'unreadable' }
-  | { kind: 'empty' };
+  | { kind: 'empty' }
+  | { kind: 'storage-unavailable' };
+
+export interface NotesRecord {
+  readonly schemaVersion: number;   // NOTES_SCHEMA_VERSION
+  readonly documentDigest: string;  // key
+  readonly chunks: readonly Chunk[];
+}
 ```
 
 ### Limits Module (`limits.ts`)
@@ -368,7 +394,138 @@ A reducer `(state, event) => state` with typed events: `PASTE_CHANGED`, `FILE_SE
 - **Confirm and Stop buttons**. Confirm is disabled with an adjacent explanation text when nothing can be confirmed (5.6). Stop is visible while extracting (2.3).
 - **Live announcer**: a visually hidden polite live region. Announces "Page 3 removed", "Page 3 marked low text", "Text edited", "Notes confirmed" (9.3).
 
-Accessibility details follow `accessibility.md`. Every action is a native button, input or textarea, so Tab, Shift+Tab, Enter and Space work. There is no drag anywhere (9.7). Buttons and checkboxes have a hit area of at least 44×44px. Focus uses a 2px `--spectre-300` outline with offset. Flag state uses an icon plus text, never colour alone. This screen sits outside the atmosphere overlay, so the always-lit rule holds trivially (`design-system.md`).
+Accessibility details follow `accessibility.md`. Every action is a native button, input or textarea, so Tab, Shift+Tab, Enter and Space work. There is no drag anywhere (9.7). Buttons and checkboxes have a hit area of at least 44×44px. Focus uses a 2px `--spectre-300` outline with offset. Flag state uses an icon plus text, never colour alone. The always-lit rule (`design-system.md`) holds because each component draws its own opaque surface and the parent keeps any atmosphere layer `pointer-events: none` (see Layout-agnostic composition).
+
+### Design tokens and self-hosted fonts (Requirement 16)
+
+**`apps/web/src/styles/tokens.css`** is the only file in the app that contains colour literals. It declares the palette from `design-system.md` on `:root`:
+
+```css
+:root {
+  --stone-950: #0e0d0c;  --stone-800: #2a2623;  --stone-300: #b8afa6;
+  --bone-50: #f4efe6;
+  --spectre-300: #9fd4d0;
+  --candle-400: #f2a33a;  --ember-600: #b4471f;
+  --parchment-100: #e9dfc8;  --ink-900: #2b2118;
+
+  --font-title: 'Cinzel', 'Cinzel Decorative', serif;
+  --font-body: 'Crimson Pro', 'EB Garamond', serif;
+  --focus-ring: 2px solid var(--spectre-300);
+  --focus-offset: 2px;
+}
+```
+
+The font and focus variables hold no colour literal (`--focus-ring` refers to a token). The Ingest UI stylesheet uses `var(--…)` for every colour and never writes a hex, `rgb()`, `hsl()` or named colour. The keywords `transparent`, `currentColor` and `inherit` are allowed because they carry no palette value.
+
+**Colour roles inside the Ingest UI** (16.7, 16.8, 16.11):
+
+| Surface | Text | Use |
+|---|---|---|
+| `--stone-800` (panels, inputs, buttons) | `--bone-50`, secondary `--stone-300` | Paste area, page list, controls |
+| `--parchment-100` (extracted text preview) | `--ink-900` | Preview and per-page editors |
+| any | `--spectre-300` | Interactive accent and focus ring |
+| any | `--ember-600` | Emphasis for problems; the text label and icon still carry the meaning |
+| any | `--candle-400` | Only inside the lit-state class (a confirmed, successful state) |
+
+A unit test computes the WCAG contrast ratio for each text and surface pair above and requires at least 4.5:1 for body text and 3:1 for large text. Those pairs are known in advance, so the test needs no generator.
+
+**`apps/web/src/styles/fonts.css`** declares the fonts and is imported once by the app entry, next to `tokens.css`:
+
+```css
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/crimson-pro-variable.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cinzel';
+  src: url('/fonts/cinzel-variable.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+/* Cinzel Decorative: same pattern, one rule per shipped weight file. */
+```
+
+- The woff2 files live in `apps/web/public/fonts/`, so Vite serves them at `/fonts/…` from the app's own origin. They are committed to the repository (all three families are SIL OFL) and listed in `ASSETS.md`. No file is fetched at build time or run time from a CDN.
+- `font-display: swap` shows fallback text at once, so notes stay readable while a font loads. Fallbacks are `EB Garamond` then the generic `serif`, as in `design-system.md`.
+- Title font use is limited to headings through the `--font-title` variable. Body text, preview text, textareas and inputs use `--font-body`, and `button` and `input` elements set `font-family: inherit` explicitly, because browsers do not inherit it by default (16.3, 16.4).
+- **Size and rhythm (16.9).** The ingest root sets `container-type: inline-size`, `font-size: 1rem` (16px) and `line-height: 1.5`. A `@container (min-width: 40rem)` rule raises body text to `1.125rem` (18px). The size follows the width the parent gives the component, not the viewport.
+- **Focus (16.10).** One rule, `:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }`, applies to every ingest control.
+
+**Why the network guarantee still passes.** The guarantee in Requirement 2 criterion 4 is "no cross-origin request and no request body carrying file content". Font files are same-origin static `GET`s with no body. They load when the page renders, and the guard treats them like the self-hosted pdf.js worker. Because nothing points at a Google Fonts URL, the guard's cross-origin check has nothing to flag. Two checks protect this over time: the Playwright network guard fails on any cross-origin request, and the static origin scan below fails the build before the app runs.
+
+**Style guard (16.12).** `style-guard.test.ts` has two scopes, because later desk and crypt screens outside the ingest folder need full-screen layers and fixed overlays.
+
+*App-wide checks.* The test reads every `.css`, `.tsx` and `.ts` file under `apps/web` (including `fonts.css`) and fails when it finds:
+
+1. a colour literal: `#rgb`, `#rrggbb`, `#rrggbbaa`, or a call to `rgb(`, `rgba(`, `hsl(`, `hsla(`, `hwb(`, `lab(`, `lch(`, `oklab(`, `oklch(` or `color(`, or a CSS named colour used as the value of a colour property;
+2. a cross-origin reference: `http://`, `https://` or a protocol-relative `//host` URL inside `url(…)`, `@import`, `src`, `href`, `fetch(` or `new URL(`. The one allowed exception is the SVG namespace string `http://www.w3.org/2000/svg`, which names a namespace and triggers no request;
+3. a font reference to `fonts.googleapis.com` or `fonts.gstatic.com` (covered by item 2, kept as an explicit message).
+
+`tokens.css` is the only file exempt from item 1. A further assertion checks that every `url()` in `fonts.css` is a root-relative `/fonts/…woff2` path and that each file exists in `public/fonts/`.
+
+*Ingest-only checks.* The test reads every `.css`, `.tsx` and `.ts` file under `apps/web/src/features/ingest/**` only, and fails when it finds:
+
+4. a viewport unit (`vw`, `vh`, `dvh`, `svh`), `position: fixed`, a page-level `background`, `background-image`, or `url(` in a stylesheet;
+5. a use of `--candle-400` outside the lit-state selector.
+
+Files outside `features/ingest` are never subject to items 4 and 5.
+
+### Layout-agnostic composition (Requirement 17)
+
+The ingest components are building blocks, not a screen. A later screen, such as the open book on the desk from `product.md`, places them where it wants.
+
+- **Tokens only (17.1).** All colour, font and focus values come from the variables above. Spacing uses `rem` and `em` multiples.
+- **No fixed layout (17.2).** Ingest CSS contains no `vw`, `vh`, `dvh`, `svh`, `position: fixed`, `background-image`, `url(` or page-level `background`. The style guard checks these only under `apps/web/src/features/ingest/**`, because later desk and crypt screens outside that folder may use full-screen layers and fixed overlays. `fonts.css` lives in `apps/web/src/styles`, so it is outside this scope.
+- **Sized by the parent (17.3).** The root element of each component is `display: block; width: 100%; min-width: 0;` and its height follows its content. Long text wraps with `overflow-wrap: anywhere`. The preview list scrolls inside whatever height the parent gives through `overflow: auto` on an inner list only when the parent sets a `max-height`; the component sets none.
+- **Own surface (17.1, 17.6).** Each component draws its panel with `--stone-800` (or `--parchment-100` for preview text) and sets its own text colour. It is therefore fully lit and readable on any parent background, including a parchment page or a dark crypt wall. The component sets a background only on its own panels and controls, never on the area around them.
+- **Native elements (17.4).** Controls are `button`, `input`, `textarea`, `form`, `label` and `fieldset`. There is no `div` with a button role.
+- **Parent owns atmosphere (17.6).** The ingest components add no vignette, grain, mist or cursor glow. A parent that adds those layers sets `pointer-events: none` on them and keeps them out of the stacking order above ingest controls. The test parent includes such an overlay to prove it.
+- **No source changes to host (17.5, 17.7).** Components take data and callbacks through props and import no router, layout or screen. `test-parent.tsx` is a 360px-wide wrapper with an atmosphere overlay. The Playwright test renders `IngestFlow` in it, then checks that every control is visible, not covered, and operable.
+
+### Local notes storage (Requirement 18)
+
+**Pure record logic (`packages/core/src/notes-record.ts`)**
+
+`notes-record.ts` holds only the `NotesRecord` type, the `NOTES_SCHEMA_VERSION` constant and the pure helpers `makeNotesRecord` and `parseNotesRecord`. `NotesStore`, the IndexedDB adapter and the in-memory adapter live in `apps/web/src/features/ingest`, because `packages/core` must not touch the DOM or IndexedDB (12.1, 12.2, 18.10).
+
+```ts
+export const NOTES_SCHEMA_VERSION = 1;
+
+export function makeNotesRecord(chunks: readonly Chunk[]): NotesRecord;
+export function parseNotesRecord(value: unknown): Result<NotesRecord, { kind: 'invalid-record' }>;
+```
+
+`makeNotesRecord` takes the chunk list only. It reads `documentDigest` from the chunks (all chunks of one document share it), sets `schemaVersion` to `NOTES_SCHEMA_VERSION` and copies each chunk's fields. Its input type has no field for file bytes or other content, so nothing else can reach the record (18.5). `parseNotesRecord` checks the shape of a value read back from IndexedDB (an object with an integer `schemaVersion`, a string digest and a chunk array whose items have the `Chunk` fields) and returns a typed error for anything else. It does not throw.
+
+**Store interface (`apps/web/src/features/ingest/notes-store.ts`)**
+
+The interface, `createSessionStore`, `notes-store-idb.ts` and `notes-store-memory.ts` are all in `apps/web/src/features/ingest`. They import `NotesRecord` and `Result` from `packages/core`.
+
+```ts
+export interface NotesStore {
+  save(record: NotesRecord): Promise<Result<true, { kind: 'storage-unavailable' }>>;
+  load(documentDigest: string): Promise<Result<NotesRecord | null, { kind: 'storage-unavailable' }>>;
+}
+```
+
+- **IndexedDB adapter (`notes-store-idb.ts`).** Database `escape-the-crypt`, version 1, with one object store `notes` whose `keyPath` is `documentDigest`. `save` uses `put`, so a record with an existing digest is replaced and no second record exists (18.4). The result is `storage-unavailable` when `indexedDB` is undefined, when `open` fails (some private-browsing modes), or when the write transaction fails or aborts, for example on a quota error (18.8). The adapter catches errors and returns the kind only. It never logs the error object, because the error text could contain notes text (18.6).
+- **Memory adapter (`notes-store-memory.ts`).** A `Map` keyed by digest. It is used as the session fallback and in tests.
+- **Session fallback (18.8).** `createSessionStore(primary, fallback)` writes to the primary store and, on a `storage-unavailable` result, writes the same record to the memory store and reports the failure. Either way the chunks are in the session, so the learner can keep going. The flow then announces the `storage-failed` message from the copy catalogue: "We couldn't save your notes on this device, so they'll last only until you close this tab. You can keep going, or try again later." The message states what happened and what the learner can do next (11.4).
+- **Flow (18.1).** On `CONFIRM` the reducer produces the chunks and marks the status `saving`. `ingest-flow.tsx` calls `makeNotesRecord` and `store.save`, then dispatches `SAVE_SUCCEEDED` (lit state, announcement "Notes confirmed and saved on this device") or `SAVE_FAILED` (announcement from `storage-failed`). The reducer stays pure, and the store is injected as a prop, so tests substitute a failing store.
+
+**What is never stored or sent (18.5, 18.6, 18.7)**
+
+- The uploaded PDF `ArrayBuffer` lives only inside the Extraction Worker or client and is dropped on done, cancel or error. It is never passed to a store function, whose type accepts only a `NotesRecord`.
+- The ingest feature has `no-console` as an ESLint error, and logging code paths use error kinds and counts only. A Playwright check enters a sentinel string in the notes, runs the flow, and asserts that no console message contains it.
+- The network guard from the Testing Strategy also covers the confirm step: no cross-origin request, and no request body, occurs after Confirm. The notes record goes to IndexedDB and nowhere else.
+
+**Room for saved crypts without migration (18.3)**
+
+The notes record holds the chunks and nothing about games. A later persistence spec adds saved crypts by bumping the database version to 2 and creating new object stores, for example `crypts`, whose records point at a notes record by `documentDigest`. The upgrade handler for version 2 only calls `createObjectStore` for the new stores and does not read or rewrite the `notes` store, so existing records need no data migration. `schemaVersion` stays 1 until the notes record's own shape has to change. Readers check it before use: a version above the one the reader knows is treated as unreadable and the record is left in place. Adding optional fields later does not require a version change.
 
 ## Data Models
 
@@ -398,7 +555,15 @@ A chunk is immutable. Code uses `readonly` fields and `Object.freeze` at creatio
 
 ### Storage
 
-Confirmed chunks are stored in IndexedDB (`tech.md`). The record holds the chunk list and the document digest. It holds no file bytes. The original PDF is never stored. No ingest content is written to logs or to `.kiro/`.
+Confirmed chunks are stored in IndexedDB (`tech.md`) as a notes record.
+
+| Field | Type | Notes |
+|---|---|---|
+| `schemaVersion` | number | `NOTES_SCHEMA_VERSION` (currently 1) |
+| `documentDigest` | string | Key of the `notes` object store |
+| `chunks` | `Chunk[]` | All chunks of the confirmed document, in position order |
+
+Database `escape-the-crypt`, version 1, object store `notes` with `keyPath: 'documentDigest'`. The record holds no file bytes, no file name and no extra text. The original PDF is never stored. A record with an existing digest is replaced. No ingest content is written to logs or to `.kiro/`. The record never leaves the device in this spec.
 
 ### Digest definition
 
@@ -408,7 +573,7 @@ Confirmed chunks are stored in IndexedDB (`tech.md`). The record holds the chunk
 
 *A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
 
-**Property reflection.** The prework produced many testable criteria. Criteria that overlap were merged: paragraph splitting (1.2, 6.1) became one property. Word-limit checks for paste and PDF (1.3, 3.4) share one function and one property. Size-bound, minimum-size and merge rules (6.11 to 6.16, 13.8) became one chunk-size property. Single-location, boundary and metadata rules (6.4 to 6.7, 6.13, 13.2, 13.9) became one property. Determinism and distinct-ID rules stay separate because they test different inputs. Quote-resolver rules for unique match, offsets and round trip (7.4, 7.10, 13.5) became one property. Banned words in labels and in copy (8.4, 11.2) became one property over all generated strings. Criteria about layout, focus, pdf.js wiring, network and architecture are covered by example, integration or smoke tests in the Testing Strategy.
+**Property reflection.** The prework produced many testable criteria. Criteria that overlap were merged: paragraph splitting (1.2, 6.1) became one property. Word-limit checks for paste and PDF (1.3, 3.4) share one function and one property. Size-bound, minimum-size and merge rules (6.11 to 6.16, 13.8) became one chunk-size property. Single-location, boundary and metadata rules (6.4 to 6.7, 6.13, 13.2, 13.9) became one property. Determinism and distinct-ID rules stay separate because they test different inputs. Quote-resolver rules for unique match, offsets and round trip (7.4, 7.10, 13.5) became one property. Banned words in labels and in copy (8.4, 11.2) became one property over all generated strings. Storage criteria 18.1, 18.2 and 18.9 became one round-trip property. Replacement (18.4) and the failure fallback (18.8) stay separate because they vary different inputs (two chunk sets with one digest, and a failure mode). Criteria about tokens, fonts, contrast, focus, layout, pdf.js wiring, network and architecture (16.x, 17.x, 18.3, 18.5 to 18.7) are covered by example, integration or smoke tests in the Testing Strategy.
 
 ### Property 1: Paste paragraphs split at blank lines
 
@@ -436,7 +601,7 @@ For any start time and current time, the elapsed check passes when the differenc
 
 ### Property 5: Problem messages name the limit and a next step
 
-For any ingest error value (every limit kind, encrypted, unreadable, empty), the rendered message is non-empty, contains a "what happened" part and a "what to do" part, names the specific limit value for limit errors, and refers to "your notes" rather than "the source document".
+For any ingest error value (every limit kind, encrypted, unreadable, empty, storage-unavailable), the rendered message is non-empty, contains a "what happened" part and a "what to do" part, names the specific limit value for limit errors, and refers to "your notes" rather than "the source document".
 
 **Validates: Requirements 3.6, 4.4, 11.3, 11.4**
 
@@ -530,6 +695,24 @@ For any chunk location and edited flag, and for every entry in the copy catalogu
 
 **Validates: Requirements 8.4, 11.2**
 
+### Property 21: Notes record round trip
+
+For any valid non-empty chunk set produced by the Chunker, building a notes record, saving it to the store and loading it back by its document digest produces a record whose chunks are equivalent to the originals, whose `schemaVersion` equals `NOTES_SCHEMA_VERSION`, and whose only fields are `schemaVersion`, `documentDigest` and `chunks`.
+
+**Validates: Requirements 18.1, 18.2, 18.9**
+
+### Property 22: Saving the same digest replaces the record
+
+For any two chunk sets that share a document digest, saving the first and then the second leaves exactly one record under that digest, and loading it returns the second chunk set.
+
+**Validates: Requirements 18.4**
+
+### Property 23: Storage failure keeps notes in the session
+
+For any chunk set and any storage failure (IndexedDB unavailable, open failure, quota or write error), saving through the session store returns a `storage-unavailable` result, the chunks remain loadable from the session's memory store, and the failure is mapped to a message that names what happened and what the learner can do.
+
+**Validates: Requirements 18.8**
+
 ## Error Handling
 
 | Situation | Detection | Result | Learner sees |
@@ -543,6 +726,9 @@ For any chunk location and edited flag, and for every entry in the copy catalogu
 | Encrypted or password-protected PDF | pdf.js password exception | `encrypted` error, worker terminated | Explanation and next step |
 | Corrupt or unreadable PDF | pdf.js parse exception | `unreadable` error | "We couldn't read this file. Try another copy or paste the text." |
 | Low-text or suspicious page | `classifyPage` | Page flagged, not blocked | Icon plus text label, "Remove page" button |
+| IndexedDB unavailable, open fails or a write fails (including quota) | `NotesStore.save` returns `storage-unavailable` | Chunks kept in the in-memory session store; flow continues | "We couldn't save your notes on this device, so they'll last only until you close this tab. You can keep going, or try again later." |
+| Stored record unreadable or from a newer schema version | `parseNotesRecord` returns `invalid-record`, or version above the reader's | Record left in place, not rewritten; treated as absent | Nothing in this spec (no load screen yet) |
+| Font file fails to load | Browser; `font-display: swap` | Fallback font stays | Notes remain readable |
 | Learner cancels | Stop button | Worker terminated, partial results discarded | "Stopped. Nothing from this file was kept." |
 | Nothing to confirm | `canConfirm` false | Confirm disabled | Explanation beside the button |
 | Unknown chunk ID, quote absent, repeated or short | Quote Resolver | Typed `QuoteError` | Not shown to the learner here; later generation sets the question aside |
@@ -567,7 +753,8 @@ The engine is pure, with clear inputs and outputs (text in, chunks out; chunk an
 - Each test carries a comment tag in the form **Feature: ingestion-and-evidence, Property N: <property title>**.
 - Generators in `packages/core/src/test-support/arbitraries.ts`: pasted text with random blank-line runs, words and Unicode; PDF page lists with printed labels or `null`; duplicated paragraphs; very long sentences and single tokens above the chunk limit; chunk texts with line-break hyphens, in-word hyphens, ligatures, curly quotes and decomposed accents; quotes cut from a chunk text at random offsets.
 - `assemblePageText` also gets a property test inside `pdf-text-assembly.test.ts`: for any item list, the output contains every item's non-whitespace characters in order and never contains three consecutive line breaks. This is an extra check, not tied to a numbered property.
-- Tests live beside modules: `chunker.test.ts` (Properties 1, 8 to 12), `limits.test.ts` (2 to 4), `page-checker.test.ts` (6), `quote-resolver.test.ts` (13 to 18), `citation-labeller.test.ts` (19), `copy.test.ts` (5, 20), `ingest-machine.test.ts` (7).
+- Tests live beside modules: `chunker.test.ts` (Properties 1, 8 to 12), `limits.test.ts` (2 to 4), `page-checker.test.ts` (6), `quote-resolver.test.ts` (13 to 18), `citation-labeller.test.ts` (19), `copy.test.ts` (5, 20), `ingest-machine.test.ts` (7), `notes-record.test.ts` and `notes-store.test.ts` (21 to 23).
+- Storage properties use `fake-indexeddb` (a dev dependency) behind the real IndexedDB adapter, so the round trip covers structured cloning. Property 23 injects failing stores (undefined `indexedDB`, rejected `open`, aborted write, quota error). Generators reuse the chunk arbitraries and draw chunk sets that share a digest for Property 22.
 - Tests never call an AI provider (`tech.md`). The engine has no provider.
 
 ### Unit and example tests (Vitest)
@@ -581,6 +768,11 @@ The engine is pure, with clear inputs and outputs (text in, chunks out; chunk an
 - **Constants.** One test asserts the named constants (5 MB, 10 pages, 6,000 words, 20,000 ms, 1,200, 40, 4 words and 20 characters) (3.1, 6.10, 7.11).
 - **Plain-text rendering.** A preview unit containing `<img src=x onerror=alert(1)>` renders as visible text, with no element created (5.7). A lint rule or test rejects `dangerouslySetInnerHTML` in `features/ingest`.
 - **Labels and privacy copy.** The upload screen contains both privacy statements and the words "your notes" (10.1 to 10.3).
+- **Style guard (16.1, 16.2, 16.5, 16.6, 16.11, 16.12, 17.1, 17.2).** `style-guard.test.ts` fails, across all of `apps/web`, on a colour literal outside `tokens.css`, a cross-origin URL (with the SVG namespace string allowed), a Google Fonts host, and any `fonts.css` URL that is not a root-relative `/fonts/*.woff2` path to an existing file. Only under `apps/web/src/features/ingest/**` it also fails on `--candle-400` outside the lit-state selector, any viewport unit, `position: fixed`, a page background, `background-image` or `url(` in ingest styles. A negative test feeds the guard a fixture string for each violation and expects it to fail, so the guard cannot silently pass.
+- **Tokens and contrast (16.7, 16.8).** A unit test parses `tokens.css`, checks that all nine palette variables exist with the `design-system.md` values, and computes the WCAG contrast ratio for each text and surface pair in the colour-role table (at least 4.5:1 body, 3:1 large). It also checks that text on `--parchment-100` uses `--ink-900`.
+- **Fonts and size (16.3, 16.4, 16.9, 16.10).** A Playwright test checks computed `font-family` on a title, the preview, a textarea and a button (the title uses the Title font, the others the Body font), computed `font-size` and `line-height` in a 360px parent (16px, 1.5) and a 1024px parent (18px, 1.5), and that Tab shows a 2px `--spectre-300` outline on each control.
+- **Storage constants and contents (18.3, 18.5, 18.6).** A constants test asserts `NOTES_SCHEMA_VERSION` is a named integer constant. After a PDF flow, a Playwright check reads the `escape-the-crypt` database and asserts that the `notes` store holds only the allowed record fields and contains no `ArrayBuffer`, `Blob` or file name. A console-capture check enters a sentinel string and asserts that no console message contains it. ESLint enforces `no-console` in `features/ingest`.
+- **Storage failure (18.8).** A component test renders the flow with a failing store and checks that the `storage-failed` message appears in the live region and that the flow stays usable.
 - **Edge cases.** Unknown chunk ID (7.7); lone heading that is the only chunk in its page (6.16); last short chunk merges backward (6.14); a single sentence over 1,200 characters (6.15).
 
 ### Accessibility checks
@@ -593,6 +785,8 @@ The engine is pure, with clear inputs and outputs (text in, chunks out; chunk an
 
 - **Worker feasibility spike (2.1, 2.2, 2.7).** The first implementation task. Runs a fixture extraction with the nested-worker and in-thread configurations on Chrome, Firefox and Android Chrome, and records which one works. Cancel via `terminate()` must stop work in each.
 - **Network guarantee (2.4).** A Playwright test observes every request during a fixture PDF extraction. It allows same-origin static asset requests without a body (the self-hosted pdf.js worker and any self-hosted cMap or font files). It fails on any cross-origin request, and on any request that carries a body, during extraction. It also asserts that the extracted text does not appear in any request.
+- **Network guard covers fonts and storage (2.4, 16.5, 16.6, 18.7).** The same Playwright guard stays active from page load through extraction and Confirm. Same-origin `GET /fonts/*.woff2` requests pass. It fails on any cross-origin request (including a Google Fonts host) and on any request with a body, and it asserts that no request after Confirm contains the notes text.
+- **Layout-agnostic harness (17.3 to 17.7).** A Playwright test renders `IngestFlow` inside `test-parent.tsx`, a 360px-wide wrapper with a decorative overlay set to `pointer-events: none` and a parchment background. It checks that every control is visible, is not covered (`elementFromPoint` returns the control), measures at least 44×44px, and works by click and keyboard. A second run at 720px confirms the components fill the width the parent gives. A test also asserts that no `div` or `span` in the ingest output carries a button role (17.4).
 - **PDF actions disabled (2.5).** A smoke test asserts the pdf.js options object has scripting disabled, and a fixture PDF with embedded JavaScript produces no side effect.
 - **Architecture (12.x).** Lint and CI checks: `packages/core` has no imports from React, `pdfjs-dist` or the DOM; no file exceeds 300 lines; file names are kebab-case; shared types live in `types.ts`.
 
@@ -627,3 +821,6 @@ The paste flow runs with the keyboard only, as a second pass, to cover Requireme
 | 13 | Properties 9 to 16 |
 | 14 | Fixture PDF tests, injected clock |
 | 15 | Playwright e2e |
+| 16 | Style guard; tokens and contrast unit test; fonts and size Playwright test; network guard (fonts are same-origin GETs) |
+| 17 | Style guard; layout-agnostic harness at 360px and 720px; native-element test |
+| 18 | Properties 21 to 23; constants test; IndexedDB contents check; console-capture check; network guard; failing-store component test |

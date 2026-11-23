@@ -13,15 +13,19 @@ Built for Kiroween 2026, Costume Contest category: every spooky element must car
 College students and adult learners (18+) revising from short English prose notes and explanatory texts. Not marketed to children. Not for math-heavy, diagram-heavy or scanned material in this version.
 
 ## Core loop
-1. Paste notes or upload a text PDF → editable extraction preview
-2. A background job generates and checks questions; rooms open one at a time as they finish
-3. Play: pick a lock, answer, see the source evidence
-4. Correct → a candle lights (the lock is **solved**)
-5. Wrong → a ghost for that concept appears; it returns later as a different question (two attempts, then **review due**)
-6. Challenge or Skip → the lock is **settled** (excluded from score), replaced by the alternate if one is unused
-7. Final door mixes concepts from all rooms → escape (always possible)
-8. Autopsy report: first-try correct, assisted, retried, challenged, review due
-9. Next visit on this device: review of concepts still due
+The app has two places: the **desk** above (warm, the learner's own study) and the **crypt** below (cold until candles are lit).
+
+1. Title → the camera settles on the desk. The desk holds a stack of books: one per saved crypt on this device
+2. Open a new book to bring notes: paste text or upload a text PDF → editable extraction preview
+3. A background job generates and checks questions; rooms open one at a time as they finish
+4. Blow out the desk candle → descend into the crypt
+5. Play: pick a lock object, answer, see the source evidence
+6. Correct → a candle lights (the lock is **solved**)
+7. Wrong → a ghost for that concept appears; it returns later as a different question (two attempts, then **review due**, shown as a lingering spirit)
+8. Challenge or Skip → the lock is **settled** (excluded from score), replaced by the alternate if one is unused
+9. The final door mixes concepts from all rooms → escape (always possible)
+10. Back at the desk, a quill writes the Autopsy: first-try correct, assisted, retried, challenged, review due
+11. Next visit on this device: the book for that crypt shows the concepts still due for review
 
 ## Six lock types (supported, never a quota)
 Rune cipher (cloze) · Séance board (source-bound choice) · Bone ordering (explicit sequences only) · Bound threads (strict one-to-one matching) · Cursed object (odd one out from an explicit category) · Combination dial (stated numbers or allowlisted formula templates). A document only gets the types its evidence supports.

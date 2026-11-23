@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This spec covers the part of Escape the Crypt that lets a learner bring their own study notes into the game and turn them into immutable, traceable chunks that every later question can cite. It covers, and only covers: paste input, PDF input and page selection, extraction limits, per-page quality flags, the extraction preview with editing, chunking, quote resolution and citation labels.
+This spec covers the part of Escape the Crypt that lets a learner bring their own study notes into the game and turn them into immutable, traceable chunks that every later question can cite. It covers, and only covers: paste input, PDF input and page selection, extraction limits, per-page quality flags, the extraction preview with editing, chunking, quote resolution and citation labels, plus the design tokens and self-hosted fonts, the layout-agnostic Ingest UI, and local notes storage (Requirements 16 to 18).
 
 The following are explicitly out of scope for this spec and are covered elsewhere: question generation, AI calls, model invocation and prompts; gameplay, rooms, locks, scoring and reports; and server-side job processing in `apps/worker`. This spec is concerned only with client-side input, the extraction preview, chunking and quote resolution.
 
@@ -40,7 +40,16 @@ Engine logic (chunking, quote resolution, the limits, page checks and citation l
 - **Maximum extraction time**: a named constant (20 seconds) bounding how long a single extraction may run.
 - **Minimum quote length**: a named constant in `packages/core` (default: 4 words or 20 characters, whichever is longer) bounding the shortest quote the Quote Resolver will search for; shorter quotes return a too-short error without searching.
 - **Maximum chunk size**: a named constant (1,200 characters) bounding the longest chunk the Chunker emits; the Chunker splits chunks that exceed it at sentence boundaries.
-- **Minimum chunk size**: a named constant (40 characters) bounding the shortest standalone chunk the Chunker emits; the Chunker merges chunks shorter than this, such as lone headings, into the following chunk of the same page or paragraph (or into the preceding chunk when the short chunk is last in its page or paragraph).
+- **Minimum chunk size**: a named constant (40 characters) bounding the shortest standalone chunk the Chunker emits; the Chunker merges chunks shorter than this, such as lone headings, into the following chunk of the same page or paragraph (or into the preceding chunk when the short chunk is last in its page or paragraph).- **Design tokens**: the CSS custom properties defined in `apps/web/src/styles/tokens.css` that carry the design-system.md palette: `--stone-950`, `--stone-800`, `--stone-300`, `--bone-50`, `--spectre-300`, `--candle-400`, `--ember-600`, `--parchment-100` and `--ink-900`.
+- **Self-hosted font**: a font shipped as a woff2 file inside the app and loaded from the same origin as the app.
+- **Title font**: Cinzel or Cinzel Decorative, used for titles only.
+- **Body font**: Crimson Pro, used for body text, questions and inputs.
+- **Focus ring**: the visible focus indicator, a 2px solid outline in `--spectre-300` with a positive outline offset.
+- **Lit state**: a success or completed state, the only state in which the Ingest UI uses `--candle-400`.
+- **Parent layout**: any later screen that hosts the Ingest UI components, such as the open book on the desk described in product.md.
+- **Atmosphere layer**: a decorative layer added by a parent layout, such as darkness, vignette, grain, mist or cursor glow.
+- **Notes record**: the IndexedDB record that stores the chunks of one set of confirmed notes on the learner's device, keyed by the document digest.
+- **Schema version**: the `schemaVersion` field of the notes record, an integer that identifies the record's shape.
 
 ## Requirements
 
@@ -204,8 +213,8 @@ Engine logic (chunking, quote resolution, the limits, page checks and citation l
 
 #### Acceptance Criteria
 
-1. THE Engine SHALL implement the Chunker, the Quote Resolver, the Limits Module, the Page Checker and the Citation Labeller as pure, synchronous functions in `packages/core`, with `@noble/hashes` (the synchronous `sha256` function, pinned to an exact version) as the Engine's only runtime dependency.
-2. THE Ingest UI and the Extraction Worker SHALL live in `apps/web`, with the Ingest UI under the `apps/web/src/features/ingest` folder.
+1. THE Engine SHALL implement the Chunker, the Quote Resolver, the Limits Module, the Page Checker and the Citation Labeller as pure, synchronous functions in `packages/core`, with `@noble/hashes` (the synchronous `sha256` function, pinned to an exact version) as the Engine's only runtime dependency. THE Engine SHALL NOT access IndexedDB or the DOM.
+2. THE Ingest UI, the Extraction Worker and the notes record store adapters (including the IndexedDB adapter and the in-memory fallback adapter) SHALL live in `apps/web`, with the Ingest UI under the `apps/web/src/features/ingest` folder.
 3. THE Engine SHALL define shared types for chunks, quotes, page flags and events in `packages/core/src/types.ts`.
 4. THE Engine and the Ingest UI SHALL name source files in kebab-case and SHALL keep each source file at or below 300 lines, splitting files by responsibility.
 
@@ -241,3 +250,53 @@ Engine logic (chunking, quote resolution, the limits, page checks and citation l
 #### Acceptance Criteria
 
 1. THE Test Suite SHALL include a Playwright test that performs paste, preview, edit and confirm, and SHALL verify that the resulting chunks carry the correct edited flags and citation labels.
+
+### Requirement 16: Design tokens and self-hosted fonts
+
+**User Story:** As a learner, I want the ingest screens to look like the rest of the crypt and stay readable, so that I can read and edit my notes comfortably and trust that nothing is fetched from other sites.
+
+#### Acceptance Criteria
+
+1. THE Ingest UI SHALL take every colour value from the design tokens defined in `apps/web/src/styles/tokens.css`.
+2. THE Ingest UI SHALL define no colour literal outside `apps/web/src/styles/tokens.css`.
+3. THE Ingest UI SHALL set title text in the Title font and SHALL set body text, preview text and inputs in the Body font.
+4. THE Ingest UI SHALL NOT set questions, options, preview text or inputs in the Title font.
+5. THE Ingest UI SHALL ship the Title font and the Body font as self-hosted woff2 files and SHALL load them from the same origin as the app.
+6. THE Ingest UI SHALL NOT request a font or any other asset from a Google Fonts CDN or from any other origin, so that the network guarantee in Requirement 2 criterion 4 holds.
+7. THE Ingest UI SHALL render body text with a contrast ratio of at least 4.5:1 against its actual background, and SHALL render large text with a contrast ratio of at least 3:1 against its actual background.
+8. WHERE text is placed on `--parchment-100`, THE Ingest UI SHALL colour the text with `--ink-900`.
+9. THE Ingest UI SHALL render body text at a size of at least 18px on desktop viewports and at least 16px on mobile viewports, with a line-height of 1.5.
+10. WHEN an interactive element receives keyboard focus, THE Ingest UI SHALL show the focus ring on that element.
+11. THE Ingest UI SHALL use `--candle-400` only to indicate a lit state.
+12. THE Test Suite SHALL include a test that fails when any stylesheet or component under `apps/web` contains a colour literal outside `apps/web/src/styles/tokens.css` or a reference to an origin other than the app's own, and SHALL include a test that fails when any file under `apps/web/src/features/ingest` uses viewport units, `position: fixed`, a page background or background art. The colour-literal and cross-origin checks apply app-wide to `apps/web`; the layout checks apply only to `apps/web/src/features/ingest`.
+
+### Requirement 17: Composable, layout-agnostic Ingest UI
+
+**User Story:** As a builder, I want the ingest components to carry no screen layout of their own, so that a later screen can place them inside the open book on the desk without rewriting them.
+
+#### Acceptance Criteria
+
+1. THE Ingest UI SHALL style its components using the design tokens only.
+2. THE Ingest UI SHALL NOT set a fixed screen layout, a viewport-based size (including viewport units), `position: fixed`, a page background or background art on any ingest component. This criterion applies only to files under `apps/web/src/features/ingest`; later desk and crypt screens outside that folder may use full-screen layers and fixed overlays.
+3. THE Ingest UI SHALL size each ingest component to the width and height that a parent layout gives the component.
+4. THE Ingest UI SHALL build its controls from native `button`, `input`, `textarea` and `form` elements.
+5. WHEN a parent layout renders an ingest component, THE Ingest UI SHALL function without changes to the ingest component's source.
+6. WHERE a parent layout adds an atmosphere layer, THE Ingest UI SHALL remain fully lit and readable, and the parent layout SHALL set `pointer-events: none` on the atmosphere layer so that the layer does not cover an ingest control.
+7. THE Test Suite SHALL include a test that renders the ingest components inside a minimal test parent layout with a width of 360px and verifies that every ingest control is visible and operable.
+
+### Requirement 18: Local notes storage shape
+
+**User Story:** As a learner, I want my confirmed notes kept only on my device in a shape that later features can build on, so that my notes stay private and saved crypts can be added later without losing my data.
+
+#### Acceptance Criteria
+
+1. WHEN the learner confirms the preview, THE Ingest UI SHALL store the chunks in a notes record in IndexedDB, keyed by the document digest.
+2. THE Ingest UI SHALL include a schema version field named `schemaVersion` in each notes record.
+3. THE Engine SHALL define the current schema version as a named constant in `packages/core`, so that a later persistence spec can add saved crypts without a data migration of existing notes records.
+4. WHEN the learner confirms notes whose document digest matches an existing notes record, THE Ingest UI SHALL replace that notes record and SHALL NOT create a second record.
+5. THE Ingest UI SHALL NOT store the bytes of an uploaded PDF file in the notes record or anywhere else on the device.
+6. THE Ingest UI SHALL NOT write the text of your notes to console logs, error reports or any other log.
+7. THE Ingest UI SHALL keep the notes record on the learner's device and SHALL NOT send the notes record to any server.
+8. IF IndexedDB is unavailable or a write fails, THEN THE Ingest UI SHALL keep the chunks in memory for the current session and SHALL tell the learner that the notes could not be saved on this device and what the learner can do next.
+9. FOR ALL valid sets of chunks, writing a notes record and then reading the notes record by its document digest SHALL produce an equivalent set of chunks (round-trip property).
+10. THE Engine SHALL hold only the notes record type, the schema version constant and pure helper functions for the notes record in `packages/core`, and the store adapters that read and write IndexedDB SHALL live in `apps/web`.

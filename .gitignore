@@ -165,3 +165,6 @@ vite.config.ts.timestamp-*
 eval/holdout/
 
 # DO NOT add .kiro here — the rules require it to be public
+# playwright
+playwright-report/
+test-results/

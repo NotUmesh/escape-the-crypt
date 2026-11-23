@@ -1,30 +1,31 @@
-﻿# Implementation Plan: Ingestion and Evidence
+# Implementation Plan: Ingestion and Evidence
 
 ## Overview
 
-The design uses TypeScript (strict mode, Node 22, pnpm workspaces, Vitest, fast-check, Playwright, axe), so no language choice is needed. The plan starts with scaffolding the workspace (packages, tooling, CI), then the pdf.js worker feasibility spike, then builds the pure engine in `packages/core` (limits, page checker, PDF text assembly, chunker, quote resolver, citation labeller, copy), then the Extraction Worker and Ingest UI in `apps/web/src/features/ingest`, then the integration, accessibility and Playwright tests. Source files use kebab-case names and stay at or below 300 lines. Tests never call an AI provider.
+The design uses TypeScript (strict mode, Node 22, pnpm workspaces, Vitest, fast-check, Playwright, axe), so no language choice is needed. The plan starts with scaffolding the workspace (packages, tooling, CI), then the pdf.js worker feasibility spike, then builds the pure engine in `packages/core` (limits, page checker, PDF text assembly, chunker, quote resolver, citation labeller, copy). It then adds the Extraction Worker, the ingest state machine, the design tokens and self-hosted fonts, and the Ingest UI in `apps/web/src/features/ingest`. The Ingest UI is built from native elements styled only with tokens and carries no layout of its own, so a later open-book screen can host it unchanged. Confirmed chunks are saved as a notes record in IndexedDB, keyed by document digest. The plan ends with the integration, accessibility and Playwright tests. Source files use kebab-case names and stay at or below 300 lines. Tests never call an AI provider.
 
 All test tasks are required and part of done. Property tests for one module are split across small test files so that each property is its own sub-task and files can be written in parallel.
 
 ## Tasks
 
 - [ ] 0. Scaffold the workspace
-  - [ ] 0.1 Create the root workspace and shared TypeScript and lint config
+  - [x] 0.1 Create the root workspace and shared TypeScript and lint config
     - Create root `package.json` (private, Node 22 engines, scripts `dev`, `test`, `lint`, `typecheck`, `e2e`) and `pnpm-workspace.yaml` covering `apps/*` and `packages/*`
     - Create `tsconfig.base.json` with `strict` on, `noUncheckedIndexedAccess`, and no implicit `any`
     - Add ESLint (flat config, typescript-eslint) at the root with `no-explicit-any`, `no-eval`, `no-new-func` and `no-restricted-syntax` for `dangerouslySetInnerHTML` under `apps/web/src/features/ingest`
     - _Requirements: 12.1, 12.4_
 
-  - [ ] 0.2 Create the three workspace packages
-    - `apps/web`: Vite + React + TypeScript with a minimal `src/main.tsx` and `src/features/` folder, extending `tsconfig.base.json`
-    - `apps/worker`: empty Node TypeScript package with a `src/index.ts` placeholder and its own `tsconfig.json`
-    - `packages/core`: TypeScript library with `src/index.ts` and its own `tsconfig.json`, with no React, DOM or AI SDK dependency
+  - [x] 0.2 Create the three workspace packages
+    - `apps/web` (package name `@escape-the-crypt/web`): Vite + React + TypeScript with a minimal `src/main.tsx` and `src/features/` folder, extending `tsconfig.base.json`
+    - `apps/worker` (package name `@escape-the-crypt/worker`): empty Node TypeScript package with a `src/index.ts` placeholder and its own `tsconfig.json`
+    - `packages/core` (package name `@escape-the-crypt/core`): TypeScript library with `src/index.ts` and its own `tsconfig.json`, with no React, DOM or AI SDK dependency
+    - Use these names in every `pnpm --filter` command and in cross-package imports (for example `apps/web` depends on `@escape-the-crypt/core`)
     - Each package exposes `typecheck` and `test` scripts so root `pnpm -r` commands work
     - _Requirements: 12.1, 12.4_
 
-  - [ ] 0.3 Configure Vitest and Playwright
-    - Add a Vitest config (workspace projects for `packages/core` in Node and `apps/web` in jsdom) with one trivial passing test per package so the pipeline is green
-    - Add `apps/web/playwright.config.ts` with three projects: Chromium, Firefox and a Pixel emulation (Android Chrome profile), starting the Vite preview server as `webServer`
+  - [x] 0.3 Configure Vitest and Playwright
+    - Add a Vitest config (workspace projects for `packages/core` in Node and `apps/web` in jsdom) with one trivial passing test per package so the pipeline is green. Configure Vitest to exclude `**/e2e/**` and `**/*.e2e.ts` so it never picks up Playwright tests
+    - Add `apps/web/playwright.config.ts` with `testDir: './e2e'` and `testMatch: '**/*.e2e.ts'` (so Playwright never picks up `*.test.ts` files) and three projects: Chromium, Firefox and a Pixel emulation (Android Chrome profile), starting the Vite preview server as `webServer`
     - _Requirements: 12.4_
 
   - [ ] 0.4 Add the GitHub Actions workflow
@@ -42,14 +43,14 @@ All test tasks are required and part of done. Property tests for one module are 
     - Self-host the pdf.js worker file under `apps/web/public` so it is served from the same origin
     - Create a tiny fixture PDF and a spike page under `apps/web/src/features/ingest/spike/` that extracts its text in two configurations: nested pdf.js worker inside the Extraction Worker, and in-thread (fake worker) mode inside the Extraction Worker
     - Set `enableScripting: false`, give no password callback, and disable cMap and standard-font fetching
-    - Add a Playwright spike test with Chromium, Firefox and a Pixel emulation project (configured in task 0.3) that checks text comes back, `terminate()` stops work, and no cross-origin request is made
+    - Add a Playwright spike test at `apps/web/e2e/pdfjs-spike.e2e.ts` with Chromium, Firefox and a Pixel emulation project (configured in task 0.3) that checks text comes back, `terminate()` stops work, and no cross-origin request is made
     - _Requirements: 2.1, 2.2, 2.4, 2.5, 2.7_
 
   - [ ] 1.2 Run the spike and record the decision
     - Run the spike test and record, in `docs/build-log.md`, which configuration works on Chrome, Firefox and Android Chrome (emulated here; note that a real-device check is still manual)
     - If neither configuration works on all three, record the main-thread fallback with `loadingTask.destroy()`, document destroy and pdf.js worker termination on cancel or timeout
     - Record the chosen mode in a single exported constant that `extraction-client.ts` will read
-    - After recording the decision, delete the spike page and harness under `apps/web/src/features/ingest/spike/`; keep only the Playwright spike test if it is still useful as a regression check, and update it so it no longer depends on deleted files
+    - After recording the decision, delete the spike page and harness under `apps/web/src/features/ingest/spike/`; keep only the Playwright spike test (`apps/web/e2e/pdfjs-spike.e2e.ts`) if it is still useful as a regression check, and update it so it no longer depends on deleted files
     - _Requirements: 2.1, 2.2, 2.3, 2.7, 3.5_
 
 - [ ] 2. Core foundations: types, limits, shared test generators
@@ -225,9 +226,11 @@ All test tasks are required and part of done. Property tests for one module are 
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 8. Create the first Kiro hook
-  - Create `.kiro/hooks/core-tests-on-edit.json` with `version` `v1` and a `hooks` array holding one hook: `name` "Run core tests after edits", `trigger` `PostToolUse`, `matcher` `fs_write|fs_append|str_replace`, and `action` of type `command` that runs `node .kiro/hooks/run-core-tests.mjs`
-  - The `PostToolUse` matcher is tested against the tool name only, so the path filter lives in the script: create `.kiro/hooks/run-core-tests.mjs`, which reads the JSON from stdin, exits 0 without output unless the edited file path is under `packages/core/src`, and otherwise runs `pnpm --filter core test --run` and exits with that command's status
-  - Confirm the hook JSON matches the hook schema and that the script writes no logs or user content under `.kiro/`
+  - Create the hook with Kiro's `createHook` tool (or the Agent Hooks UI). Whatever file name and format it produces is correct; do not hard-code a file name or write the hook JSON by hand
+  - The hook is named "Run core tests on save", triggers on save of files under `packages/core/src` (a `PostFileSave` trigger whose matcher accepts both `/` and `\` path separators, for example `packages[/\\]core[/\\]src[/\\]`), and runs the command `node .kiro/hooks/run-core-tests.mjs`
+  - `PostFileSave` matchers are tested against the saved file path, so the matcher already limits the hook to `packages/core/src`. Record the file name that was produced in `docs/build-log.md`
+  - Create `.kiro/hooks/run-core-tests.mjs`: it runs `pnpm --filter @escape-the-crypt/core test --run` and exits with that command's status. It reads stdin defensively: if there is no stdin, stdin is empty, the JSON does not parse, or the JSON has no file path, it RUNS the tests. It exits 0 early without running anything only when a file path is present and that path is outside `packages/core/src` (treating `/` and `\` alike)
+  - Confirm the generated hook file loads in Kiro and that the script writes no logs or user content under `.kiro/`
   - Add a short entry to `docs/build-log.md` noting the hook, its trigger, and that CI remains the release gate while the hook is fast feedback only
   - _Requirements: 12.1_
 
@@ -247,7 +250,8 @@ All test tasks are required and part of done. Property tests for one module are 
     - _Requirements: 2.2, 2.3, 2.6, 2.7, 3.2, 3.5_
 
   - [ ] 9.3 Create fixture PDFs
-    - Add a generator script and small fixtures under `apps/web/src/features/ingest/fixtures/`: a PDF padded just over 5 MB, an 11-page PDF, a PDF over 6,000 words, an `ok` prose page, an image-only page, a garbled and table-like page, an encrypted PDF, a PDF with embedded JavaScript, and a three-paragraph PDF with a hyphenated word break ("exam-" then "ple")
+    - Add a generator script and small fixtures under `apps/web/src/features/ingest/fixtures/`: a PDF padded just over 5 MB, an 11-page PDF, a PDF over 6,000 words, an `ok` prose page, an image-only page, a garbled and table-like page, a PDF with embedded JavaScript, and a three-paragraph PDF with a hyphenated word break ("exam-" then "ple")
+    - The encrypted PDF is not produced by the generator script, because pdf-lib cannot encrypt PDFs. Commit a small pre-made encrypted PDF, generated once with a tool that supports encryption (for example `qpdf --encrypt user owner 256 -- in.pdf out.pdf`), and note the tool and exact command in a fixtures `README.md` in the same folder
     - _Requirements: 14.1, 14.2_
 
   - [ ] 9.4 Write limit tests with fixture PDFs and an injected clock
@@ -268,7 +272,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - With a mocked worker: Stop, timeout and error each terminate it, and the page choice is sent before `start`
     - _Requirements: 2.2, 2.3, 2.6, 2.7, 4.4_
 
-- [ ] 10. Ingest state machine
+- [ ] 10. Ingest state machine, design tokens and fonts
   - [ ] 10.1 Implement the state machine
     - Create `apps/web/src/features/ingest/ingest-machine.ts`: reducer with `PASTE_CHANGED`, `FILE_SELECTED`, `PAGES_CHOSEN`, `EXTRACTION_PAGE`, `EXTRACTION_ERROR`, `CANCEL`, `PAGE_REMOVED`, `TEXT_EDITED`, `CONFIRM`
     - Hold ingest units (original text, current text, flag, included), status and the latest announcement
@@ -281,39 +285,78 @@ All test tasks are required and part of done. Property tests for one module are 
     - Unit tests for removing a page, an over-limit paste message, and cancel discarding partial results
     - **Validates: Requirements 5.6**
 
+  - [ ] 10.3 Create the design tokens and self-hosted fonts
+    - Create `apps/web/src/styles/tokens.css` with the palette from `.kiro/steering/design-system.md` on `:root`: `--stone-950`, `--stone-800`, `--stone-300`, `--bone-50`, `--spectre-300`, `--candle-400`, `--ember-600`, `--parchment-100` and `--ink-900`. Add the font variables `--font-title` (Cinzel, Cinzel Decorative, serif) and `--font-body` (Crimson Pro, EB Garamond, serif) and the focus variables `--focus-ring` (2px solid `--spectre-300`) and `--focus-offset`. This is the only file in the app that may contain colour literals
+    - Create `apps/web/src/styles/fonts.css` with `@font-face` rules, `font-display: swap`, whose `src` values are root-relative `/fonts/*.woff2` paths. Import `tokens.css` and `fonts.css` once from the app entry (`apps/web/src/main.tsx`)
+    - Add the woff2 files under `apps/web/public/fonts/`: Cinzel and Cinzel Decorative for titles only, and Crimson Pro for body text, with each family's SIL OFL license file next to its font files, and list the fonts and licenses in `ASSETS.md`
+    - Download the woff2 files once during development (from the `@fontsource` packages or the google/fonts repository) and commit them to the repository. The app never fetches fonts from another origin, at build time or run time, and does not use the Google Fonts CDN, so the network guarantee test in task 12.1 still passes (font files are same-origin `GET` requests)
+    - Add a base ingest rule set in `apps/web/src/features/ingest/ingest-base.css` that uses tokens only: `font-family: var(--font-body)` on body text, `inherit` on `button` and `input`, root `container-type: inline-size` with 16px text and line-height 1.5 raised to 18px by a `@container (min-width: 40rem)` rule, and a single `:focus-visible` rule using `--focus-ring` and `--focus-offset`
+    - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.9, 16.10_
+
+  - [ ] 10.4 Write the token, contrast and style-guard tests
+    - File: `apps/web/src/styles/tokens.test.ts`: parse `tokens.css`, check all nine palette variables exist with the `design-system.md` values, compute the WCAG contrast ratio for each text and surface pair in the design's colour-role table (at least 4.5:1 for body text, 3:1 for large text), and check text on `--parchment-100` uses `--ink-900`
+    - File: `apps/web/src/features/ingest/style-guard.test.ts` with two scan scopes, because later desk and crypt screens outside the ingest folder need full-screen layers and fixed overlays
+    - App-wide scope: scan every `.css`, `.tsx` and `.ts` file under `apps/web` (including `fonts.css`) and fail on a colour literal outside `apps/web/src/styles/tokens.css` (hex, `rgb(`, `rgba(`, `hsl(`, `hsla(`, `hwb(`, `lab(`, `lch(`, `oklab(`, `oklch(`, `color(`, or a named colour as a colour value), a cross-origin URL (allow only the SVG namespace string), a Google Fonts host, and any `fonts.css` URL that is not a root-relative `/fonts/*.woff2` path to an existing file
+    - Ingest-only scope: scan only `.css`, `.tsx` and `.ts` files under `apps/web/src/features/ingest/**` and fail on any viewport unit (`vw`, `vh`, `dvh`, `svh`), `position: fixed`, a page-level `background`, `background-image` or `url(` in ingest styles, and `--candle-400` used outside a lit-state selector. Files outside `features/ingest` are never subject to these checks
+    - Add negative tests that feed the guard one fixture string per violation and expect it to fail, so the guard cannot pass silently. Scope-aware cases: a colour literal, a cross-origin URL and a Google Fonts host fail wherever they appear under `apps/web` (except a colour literal inside `tokens.css`); a `position: fixed` (and a viewport unit, `background-image`, `--candle-400` outside a lit-state selector) fixture placed outside `features/ingest` passes, and the same fixture placed inside `features/ingest` fails
+    - Run the scan over the finished ingest components, so schedule this after the UI tasks
+    - _Requirements: 16.1, 16.2, 16.5, 16.6, 16.7, 16.8, 16.11, 16.12, 17.1, 17.2_
+
 - [ ] 11. Ingest UI
   - [ ] 11.1 Build the privacy notice, paste input and live announcer
-    - Create `privacy-notice.tsx`, `paste-input.tsx` (labelled native `textarea` with a word counter) and `live-announcer.tsx` (visually hidden polite live region) under `apps/web/src/features/ingest/`
-    - Take all text from the copy catalogue; the notice states the file stays on the device and only confirmed text is sent later
-    - _Requirements: 1.1, 1.3, 9.3, 10.1, 10.2, 10.3_
+    - Create `privacy-notice.tsx`, `paste-input.tsx` (labelled native `textarea` with a word counter) and `live-announcer.tsx` (visually hidden polite live region) under `apps/web/src/features/ingest/`, each with its own small CSS file
+    - Style only with the design tokens from task 10.3. Set no fixed layout, no viewport units, no page background and no background art. Each component draws its own surface and takes the width and height its parent gives it, so a later open-book parent can host it without changes to the component
+    - Use native `textarea`, `label` and `form` elements and take all text from the copy catalogue; the notice states the file stays on the device and only confirmed text is sent later
+    - Set title text in the Title font and body text and inputs in the Body font
+    - _Requirements: 1.1, 1.3, 9.3, 10.1, 10.2, 10.3, 16.1, 16.3, 16.4, 17.1, 17.2, 17.3, 17.4, 17.5_
 
   - [ ] 11.2 Build the PDF picker and page list
-    - Create `pdf-picker.tsx` (native file input, size check, page checkboxes stopping at 10 with a message, Stop button during extraction) and `page-list.tsx` (flag icon plus text label, "Remove page" button on flagged pages)
-    - Use native controls, 44x44 px hit areas, a visible 2px focus outline and no drag interactions
-    - _Requirements: 2.3, 2.6, 3.2, 3.3, 4.5, 4.6, 9.1, 9.2, 9.5, 9.6, 9.7_
+    - Create `pdf-picker.tsx` (native file input, size check, page checkboxes stopping at 10 with a message, Stop button during extraction) and `page-list.tsx` (flag icon plus text label, "Remove page" button on flagged pages), each with its own small CSS file
+    - Style only with the design tokens. Set no fixed layout, no viewport units, no page background and no background art, and size to the space the parent gives. Use native `button`, `input` and `label` elements and compose cleanly inside a later open-book parent
+    - Use 44x44 px hit areas, the shared token focus ring and no drag interactions
+    - _Requirements: 2.3, 2.6, 3.2, 3.3, 4.5, 4.6, 9.1, 9.2, 9.5, 9.6, 9.7, 16.10, 17.1, 17.2, 17.3, 17.4, 17.5_
 
   - [ ] 11.3 Build the preview editor
-    - Create `preview-editor.tsx`: one native `textarea` per page or paragraph, rendered as plain React text with no `dangerouslySetInnerHTML`
-    - Show the Confirm button disabled with an adjacent explanation when `canConfirm` is false
-    - _Requirements: 5.1, 5.2, 5.5, 5.6, 5.7, 9.1, 9.4_
+    - Create `preview-editor.tsx` with its own small CSS file: one native `textarea` per page or paragraph, rendered as plain React text with no `dangerouslySetInnerHTML`
+    - Draw the preview on a `--parchment-100` surface with `--ink-900` text, in the Body font, and show the Confirm button disabled with an adjacent explanation when `canConfirm` is false
+    - Style only with the design tokens. Set no fixed layout, no viewport units, no page background and no background art, and use native `button` and `textarea` elements so the editor composes inside a later open-book parent
+    - _Requirements: 5.1, 5.2, 5.5, 5.6, 5.7, 9.1, 9.4, 16.3, 16.4, 16.8, 17.1, 17.2, 17.3, 17.4, 17.5_
 
-  - [ ] 11.4 Wire the flow and storage
-    - Create `ingest-flow.tsx` connecting the components to the state machine and the Extraction Client, and an IndexedDB store that saves chunks and digest only (no file bytes, no logs of notes)
-    - Add the Ingest screen route in `apps/web` and announce page flag set, page removed, text edited and notes confirmed
-    - _Requirements: 2.3, 4.5, 5.5, 9.3, 12.2_
+  - [ ] 11.4 Wire the flow and local notes storage
+    - In `packages/core` (pure, no DOM, no IndexedDB): create `packages/core/src/notes-record.ts` holding ONLY the `NotesRecord` type, the `NOTES_SCHEMA_VERSION` constant (1) and the pure helpers `makeNotesRecord(chunks)` and `parseNotesRecord(value)`. The record has only `schemaVersion`, `documentDigest` and `chunks`, and `parseNotesRecord` returns a typed error and never throws. Define `NotesRecord` in `types.ts` if task 2.1 did not already, and export the new module from `packages/core/src/index.ts`. `NotesStore`, `createSessionStore` and both adapters do NOT go in `packages/core`, because core must not touch the DOM or IndexedDB
+    - In `apps/web/src/features/ingest/` (all store code lives here and imports `NotesRecord` and `Result` from `@escape-the-crypt/core`): create `notes-store.ts` (the `NotesStore` interface, the `storage-unavailable` result and `createSessionStore(primary, fallback)`), `notes-store-idb.ts` (the IndexedDB adapter) and `notes-store-memory.ts` (the in-memory adapter). The IndexedDB adapter uses database `escape-the-crypt`, version 1, object store `notes` with `keyPath: 'documentDigest'` and `put`, so a record with the same digest is replaced. It catches errors and returns the kind only, without logging the error object
+    - Create `ingest-flow.tsx` connecting the components to the state machine, the Extraction Client and the store (passed in as a prop). On Confirm it builds the record with `makeNotesRecord` and saves it. If the save fails, it keeps the chunks in the in-memory store for the session and announces the `storage-failed` message from the copy catalogue (add that message to `copy.ts` with `what` and `next` parts). It announces page flag set, page removed, text edited and notes confirmed
+    - Never store the PDF bytes or file name, never write the text of your notes to console logs or error reports, and never send the notes record to a server. Add `no-console` as an error for `features/ingest` in the ESLint config
+    - `ingest-flow.tsx` has no fixed layout, no viewport units, no page background and no background art, imports no router or layout, and takes everything through props, so a later open-book screen can host it unchanged. Add the Ingest screen route in `apps/web`
+    - _Requirements: 2.3, 4.5, 5.5, 9.3, 12.2, 17.2, 17.5, 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8, 18.10_
 
-  - [ ] 11.5 Write component tests
+  - [ ] 11.5 Write component and layout tests
     - File: `apps/web/src/features/ingest/ingest-ui.test.tsx`
     - Preview text such as `<img src=x onerror=alert(1)>` renders as visible text with no element created; a check rejects `dangerouslySetInnerHTML` in `features/ingest`
-    - Flags show an icon and text; live-region announcements appear after remove, edit and confirm; targets measure at least 44x44 px; no action needs drag
+    - Flags show an icon and text; live-region announcements appear after remove, edit and confirm; no action needs drag (the 44x44 px target-size check is not done here, because jsdom has no layout; it is in the Playwright layout test below)
     - The upload screen contains both privacy statements and "your notes"
-    - _Requirements: 4.6, 5.7, 9.3, 9.5, 9.6, 9.7, 10.1, 10.2, 10.3_
+    - No `div` or `span` in the ingest output carries a button role (native elements only)
+    - Create `apps/web/src/features/ingest/test-parent.tsx` (it stays in `src`; the e2e file imports or loads it as needed): a minimal 360px-wide parent layout with a parchment background and a decorative atmosphere overlay set to `pointer-events: none`. File: `apps/web/e2e/ingest-layout.e2e.ts` renders `IngestFlow` in the test parent and checks that every control is visible, is not covered (`elementFromPoint` returns the control), measures at least 44x44 px (the target-size check lives here, not in the jsdom test), and works by click and keyboard. Repeat at 720px to confirm the components fill the width the parent gives
+    - Playwright style check in the same file: computed `font-family` on a title, the preview, a textarea and a button; computed `font-size` and `line-height` at 360px (16px, 1.5) and at a 1024px parent (18px, 1.5); and a 2px `--spectre-300` outline after Tab on each control
+    - _Requirements: 4.6, 5.7, 9.3, 9.5, 9.6, 9.7, 10.1, 10.2, 10.3, 16.3, 16.4, 16.9, 16.10, 17.3, 17.4, 17.5, 17.6, 17.7_
+
+  - [ ] 11.6 Write storage property tests and the console-capture check
+    - File: `packages/core/src/notes-record.test.ts`: unit tests that `NOTES_SCHEMA_VERSION` is a named integer constant, that `makeNotesRecord` output has only `schemaVersion`, `documentDigest` and `chunks`, and that `parseNotesRecord` rejects malformed values without throwing
+    - File: `apps/web/src/features/ingest/notes-store.test.ts`, using `fake-indexeddb` (add it as a dev dependency of `apps/web`) behind the real IndexedDB adapter:
+      - **Property 21: Notes record round trip**
+      - **Property 22: Saving the same digest replaces the record**
+      - **Property 23: Storage failure keeps notes in the session**
+      - Property 23 injects failures: undefined `indexedDB`, a rejected `open`, an aborted write and a quota error
+    - File: `apps/web/e2e/ingest-storage.e2e.ts`: enter a sentinel string in the notes, run the paste flow and confirm, then assert that no console message contains the sentinel, that the `notes` store holds only the allowed record fields with no `ArrayBuffer`, `Blob` or file name, and that no request after Confirm leaves the origin or carries the notes text. Add a component test that renders the flow with a failing store and checks the `storage-failed` message appears in the live region and the flow stays usable
+    - **Validates: Requirements 18.1, 18.2, 18.4, 18.8, 18.9**
+    - _Requirements: 18.2, 18.3, 18.5, 18.6, 18.7_
 
 - [ ] 12. Integration, end-to-end and structure checks
   - [ ] 12.1 Write the network guarantee test
     - File: `apps/web/e2e/ingest-network.e2e.ts`
     - During a fixture PDF extraction, allow same-origin GETs without a body, and fail on any cross-origin request, any request with a body, or any request containing extracted text
-    - _Requirements: 2.4_
+    - Same-origin `GET /fonts/*.woff2` requests are allowed, because the self-hosted fonts are same-origin static files; a request to Google Fonts or any other origin must still fail the test
+    - _Requirements: 2.4, 16.5, 16.6_
 
   - [ ] 12.2 Write the PDF actions smoke test
     - File: `apps/web/src/features/ingest/extraction-actions.test.ts`
@@ -321,7 +364,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - _Requirements: 2.5_
 
   - [ ] 12.3 Write the Playwright paste flow test with axe
-    - File: `apps/web/src/features/ingest/ingest.e2e.ts`
+    - File: `apps/web/e2e/ingest.e2e.ts`
     - Paste three paragraphs of at least 40 characters, check Confirm is disabled and explained while empty, check the preview shows plain text, edit paragraph 2, confirm
     - Read stored chunks: only chunk 2 has `edited: true`; labels read "Paragraph 1 of your notes", "Paragraph 2 of your notes", "Paragraph 3 of your notes"
     - Repeat the flow with keyboard only, and run axe on the upload, page-list and preview screens
@@ -342,6 +385,11 @@ All test tasks are required and part of done. Property tests for one module are 
 - Checkpoints ensure incremental validation
 - Property tests validate universal correctness properties; unit tests validate examples and edge cases
 - The spike (task 1) decides the pdf.js mode; if it selects the main-thread fallback, tasks 9.1 and 9.2 implement the fallback contract from the design
+- Task 10.3 creates the tokens and self-hosted fonts that every Ingest UI task in task 11 depends on; `tokens.css` is the only file allowed to contain colour literals
+- Fonts are same-origin static files, so the network guarantee test in task 12.1 allows them and still fails on any cross-origin request
+- Ingest components carry no layout of their own and use native elements and tokens only, so a later open-book screen can host them unchanged
+- The notes record is `{ schemaVersion, documentDigest, chunks }` in IndexedDB, keyed by digest; saved crypts are a later spec and need no migration of existing records
+- The hook in task 8 is fast feedback only; CI stays the release gate
 - A real Android Chrome device check and a manual keyboard, zoom and screen reader pass remain manual steps outside this task list
 
 ## Task Dependency Graph
@@ -360,10 +408,10 @@ All test tasks are required and part of done. Property tests for one module are 
     { "id": 8, "tasks": ["2.3", "2.4", "2.5", "3.2", "3.4", "4.2", "5.2", "6.2"] },
     { "id": 9, "tasks": ["4.3", "4.4", "4.5", "4.6", "4.7", "4.8", "4.9", "5.3", "5.4", "5.5", "5.6", "5.7", "5.8", "5.9", "6.3", "6.4", "6.5"] },
     { "id": 10, "tasks": ["7"] },
-    { "id": 11, "tasks": ["8", "9.1", "9.3", "10.1", "11.1"] },
-    { "id": 12, "tasks": ["9.2", "10.2", "11.2", "11.3"] },
+    { "id": 11, "tasks": ["8", "9.1", "9.3", "10.1", "10.3"] },
+    { "id": 12, "tasks": ["9.2", "10.2", "11.1", "11.2", "11.3"] },
     { "id": 13, "tasks": ["9.4", "9.5", "9.6", "11.4"] },
-    { "id": 14, "tasks": ["11.5", "12.1", "12.2", "12.3", "12.4"] },
+    { "id": 14, "tasks": ["10.4", "11.5", "11.6", "12.1", "12.2", "12.3", "12.4"] },
     { "id": 15, "tasks": ["13"] }
   ]
 }
