@@ -638,6 +638,18 @@
         "chatSessionId": "sess_f50d9afd-ef9e-43e6-93ae-34991de6757d",
         "timestamp": 1795463690501
       }
+    ],
+    "9.4 Write limit tests with fixture PDFs and an injected clock": [
+      {
+        "executionId": "b0942e03-85c1-4cf9-91d3-ccad28fd148a",
+        "chatSessionId": "sess_bf650fae-ace2-45dd-aeeb-3a0f73e57c0b",
+        "timestamp": 1795464585425
+      },
+      {
+        "executionId": "b0942e03-85c1-4cf9-91d3-ccad28fd148a",
+        "chatSessionId": "sess_bf650fae-ace2-45dd-aeeb-3a0f73e57c0b",
+        "timestamp": 1795464688667
+      }
     ]
   }
 }

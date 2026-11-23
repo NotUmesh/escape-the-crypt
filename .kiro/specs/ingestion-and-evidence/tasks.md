@@ -256,7 +256,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - The encrypted PDF is not produced by the generator script, because pdf-lib cannot encrypt PDFs. Commit a small pre-made encrypted PDF, generated once with a tool that supports encryption (for example `qpdf --encrypt user owner 256 -- in.pdf out.pdf`), and note the tool and exact command in a fixtures `README.md` in the same folder
     - _Requirements: 14.1, 14.2_
 
-  - [ ] 9.4 Write limit tests with fixture PDFs and an injected clock
+  - [x] 9.4 Write limit tests with fixture PDFs and an injected clock
     - File: `apps/web/src/features/ingest/extraction-limits.test.ts`
     - Test approach for 9.4 to 9.6: Vitest runs in Node with no real `Worker`, so every "real pdf.js path" test calls `runExtraction` from `extraction-core.ts` directly with the `pdfjs-dist/legacy/build/pdf.mjs` build (no worker). Worker lifecycle (9.6) uses a mocked `WorkerLike`. No Playwright for these
     - Test the file-size, page-count and word-count limits with the fixtures, and the 20-second limit with an injected clock that jumps past the limit instead of a slow fixture
