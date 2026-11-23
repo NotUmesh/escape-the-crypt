@@ -117,6 +117,33 @@ export const ANNOUNCEMENT_COPY = {
   pageLowText: (page: number): string => `Page ${page} marked low text`,
   pageSuspicious: (page: number): string => `Page ${page} needs a look`,
 } as const;
+/** Labels and hints for the ingest screens. Every visible string comes from here. */
+export const INGEST_UI_COPY = {
+  privacyTitle: 'Before you bring your notes',
+  pasteLabel: 'Paste your notes',
+  pasteHint: 'Plain text works best. Leave a blank line between paragraphs.',
+  wordCounter: (words: number): string =>
+    `${words.toLocaleString('en-US')} of ${WORD_LIMIT_TEXT} words`,
+  pdfLabel: 'Or choose a PDF of your notes',
+  pdfHint: `Text PDFs only, up to ${MAX_FILE_SIZE_MB} MB. Scanned pages can't be read.`,
+  pagesLegend: 'Choose the pages to include',
+  pageName: (page: number): string => `Page ${page}`,
+  paragraphName: (n: number): string => `Paragraph ${n}`,
+  pagesChosen: (n: number): string => `${n} of ${MAX_SELECTED_PAGES} pages chosen`,
+  pageLimit: `That's ${MAX_SELECTED_PAGES} pages, the most you can include. Uncheck one to choose a different page.`,
+  readPages: 'Read these pages',
+  readPagesNone: 'Choose at least one page to read.',
+  stop: 'Stop reading',
+  reading: (done: number, total: number): string => `Reading page ${done} of ${total}`,
+  pagesReadTitle: 'Pages we read',
+  removePage: 'Remove page',
+  removePageFor: (page: number): string => `Remove page ${page}`,
+  pageRemoved: 'Removed from your notes',
+  previewTitle: 'Check your notes',
+  previewHint: 'Fix anything that looks wrong. Only the text shown here is used.',
+  confirm: 'Confirm notes',
+} as const;
+
 /** Words ingest copy and labels must never contain. Used by tests. */
 export const BANNED_COPY_PHRASES: readonly string[] = [
   'verified',

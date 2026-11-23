@@ -35,8 +35,8 @@ const INGEST_PREFIX = 'apps/web/src/features/ingest/';
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 /** Hosts that never leave the machine or are reserved for tests (RFC 2606). */
 const LOCAL_HOSTS: readonly string[] = ['localhost', '127.0.0.1', 'example.test'];
-/** Only config, unit-test and e2e files may name those hosts; app source may not. */
-const LOCAL_HOST_FILES = /\.(?:config|test|e2e)\.ts$/;
+/** Only config, unit-test and e2e files (.ts, and .tsx for tests) may name those hosts; app source may not. */
+const LOCAL_HOST_FILES = /\.(?:config|test|e2e)\.tsx?$/;
 
 const NAMED_COLOURS = new Set(
   (

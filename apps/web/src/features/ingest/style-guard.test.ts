@@ -111,12 +111,13 @@ describe('style guard: app-wide negative tests', () => {
       expect(rules(OTHER_CSS, `a { cursor: url(${url}); }`), url).toContain('cross-origin-url');
     }
   });
-  it('allows localhost, 127.0.0.1 and example.test only in config, unit-test and e2e files', () => {
+  it('allows localhost, 127.0.0.1 and example.test only in config, unit-test (.ts and .tsx) and e2e files', () => {
     const ts = 'const urls = ["http://localhost:4173", "http://127.0.0.1:3000", "https://example.test/a"];';
     const allowed = [
       'apps/web/playwright.config.ts',
       'apps/web/vite.config.ts',
       'apps/web/src/features/ingest/pdf-worker-url.test.ts',
+      'apps/web/src/features/ingest/ingest-ui.test.tsx',
       'apps/web/e2e/ingest-layout.e2e.ts',
     ];
     for (const file of allowed) expect(rules(file, ts), file).toEqual([]);

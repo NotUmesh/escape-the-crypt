@@ -1,0 +1,7 @@
+.ingest-privacy p {
+  margin: 0 0 0.5rem;
+}
+
+.ingest-privacy p:last-child {
+  margin-bottom: 0;
+}

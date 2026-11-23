@@ -6,6 +6,7 @@ import {
   BANNED_COPY_PHRASES,
   CITATION_COPY,
   ERROR_COPY,
+  INGEST_UI_COPY,
   PAGE_FLAG_COPY,
   PRIVACY_NOTICE,
   PRIVACY_NOTICE_TEXT,
@@ -61,6 +62,7 @@ describe('Property 20: Banned words never appear in labels or copy', () => {
       ...collectStrings(PAGE_FLAG_COPY),
       ...collectStrings(PRIVACY_NOTICE),
       ...collectStrings(ANNOUNCEMENT_COPY),
+      ...collectStrings(INGEST_UI_COPY),
       PRIVACY_NOTICE_TEXT,
     ];
     expect(strings.length).toBeGreaterThan(0);
@@ -76,6 +78,22 @@ describe('Property 20: Banned words never appear in labels or copy', () => {
           ANNOUNCEMENT_COPY.paragraphRemoved(n),
           ANNOUNCEMENT_COPY.pageLowText(n),
           ANNOUNCEMENT_COPY.pageSuspicious(n),
+        ];
+        for (const t of texts) expect(findBanned(t), t).toEqual([]);
+      }),
+    );
+  });
+  /** **Validates: Requirements 8.4, 11.2** */
+  it('has no banned phrase in ingest label templates for any number', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 100000 }), fc.integer({ min: 0, max: 100000 }), (n, m) => {
+        const texts = [
+          INGEST_UI_COPY.wordCounter(n),
+          INGEST_UI_COPY.pageName(n),
+          INGEST_UI_COPY.paragraphName(n),
+          INGEST_UI_COPY.pagesChosen(n),
+          INGEST_UI_COPY.reading(n, m),
+          INGEST_UI_COPY.removePageFor(n),
         ];
         for (const t of texts) expect(findBanned(t), t).toEqual([]);
       }),

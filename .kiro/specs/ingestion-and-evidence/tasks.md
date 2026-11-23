@@ -306,7 +306,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - _Requirements: 16.1, 16.2, 16.5, 16.6, 16.7, 16.8, 16.11, 16.12, 17.1, 17.2_
 
 - [ ] 11. Ingest UI
-  - [ ] 11.1 Build the privacy notice, paste input and live announcer
+  - [x] 11.1 Build the privacy notice, paste input and live announcer
     - Create `privacy-notice.tsx`, `paste-input.tsx` (labelled native `textarea` with a word counter) and `live-announcer.tsx` (visually hidden polite live region) under `apps/web/src/features/ingest/`, each with its own small CSS file
     - Style only with the design tokens from task 10.3. Set no fixed layout, no viewport units, no page background and no background art. Each component draws its own surface and takes the width and height its parent gives it, so a later open-book parent can host it without changes to the component
     - Use native `textarea`, `label` and `form` elements and take all text from the copy catalogue; the notice states the file stays on the device and only confirmed text is sent later
@@ -314,13 +314,13 @@ All test tasks are required and part of done. Property tests for one module are 
     - The ingest root element (the one `IngestFlow` renders) must have the `.ingest-root` class and the module must import `ingest-base.css`; the base font, size and focus rules depend on both
     - _Requirements: 1.1, 1.3, 9.3, 10.1, 10.2, 10.3, 16.1, 16.3, 16.4, 17.1, 17.2, 17.3, 17.4, 17.5_
 
-  - [ ] 11.2 Build the PDF picker and page list
+  - [x] 11.2 Build the PDF picker and page list
     - Create `pdf-picker.tsx` (native file input, size check, page checkboxes stopping at 10 with a message, Stop button during extraction) and `page-list.tsx` (flag icon plus text label, "Remove page" button on flagged pages), each with its own small CSS file
     - Style only with the design tokens. Set no fixed layout, no viewport units, no page background and no background art, and size to the space the parent gives. Use native `button`, `input` and `label` elements and compose cleanly inside a later open-book parent
     - Use 44x44 px hit areas, the shared token focus ring and no drag interactions
     - _Requirements: 2.3, 2.6, 3.2, 3.3, 4.5, 4.6, 9.1, 9.2, 9.5, 9.6, 9.7, 16.10, 17.1, 17.2, 17.3, 17.4, 17.5_
 
-  - [ ] 11.3 Build the preview editor
+  - [x] 11.3 Build the preview editor
     - Create `preview-editor.tsx` with its own small CSS file: one native `textarea` per page or paragraph, rendered as plain React text with no `dangerouslySetInnerHTML`
     - Draw the preview on a `--parchment-100` surface with `--ink-900` text, in the Body font, and show the Confirm button disabled with an adjacent explanation when `canConfirm` is false
     - Style only with the design tokens. Set no fixed layout, no viewport units, no page background and no background art, and use native `button` and `textarea` elements so the editor composes inside a later open-book parent. Put the parchment surface inside an element with the `.ingest-on-light` class so its controls get the dark focus ring (`--focus-ring-on-light`)

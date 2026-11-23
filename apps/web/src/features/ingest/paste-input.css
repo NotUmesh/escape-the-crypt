@@ -1,0 +1,30 @@
+.ingest-paste textarea {
+  display: block;
+  width: 100%;
+  min-height: 10rem;
+  box-sizing: border-box;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--stone-950);
+  color: var(--bone-50);
+  border: 1px solid var(--stone-300);
+  border-radius: 0.375rem;
+  line-height: inherit;
+  resize: vertical;
+}
+
+.ingest-paste label {
+  display: block;
+  font-weight: 600;
+}
+
+.ingest-paste-counter {
+  margin: 0.5rem 0 0;
+  color: var(--stone-300);
+}
+
+.ingest-paste-error {
+  margin: 0.5rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 0.25rem solid var(--spectre-300);
+}

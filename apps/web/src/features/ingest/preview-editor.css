@@ -1,0 +1,56 @@
+/* The parchment surface. Text is --ink-900; the dark focus ring comes from .ingest-on-light. */
+.ingest-preview {
+  background-color: var(--parchment-100);
+  color: var(--ink-900);
+  padding: 1rem;
+  border: 1px solid var(--ink-900);
+  border-radius: 0.5rem;
+}
+
+.ingest-preview .ingest-hint {
+  color: var(--ink-900);
+}
+
+.ingest-preview-unit {
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.ingest-preview-unit label {
+  display: block;
+  font-weight: 600;
+}
+
+.ingest-preview-unit textarea {
+  display: block;
+  width: 100%;
+  min-height: 8rem;
+  box-sizing: border-box;
+  margin-top: 0.25rem;
+  padding: 0.75rem;
+  background-color: transparent;
+  color: var(--ink-900);
+  border: 1px solid var(--ink-900);
+  border-radius: 0.375rem;
+  font-family: var(--font-body);
+  line-height: inherit;
+  white-space: pre-wrap;
+  resize: vertical;
+}
+
+.ingest-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.ingest-preview .ingest-button:disabled {
+  background-color: transparent;
+  color: var(--ink-900);
+  border-color: var(--ink-900);
+  border-style: dashed;
+}
