@@ -698,6 +698,37 @@
         "chatSessionId": "sess_9c3fecbd-cff8-48b0-b382-05b20de1c8a1",
         "timestamp": 1795465859600
       }
+    ],
+    "10.3 Create the design tokens and self-hosted fonts": [
+      {
+        "executionId": "f70dc152-e4ea-4ea8-a1b2-660f181d9aeb",
+        "chatSessionId": "sess_c9982648-34d2-4410-9800-838b1540c708",
+        "timestamp": 1795466279341
+      },
+      {
+        "executionId": "f70dc152-e4ea-4ea8-a1b2-660f181d9aeb",
+        "chatSessionId": "sess_c9982648-34d2-4410-9800-838b1540c708",
+        "timestamp": 1795466365273
+      }
+    ],
+    "10.4 Write the token, contrast and style-guard tests": [
+      {
+        "executionId": "a805444f-8acf-4d67-97a7-e3aac74b3d24",
+        "chatSessionId": "sess_a616f548-3875-4615-96b5-bcee647c4f15",
+        "timestamp": 1795466518368
+      },
+      {
+        "executionId": "a805444f-8acf-4d67-97a7-e3aac74b3d24",
+        "chatSessionId": "sess_a616f548-3875-4615-96b5-bcee647c4f15",
+        "timestamp": 1795466662760
+      }
+    ],
+    "10. Ingest state machine, design tokens and fonts": [
+      {
+        "executionId": "a805444f-8acf-4d67-97a7-e3aac74b3d24",
+        "chatSessionId": "sess_a616f548-3875-4615-96b5-bcee647c4f15",
+        "timestamp": 1795466662806
+      }
     ]
   }
 }

@@ -18,6 +18,16 @@ All interface elements (panels, buttons, text, candles' glow, grain, vignette, g
 | Cinzel / Cinzel Decorative | font | Google Fonts | SIL Open Font License 1.1 | Titles only |
 | Crimson Pro (fallback EB Garamond) | font | Google Fonts | SIL Open Font License 1.1 | Questions and body text |
 
+Self-hosted woff2 files (latin subset, from the `@fontsource` packages 5.3.0, downloaded once and committed) are in `apps/web/public/fonts/`. The app never loads fonts from another origin.
+
+| Files | Licence file |
+|---|---|
+| `cinzel-latin-400-normal.woff2`, `cinzel-latin-700-normal.woff2` | `OFL-cinzel.txt` |
+| `cinzel-decorative-latin-400-normal.woff2`, `cinzel-decorative-latin-700-normal.woff2` | `OFL-cinzel-decorative.txt` |
+| `crimson-pro-latin-400-normal.woff2`, `crimson-pro-latin-400-italic.woff2`, `crimson-pro-latin-600-normal.woff2` | `OFL-crimson-pro.txt` |
+
+EB Garamond is named only as a CSS fallback and is not shipped.
+
 ## Sound
 
 | Asset | Type | Source | Licence | Notes |

@@ -22,6 +22,7 @@ Question panels, answer options, the evidence panel, navigation and every focuse
 - `--candle-400` #f2a33a lit candles and success only · `--ember-600` #b4471f emphasis
 - `--parchment-100` #e9dfc8 evidence and Autopsy paper · `--ink-900` #2b2118 text on parchment
 - Text contrast at least 4.5:1 (body) and 3:1 (large text) against its actual background, including over art.
+- `--ember-600` text only on `--stone-950` or `--parchment-100`, and only as large text; never on `--stone-800` panels (2.8:1).
 
 ## Typography
 - Questions and body: Crimson Pro (fallback EB Garamond), minimum 18px desktop, 16px mobile, line-height 1.5.

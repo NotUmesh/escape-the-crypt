@@ -1,0 +1,19 @@
+/* Design tokens. The only file in the app that may contain colour literals. */
+:root {
+  --stone-950: #0e0d0c;
+  --stone-800: #2a2623;
+  --stone-300: #b8afa6;
+  --bone-50: #f4efe6;
+  --spectre-300: #9fd4d0;
+  --candle-400: #f2a33a;
+  --ember-600: #b4471f;
+  --parchment-100: #e9dfc8;
+  --ink-900: #2b2118;
+
+  --font-title: "Cinzel", "Cinzel Decorative", serif;
+  --font-body: "Crimson Pro", "EB Garamond", serif;
+
+  --focus-ring: 2px solid var(--spectre-300);
+  --focus-ring-on-light: 2px solid var(--ink-900);
+  --focus-offset: 2px;
+}

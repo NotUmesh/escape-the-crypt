@@ -275,7 +275,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - With a mocked worker: Stop, timeout and error each terminate it, and the page choice is sent before `start`
     - _Requirements: 2.2, 2.3, 2.6, 2.7, 4.4_
 
-- [ ] 10. Ingest state machine, design tokens and fonts
+- [x] 10. Ingest state machine, design tokens and fonts
   - [x] 10.1 Implement the state machine
     - Create `apps/web/src/features/ingest/ingest-machine.ts`: reducer with `PASTE_CHANGED`, `FILE_SELECTED`, `PAGES_CHOSEN`, `EXTRACTION_PAGE`, `EXTRACTION_ERROR`, `CANCEL`, `PAGE_REMOVED`, `TEXT_EDITED`, `CONFIRM`
     - Hold ingest units (original text, current text, flag, included), status and the latest announcement
@@ -288,15 +288,15 @@ All test tasks are required and part of done. Property tests for one module are 
     - Unit tests for removing a page, an over-limit paste message, and cancel discarding partial results
     - **Validates: Requirements 5.6**
 
-  - [ ] 10.3 Create the design tokens and self-hosted fonts
+  - [x] 10.3 Create the design tokens and self-hosted fonts
     - Create `apps/web/src/styles/tokens.css` with the palette from `.kiro/steering/design-system.md` on `:root`: `--stone-950`, `--stone-800`, `--stone-300`, `--bone-50`, `--spectre-300`, `--candle-400`, `--ember-600`, `--parchment-100` and `--ink-900`. Add the font variables `--font-title` (Cinzel, Cinzel Decorative, serif) and `--font-body` (Crimson Pro, EB Garamond, serif) and the focus variables `--focus-ring` (2px solid `--spectre-300`) and `--focus-offset`. This is the only file in the app that may contain colour literals
     - Create `apps/web/src/styles/fonts.css` with `@font-face` rules, `font-display: swap`, whose `src` values are root-relative `/fonts/*.woff2` paths. Import `tokens.css` and `fonts.css` once from the app entry (`apps/web/src/main.tsx`)
     - Add the woff2 files under `apps/web/public/fonts/`: Cinzel and Cinzel Decorative for titles only, and Crimson Pro for body text, with each family's SIL OFL license file next to its font files, and list the fonts and licenses in `ASSETS.md`
     - Download the woff2 files once during development (from the `@fontsource` packages or the google/fonts repository) and commit them to the repository. The app never fetches fonts from another origin, at build time or run time, and does not use the Google Fonts CDN, so the network guarantee test in task 12.1 still passes (font files are same-origin `GET` requests)
-    - Add a base ingest rule set in `apps/web/src/features/ingest/ingest-base.css` that uses tokens only: `font-family: var(--font-body)` on body text, `inherit` on `button` and `input`, root `container-type: inline-size` with 16px text and line-height 1.5 raised to 18px by a `@container (min-width: 40rem)` rule, and a single `:focus-visible` rule using `--focus-ring` and `--focus-offset`
+    - Add a base ingest rule set in `apps/web/src/features/ingest/ingest-base.css` that uses tokens only: `font-family: var(--font-body)` on body text, `inherit` on `button` and `input`, root `container-type: inline-size` with 16px text and line-height 1.5 raised to 18px by a `@container (min-width: 40rem)` rule, and a `:focus-visible` rule using `--focus-ring` and `--focus-offset`, plus one for `.ingest-on-light` using `--focus-ring-on-light`
     - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.9, 16.10_
 
-  - [ ] 10.4 Write the token, contrast and style-guard tests
+  - [x] 10.4 Write the token, contrast and style-guard tests
     - File: `apps/web/src/styles/tokens.test.ts`: parse `tokens.css`, check all nine palette variables exist with the `design-system.md` values, compute the WCAG contrast ratio for each text and surface pair in the design's colour-role table (at least 4.5:1 for body text, 3:1 for large text), and check text on `--parchment-100` uses `--ink-900`
     - File: `apps/web/src/features/ingest/style-guard.test.ts` with two scan scopes, because later desk and crypt screens outside the ingest folder need full-screen layers and fixed overlays
     - App-wide scope: scan every `.css`, `.tsx` and `.ts` file under `apps/web` (including `fonts.css`) and fail on a colour literal outside `apps/web/src/styles/tokens.css` (hex, `rgb(`, `rgba(`, `hsl(`, `hsla(`, `hwb(`, `lab(`, `lch(`, `oklab(`, `oklch(`, `color(`, or a named colour as a colour value), a cross-origin URL (allow only the SVG namespace string), a Google Fonts host, and any `fonts.css` URL that is not a root-relative `/fonts/*.woff2` path to an existing file
@@ -311,6 +311,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - Style only with the design tokens from task 10.3. Set no fixed layout, no viewport units, no page background and no background art. Each component draws its own surface and takes the width and height its parent gives it, so a later open-book parent can host it without changes to the component
     - Use native `textarea`, `label` and `form` elements and take all text from the copy catalogue; the notice states the file stays on the device and only confirmed text is sent later
     - Set title text in the Title font and body text and inputs in the Body font
+    - The ingest root element (the one `IngestFlow` renders) must have the `.ingest-root` class and the module must import `ingest-base.css`; the base font, size and focus rules depend on both
     - _Requirements: 1.1, 1.3, 9.3, 10.1, 10.2, 10.3, 16.1, 16.3, 16.4, 17.1, 17.2, 17.3, 17.4, 17.5_
 
   - [ ] 11.2 Build the PDF picker and page list
@@ -322,7 +323,7 @@ All test tasks are required and part of done. Property tests for one module are 
   - [ ] 11.3 Build the preview editor
     - Create `preview-editor.tsx` with its own small CSS file: one native `textarea` per page or paragraph, rendered as plain React text with no `dangerouslySetInnerHTML`
     - Draw the preview on a `--parchment-100` surface with `--ink-900` text, in the Body font, and show the Confirm button disabled with an adjacent explanation when `canConfirm` is false
-    - Style only with the design tokens. Set no fixed layout, no viewport units, no page background and no background art, and use native `button` and `textarea` elements so the editor composes inside a later open-book parent
+    - Style only with the design tokens. Set no fixed layout, no viewport units, no page background and no background art, and use native `button` and `textarea` elements so the editor composes inside a later open-book parent. Put the parchment surface inside an element with the `.ingest-on-light` class so its controls get the dark focus ring (`--focus-ring-on-light`)
     - _Requirements: 5.1, 5.2, 5.5, 5.6, 5.7, 9.1, 9.4, 16.3, 16.4, 16.8, 17.1, 17.2, 17.3, 17.4, 17.5_
 
   - [ ] 11.4 Wire the flow and local notes storage
@@ -340,7 +341,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - The upload screen contains both privacy statements and "your notes"
     - No `div` or `span` in the ingest output carries a button role (native elements only)
     - Create `apps/web/src/features/ingest/test-parent.tsx` (it stays in `src`; the e2e file imports or loads it as needed): a minimal 360px-wide parent layout with a parchment background and a decorative atmosphere overlay set to `pointer-events: none`. File: `apps/web/e2e/ingest-layout.e2e.ts` renders `IngestFlow` in the test parent and checks that every control is visible, is not covered (`elementFromPoint` returns the control), measures at least 44x44 px (the target-size check lives here, not in the jsdom test), and works by click and keyboard. Repeat at 720px to confirm the components fill the width the parent gives
-    - Playwright style check in the same file: computed `font-family` on a title, the preview, a textarea and a button; computed `font-size` and `line-height` at 360px (16px, 1.5) and at a 1024px parent (18px, 1.5); and a 2px `--spectre-300` outline after Tab on each control
+    - Playwright style check in the same file: computed `font-family` on a title, the preview, a textarea and a button; computed `font-size` and `line-height` at 360px (16px, 1.5) and at a 1024px parent (18px, 1.5); and a 2px outline after Tab on each control: `--ink-900` (`--focus-ring-on-light`) for preview-editor controls, which sit on parchment inside `.ingest-on-light`, and `--spectre-300` (`--focus-ring`) for all others
     - _Requirements: 4.6, 5.7, 9.3, 9.5, 9.6, 9.7, 10.1, 10.2, 10.3, 16.3, 16.4, 16.9, 16.10, 17.3, 17.4, 17.5, 17.6, 17.7_
 
   - [ ] 11.6 Write storage property tests and the console-capture check
