@@ -235,7 +235,7 @@ All test tasks are required and part of done. Property tests for one module are 
   - _Requirements: 12.1_
 
 - [ ] 9. Extraction Worker and client
-  - [ ] 9.1 Implement the Extraction Worker
+  - [x] 9.1 Implement the Extraction Worker
     - Create `apps/web/src/features/ingest/extraction-worker.ts` using the mode recorded by the spike
     - Open the document with `enableScripting: false`, no password callback and cMap and font fetching off (unless self-hosted)
     - Per page: check `checkElapsed` with an injected `Clock` before and after, map items to `TextItemData`, call `assemblePageText`, update the running word total with `checkWordCount`, run `classifyPage`, post `progress`, `page`, `error` or `done`

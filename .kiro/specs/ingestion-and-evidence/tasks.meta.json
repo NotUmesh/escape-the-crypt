@@ -619,6 +619,18 @@
         "chatSessionId": "sess_db23888b-a8d7-4b02-b8b4-56df6ad50bec",
         "timestamp": 1795463308335
       }
+    ],
+    "9.1 Implement the Extraction Worker": [
+      {
+        "executionId": "911006ce-872e-481d-94b1-efec1856088f",
+        "chatSessionId": "sess_156b482c-0af6-47af-8ef4-c15ac9fad422",
+        "timestamp": 1795463436765
+      },
+      {
+        "executionId": "911006ce-872e-481d-94b1-efec1856088f",
+        "chatSessionId": "sess_156b482c-0af6-47af-8ef4-c15ac9fad422",
+        "timestamp": 1795463553104
+      }
     ]
   }
 }
