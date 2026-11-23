@@ -53,99 +53,99 @@ All test tasks are required and part of done. Property tests for one module are 
     - After recording the decision, delete the spike page and harness under `apps/web/src/features/ingest/spike/`; keep only the Playwright spike test (`apps/web/e2e/pdfjs-spike.e2e.ts`) if it is still useful as a regression check, and update it so it no longer depends on deleted files
     - _Requirements: 2.1, 2.2, 2.3, 2.7, 3.5_
 
-- [ ] 2. Core foundations: types, limits, shared test generators
-  - [ ] 2.1 Create shared types and test generators
+- [x] 2. Core foundations: types, limits, shared test generators
+  - [x] 2.1 Create shared types and test generators
     - Create `packages/core/src/types.ts` with `SourceType`, `SourceLocation`, `Chunk`, `PageFlag`, `ResolvedLocation`, `QuoteError`, `Result`, `LimitError` and `IngestError` as in the design
     - Create `packages/core/src/test-support/arbitraries.ts` with fast-check generators for pasted text with blank-line runs, PDF page lists with printed labels or `null`, duplicate paragraphs, over-long sentences and tokens, chunk texts with line-break hyphens, ligatures, curly quotes and decomposed accents, and quotes cut from a chunk at random offsets
     - Export the public API from `packages/core/src/index.ts`
     - _Requirements: 12.3_
 
-  - [ ] 2.2 Implement the Limits Module
+  - [x] 2.2 Implement the Limits Module
     - Create `packages/core/src/limits.ts` with `MAX_FILE_SIZE_BYTES` (5 MB), `MAX_SELECTED_PAGES` (10), `MAX_EXTRACTED_WORDS` (6000), `MAX_EXTRACTION_MS` (20000)
     - Implement `checkFileSize`, `capPageSelection`, `countWords`, `checkWordCount` and `checkElapsed(startedAtMs, nowMs)`; a value equal to the limit passes
     - _Requirements: 1.3, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [ ] 2.3 Write property test for the word-count limit
+  - [x] 2.3 Write property test for the word-count limit
     - File: `packages/core/src/limits-word-count.test.ts`
     - **Property 2: Word-count limit boundary**
     - **Validates: Requirements 1.3, 3.4**
 
-  - [ ] 2.4 Write property test for file size and page selection limits
+  - [x] 2.4 Write property test for file size and page selection limits
     - File: `packages/core/src/limits-size-pages.test.ts`
     - **Property 3: File size and page selection limits**
     - **Validates: Requirements 3.2, 3.3**
 
-  - [ ] 2.5 Write property test for the elapsed-time limit and a constants test
+  - [x] 2.5 Write property test for the elapsed-time limit and a constants test
     - File: `packages/core/src/limits-time.test.ts`
     - **Property 4: Elapsed-time limit with injected clock**
     - Add a unit test asserting every named constant (5 MB, 10, 6000, 20000)
     - **Validates: Requirements 3.1, 3.5, 14.1**
 
-- [ ] 3. Page Checker and PDF text assembly
-  - [ ] 3.1 Implement the Page Checker
+- [x] 3. Page Checker and PDF text assembly
+  - [x] 3.1 Implement the Page Checker
     - Create `packages/core/src/page-checker.ts` with `classifyPage` and the named thresholds `LOW_TEXT_MIN_WORDS`, `GARBLE_MAX_RATIO`, `SHORT_LINE_MIN_LINES`, `SHORT_LINE_MEDIAN_CHARS`
     - Apply the rules in the design order: low-text, garbled ratio, short-line median, otherwise ok
     - _Requirements: 4.1, 4.2, 4.3_
 
-  - [ ] 3.2 Write property test for page classification
+  - [x] 3.2 Write property test for page classification
     - File: `packages/core/src/page-checker.test.ts`
     - **Property 6: Page classification**
     - **Validates: Requirements 4.1, 4.2, 4.3**
 
-  - [ ] 3.3 Implement PDF text assembly
+  - [x] 3.3 Implement PDF text assembly
     - Create `packages/core/src/pdf-text-assembly.ts` with `TextItemData`, `PARAGRAPH_GAP_FACTOR` (1.5) and `assemblePageText`
     - Start a new line on `hasEOL` or a y change above the tolerance; join lines with `\n`, or `\n\n` when the gap is greater than 1.5 times the median line height; return `""` for an empty page
     - _Requirements: 2.1, 6.1_
 
-  - [ ] 3.4 Write unit and property tests for PDF text assembly
+  - [x] 3.4 Write unit and property tests for PDF text assembly
     - File: `packages/core/src/pdf-text-assembly.test.ts`
     - Unit cases: `hasEOL` gives `\n`; y change gives `\n`; gap above 1.5 times the median gives `\n\n`; gap of exactly 1.5 times gives `\n`; empty page gives `""`
     - Property: output keeps every item's non-whitespace characters in order and never contains three consecutive line breaks
     - _Requirements: 2.1, 6.1_
 
-- [ ] 4. Chunker
-  - [ ] 4.1 Implement digest and splitting
+- [x] 4. Chunker
+  - [x] 4.1 Implement digest and splitting
     - Create `packages/core/src/digest.ts` with `documentDigest` using the synchronous `sha256` from `@noble/hashes` over UTF-8 bytes (units joined by `\n\n` for paste, `\f` for PDF pages)
     - Create `packages/core/src/chunker-split.ts` with `MAX_CHUNK_CHARS` (1200): paragraph and heading candidates, sentence-boundary packing, word-boundary split for over-long sentences, hard split for tokens with no whitespace
     - _Requirements: 6.1, 6.3, 6.10, 6.11, 6.15_
 
-  - [ ] 4.2 Implement merging and `chunkDocument`
+  - [x] 4.2 Implement merging and `chunkDocument`
     - Create `packages/core/src/chunker-merge.ts` with `MIN_CHUNK_CHARS` (40): merge short chunks forward within the same unit, backward when last, keep when alone, never across a page or paragraph, single pass with no re-merge
     - Create `packages/core/src/chunker.ts` with `chunkDocument(input)`: build units, assign `chk_<digest12>_<position>` IDs, record source type, location, digest and edited flag (exact text match against the original chunks of the same unit), and freeze each chunk
     - _Requirements: 1.2, 5.3, 5.4, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 6.12, 6.13, 6.14, 6.16_
 
-  - [ ] 4.3 Write property test for paste paragraph splitting
+  - [x] 4.3 Write property test for paste paragraph splitting
     - File: `packages/core/src/chunker-paragraphs.test.ts`
     - **Property 1: Paste paragraphs split at blank lines**
     - **Validates: Requirements 1.2, 6.1**
 
-  - [ ] 4.4 Write property test for chunking determinism
+  - [x] 4.4 Write property test for chunking determinism
     - File: `packages/core/src/chunker-determinism.test.ts`
     - **Property 9: Chunking is deterministic**
     - **Validates: Requirements 6.8, 13.1**
 
-  - [ ] 4.5 Write property test for distinct chunk IDs and digest
+  - [x] 4.5 Write property test for distinct chunk IDs and digest
     - File: `packages/core/src/chunker-ids.test.ts`
     - **Property 10: Chunk IDs are distinct and carry the document digest**
     - **Validates: Requirements 6.2, 6.3, 6.9, 13.7**
 
-  - [ ] 4.6 Write property test for a single source location per chunk
+  - [x] 4.6 Write property test for a single source location per chunk
     - File: `packages/core/src/chunker-location.test.ts`
     - **Property 11: Every chunk has exactly one source location**
     - **Validates: Requirements 6.4, 6.5, 6.6, 6.13, 13.2, 13.9**
 
-  - [ ] 4.7 Write property test for chunk size bounds
+  - [x] 4.7 Write property test for chunk size bounds
     - File: `packages/core/src/chunker-size.test.ts`
     - **Property 12: Chunk size bounds**
     - **Validates: Requirements 6.11, 6.12, 6.14, 6.15, 6.16, 13.8**
 
-  - [ ] 4.8 Write property test for the per-chunk edited flag
+  - [x] 4.8 Write property test for the per-chunk edited flag
     - File: `packages/core/src/chunker-edited.test.ts`
     - **Property 8: Edited flag reflects a per-chunk difference**
     - Include an edit that changes the number of chunks in a unit
     - **Validates: Requirements 5.3, 5.4, 6.7**
 
-  - [ ] 4.9 Write unit tests for chunker edge cases and constants
+  - [x] 4.9 Write unit tests for chunker edge cases and constants
     - File: `packages/core/src/chunker.test.ts`
     - Cover a lone heading that is the only chunk on its page, a last short chunk merging backward, a single sentence over 1,200 characters, and the constants 1,200 and 40
     - _Requirements: 6.10, 6.14, 6.15, 6.16_

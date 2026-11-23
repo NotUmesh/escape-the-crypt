@@ -1,5 +1,47 @@
 {
-  "pbtResults": {},
+  "pbtResults": {
+    "2.3 Write property test for the word-count limit": {
+      "status": "passed",
+      "lastRunTimestamp": 1795458986810
+    },
+    "2.5 Write property test for the elapsed-time limit and a constants test": {
+      "status": "passed",
+      "lastRunTimestamp": 1795458987221
+    },
+    "2.4 Write property test for file size and page selection limits": {
+      "status": "passed",
+      "lastRunTimestamp": 1795458990308
+    },
+    "3.2 Write property test for page classification": {
+      "status": "passed",
+      "lastRunTimestamp": 1795459236818
+    },
+    "4.4 Write property test for chunking determinism": {
+      "status": "passed",
+      "lastRunTimestamp": 1795459465766
+    },
+    "4.3 Write property test for paste paragraph splitting": {
+      "status": "passed",
+      "lastRunTimestamp": 1795459467109
+    },
+    "4.6 Write property test for a single source location per chunk": {
+      "status": "passed",
+      "lastRunTimestamp": 1795459478045
+    },
+    "4.5 Write property test for distinct chunk IDs and digest": {
+      "status": "passed",
+      "lastRunTimestamp": 1795459479818
+    },
+    "4.7 Write property test for chunk size bounds": {
+      "status": "failed",
+      "failingExample": "overLongSentenceArb, seed 1973783039: a single pasted sentence of ~2,400 chars (lowercase words, ending \"...pfntdgnmw fabvdagfq.\") is chunked into one paragraph unit with several chunks, the last only 26 chars (min is 40). Another run: 2,422-char sentence -> chunk lengths 1199,1200,21 (last \"ref ale zag dcammcal.\"). Cause: mergeShort merges the short tail into the preceding chunk, then splitToLimit re-splits the merged text at the same word boundary, so the short tail comes back. The design says merged pieces are never merged again.",
+      "lastRunTimestamp": 1795459845765
+    },
+    "4.8 Write property test for the per-chunk edited flag": {
+      "status": "passed",
+      "lastRunTimestamp": 1795460154067
+    }
+  },
   "executionHistory": {
     "0.1 Create the root workspace and shared TypeScript and lint config": [
       {
@@ -97,6 +139,243 @@
         "executionId": "e064e036-fc3f-4ab0-bc4a-6c8d78e67f83",
         "chatSessionId": "sess_685f9681-438d-4e1f-ad05-e750195ee366",
         "timestamp": 1795458615171
+      }
+    ],
+    "2. Core foundations: types, limits, shared test generators": [
+      {
+        "executionId": "503bc7aa-d280-4b22-9a82-cda601bb3666",
+        "chatSessionId": "sess_5fd33e72-c897-44ad-9f1c-6fd39837acc7",
+        "timestamp": 1795458895521
+      }
+    ],
+    "3.1 Implement the Page Checker": [
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459137448
+      },
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459183973
+      }
+    ],
+    "3.3 Implement PDF text assembly": [
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459137498
+      },
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459184460
+      }
+    ],
+    "3.2 Write property test for page classification": [
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459195558
+      },
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459244756
+      }
+    ],
+    "3.4 Write unit and property tests for PDF text assembly": [
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459195603
+      },
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459245245
+      }
+    ],
+    "3. Page Checker and PDF text assembly": [
+      {
+        "executionId": "a33e6914-91b1-4ce3-a726-01d0e29149a3",
+        "chatSessionId": "sess_7839a3a1-c1a3-46d8-b9f1-d8d092272517",
+        "timestamp": 1795459245312
+      }
+    ],
+    "4.1 Implement digest and splitting": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459268109
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459351140
+      }
+    ],
+    "4.2 Implement merging and `chunkDocument`": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459360185
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459362805
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459426781
+      }
+    ],
+    "4.3 Write property test for paste paragraph splitting": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459429832
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459436885
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459862134
+      }
+    ],
+    "4.4 Write property test for chunking determinism": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459430632
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459437676
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459862204
+      }
+    ],
+    "4.5 Write property test for distinct chunk IDs and digest": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459431180
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459438479
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459862499
+      }
+    ],
+    "4.6 Write property test for a single source location per chunk": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459431985
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459439024
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459863081
+      }
+    ],
+    "4.7 Write property test for chunk size bounds": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459433244
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459439834
+      },
+      {
+        "executionId": "da23df03-4d7e-476f-a6f9-14df6f640e6d",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795460098097
+      }
+    ],
+    "4.8 Write property test for the per-chunk edited flag": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459433442
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459440375
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459870045
+      },
+      {
+        "executionId": "da23df03-4d7e-476f-a6f9-14df6f640e6d",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795460098298
+      },
+      {
+        "executionId": "da23df03-4d7e-476f-a6f9-14df6f640e6d",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795460240620
+      }
+    ],
+    "4.9 Write unit tests for chunker edge cases and constants": [
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459433928
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459441005
+      },
+      {
+        "executionId": "da02a5cc-c7fc-4ad5-b00c-4192b42d0cad",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795459870102
+      },
+      {
+        "executionId": "da23df03-4d7e-476f-a6f9-14df6f640e6d",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795460099122
+      },
+      {
+        "executionId": "da23df03-4d7e-476f-a6f9-14df6f640e6d",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795460240093
+      }
+    ],
+    "4. Chunker": [
+      {
+        "executionId": "da23df03-4d7e-476f-a6f9-14df6f640e6d",
+        "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
+        "timestamp": 1795460240657
       }
     ]
   }
