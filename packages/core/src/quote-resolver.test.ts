@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { normaliseWithMap } from './normalise';
 import { MIN_QUOTE_CHARS, MIN_QUOTE_WORDS, resolveQuote } from './quote-resolver';
 import type { Chunk } from './types';
 
@@ -57,6 +58,36 @@ describe('quote resolver: line-break hyphen trade-off (7.2)', () => {
   });
 });
 
+describe('normalisation: line-break hyphen before a digit is kept (7.2)', () => {
+  const text = 'Read pages 5-\n10 of your notes before the next session.';
+
+  it('keeps the hyphen and turns the line break into a space', () => {
+    expect(normaliseWithMap('pages 5-\n10').text).toBe('pages 5- 10');
+    expect(normaliseWithMap('pages 5- \n 10').text).toBe('pages 5- 10');
+    expect(normaliseWithMap('exam-\nple').text).toBe('example');
+  });
+
+  it('maps every kept character back to the original text', () => {
+    const { text: norm, originalRange } = normaliseWithMap('pages 5-\n10');
+    const hyphen = norm.indexOf('-');
+    expect(originalRange[hyphen]).toEqual([7, 8]);
+    expect(originalRange[hyphen + 1]).toEqual([8, 9]);
+  });
+
+  it('does not resolve the digits joined as "510"', () => {
+    expect(resolve(text, 'Read pages 510 of your notes')).toEqual({
+      ok: false,
+      error: { kind: 'not-found' },
+    });
+  });
+
+  it('resolves the range as written, across the line break', () => {
+    const result = resolve(text, 'Read pages 5-\n10 of your notes');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(text.slice(result.value.start, result.value.end)).toBe('Read pages 5-\n10 of your notes');
+  });
+});
 describe('quote resolver: minimum size constants (7.7)', () => {
   it('exports 4 words and 20 characters', () => {
     expect(MIN_QUOTE_WORDS).toBe(4);

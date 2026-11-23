@@ -24,14 +24,27 @@ function occurrences(haystack: string, needle: string): number {
   return count;
 }
 
+const NUM_RUNS = 300;
+/**
+ * fast-check does not count cases rejected by fc.pre toward numRuns, so the
+ * number of exercised runs is always NUM_RUNS and says nothing on its own.
+ * What can silently collapse is the share of generated cases that pass the
+ * filters (unique quote, minimum size). Measured 0.59-0.69 across seeds 1-20;
+ * requiring 0.4 catches a generator or filter change that makes most cases
+ * skips while leaving margin for random variation.
+ */
+const MIN_ACCEPTED_RATIO = 0.4;
+
 describe('Property 13: unique quotes resolve to correct offsets', () => {
   /**
    * **Validates: Requirements 7.4, 7.10, 13.5**
    */
   it('offsets applied to the original chunk text select text that normalises to the quote', () => {
+    let attempts = 0;
     let exercised = 0;
     fc.assert(
       fc.property(chunkAndQuoteArb, ({ chunkText, quote }) => {
+        attempts++;
         const q = norm(quote);
         const words = q === '' ? 0 : q.split(' ').length;
         fc.pre(words >= MIN_QUOTE_WORDS && q.length >= MIN_QUOTE_CHARS);
@@ -50,9 +63,10 @@ describe('Property 13: unique quotes resolve to correct offsets', () => {
         expect(start).toBeLessThan(end);
         expect(norm(chunkText.slice(start, end))).toBe(q);
       }),
-      { numRuns: 300 },
+      { numRuns: NUM_RUNS },
     );
-    expect(exercised).toBeGreaterThan(0);
+    expect(exercised).toBe(NUM_RUNS);
+    expect(exercised / attempts).toBeGreaterThanOrEqual(MIN_ACCEPTED_RATIO);
   });
 
   it('resolves a plain unique quote to its exact offsets', () => {

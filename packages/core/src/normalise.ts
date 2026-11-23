@@ -21,8 +21,12 @@ const QUOTES: Readonly<Record<string, string>> = {
   '\u201D': '"',
 };
 
-/** A hyphen at a line break: `-`, optional spaces/tabs, a newline, optional spaces/tabs. */
-const LINE_BREAK_HYPHEN = /-[ \t]*(?:\r\n|\r|\n)[ \t]*/y;
+/**
+ * A hyphen at a line break: `-`, optional spaces/tabs, a newline, optional
+ * spaces/tabs, then a letter (not consumed). Matches the chunker's
+ * isHyphenBreak rule: `pages 5-\n10` keeps its hyphen, `exam-\nple` joins.
+ */
+const LINE_BREAK_HYPHEN = /-[ \t]*(?:\r\n|\r|\n)[ \t]*(?=\p{L})/uy;
 const COMBINING_MARK = /^\p{M}$/u;
 const WHITESPACE = /^\s$/u;
 
@@ -51,7 +55,8 @@ function foldChars(text: string): string {
 
 /**
  * Normalises text for quote matching: NFC, ligature expansion, curly quotes
- * folded to straight, line-break hyphens removed (in-word hyphens kept),
+ * folded to straight, line-break hyphens before a letter removed (in-word
+ * hyphens and hyphens before a digit or symbol kept),
  * whitespace runs collapsed to one space, and the result trimmed.
  * Each output character maps to the original range it came from.
  */
