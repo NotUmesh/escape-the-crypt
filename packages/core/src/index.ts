@@ -43,5 +43,17 @@ export { MIN_CHUNK_CHARS } from './chunker-merge';
 export type { NormalisedText } from './normalise';
 export { normaliseWithMap } from './normalise';
 export { MIN_QUOTE_WORDS, MIN_QUOTE_CHARS, resolveQuote } from './quote-resolver';
+export type { ErrorCopy, PageFlagCopy } from './copy';
+export {
+  ERROR_COPY,
+  PRIVACY_NOTICE,
+  PRIVACY_NOTICE_TEXT,
+  PAGE_FLAG_COPY,
+  CITATION_COPY,
+  BANNED_COPY_PHRASES,
+  renderError,
+  errorMessage,
+} from './copy';
 export type { ChunkInput, PdfPageInput } from './chunker';
 export { chunkDocument } from './chunker';
+export { citationLabel } from './citation-labeller';

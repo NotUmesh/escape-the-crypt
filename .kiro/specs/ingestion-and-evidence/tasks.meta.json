@@ -64,6 +64,18 @@
     "5.8 Write property test for typed errors without throwing": {
       "status": "passed",
       "lastRunTimestamp": 1795461377703
+    },
+    "6.4 Write property test for problem messages": {
+      "status": "passed",
+      "lastRunTimestamp": 1795461944033
+    },
+    "6.3 Write property test for citation labels": {
+      "status": "passed",
+      "lastRunTimestamp": 1795462001800
+    },
+    "6.5 Write property test for banned words": {
+      "status": "passed",
+      "lastRunTimestamp": 1795462014876
     }
   },
   "executionHistory": {
@@ -515,6 +527,73 @@
         "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
         "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
         "timestamp": 1795461386324
+      }
+    ],
+    "6.1 Implement the copy catalogue": [
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795461841307
+      },
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795461898873
+      }
+    ],
+    "6.2 Implement the Citation Labeller": [
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795461899670
+      },
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795461962885
+      }
+    ],
+    "6.4 Write property test for problem messages": [
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795461900300
+      },
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795461963504
+      }
+    ],
+    "6.5 Write property test for banned words": [
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795461900908
+      },
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795462025650
+      }
+    ],
+    "6.3 Write property test for citation labels": [
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795461964115
+      },
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795462025020
+      }
+    ],
+    "6. Citation Labeller and copy catalogue": [
+      {
+        "executionId": "d3428e2d-dcb0-46b7-b07d-a9b51b120477",
+        "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
+        "timestamp": 1795462025701
       }
     ]
   }

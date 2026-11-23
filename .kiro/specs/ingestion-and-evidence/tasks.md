@@ -197,27 +197,27 @@ All test tasks are required and part of done. Property tests for one module are 
     - Cover unknown chunk ID, too-short winning over unknown chunk ID, the "well-\nknown" trade-off, and constants 4 words and 20 characters
     - _Requirements: 7.2, 7.7, 7.11, 7.12_
 
-- [ ] 6. Citation Labeller and copy catalogue
-  - [ ] 6.1 Implement the copy catalogue
+- [x] 6. Citation Labeller and copy catalogue
+  - [x] 6.1 Implement the copy catalogue
     - Create `packages/core/src/copy.ts`: a typed map where every error key has `what` and `next` parts, plus the privacy notice, page-flag labels and citation label templates
     - Use plain, kind wording, say "your notes", and use none of the banned words (verified, guaranteed, 100% accurate, hallucination-free, mastered, exam-ready, "the source document")
     - _Requirements: 3.6, 4.4, 8.4, 10.1, 10.2, 10.3, 11.1, 11.2, 11.3, 11.4_
 
-  - [ ] 6.2 Implement the Citation Labeller
+  - [x] 6.2 Implement the Citation Labeller
     - Create `packages/core/src/citation-labeller.ts` with `citationLabel(chunk)` covering paste, unedited PDF, edited PDF, and printed label equal or different from page index plus one
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [ ] 6.3 Write property test for citation labels
+  - [x] 6.3 Write property test for citation labels
     - File: `packages/core/src/citation-labeller.test.ts`
     - **Property 19: Citation labels follow the chunk metadata**
     - **Validates: Requirements 8.1, 8.2, 8.3, 8.5, 8.6**
 
-  - [ ] 6.4 Write property test for problem messages
+  - [x] 6.4 Write property test for problem messages
     - File: `packages/core/src/copy-errors.test.ts`
     - **Property 5: Problem messages name the limit and a next step**
     - **Validates: Requirements 3.6, 4.4, 11.3, 11.4**
 
-  - [ ] 6.5 Write property test for banned words
+  - [x] 6.5 Write property test for banned words
     - File: `packages/core/src/copy-banned-words.test.ts`
     - **Property 20: Banned words never appear in labels or copy**
     - **Validates: Requirements 8.4, 11.2**
