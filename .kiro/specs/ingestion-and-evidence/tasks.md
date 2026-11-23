@@ -150,49 +150,49 @@ All test tasks are required and part of done. Property tests for one module are 
     - Cover a lone heading that is the only chunk on its page, a last short chunk merging backward, a single sentence over 1,200 characters, and the constants 1,200 and 40
     - _Requirements: 6.10, 6.14, 6.15, 6.16_
 
-- [ ] 5. Quote Resolver
-  - [ ] 5.1 Implement normalisation with an offset map
+- [x] 5. Quote Resolver
+  - [x] 5.1 Implement normalisation with an offset map
     - Create `packages/core/src/normalise.ts` with `normaliseWithMap`: NFC, ligature table, curly-to-straight quotes, removal of line-break hyphens only (in-word hyphens kept), whitespace collapse and trim, each normalised character mapped to its original range
     - _Requirements: 7.1, 7.2, 7.10_
 
-  - [ ] 5.2 Implement `resolveQuote`
+  - [x] 5.2 Implement `resolveQuote`
     - Create `packages/core/src/quote-resolver.ts` with `MIN_QUOTE_WORDS` (4), `MIN_QUOTE_CHARS` (20) and `resolveQuote`
     - Order: too-short check first (needs at least 4 words and 20 characters), then unknown-chunk, then case-sensitive count of overlapping occurrences (zero is not-found, more than one is ambiguous with count), then offsets from the map
     - Return typed errors and never throw
     - _Requirements: 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 7.10, 7.11, 7.12_
 
-  - [ ] 5.3 Write property test for unique quotes and offsets
+  - [x] 5.3 Write property test for unique quotes and offsets
     - File: `packages/core/src/quote-resolver-offsets.test.ts`
     - **Property 13: Unique quotes resolve to correct offsets**
     - **Validates: Requirements 7.4, 7.10, 13.5**
 
-  - [ ] 5.4 Write property test for absent quotes
+  - [x] 5.4 Write property test for absent quotes
     - File: `packages/core/src/quote-resolver-not-found.test.ts`
     - **Property 14: Absent quotes never resolve**
     - **Validates: Requirements 7.5, 13.3**
 
-  - [ ] 5.5 Write property test for repeated quotes
+  - [x] 5.5 Write property test for repeated quotes
     - File: `packages/core/src/quote-resolver-ambiguous.test.ts`
     - **Property 15: Repeated quotes are ambiguous**
     - Include overlapping occurrences
     - **Validates: Requirements 7.6, 13.4**
 
-  - [ ] 5.6 Write property test for short quotes
+  - [x] 5.6 Write property test for short quotes
     - File: `packages/core/src/quote-resolver-too-short.test.ts`
     - **Property 16: Short quotes are rejected without searching**
     - **Validates: Requirements 7.12, 13.6**
 
-  - [ ] 5.7 Write property test for normalisation equivalences
+  - [x] 5.7 Write property test for normalisation equivalences
     - File: `packages/core/src/quote-resolver-normalise.test.ts`
     - **Property 17: Normalisation equivalences**
     - **Validates: Requirements 7.1, 7.2, 7.3**
 
-  - [ ] 5.8 Write property test for typed errors without throwing
+  - [x] 5.8 Write property test for typed errors without throwing
     - File: `packages/core/src/quote-resolver-typed-errors.test.ts`
     - **Property 18: The Quote Resolver returns typed errors and never throws**
     - **Validates: Requirements 7.7, 7.9**
 
-  - [ ] 5.9 Write unit tests for the Quote Resolver
+  - [x] 5.9 Write unit tests for the Quote Resolver
     - File: `packages/core/src/quote-resolver.test.ts`
     - Cover unknown chunk ID, too-short winning over unknown chunk ID, the "well-\nknown" trade-off, and constants 4 words and 20 characters
     - _Requirements: 7.2, 7.7, 7.11, 7.12_

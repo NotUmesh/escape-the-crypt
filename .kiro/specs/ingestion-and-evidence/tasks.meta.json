@@ -40,6 +40,30 @@
     "4.8 Write property test for the per-chunk edited flag": {
       "status": "passed",
       "lastRunTimestamp": 1795460154067
+    },
+    "5.3 Write property test for unique quotes and offsets": {
+      "status": "passed",
+      "lastRunTimestamp": 1795461312891
+    },
+    "5.6 Write property test for short quotes": {
+      "status": "passed",
+      "lastRunTimestamp": 1795461318633
+    },
+    "5.5 Write property test for repeated quotes": {
+      "status": "passed",
+      "lastRunTimestamp": 1795461320391
+    },
+    "5.4 Write property test for absent quotes": {
+      "status": "passed",
+      "lastRunTimestamp": 1795461329898
+    },
+    "5.7 Write property test for normalisation equivalences": {
+      "status": "passed",
+      "lastRunTimestamp": 1795461336085
+    },
+    "5.8 Write property test for typed errors without throwing": {
+      "status": "passed",
+      "lastRunTimestamp": 1795461377703
     }
   },
   "executionHistory": {
@@ -376,6 +400,121 @@
         "executionId": "da23df03-4d7e-476f-a6f9-14df6f640e6d",
         "chatSessionId": "sess_fc60a4d3-cbef-4ada-8fa5-47cf020620be",
         "timestamp": 1795460240657
+      }
+    ],
+    "5.1 Implement normalisation with an offset map": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461137327
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461206836
+      }
+    ],
+    "5.2 Implement `resolveQuote`": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461207355
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461262353
+      }
+    ],
+    "5.3 Write property test for unique quotes and offsets": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461265015
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461345251
+      }
+    ],
+    "5.4 Write property test for absent quotes": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461265821
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461345825
+      }
+    ],
+    "5.5 Write property test for repeated quotes": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461266363
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461346450
+      }
+    ],
+    "5.6 Write property test for short quotes": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461267168
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461347165
+      }
+    ],
+    "5.7 Write property test for normalisation equivalences": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461267759
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461347963
+      }
+    ],
+    "5.8 Write property test for typed errors without throwing": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461348583
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461385674
+      }
+    ],
+    "5.9 Write unit tests for the Quote Resolver": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461349192
+      },
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461386281
+      }
+    ],
+    "5. Quote Resolver": [
+      {
+        "executionId": "0e3a3271-1569-4300-821e-d1dad4bdf7b0",
+        "chatSessionId": "sess_a16f88fc-d92e-4a70-8232-136c6a2ea3ae",
+        "timestamp": 1795461386324
       }
     ]
   }

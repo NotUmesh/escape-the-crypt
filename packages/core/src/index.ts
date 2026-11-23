@@ -40,5 +40,8 @@ export {
 } from './digest';
 export { MAX_CHUNK_CHARS, HEADING_MAX_CHARS } from './chunker-split';
 export { MIN_CHUNK_CHARS } from './chunker-merge';
+export type { NormalisedText } from './normalise';
+export { normaliseWithMap } from './normalise';
+export { MIN_QUOTE_WORDS, MIN_QUOTE_CHARS, resolveQuote } from './quote-resolver';
 export type { ChunkInput, PdfPageInput } from './chunker';
 export { chunkDocument } from './chunker';
