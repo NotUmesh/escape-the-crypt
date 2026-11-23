@@ -37,8 +37,8 @@ All test tasks are required and part of done. Property tests for one module are 
     - Compare the root scripts with the Commands list in `.kiro/steering/tech.md` and edit that list only if a script name or behaviour differs
     - Keep the file otherwise unchanged and add no logs or user content under `.kiro/`
     - _Requirements: 12.4_
-- [ ] 1. Feasibility spike: pdf.js inside the Extraction Worker
-  - [ ] 1.1 Set up dependencies and the spike harness
+- [x] 1. Feasibility spike: pdf.js inside the Extraction Worker
+  - [x] 1.1 Set up dependencies and the spike harness
     - Add `pdfjs-dist` (exact pinned version), `@noble/hashes` (exact pinned version, `packages/core` only), `fast-check`, `vitest`, `@playwright/test` and `@axe-core/playwright` to the correct workspace packages, and commit the pnpm lockfile
     - Self-host the pdf.js worker file under `apps/web/public` so it is served from the same origin
     - Create a tiny fixture PDF and a spike page under `apps/web/src/features/ingest/spike/` that extracts its text in two configurations: nested pdf.js worker inside the Extraction Worker, and in-thread (fake worker) mode inside the Extraction Worker
@@ -46,7 +46,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - Add a Playwright spike test at `apps/web/e2e/pdfjs-spike.e2e.ts` with Chromium, Firefox and a Pixel emulation project (configured in task 0.3) that checks text comes back, `terminate()` stops work, and no cross-origin request is made
     - _Requirements: 2.1, 2.2, 2.4, 2.5, 2.7_
 
-  - [ ] 1.2 Run the spike and record the decision
+  - [x] 1.2 Run the spike and record the decision
     - Run the spike test and record, in `docs/build-log.md`, which configuration works on Chrome, Firefox and Android Chrome (emulated here; note that a real-device check is still manual)
     - If neither configuration works on all three, record the main-thread fallback with `loadingTask.destroy()`, document destroy and pdf.js worker termination on cancel or timeout
     - Record the chosen mode in a single exported constant that `extraction-client.ts` will read

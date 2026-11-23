@@ -67,6 +67,37 @@
         "chatSessionId": "sess_028efc54-f39a-40b0-b328-6f55b79b48ec",
         "timestamp": 1795457852256
       }
+    ],
+    "1.1 Set up dependencies and the spike harness": [
+      {
+        "executionId": "b476e76b-018e-4226-b9ca-d3ff22f73c01",
+        "chatSessionId": "sess_62a1f54b-15f0-40ce-a3d1-c2095663903a",
+        "timestamp": 1795458113567
+      },
+      {
+        "executionId": "b476e76b-018e-4226-b9ca-d3ff22f73c01",
+        "chatSessionId": "sess_62a1f54b-15f0-40ce-a3d1-c2095663903a",
+        "timestamp": 1795458468001
+      }
+    ],
+    "1.2 Run the spike and record the decision": [
+      {
+        "executionId": "e064e036-fc3f-4ab0-bc4a-6c8d78e67f83",
+        "chatSessionId": "sess_685f9681-438d-4e1f-ad05-e750195ee366",
+        "timestamp": 1795458536704
+      },
+      {
+        "executionId": "e064e036-fc3f-4ab0-bc4a-6c8d78e67f83",
+        "chatSessionId": "sess_685f9681-438d-4e1f-ad05-e750195ee366",
+        "timestamp": 1795458615135
+      }
+    ],
+    "1. Feasibility spike: pdf.js inside the Extraction Worker": [
+      {
+        "executionId": "e064e036-fc3f-4ab0-bc4a-6c8d78e67f83",
+        "chatSessionId": "sess_685f9681-438d-4e1f-ad05-e750195ee366",
+        "timestamp": 1795458615171
+      }
     ]
   }
 }
