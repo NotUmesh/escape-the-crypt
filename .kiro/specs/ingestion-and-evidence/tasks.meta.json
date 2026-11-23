@@ -637,6 +637,11 @@
         "executionId": "9a9ed420-2a69-491f-8f85-3c23b1efa4c0",
         "chatSessionId": "sess_f50d9afd-ef9e-43e6-93ae-34991de6757d",
         "timestamp": 1795463690501
+      },
+      {
+        "executionId": "77f687cc-adc8-45bf-a6bd-58a584428bd8",
+        "chatSessionId": "sess_db23888b-a8d7-4b02-b8b4-56df6ad50bec",
+        "timestamp": 1795465476875
       }
     ],
     "9.4 Write limit tests with fixture PDFs and an injected clock": [
@@ -649,6 +654,37 @@
         "executionId": "b0942e03-85c1-4cf9-91d3-ccad28fd148a",
         "chatSessionId": "sess_bf650fae-ace2-45dd-aeeb-3a0f73e57c0b",
         "timestamp": 1795464688667
+      }
+    ],
+    "9.5 Write page flag and multi-paragraph fixture tests": [
+      {
+        "executionId": "23ed55a5-fc03-4095-8e31-fac90443d28b",
+        "chatSessionId": "sess_865b7379-b5ef-42cb-82a2-8a5a55b33dba",
+        "timestamp": 1795464777638
+      },
+      {
+        "executionId": "23ed55a5-fc03-4095-8e31-fac90443d28b",
+        "chatSessionId": "sess_865b7379-b5ef-42cb-82a2-8a5a55b33dba",
+        "timestamp": 1795464838116
+      }
+    ],
+    "9.6 Write encrypted PDF and worker lifecycle tests": [
+      {
+        "executionId": "0c0a8246-af6e-4589-a5d2-390578252cc9",
+        "chatSessionId": "sess_f63d76ca-3aea-4170-8675-593049b2511a",
+        "timestamp": 1795464860572
+      },
+      {
+        "executionId": "0c0a8246-af6e-4589-a5d2-390578252cc9",
+        "chatSessionId": "sess_f63d76ca-3aea-4170-8675-593049b2511a",
+        "timestamp": 1795464907004
+      }
+    ],
+    "9. Extraction Worker and client": [
+      {
+        "executionId": "77f687cc-adc8-45bf-a6bd-58a584428bd8",
+        "chatSessionId": "sess_db23888b-a8d7-4b02-b8b4-56df6ad50bec",
+        "timestamp": 1795465476919
       }
     ]
   }

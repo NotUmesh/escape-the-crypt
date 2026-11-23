@@ -234,7 +234,7 @@ All test tasks are required and part of done. Property tests for one module are 
   - Add a short entry to `docs/build-log.md` noting the hook, its trigger, and that CI remains the release gate while the hook is fast feedback only
   - _Requirements: 12.1_
 
-- [ ] 9. Extraction Worker and client
+- [x] 9. Extraction Worker and client
   - [x] 9.1 Implement the Extraction Worker
     - Create `apps/web/src/features/ingest/extraction-worker.ts` using the mode recorded by the spike
     - Open the document with `enableScripting: false`, no password callback and cMap and font fetching off (unless self-hosted)
@@ -242,7 +242,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - Map pdf.js `PasswordException` to `encrypted` and parse failures to `unreadable`; check a `cancelled` flag between pages
     - _Requirements: 2.1, 2.2, 2.4, 2.5, 3.4, 3.5, 4.1, 4.4_
 
-  - [ ] 9.2 Implement the Extraction Client
+  - [x] 9.2 Implement the Extraction Client
     - Create `apps/web/src/features/ingest/extraction-client.ts` exposing `start`, `cancel` and `terminate`, hiding the chosen mode
     - Check file size before creating any worker and reject without starting one
     - Apply a wall-clock timeout with the injected clock as a second guard; terminate the worker (or run `loadingTask.destroy()`, document destroy and pdf.js worker termination in fallback mode) on cancel, timeout or error, and drop buffer references
@@ -263,13 +263,13 @@ All test tasks are required and part of done. Property tests for one module are 
     - Assert the file-size rejection never starts the worker
     - _Requirements: 3.2, 3.3, 3.4, 3.5, 14.1_
 
-  - [ ] 9.5 Write page flag and multi-paragraph fixture tests
+  - [x] 9.5 Write page flag and multi-paragraph fixture tests
     - File: `apps/web/src/features/ingest/extraction-flags.test.ts`
     - One fixture each for `ok`, `low-text` and `suspicious`
     - Extract the three-paragraph fixture through the real pdf.js path and check blank lines between paragraphs, three chunks from `chunkDocument`, and that a quote spanning the hyphen break resolves
     - _Requirements: 4.1, 4.2, 4.3, 6.1, 7.2, 14.2_
 
-  - [ ] 9.6 Write encrypted PDF and worker lifecycle tests
+  - [x] 9.6 Write encrypted PDF and worker lifecycle tests
     - File: `apps/web/src/features/ingest/extraction-lifecycle.test.ts`
     - Encrypted fixture gives the `encrypted` error and the worker is terminated
     - With a mocked worker: Stop, timeout and error each terminate it, and the page choice is sent before `start`

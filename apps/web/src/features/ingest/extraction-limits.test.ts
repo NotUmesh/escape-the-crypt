@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import {
   MAX_EXTRACTED_WORDS,
@@ -25,8 +25,7 @@ function loadPdfjs(): Promise<PdfJs> {
 
 async function openFixture(name: string): Promise<PdfDocumentLike> {
   const pdfjs = await loadPdfjs();
-  // Vitest runs with apps/web as the working directory.
-  const bytes = await readFile(resolve(process.cwd(), 'src/features/ingest/fixtures', name));
+  const bytes = await readFile(join(import.meta.dirname, 'fixtures', name));
   const task = pdfjs.getDocument({
     data: new Uint8Array(bytes),
     useWorkerFetch: false,
