@@ -276,13 +276,13 @@ All test tasks are required and part of done. Property tests for one module are 
     - _Requirements: 2.2, 2.3, 2.6, 2.7, 4.4_
 
 - [ ] 10. Ingest state machine, design tokens and fonts
-  - [ ] 10.1 Implement the state machine
+  - [x] 10.1 Implement the state machine
     - Create `apps/web/src/features/ingest/ingest-machine.ts`: reducer with `PASTE_CHANGED`, `FILE_SELECTED`, `PAGES_CHOSEN`, `EXTRACTION_PAGE`, `EXTRACTION_ERROR`, `CANCEL`, `PAGE_REMOVED`, `TEXT_EDITED`, `CONFIRM`
     - Hold ingest units (original text, current text, flag, included), status and the latest announcement
     - Implement `canConfirm`; on `CONFIRM` call `chunkDocument`; reject pasted text over the word limit with the copy message
     - _Requirements: 1.3, 2.6, 3.3, 3.6, 4.5, 5.1, 5.2, 5.5, 5.6_
 
-  - [ ] 10.2 Write property test and unit tests for the state machine
+  - [x] 10.2 Write property test and unit tests for the state machine
     - File: `apps/web/src/features/ingest/ingest-machine.test.ts`
     - **Property 7: Confirm is disabled for empty content**
     - Unit tests for removing a page, an over-limit paste message, and cancel discarding partial results

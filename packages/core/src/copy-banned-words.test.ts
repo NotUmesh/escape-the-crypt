@@ -2,6 +2,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { citationLabel } from './citation-labeller';
 import {
+  ANNOUNCEMENT_COPY,
   BANNED_COPY_PHRASES,
   CITATION_COPY,
   ERROR_COPY,
@@ -59,12 +60,27 @@ describe('Property 20: Banned words never appear in labels or copy', () => {
       ...collectStrings(ERROR_COPY),
       ...collectStrings(PAGE_FLAG_COPY),
       ...collectStrings(PRIVACY_NOTICE),
+      ...collectStrings(ANNOUNCEMENT_COPY),
       PRIVACY_NOTICE_TEXT,
     ];
     expect(strings.length).toBeGreaterThan(0);
     for (const s of strings) expect(findBanned(s), s).toEqual([]);
   });
 
+  /** **Validates: Requirements 8.4, 11.2** */
+  it('has no banned phrase in announcement templates for any number', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 100000 }), (n) => {
+        const texts = [
+          ANNOUNCEMENT_COPY.pageRemoved(n),
+          ANNOUNCEMENT_COPY.paragraphRemoved(n),
+          ANNOUNCEMENT_COPY.pageLowText(n),
+          ANNOUNCEMENT_COPY.pageSuspicious(n),
+        ];
+        for (const t of texts) expect(findBanned(t), t).toEqual([]);
+      }),
+    );
+  });
   /** **Validates: Requirements 8.4, 11.2** */
   it('has no banned phrase in citation templates for any input', () => {
     fc.assert(

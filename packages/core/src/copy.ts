@@ -107,6 +107,16 @@ function pageReference(page: number, printedLabel: string | null): string {
   return `${page} (printed page ${printedLabel})`;
 }
 
+/** Messages for the polite live region while the learner reviews notes. */
+export const ANNOUNCEMENT_COPY = {
+  stopped: 'Reading stopped. Nothing was kept.',
+  edited: 'Text edited',
+  confirmed: 'Notes confirmed',
+  pageRemoved: (page: number): string => `Page ${page} removed`,
+  paragraphRemoved: (n: number): string => `Paragraph ${n} removed`,
+  pageLowText: (page: number): string => `Page ${page} marked low text`,
+  pageSuspicious: (page: number): string => `Page ${page} needs a look`,
+} as const;
 /** Words ingest copy and labels must never contain. Used by tests. */
 export const BANNED_COPY_PHRASES: readonly string[] = [
   'verified',

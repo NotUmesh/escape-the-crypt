@@ -50,6 +50,7 @@ export {
   PRIVACY_NOTICE_TEXT,
   PAGE_FLAG_COPY,
   CITATION_COPY,
+  ANNOUNCEMENT_COPY,
   BANNED_COPY_PHRASES,
   renderError,
   errorMessage,
