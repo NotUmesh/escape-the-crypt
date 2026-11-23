@@ -595,6 +595,30 @@
         "chatSessionId": "sess_44d05d41-e73c-4d33-8ab1-4440ce46a989",
         "timestamp": 1795462025701
       }
+    ],
+    "8. Create the first Kiro hook": [
+      {
+        "executionId": "d7efbdbc-9636-4baa-b62a-dbbc54eb6cff",
+        "chatSessionId": "sess_8567f398-0d07-452e-a912-ebf4b279fe31",
+        "timestamp": 1795462324253
+      },
+      {
+        "executionId": "d7efbdbc-9636-4baa-b62a-dbbc54eb6cff",
+        "chatSessionId": "sess_8567f398-0d07-452e-a912-ebf4b279fe31",
+        "timestamp": 1795462415299
+      }
+    ],
+    "7. Checkpoint - Engine complete": [
+      {
+        "executionId": "d0beeb05-91cc-406b-a7ec-cb17e7af4832",
+        "chatSessionId": "sess_db23888b-a8d7-4b02-b8b4-56df6ad50bec",
+        "timestamp": 1795463276837
+      },
+      {
+        "executionId": "d0beeb05-91cc-406b-a7ec-cb17e7af4832",
+        "chatSessionId": "sess_db23888b-a8d7-4b02-b8b4-56df6ad50bec",
+        "timestamp": 1795463308335
+      }
     ]
   }
 }

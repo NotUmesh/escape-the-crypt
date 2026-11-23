@@ -222,10 +222,10 @@ All test tasks are required and part of done. Property tests for one module are 
     - **Property 20: Banned words never appear in labels or copy**
     - **Validates: Requirements 8.4, 11.2**
 
-- [ ] 7. Checkpoint - Engine complete
+- [x] 7. Checkpoint - Engine complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Create the first Kiro hook
+- [x] 8. Create the first Kiro hook
   - Create the hook with Kiro's `createHook` tool (or the Agent Hooks UI). Whatever file name and format it produces is correct; do not hard-code a file name or write the hook JSON by hand
   - The hook is named "Run core tests on save", triggers on save of files under `packages/core/src` (a `PostFileSave` trigger whose matcher accepts both `/` and `\` path separators, for example `packages[/\\]core[/\\]src[/\\]`), and runs the command `node .kiro/hooks/run-core-tests.mjs`
   - `PostFileSave` matchers are tested against the saved file path, so the matcher already limits the hook to `packages/core/src`. Record the file name that was produced in `docs/build-log.md`
