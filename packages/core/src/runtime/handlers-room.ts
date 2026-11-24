@@ -1,5 +1,7 @@
 import type { Event } from '../types';
+import { recordQuestionShown } from './ghost-queue';
 import { accept, reject } from './result';
+import { materialiseDueReturns } from './room-clearing';
 import type { ApplyResult } from './result';
 import { findRoomIndex } from './slot-lookup';
 import type { State } from './state-types';
@@ -28,7 +30,17 @@ export function handleRoomEntered(state: State, event: RoomEnteredEvent): ApplyR
   if (room === undefined) return reject('unknown-reference');
   if (!room.published) return reject('room-not-published');
   if (index !== 0) return reject('room-out-of-order');
-  return accept({ ...state, currentRoomId: room.roomId });
+  // Entering shows every Lock_Slot's primary question, so record it for Review labels
+  // (Req 14.9). Ghosts that carried over are materialised through the shared site (Req 15.5).
+  const shownIds = new Map<string, string>();
+  for (const spec of state.manifest.rooms[index]?.lockSlots ?? []) {
+    shownIds.set(spec.conceptId, spec.primaryQuestion.questionId);
+  }
+  const concepts = state.concepts.map((c) => {
+    const questionId = shownIds.get(c.conceptId);
+    return questionId === undefined ? c : recordQuestionShown(c, questionId);
+  });
+  return accept(materialiseDueReturns({ ...state, currentRoomId: room.roomId, concepts }, room.roomId));
 }
 
 /** Record the focused lock. `apply.ts` has already checked the room (Req 9.1, 9.2, 9.5). */

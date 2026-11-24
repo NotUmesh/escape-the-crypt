@@ -1,6 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { buildManifest } from '../test-support/manifest-fixture';
+import { submissionFor } from '../test-support/question-answers';
 import { SETTINGS } from '../test-support/run-settings';
 import type { Event } from '../types';
 import { apply } from './apply';
@@ -139,5 +140,111 @@ describe('Property 9 (a): challenging a Lock_Slot question is free and isolated'
       }),
       { numRuns: 100 },
     );
+  });
+});
+
+type ReturnAction = 'correct' | 'wrong' | 'skip' | 'challenge';
+
+const returnSetupArb = fc.record({
+  conceptsPerRoom: fc.integer({ min: 1, max: 6 }),
+  alternates: fc.array(fc.boolean(), { minLength: 6, maxLength: 6 }),
+  actions: fc.array(
+    fc.record({
+      slot: fc.nat(20),
+      action: fc.constantFrom<ReturnAction>('correct', 'wrong', 'wrong', 'correct', 'skip', 'challenge'),
+    }),
+    { minLength: 4, maxLength: 40 },
+  ),
+});
+
+function openSlotIds(state: State): string[] {
+  const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
+  if (!room) return [];
+  return [
+    ...room.lockSlots.filter((s) => s.status === 'open').map((s) => s.slotId),
+    ...room.dueReturnSlots.filter((s) => s.status === 'open').map((s) => s.slotId),
+  ];
+}
+
+function shownQuestionId(state: State, slotId: string): string {
+  const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
+  return (
+    room?.lockSlots.find((s) => s.slotId === slotId)?.currentQuestionId ??
+    room?.dueReturnSlots.find((s) => s.slotId === slotId)?.currentQuestionId ??
+    ''
+  );
+}
+
+/** Feature: room-runtime, Property 4: Return question choice and Review label follow show history */
+describe('Property 4: return question choice and Review label follow show history', () => {
+  /** **Validates: Requirements 14.2, 14.3, 14.4, 14.9, 14.10** */
+  it('picks the unused Alternate or the primary, and labels Review iff already shown', () => {
+    let returnsSeen = 0;
+    fc.assert(
+      fc.property(returnSetupArb, (setup) => {
+        const manifest = buildManifest({
+          rooms: 1,
+          conceptsPerRoom: setup.conceptsPerRoom,
+          alternates: (_room, concept) => setup.alternates[concept] ?? true,
+        });
+        let state = startRun(manifest);
+        for (const { slot, action } of setup.actions) {
+          const open = openSlotIds(state);
+          const slotId = open[slot % Math.max(open.length, 1)];
+          if (slotId === undefined) break;
+          let event: Event;
+          if (action === 'skip') event = { kind: 'Skipped', slotId };
+          else if (action === 'challenge') event = { kind: 'Challenged', slotId };
+          else {
+            const question = questionById(manifest, shownQuestionId(state, slotId));
+            if (!question) throw new Error('unknown question');
+            event = {
+              kind: 'AnswerSubmitted',
+              slotId,
+              submission: submissionFor(question, action === 'correct'),
+            };
+          }
+          const before = state;
+          const result = apply(state, event);
+          if (!result.ok) continue;
+          state = result.state;
+
+          const knownBefore = new Set(
+            before.rooms.flatMap((r) => r.dueReturnSlots.map((s) => s.slotId)),
+          );
+          for (const ret of state.rooms.flatMap((r) => r.dueReturnSlots)) {
+            if (knownBefore.has(ret.slotId)) continue;
+            returnsSeen += 1;
+            const spec = manifest.rooms
+              .flatMap((r) => r.lockSlots)
+              .find((s) => s.conceptId === ret.conceptId);
+            const record = before.concepts.find((c) => c.conceptId === ret.conceptId);
+            if (!spec || !record) throw new Error('missing concept');
+            const alternate = spec.alternateQuestion;
+            const expected =
+              ret.returnNumber === 1 && alternate !== null && !record.alternateUsed
+                ? alternate
+                : spec.primaryQuestion;
+            expect(ret.currentQuestionId).toBe(expected.questionId);
+            // Req 14.11: a Return never shows a challenged question.
+            const priorResult =
+              expected === spec.primaryQuestion ? record.firstQuestionResult : record.alternateResult;
+            expect(priorResult).not.toBe('challenged');
+            expect(ret.currentQuestionType).toBe(expected.lockType);
+            expect(ret.label).toBe(
+              record.shownQuestionIds.includes(expected.questionId) ? 'review' : null,
+            );
+            if (ret.returnNumber === 2) expect(ret.label).toBe('review');
+            if (expected !== spec.primaryQuestion) {
+              expect(expected.lockType).not.toBe(spec.primaryQuestion.lockType);
+            }
+            const after = state.concepts.find((c) => c.conceptId === ret.conceptId);
+            expect(after?.shownQuestionIds).toContain(expected.questionId);
+          }
+        }
+      }),
+      { numRuns: 200 },
+    );
+    expect(returnsSeen).toBeGreaterThan(0);
   });
 });

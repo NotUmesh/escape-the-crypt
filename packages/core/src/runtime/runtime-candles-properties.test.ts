@@ -124,7 +124,21 @@ describe('Property 2: Candles track non-challenged correct answers only', () => 
     let totalCandles = 0;
     fc.assert(
       fc.property(manifestArb, fc.array(stepArb, { minLength: 10, maxLength: 80 }), (manifest, steps) => {
+        // Deterministic prefix: start, publish and enter room 1, so every run can reach answers
+        // regardless of what the random steps pick. It adds no candles.
         let state = initial(manifest, SETTINGS);
+        const first = manifest.rooms[0];
+        if (first === undefined) throw new Error('manifest has no rooms');
+        const prefix: Event[] = [
+          { kind: 'RunStarted', manifestId: manifest.manifestId },
+          ...manifest.rooms.map((r): Event => ({ kind: 'RoomPublished', roomId: r.roomId })),
+          { kind: 'RoomEntered', roomId: first.roomId },
+        ];
+        for (const event of prefix) {
+          const started = apply(state, event);
+          if (!started.ok) throw new Error(`prefix rejected: ${started.error.kind}`);
+          state = started.state;
+        }
         let expected = 0;
         for (const step of steps) {
           const list = candidates(state, step);
@@ -152,5 +166,36 @@ describe('Property 2: Candles track non-challenged correct answers only', () => 
       { numRuns: 200 },
     );
     expect(totalCandles).toBeGreaterThan(0); // the generator does reach candles
+  });
+
+  it('a correct answer in the entered room lights exactly one candle (coverage guard)', () => {
+    fc.assert(
+      fc.property(manifestArb, (manifest) => {
+        let state = initial(manifest, SETTINGS);
+        const first = manifest.rooms[0];
+        if (first === undefined) throw new Error('manifest has no rooms');
+        const setup: Event[] = [
+          { kind: 'RunStarted', manifestId: manifest.manifestId },
+          ...manifest.rooms.map((r): Event => ({ kind: 'RoomPublished', roomId: r.roomId })),
+          { kind: 'RoomEntered', roomId: first.roomId },
+        ];
+        for (const event of setup) {
+          const r = apply(state, event);
+          if (!r.ok) throw new Error(`rejected: ${r.error.kind}`);
+          state = r.state;
+        }
+        const slot = state.rooms[0]?.lockSlots[0];
+        if (slot === undefined) throw new Error('no slot');
+        const q = shownQuestion(state, slot.slotId, slot.currentQuestionId);
+        if (q === null) throw new Error('no question');
+        const r = apply(state, {
+          kind: 'AnswerSubmitted',
+          slotId: slot.slotId,
+          submission: submissionFor(q, 'correct'),
+        });
+        expect(r.ok && r.state.candleCount).toBe(1);
+      }),
+      { numRuns: 50 },
+    );
   });
 });

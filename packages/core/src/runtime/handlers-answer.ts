@@ -1,82 +1,16 @@
-import { judgeRegistry } from '../locks/judge-registry';
-import type {
-  BoneOrderingQuestion,
-  BoneOrderingSubmission,
-  BoundThreadsQuestion,
-  BoundThreadsSubmission,
-  CombinationDialQuestion,
-  CombinationDialSubmission,
-  CursedObjectQuestion,
-  CursedObjectSubmission,
-  RuneCipherQuestion,
-  RuneCipherSubmission,
-  SeanceBoardQuestion,
-  SeanceBoardSubmission,
-} from '../locks/judge-registry';
-import type { Event, HintEffectSpec, JudgeResult, LockType } from '../types';
-import { candleLitForSlot, orderNotices } from './notices';
+import type { Event } from '../types';
+import { hasEligibleReturnQuestion, recordQuestionShown, spawnGhost } from './ghost-queue';
+import { findReturnSlot, handleReturnAnswer } from './handlers-return-answer';
+import { candleLitForSlot, ghostSpawned, orderNotices } from './notices';
 import type { QuestionSpec } from './manifest-types';
 import { accept, reject } from './result';
 import type { ApplyResult } from './result';
-import { updateRoomCleared } from './room-clearing';
+import { findSpecByConcept, settleRoom } from './room-clearing';
+import { runJudge } from './run-judge';
 import type { ConceptRecord, LockSlotState, State } from './state-types';
 
 type AnswerSubmittedEvent = Extract<Event, { kind: 'AnswerSubmitted' }>;
 type EvidenceContinuedEvent = Extract<Event, { kind: 'EvidenceContinued' }>;
-
-/**
- * Run the judge for one lock type. The judges are total; the try/catch is a last guard so
- * a malformed payload or submission becomes `invalid` instead of an exception.
- */
-function runJudge(
-  lockType: LockType,
-  payload: unknown,
-  submission: unknown,
-  hint: HintEffectSpec | null,
-): JudgeResult {
-  try {
-    switch (lockType) {
-      case 'rune-cipher':
-        return judgeRegistry[lockType](
-          payload as RuneCipherQuestion,
-          submission as RuneCipherSubmission,
-          hint,
-        );
-      case 'seance-board':
-        return judgeRegistry[lockType](
-          payload as SeanceBoardQuestion,
-          submission as SeanceBoardSubmission,
-          hint,
-        );
-      case 'bone-ordering':
-        return judgeRegistry[lockType](
-          payload as BoneOrderingQuestion,
-          submission as BoneOrderingSubmission,
-          hint,
-        );
-      case 'bound-threads':
-        return judgeRegistry[lockType](
-          payload as BoundThreadsQuestion,
-          submission as BoundThreadsSubmission,
-          hint,
-        );
-      case 'cursed-object':
-        return judgeRegistry[lockType](
-          payload as CursedObjectQuestion,
-          submission as CursedObjectSubmission,
-          hint,
-        );
-      case 'combination-dial':
-        return judgeRegistry[lockType](
-          payload as CombinationDialQuestion,
-          submission as CombinationDialSubmission,
-          hint,
-        );
-    }
-  } catch {
-    return 'invalid';
-  }
-}
 
 interface LockSlotLocation {
   readonly roomIndex: number;
@@ -128,7 +62,10 @@ function updateConcept(
  */
 export function handleAnswerSubmitted(state: State, event: AnswerSubmittedEvent): ApplyResult {
   const located = findLockSlot(state, event.slotId);
-  if (located === null) return reject('unknown-reference');
+  if (located === null) {
+    const returned = findReturnSlot(state, event.slotId);
+    return returned === null ? reject('unknown-reference') : handleReturnAnswer(state, event, returned);
+  }
   const { roomIndex, slotIndex, slot } = located;
   if (slot.status !== 'open') return reject('lock-already-settled');
 
@@ -161,30 +98,61 @@ export function handleAnswerSubmitted(state: State, event: AnswerSubmittedEvent)
         }
       : room,
   );
-  const concepts = updateConcept(state.concepts, found.conceptId, (c) => ({
+  const concepts = updateConcept(state.concepts, found.conceptId, (shown) => {
+    const c = recordQuestionShown(shown, slot.currentQuestionId);
+    return {
     ...c,
     firstQuestionResult: found.isPrimary ? result : c.firstQuestionResult,
     alternateResult: found.isPrimary ? c.alternateResult : result,
     hintUsedOnCorrectQuestion: c.hintUsedOnCorrectQuestion || (correct && hint !== null),
-  }));
+    };
+  });
+  const judgedCount = state.judgedAnswerCount + 1;
+  // A wrong answer spawns a ghost counted from this judged answer (Req 14.1, 15.2), unless no
+  // unchallenged question is left for the Return: then the concept is review due (Req 14.11).
+  const updatedRecord = concepts.find((c) => c.conceptId === found.conceptId);
+  const eligible =
+    updatedRecord !== undefined &&
+    hasEligibleReturnQuestion(findSpecByConcept(state, found.conceptId), updatedRecord, 1);
+  const spawned = correct || !eligible ? null : spawnGhost(state.ghosts, found.conceptId, 1, judgedCount);
   const judged: State = {
     ...state,
     rooms,
-    concepts,
-    judgedAnswerCount: state.judgedAnswerCount + 1,
+    concepts:
+      correct || eligible
+        ? concepts
+        : updateConcept(concepts, found.conceptId, (c) => ({ ...c, reviewDueFlag: true })),
+    ghosts: spawned?.ok === true ? spawned.ghosts : state.ghosts,
+    judgedAnswerCount: judgedCount,
     candleCount: state.candleCount + (correct ? 1 : 0),
   };
   const room = rooms[roomIndex];
-  const cleared =
-    room === undefined ? { state: judged, notices: [] } : updateRoomCleared(judged, room.roomId);
-  const notices = correct ? [candleLitForSlot(slot.slotId), ...cleared.notices] : cleared.notices;
+  const cleared = room === undefined ? { state: judged, notices: [] } : settleRoom(judged, room.roomId);
+  const notices = [
+    ...(correct ? [candleLitForSlot(slot.slotId)] : []),
+    ...(spawned?.ok === true ? [ghostSpawned(found.conceptId)] : []),
+    ...cleared.notices,
+  ];
   return accept(cleared.state, orderNotices(notices));
 }
 
 /** Close the evidence panel of a slot (Req 10.5). */
 export function handleEvidenceContinued(state: State, event: EvidenceContinuedEvent): ApplyResult {
   const located = findLockSlot(state, event.slotId);
-  if (located === null) return reject('unknown-reference');
+  if (located === null) {
+    const returned = findReturnSlot(state, event.slotId);
+    if (returned === null) return reject('unknown-reference');
+    if (!returned.slot.evidencePanelOpen) {
+      return reject('no-evidence-open', { slotId: returned.slot.slotId });
+    }
+    const rooms = state.rooms.map((room) => ({
+      ...room,
+      dueReturnSlots: room.dueReturnSlots.map((s) =>
+        s.slotId === event.slotId ? { ...s, evidencePanelOpen: false } : s,
+      ),
+    }));
+    return accept({ ...state, rooms });
+  }
   const { roomIndex, slotIndex, slot } = located;
   if (!slot.evidencePanelOpen) return reject('no-evidence-open', { slotId: slot.slotId });
   const rooms = state.rooms.map((room, i) =>

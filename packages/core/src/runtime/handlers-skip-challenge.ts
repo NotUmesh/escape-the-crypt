@@ -1,10 +1,12 @@
 import type { Event } from '../types';
 import type { LockSlotSpec } from './manifest-types';
+import { findReturnSlot } from './handlers-return-answer';
+import { challengeReturnSlot, recordSkippedConcept, skipReturnSlot } from './handlers-return-settle';
 import { orderNotices, sealCracked } from './notices';
 import type { Outcome_Notice } from './notices';
 import { accept, reject } from './result';
 import type { ApplyResult } from './result';
-import { updateRoomCleared } from './room-clearing';
+import { settleRoom } from './room-clearing';
 import type { ConceptRecord, LockSlotState, State } from './state-types';
 
 type SkippedEvent = Extract<Event, { kind: 'Skipped' }>;
@@ -17,8 +19,8 @@ interface Located {
 }
 
 /**
- * Find a Lock_Slot and its manifest spec. Return_Slots and Final_Door slots are not found
- * here; skip and challenge on those arrive in 4.3 and 6.3.
+ * Find a Lock_Slot and its manifest spec. Return_Slots are handled in handlers-return-settle.ts;
+ * Final_Door slots arrive in 6.3.
  */
 function locate(state: State, slotId: string): Located | null {
   for (let roomIndex = 0; roomIndex < state.rooms.length; roomIndex += 1) {
@@ -56,18 +58,24 @@ function updateConcept(
 /** Run the Cleared check for the room and order the notices of this event. */
 function finish(state: State, roomIndex: number, notices: readonly Outcome_Notice[]): ApplyResult {
   const room = state.rooms[roomIndex];
-  const cleared = room === undefined ? { state, notices: [] } : updateRoomCleared(state, room.roomId);
+  const cleared = room === undefined ? { state, notices: [] } : settleRoom(state, room.roomId);
   return accept(cleared.state, orderNotices([...notices, ...cleared.notices]));
 }
 
 /**
  * Skip a Lock_Slot (Req 16.1, 16.2): the slot is settled with no candle, no ghost and no
- * judged answer. Deferred returns and the Review_Due_Flag come in 4.3.
+ * judged answer. With an unused Alternate a deferred return 1 is queued; otherwise the
+ * Review_Due_Flag is set (Req 16.3, 16.4).
  */
 export function handleSkipped(state: State, event: SkippedEvent): ApplyResult {
   const located = locate(state, event.slotId);
-  if (located === null) return reject('unknown-reference');
-  const { roomIndex, slot } = located;
+  if (located === null) {
+    const ret = findReturnSlot(state, event.slotId);
+    if (ret === null) return reject('unknown-reference');
+    if (ret.slot.status !== 'open') return reject('lock-already-settled');
+    return skipReturnSlot(state, ret);
+  }
+  const { roomIndex, slot, spec } = located;
   if (slot.status !== 'open') return reject('lock-already-settled');
 
   const settled: LockSlotState = {
@@ -76,7 +84,8 @@ export function handleSkipped(state: State, event: SkippedEvent): ApplyResult {
     candleLit: false,
     evidencePanelOpen: false,
   };
-  return finish(replaceSlot(state, roomIndex, settled), roomIndex, []);
+  const next = recordSkippedConcept(replaceSlot(state, roomIndex, settled), spec.conceptId);
+  return finish(next, roomIndex, []);
 }
 
 /**
@@ -86,7 +95,12 @@ export function handleSkipped(state: State, event: SkippedEvent): ApplyResult {
  */
 export function handleChallenged(state: State, event: ChallengedEvent): ApplyResult {
   const located = locate(state, event.slotId);
-  if (located === null) return reject('unknown-reference');
+  if (located === null) {
+    const ret = findReturnSlot(state, event.slotId);
+    if (ret === null) return reject('unknown-reference');
+    if (ret.slot.status !== 'open') return reject('lock-already-settled');
+    return challengeReturnSlot(state, ret);
+  }
   const { roomIndex, slot, spec } = located;
   if (slot.status !== 'open') return reject('lock-already-settled');
 

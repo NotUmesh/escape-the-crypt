@@ -4,7 +4,7 @@ import { buildManifest } from '../test-support/manifest-fixture';
 import { SETTINGS } from '../test-support/run-settings';
 import { initial } from './initial';
 import { roomCleared } from './notices';
-import { isRoomCleared, updateRoomCleared } from './room-clearing';
+import { isRoomCleared, materialiseDueReturns, settleRoom, updateRoomCleared } from './room-clearing';
 import type { ReturnSlotState, SlotStatus, State } from './state-types';
 
 const STATUSES: readonly SlotStatus[] = ['open', 'solved', 'settled', 'challenged'];
@@ -40,6 +40,42 @@ function stateWith(statuses: readonly SlotStatus[], returns: readonly SlotStatus
     ],
   };
 }
+
+describe('Return_Slot insertion before clearing', () => {
+  function withGhost(atSpawn: number, judged: number, returnNumber: 1 | 2 = 1): State {
+    const base = stateWith(['settled'], []);
+    const conceptId = base.manifest.rooms[0]!.lockSlots[0]!.conceptId;
+    return {
+      ...base,
+      judgedAnswerCount: judged,
+      ghosts: [{ conceptId, returnNumber, judgedAnswerCountAtSpawn: atSpawn, due: false }],
+    };
+  }
+
+  it('adds the due ghost as a Return_Slot and keeps the room uncleared', () => {
+    const state = withGhost(0, 3);
+    const result = settleRoom(state, state.rooms[0]!.roomId);
+    expect(result.state.ghosts).toEqual([]);
+    expect(result.state.rooms[0]!.dueReturnSlots).toHaveLength(1);
+    expect(result.state.rooms[0]!.cleared).toBe(false);
+    expect(result.notices).toEqual([]);
+    expect(result.state.rooms[0]!.lockSlots).toEqual(state.rooms[0]!.lockSlots);
+  });
+
+  it('clears the room when no ghost is due, and carries a pending ghost over', () => {
+    const state = withGhost(1, 3);
+    const result = settleRoom(state, state.rooms[0]!.roomId);
+    expect(result.state.ghosts).toEqual(state.ghosts);
+    expect(result.state.rooms[0]!.cleared).toBe(true);
+  });
+
+  it('labels by show history and records the return question as shown', () => {
+    const state = withGhost(0, 3, 2);
+    const next = materialiseDueReturns(state, state.rooms[0]!.roomId);
+    expect(next.rooms[0]!.dueReturnSlots[0]).toMatchObject({ returnNumber: 2, label: null });
+    expect(next.concepts[0]!.shownQuestionIds).toHaveLength(1);
+  });
+});
 
 describe('room clearing', () => {
   it('is not cleared while a lock is open', () => {

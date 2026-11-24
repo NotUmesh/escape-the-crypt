@@ -245,6 +245,9 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 8. THE Runtime SHALL cap the return number of any Ghost at 2.
 9. WHEN a Return question was already shown for the Concept earlier in the run, THE Runtime SHALL label it "Review".
 10. WHEN a Return question was not shown for the Concept earlier in the run, THE Runtime SHALL show no label on it.
+11. THE Runtime SHALL never show a question that was challenged as a Return question.
+12. WHEN a wrong answer leaves no unchallenged question available for a return 1 (for example the primary was challenged and the Alternate was then answered wrong), THE Runtime SHALL spawn no Ghost, emit no `ghostSpawned` Outcome_Notice and set the Review_Due_Flag on the Concept. The Concept_Outcome is then Review due, not Challenged, because the Alternate was answered.
+13. WHEN a return 1 is judged wrong and no unchallenged question is available for a return 2, THE Runtime SHALL spawn no Ghost, emit no `ghostSpawned` Outcome_Notice and set the Review_Due_Flag on the Concept.
 
 ### Requirement 15: Ghost schedule by answer count
 

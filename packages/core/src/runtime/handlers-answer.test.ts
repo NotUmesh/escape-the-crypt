@@ -80,7 +80,9 @@ describe('AnswerSubmitted', () => {
     expect(result.notices).toEqual([
       { kind: 'candleLit', target: { type: 'slot', slotId: runeSlot } },
     ]);
+    expect(result.state.ghosts).toEqual([]);
     expect(result.state.concepts.find((c) => c.conceptId === runeSpec.conceptId)).toMatchObject({
+      shownQuestionIds: [runeSpec.primaryQuestion.questionId],
       firstQuestionResult: 'correct',
       hintUsedOnCorrectQuestion: false,
     });
@@ -102,7 +104,8 @@ describe('AnswerSubmitted', () => {
     });
     expect(result.state.candleCount).toBe(0);
     expect(result.state.judgedAnswerCount).toBe(1);
-    expect(result.notices).toEqual([]);
+    expect(result.notices).toEqual([{ kind: 'ghostSpawned', conceptId: runeSpec.conceptId }]);
+    expect(result.state.ghosts).toHaveLength(1);
   });
 
   it('rejects an invalid submission and leaves State unchanged', () => {

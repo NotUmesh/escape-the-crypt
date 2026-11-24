@@ -149,39 +149,39 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 1.7, 13.4_
 
-- [ ] 4. Ghost queue, returns and return slots
-  - [ ] 4.1 Implement the ghost queue
+- [x] 4. Ghost queue, returns and return slots
+  - [x] 4.1 Implement the ghost queue
     - `runtime/ghost-queue.ts` with `ghost-queue.test.ts`. Export `GHOST_DELAY = 3` (re-exported from `runtime/index.ts`). Spawn with the judged-answer count at that moment; due when `judgedAnswerCount - atSpawn >= GHOST_DELAY`; one pending ghost per concept; return number capped at 2; not-yet-due ghosts carry into the next room unchanged. Return 1 uses the unused Alternate, otherwise the primary; return 2 uses the primary. Label "Review" when the question ID is already in `shownQuestionIds`, else none; append to `shownQuestionIds` when shown (primary when a Lock_Slot is first shown, Alternate after a replacement; reserved final-door questions are not tracked). Only judged answers count; time, hints, skips, challenges and invalid submissions are ignored.
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.7, 14.8, 14.9, 14.10, 15.1, 15.2, 15.3, 15.4, 15.5_
 
-  - [ ] 4.2 Wire ghosts and Return_Slots into answering and clearing
+  - [x] 4.2 Wire ghosts and Return_Slots into answering and clearing
     - Update `handlers-answer.ts` and `room-clearing.ts`: a wrong first answer spawns a ghost (`ghostSpawned`); due ghosts become Return_Slots in the current room before the Cleared check (the same call site for every handler that can settle a last slot); a Return_Slot is not a Lock_Slot and keeps the room uncleared while open. Return judged correct: slot `solved`, Spirit_Candle in that room, `candleLit` naming the room, `ghostLaidToRest`, own candle of the missed Lock_Slot stays unlit, concept record updated. Return 1 wrong spawns return 2; return 2 wrong sets `isLingeringSpirit` and `reviewDueFlag`. Update `handlers-answer.test.ts` and `room-clearing.test.ts`.
     - _Requirements: 10.3, 13.5, 13.6, 13.7, 14.1, 14.4, 14.5, 14.6, 15.3, 15.5, 15.6, 19.1, 30.1, 30.2, 30.3, 30.4, 30.5, 31.7, 31.9_
 
-  - [ ] 4.3 Add deferred skips and challenges on Return_Slots
+  - [x] 4.3 Add deferred skips and challenges on Return_Slots
     - Update `handlers-skip-challenge.ts` and its test. `Skipped` on a Lock_Slot or Return_Slot with an unused Alternate queues a deferred return 1 under the same due rule; with none it sets `reviewDueFlag`. A deferred return judged correct counts as retried; judged wrong follows return 1 wrong. `Challenged` on a Return question settles that Return_Slot as `challenged` with no further question; if an earlier unchallenged wrong answer or skip exists, record it so the outcome is Review due. Reserved Final_Door skips are handled in 6.3.
     - _Requirements: 16.3, 16.4, 16.5, 16.6, 17.4_
 
-  - [ ] 4.4 Write the named sequences for ghosts
-    - New file `runtime/runtime-sequences.test.ts`. Against a fixed fixture manifest: (1) all wrong: miss, return 1 on the Alternate with no label wrong, return 2 labelled "Review" wrong, lingering spirit, zero candles; (2) all challenged with alternates: every question and replacement challenged, zero candles, no wrong answer recorded; (3) no alternates at all: wrong answers and skips go straight to a primary Return labelled "Review" and then Review due flags. Assert slots, ghosts, candles and notices. Outcome and escape assertions are added in 6.5 and 7.6.
+  - [x] 4.4 Write the named sequences for ghosts
+    - New file `runtime/runtime-sequences.test.ts`. Against a fixed fixture manifest: (1) all wrong: miss, return 1 on the Alternate with no label wrong, return 2 labelled "Review" wrong, lingering spirit, zero candles; (2) all challenged with alternates: every question and replacement challenged, zero candles, no wrong answer recorded; (3) no alternates at all: a wrong answer goes to a primary Return labelled "Review", then Review due flags if missed again; a skip with no Alternate goes straight to review due (Req 16.4), with no Return and no ghost. Assert slots, ghosts, candles and notices. Outcome and escape assertions are added in 6.5 and 7.6.
     - _Requirements: 14.2, 14.3, 14.4, 14.5, 14.9, 14.10, 16.4, 17.1, 17.2, 17.3, 17.5_
 
-  - [ ] 4.5 Write property test for ghost cap
+  - [x] 4.5 Write property test for ghost cap
     - New file `runtime/runtime-ghosts-properties.test.ts`. At most one pending ghost per concept at any time; return number never above 2.
     - **Property 3: At most one pending ghost per concept, capped at return 2**
     - **Validates: Requirements 14.7, 14.8**
 
-  - [ ] 4.6 Write property test for return question choice and label
+  - [x] 4.6 Write property test for return question choice and label
     - In `runtime/runtime-properties.test.ts`. Return 1 uses the unused Alternate (a different lock type from the primary) when one exists, otherwise the primary; the label is "Review" if and only if the question was shown earlier for the concept; return 2 is always "Review".
     - **Property 4: Return question choice and Review label follow show history**
     - **Validates: Requirements 14.2, 14.3, 14.4, 14.9, 14.10**
 
-  - [ ] 4.7 Extend the challenge isolation test to Return_Slots
+  - [x] 4.7 Extend the challenge isolation test to Return_Slots
     - In `runtime/runtime-properties.test.ts`: part (a) of Property 9 for a challenged Return question (no wrong answer, candle or ghost from the challenge).
     - **Property 9: Challenging is free, isolated and follows the outcome precedence** (part a, Return_Slots)
     - **Validates: Requirements 17.4, 17.5, 17.7**
 
-  - [ ] 4.8 Verify task 4
+  - [x] 4.8 Verify task 4
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 15.1, 30.5_
 

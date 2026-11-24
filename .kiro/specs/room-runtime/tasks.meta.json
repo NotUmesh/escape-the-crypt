@@ -23,6 +23,18 @@
     "3.8 Write property test for slot status and candle flag": {
       "status": "passed",
       "lastRunTimestamp": 1795532125959
+    },
+    "4.6 Write property test for return question choice and label": {
+      "status": "passed",
+      "lastRunTimestamp": 1795534271319
+    },
+    "4.5 Write property test for ghost cap": {
+      "status": "passed",
+      "lastRunTimestamp": 1795534334615
+    },
+    "4.7 Extend the challenge isolation test to Return_Slots": {
+      "status": "passed",
+      "lastRunTimestamp": 1795534459026
     }
   },
   "executionHistory": {
@@ -342,6 +354,119 @@
         "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
         "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
         "timestamp": 1795532181405
+      }
+    ],
+    "4.1 Implement the ghost queue": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795533360316
+      },
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795533617011
+      }
+    ],
+    "4.2 Wire ghosts and Return_Slots into answering and clearing": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795533620010
+      },
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795533945316
+      },
+      {
+        "executionId": "ab7223dd-3901-477a-9351-440e1f5093d1",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534741251
+      },
+      {
+        "executionId": "ab7223dd-3901-477a-9351-440e1f5093d1",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534942613
+      }
+    ],
+    "4.3 Add deferred skips and challenges on Return_Slots": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795533948890
+      },
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534101264
+      }
+    ],
+    "4.4 Write the named sequences for ghosts": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534106303
+      },
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534204162
+      }
+    ],
+    "4.5 Write property test for ghost cap": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534209213
+      },
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534349918
+      }
+    ],
+    "4.6 Write property test for return question choice and label": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534209279
+      },
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534350004
+      }
+    ],
+    "4.7 Extend the challenge isolation test to Return_Slots": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534353099
+      },
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534470250
+      }
+    ],
+    "4.8 Verify task 4": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534470950
+      },
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534505365
+      }
+    ],
+    "4. Ghost queue, returns and return slots": [
+      {
+        "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
+        "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
+        "timestamp": 1795534505395
       }
     ]
   }
