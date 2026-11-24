@@ -5,6 +5,7 @@ import type { ExtractionClient } from './features/ingest/extraction-client';
 import { IngestFlow } from './features/ingest/ingest-flow';
 import { createMemoryStore } from './features/ingest/notes-store-memory';
 import { TestParent } from './features/ingest/test-parent';
+import { createCannedExtractionClient } from './test-support/canned-extraction-client';
 import './styles/tokens.css';
 import './styles/fonts.css';
 import './styles/app.css';
@@ -56,7 +57,8 @@ function createHeldClient(): ExtractionClient {
 }
 
 // Layout-test entry, built only in e2e mode. `?width=` sets the parent width and
-// `?hold=1` holds the count and read steps until released.
+// `?hold=1` holds the count and read steps until released. `?client=canned` uses
+// canned pages and runs no pdf.js worker.
 const params = new URLSearchParams(globalThis.location.search);
 const width = Number(params.get('width') ?? '360');
 const container = document.getElementById('root');
@@ -66,7 +68,13 @@ createRoot(container).render(
     <TestParent width={Number.isFinite(width) && width > 0 ? width : 360}>
       <IngestFlow
         store={createMemoryStore()}
-        createClient={params.get('hold') === '1' ? createHeldClient : undefined}
+        createClient={
+          params.get('client') === 'canned'
+            ? createCannedExtractionClient
+            : params.get('hold') === '1'
+              ? createHeldClient
+              : undefined
+        }
       />
     </TestParent>
   </StrictMode>,

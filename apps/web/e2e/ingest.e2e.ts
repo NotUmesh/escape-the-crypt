@@ -115,7 +115,7 @@ test.describe('axe', () => {
     await scan(page);
   });
 
-test('page list screen with canned ok, low-text and suspicious pages (no pdf.js worker)', async ({ page }) => {
+  test('page list screen with canned ok, low-text and suspicious pages (no pdf.js worker)', async ({ page }) => {
     await page.goto('/test-parent.html?width=720&client=canned');
     await page.locator('input[type="file"]').setInputFiles({
       name: 'notes.pdf',

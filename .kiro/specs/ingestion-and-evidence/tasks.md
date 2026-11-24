@@ -305,7 +305,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - Run the scan over the finished ingest components, so schedule this after the UI tasks
     - _Requirements: 16.1, 16.2, 16.5, 16.6, 16.7, 16.8, 16.11, 16.12, 17.1, 17.2_
 
-- [ ] 11. Ingest UI
+- [x] 11. Ingest UI
   - [x] 11.1 Build the privacy notice, paste input and live announcer
     - Create `privacy-notice.tsx`, `paste-input.tsx` (labelled native `textarea` with a word counter) and `live-announcer.tsx` (visually hidden polite live region) under `apps/web/src/features/ingest/`, each with its own small CSS file
     - Style only with the design tokens from task 10.3. Set no fixed layout, no viewport units, no page background and no background art. Each component draws its own surface and takes the width and height its parent gives it, so a later open-book parent can host it without changes to the component
@@ -356,7 +356,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - **Validates: Requirements 18.1, 18.2, 18.4, 18.8, 18.9**
     - _Requirements: 18.2, 18.3, 18.5, 18.6, 18.7_
 
-- [ ] 12. Integration, end-to-end and structure checks
+- [x] 12. Integration, end-to-end and structure checks
   - [x] 12.1 Write the network guarantee test
     - File: `apps/web/e2e/ingest-network.e2e.ts`
     - During a fixture PDF extraction, allow same-origin GETs without a body, and fail on any cross-origin request, any request with a body, or any request containing extracted text
@@ -373,6 +373,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - Paste three paragraphs of at least 40 characters, check Confirm is disabled and explained while empty, check the preview shows plain text, edit paragraph 2, confirm
     - Read stored chunks: only chunk 2 has `edited: true`; labels read "Paragraph 1 of your notes", "Paragraph 2 of your notes", "Paragraph 3 of your notes"
     - Repeat the flow with keyboard only, and run axe on the upload, page-list and preview screens
+    - The real-PDF page-list scan runs on Chromium and Pixel only (axe plus the pdf.js worker crashes Playwright's Firefox); a second page-list scan uses a canned Extraction Client with ok, low-text and suspicious pages and runs on every project, Firefox included
     - _Requirements: 5.4, 5.6, 8.2, 9.1, 15.1_
 
   - [x] 12.4 Add architecture and structure checks
@@ -381,7 +382,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - Wire them into `pnpm lint` (the CI workflow from task 0.4 already runs it on every push)
     - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
-- [ ] 13. Final checkpoint - Ensure all tests pass
+- [x] 13. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
