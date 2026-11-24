@@ -9,6 +9,7 @@ import type { State } from './state-types';
 const manifest = buildManifest({ rooms: 2, conceptsPerRoom: 3 });
 const fresh = (): State => initial(manifest, SETTINGS);
 const started = (): State => ({ ...fresh(), status: 'in progress', remainingHints: 3 });
+const inRoomOne = (): State => ({ ...started(), currentRoomId: manifest.rooms[0]?.roomId ?? null });
 const firstSlotId = manifest.rooms[0]?.lockSlots[0]?.slotId as string;
 
 function kindOf(state: State, event: unknown): string | null {
@@ -69,7 +70,7 @@ describe('apply guards', () => {
   });
 
   it('rejects an action on a solved or settled slot with lock-already-settled', () => {
-    const base = started();
+    const base = inRoomOne();
     for (const status of ['solved', 'settled', 'challenged'] as const) {
       const state: State = {
         ...base,
@@ -84,6 +85,46 @@ describe('apply guards', () => {
       // EvidenceContinued does not need an open slot.
       expect(kindOf(state, { kind: 'EvidenceContinued', slotId: firstSlotId })).not.toBe('lock-already-settled');
     }
+  });
+
+  describe('lock-not-in-room', () => {
+    const otherRoomSlotId = manifest.rooms[1]?.lockSlots[0]?.slotId as string;
+    const actions = (slotId: string): readonly unknown[] => [
+      { kind: 'LockOpened', slotId },
+      { kind: 'HintUsed', slotId },
+      { kind: 'AnswerSubmitted', slotId, submission: {} },
+      { kind: 'Skipped', slotId },
+      { kind: 'Challenged', slotId },
+    ];
+
+    it.each(actions(otherRoomSlotId))('rejects %j for a slot in another room, State unchanged', (event) => {
+      const state = inRoomOne();
+      const before = JSON.stringify(state);
+      expect(apply(state, event as Event)).toEqual({ ok: false, error: { kind: 'lock-not-in-room' } });
+      expect(JSON.stringify(state)).toBe(before);
+    });
+
+    it.each(actions(firstSlotId))('rejects %j before any RoomEntered, State unchanged', (event) => {
+      const state = started();
+      const before = JSON.stringify(state);
+      expect(apply(state, event as Event)).toEqual({ ok: false, error: { kind: 'lock-not-in-room' } });
+      expect(JSON.stringify(state)).toBe(before);
+    });
+
+    it('checks the room before the settled status', () => {
+      const base = inRoomOne();
+      const state: State = {
+        ...base,
+        rooms: base.rooms.map((r, i) =>
+          i === 1 ? { ...r, lockSlots: r.lockSlots.map((s, j) => (j === 0 ? { ...s, status: 'settled' as const } : s)) } : r,
+        ),
+      };
+      expect(kindOf(state, { kind: 'LockOpened', slotId: otherRoomSlotId })).toBe('lock-not-in-room');
+    });
+
+    it('exempts EvidenceContinued', () => {
+      expect(kindOf(started(), { kind: 'EvidenceContinued', slotId: firstSlotId })).toBe('no-evidence-open');
+    });
   });
 
   it('does not mutate the input state on success or failure', () => {

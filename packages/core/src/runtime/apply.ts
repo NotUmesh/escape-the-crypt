@@ -1,6 +1,10 @@
 import type { Event, EventKind } from '../types';
 import { isEvent } from './event-guard';
+import { handleAnswerSubmitted, handleEvidenceContinued } from './handlers-answer';
+import { handleHintUsed } from './handlers-hint';
+import { handleLockOpened, handleRoomEntered, handleRoomPublished } from './handlers-room';
 import { handleRunStarted } from './handlers-run';
+import { handleChallenged, handleSkipped } from './handlers-skip-challenge';
 import { reject } from './result';
 import type { ApplyResult } from './result';
 import { findRoomIndex, findSlot } from './slot-lookup';
@@ -34,6 +38,20 @@ const NEEDS_OPEN_SLOT: ReadonlySet<EventKind> = new Set<EventKind>([
   'Challenged',
 ]);
 
+/**
+ * True when the slot is playable now: a Lock_Slot or due Return_Slot of the current room,
+ * or, while the Final_Door is the place being played, a Final_Door slot (Req 9.5).
+ */
+function slotIsInPlay(state: State, slotId: string): boolean {
+  if (state.finalDoor.available) return state.finalDoor.slots.some((s) => s.slotId === slotId);
+  const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
+  if (room === undefined) return false;
+  return (
+    room.lockSlots.some((s) => s.slotId === slotId) ||
+    room.dueReturnSlots.some((s) => s.slotId === slotId)
+  );
+}
+
 /** Guards shared by every event. Returns a rejection, or null when the event may proceed. */
 function guard(state: State, event: Event): ApplyResult | null {
   if (state.status === 'escaped') return reject('run-finished');
@@ -55,8 +73,9 @@ function guard(state: State, event: Event): ApplyResult | null {
     case 'EvidenceContinued': {
       const slot = findSlot(state, event.slotId);
       if (slot === null) return reject('unknown-reference');
-      if (NEEDS_OPEN_SLOT.has(event.kind) && slot.status !== 'open') {
-        return reject('lock-already-settled');
+      if (NEEDS_OPEN_SLOT.has(event.kind)) {
+        if (!slotIsInPlay(state, event.slotId)) return reject('lock-not-in-room');
+        if (slot.status !== 'open') return reject('lock-already-settled');
       }
       return null;
     }
@@ -79,6 +98,22 @@ export function apply(state: State, event: Event): ApplyResult {
   switch (candidate.kind) {
     case 'RunStarted':
       return handleRunStarted(state, candidate);
+    case 'RoomPublished':
+      return handleRoomPublished(state, candidate);
+    case 'RoomEntered':
+      return handleRoomEntered(state, candidate);
+    case 'LockOpened':
+      return handleLockOpened(state, candidate);
+    case 'AnswerSubmitted':
+      return handleAnswerSubmitted(state, candidate);
+    case 'EvidenceContinued':
+      return handleEvidenceContinued(state, candidate);
+    case 'HintUsed':
+      return handleHintUsed(state, candidate);
+    case 'Skipped':
+      return handleSkipped(state, candidate);
+    case 'Challenged':
+      return handleChallenged(state, candidate);
     default:
       // Handlers for the other kinds are wired in later tasks. Until then the event is
       // refused rather than silently accepted, and State stays unchanged.

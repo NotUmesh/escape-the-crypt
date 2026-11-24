@@ -168,6 +168,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 2. IF `LockOpened` targets a Lock_Slot outside the current room, THEN THE Runtime SHALL return a Typed_Rejection with kind `lock-not-in-room`.
 3. IF `LockOpened` targets a solved or settled Lock_Slot, THEN THE Runtime SHALL return a Typed_Rejection with kind `lock-already-settled`.
 4. THE Runtime SHALL accept `AnswerSubmitted`, `HintUsed`, `Skipped` and `Challenged` for an Open_Slot whether or not a `LockOpened` Event precedes them.
+5. IF `LockOpened`, `HintUsed`, `AnswerSubmitted`, `Skipped` or `Challenged` targets a slot that is not in the current room (or, while at the Final_Door, not a Final_Door slot), including before any `RoomEntered`, THEN THE Runtime SHALL return a Typed_Rejection with kind `lock-not-in-room` and leave State unchanged. `EvidenceContinued` is exempt, so it may close the panel of the slot just judged. Due Return_Slots in the current room count as in the room. The check runs after the unknown-reference check and before the `lock-already-settled` check.
 
 ### Requirement 10: Answer submission, one judged submit per question
 

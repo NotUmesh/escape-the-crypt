@@ -7,6 +7,22 @@
     "1.6 Write property test for invalid events as no-ops": {
       "status": "passed",
       "lastRunTimestamp": 1795529670316
+    },
+    "3.9 Write property test for challenge isolation, part (a)": {
+      "status": "passed",
+      "lastRunTimestamp": 1795532088590
+    },
+    "3.7 Write property test for hints": {
+      "status": "passed",
+      "lastRunTimestamp": 1795532089293
+    },
+    "3.6 Write property test for candles": {
+      "status": "passed",
+      "lastRunTimestamp": 1795532106221
+    },
+    "3.8 Write property test for slot status and candle flag": {
+      "status": "passed",
+      "lastRunTimestamp": 1795532125959
     }
   },
   "executionHistory": {
@@ -189,6 +205,143 @@
         "executionId": "baa39542-85e2-4b8c-a760-6cfbb79f1d53",
         "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
         "timestamp": 1795531100819
+      }
+    ],
+    "3.1 Implement notices, room clearing and selectors": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531448247
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531555754
+      }
+    ],
+    "3.2 Implement room and lock handlers for a single room": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531559234
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531645530
+      },
+      {
+        "executionId": "190fdfff-186c-4e20-ba33-a62edd8e0e02",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795533190830
+      },
+      {
+        "executionId": "190fdfff-186c-4e20-ba33-a62edd8e0e02",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795533285724
+      }
+    ],
+    "3.3 Implement answer submission and evidence": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531649129
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531761854
+      }
+    ],
+    "3.4 Implement hints": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531782187
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531901273
+      }
+    ],
+    "3.5 Implement skip and challenge for Lock_Slots": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795531904262
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532022520
+      }
+    ],
+    "3.6 Write property test for candles": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532026651
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532139832
+      }
+    ],
+    "3.7 Write property test for hints": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532027223
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532139952
+      }
+    ],
+    "3.8 Write property test for slot status and candle flag": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532027905
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532140091
+      }
+    ],
+    "3.9 Write property test for challenge isolation, part (a)": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532028523
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532140204
+      }
+    ],
+    "3.10 Verify task 3": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532143258
+      },
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532181300
+      }
+    ],
+    "3. Single room: answers, evidence, skip, challenge, hints and candles": [
+      {
+        "executionId": "13c02b82-a692-42f4-8dd9-d9278a874d9b",
+        "chatSessionId": "sess_ed163d59-46c1-40e3-9c74-10b8b39ece86",
+        "timestamp": 1795532181405
       }
     ]
   }

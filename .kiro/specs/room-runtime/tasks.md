@@ -103,49 +103,49 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/locks`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 11.1, 26.9_
 
-- [ ] 3. Single room: answers, evidence, skip, challenge, hints and candles
-  - [ ] 3.1 Implement notices, room clearing and selectors
+- [x] 3. Single room: answers, evidence, skip, challenge, hints and candles
+  - [x] 3.1 Implement notices, room clearing and selectors
     - `runtime/notices.ts`: notice builders and one ordering list `candleLit, ghostLaidToRest, ghostSpawned, sealCracked, roomCleared, escaped`; `roomCleared` at most once per room. `runtime/room-clearing.ts`: the Cleared check (every Lock_Slot and due Return_Slot solved or settled), independent of correctness, leaving Lock_Slots unchanged. `runtime/selectors.ts`: read-only projections of every slot kind, ghosts, spirit candles, cleared flag, with `appliedHint` and `evidencePanelOpen`. Add `notices.test.ts`, `room-clearing.test.ts`, `selectors.test.ts`.
     - _Requirements: 19.1, 19.2, 19.3, 24.1, 24.2, 24.3, 24.4, 24.6, 24.7, 24.8, 29.1, 29.2, 29.3, 31.1, 31.2, 31.3, 31.4, 31.5, 31.6, 31.7, 31.8, 31.9, 31.10, 31.11, 31.12_
 
-  - [ ] 3.2 Implement room and lock handlers for a single room
+  - [x] 3.2 Implement room and lock handlers for a single room
     - `runtime/handlers-room.ts` with `handlers-room.test.ts`: `RoomPublished` (idempotent no-op on a duplicate), `RoomEntered` for room 1 with `room-not-published`, and `LockOpened` (focus; `lock-not-in-room`, `lock-already-settled`). Wire into `apply.ts`. Order checks for later rooms are added in 6.1.
-    - _Requirements: 7.1, 7.2, 8.1, 8.3, 9.1, 9.2, 9.3, 9.4_
+    - _Requirements: 7.1, 7.2, 8.1, 8.3, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [ ] 3.3 Implement answer submission and evidence
+  - [x] 3.3 Implement answer submission and evidence
     - `runtime/handlers-answer.ts` with `handlers-answer.test.ts`. `AnswerSubmitted` resolves the applied hint only when it was recorded for the question shown, calls `judgeRegistry` for the Current_Question_Type, stores the result, opens the evidence panel, increments `judgedAnswerCount` for correct and wrong only. Correct: slot `solved`, `candleLit`, candle count plus one, `candleLit` notice naming the slot; set `ConceptRecord.hintUsedOnCorrectQuestion` to true only when the slot's applied hint was recorded for the question judged correct (Req 18.5). Wrong: slot `settled` (ghost spawning arrives in 4.2). Invalid: `invalid-submission`, State unchanged. Second judged submit on the same question: `lock-already-settled`. `EvidenceContinued` closes the panel or returns `no-evidence-open`. Judge result per event is a pure function of State and event; no model, network or service call. Wire into `apply.ts`.
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9, 13.1, 13.2, 13.3, 13.4, 13.5, 15.4, 29.5, 31.3, 31.4_
 
-  - [ ] 3.4 Implement hints
+  - [x] 3.4 Implement hints
     - `runtime/handlers-hint.ts` with `handlers-hint.test.ts`. `HintUsed` on any open slot: reduce remaining hints, record `{ questionId, effect }` from the question shown. `HintUsed` writes no concept record field; the hint is recorded only on the slot. Assisted is decided at judging time (see 3.3): `hintUsedOnCorrectQuestion` is set only when the question judged correct had the hint applied. The spent hint is never refunded. Rejections: `no-hints-left`, `lock-already-settled`, `hint-already-used`. A question with `hintEffect: null` still consumes a hint. A hint on a question later replaced does not carry to the replacement. Wire into `apply.ts`.
     - Tests: after a hint on a primary question, `Challenged` leaves `remainingHints` unchanged (no refund) and the Alternate's slot has `appliedHint: null`; a hint on the Alternate is accepted afterwards (a different question); a correct answer on a hinted question sets `hintUsedOnCorrectQuestion`, a correct answer on an unhinted Alternate after a hinted challenged primary does not.
     - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8_
 
-  - [ ] 3.5 Implement skip and challenge for Lock_Slots
+  - [x] 3.5 Implement skip and challenge for Lock_Slots
     - `runtime/handlers-skip-challenge.ts` with `handlers-skip-challenge.test.ts`. `Skipped` settles the slot, no candle, no ghost notice. `Challenged` with an unused Alternate replaces the question in place (Station_Type fixed, Current_Question_Type becomes the Alternate's, status stays `open`, applied hint cleared, `sealCracked`); with no Alternate, or on a replacement, status `challenged` and `sealCracked`. A challenge lights no candle, spawns no ghost and adds no wrong answer. Challenges are stored in the log and State only. Deferred returns, Review_Due_Flag and challenge on Return_Slots are added in 4.3. Wire into `apply.ts`.
     - _Requirements: 16.1, 16.2, 17.1, 17.2, 17.3, 17.5, 17.6, 17.7, 29.4, 31.2, 31.5_
 
-  - [ ] 3.6 Write property test for candles
+  - [x] 3.6 Write property test for candles
     - New file `runtime/runtime-candles-properties.test.ts`. Random event sequences over `manifestArb`; the candle count equals the number of correct judged answers on non-challenged questions, and no other event changes it.
     - **Property 2: Candles track non-challenged correct answers only**
     - **Validates: Requirements 13.1, 13.2, 13.3, 13.4**
 
-  - [ ] 3.7 Write property test for hints
+  - [x] 3.7 Write property test for hints
     - New file `runtime/runtime-hints-properties.test.ts`. Remaining hints never drop below 0; `HintUsed` on a solved or settled slot or a second hint on one question is rejected; a correct answer on a question that had a hint applied sets `hintUsedOnCorrectQuestion`; `Challenged` on a hinted question leaves `remainingHints` unchanged and the replacement Alternate has no applied hint; a hint on a challenged primary followed by a correct unhinted Alternate does not set `hintUsedOnCorrectQuestion`.
     - **Property 8: Hints stay within allowance and mark answers assisted**
     - **Validates: Requirements 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8, 22.7, 22.8, 22.11**
 
-  - [ ] 3.8 Write property test for slot status and candle flag
+  - [x] 3.8 Write property test for slot status and candle flag
     - New file `runtime/runtime-slots-properties.test.ts`. Status follows judged history; `candleLit` is true if and only if status is `solved`.
     - **Property 14: Slot status and candle flag follow judged history**
     - **Validates: Requirements 31.2, 31.3, 31.4, 31.5, 31.6**
 
-  - [ ] 3.9 Write property test for challenge isolation, part (a)
+  - [x] 3.9 Write property test for challenge isolation, part (a)
     - In `runtime/runtime-properties.test.ts`. For a challenged Lock_Slot question: the event adds no wrong answer, lights no candle, spawns no ghost, leaves `judgedAnswerCount` and `candleCount` unchanged, and emits only `sealCracked` (plus `roomCleared` where it settles the last slot). Parts (b) and (c) need outcomes and are written in 7.5; the Return_Slot case is added in 4.7.
     - **Property 9: Challenging is free, isolated and follows the outcome precedence** (part a)
     - **Validates: Requirements 17.1, 17.2, 17.3, 17.5, 17.7**
 
-  - [ ] 3.10 Verify task 3
+  - [x] 3.10 Verify task 3
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 1.7, 13.4_
 
@@ -224,7 +224,7 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - _Requirements: 7.4, 7.5, 7.6, 7.7_
 
   - [ ] 6.3 Implement the final door
-    - `runtime/handlers-final-door.ts` with `handlers-final-door.test.ts`. `FinalDoorEntered` (`final-door-unavailable` otherwise) makes every outstanding ghost and deferred skip due and adds them as Final_Door Return slots; GHOST_DELAY is waived at the door, so a ghost spawned there is due at once and a wrong return 1 there spawns a due return 2. Reserved questions are exactly the manifest's 2 to 4; a wrong answer or a skip settles with no Return, no deferred return, no Review_Due_Flag and no change to the concept record; a correct answer lights one candle; a challenge follows Requirement 17. Final door slots accept answer, skip, challenge and hint like room slots. All slots solved or settled sets status Escaped and emits `escaped` once. Update `handlers-skip-challenge.ts` for reserved-question skips.
+    - `runtime/handlers-final-door.ts` with `handlers-final-door.test.ts`. `FinalDoorEntered` (`final-door-unavailable` otherwise) makes every outstanding ghost and deferred skip due and adds them as Final_Door Return slots; GHOST_DELAY is waived at the door, so a ghost spawned there is due at once and a wrong return 1 there spawns a due return 2. Reserved questions are exactly the manifest's 2 to 4; a wrong answer or a skip settles with no Return, no deferred return, no Review_Due_Flag and no change to the concept record; a correct answer lights one candle; a challenge follows Requirement 17. Final door slots accept answer, skip, challenge and hint like room slots. All slots solved or settled sets status Escaped and emits `escaped` once. Update `handlers-skip-challenge.ts` for reserved-question skips. State gets an `atFinalDoor` flag set by `FinalDoorEntered`. The slot guard in `apply.ts` switches from `finalDoor.available` to `atFinalDoor`, so Final_Door slots return `lock-not-in-room` until `FinalDoorEntered` is applied. Test: answering a reserved door question when the door is available but not entered is rejected with `lock-not-in-room` and State unchanged.
     - _Requirements: 16.7, 20.1, 20.2, 20.3, 20.4, 20.5, 20.6, 20.8, 20.9, 20.10, 30.6, 31.11_
 
   - [ ] 6.4 Implement leave and resume

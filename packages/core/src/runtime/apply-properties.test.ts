@@ -88,6 +88,7 @@ describe('Property 5: Invalid events are no-ops', () => {
     const slotId = manifest.rooms[0]?.lockSlots[0]?.slotId as string;
     const settled: State = {
       ...started,
+      currentRoomId: manifest.rooms[0]?.roomId ?? null,
       rooms: started.rooms.map((r, i) =>
         i === 0 ? { ...r, lockSlots: r.lockSlots.map((s, j) => (j === 0 ? { ...s, status: 'settled' as const } : s)) } : r,
       ),
@@ -101,6 +102,33 @@ describe('Property 5: Invalid events are no-ops', () => {
         },
       ),
       { numRuns: 20 },
+    );
+  });
+
+  /** **Validates: Requirements 3.1, 9.5** */
+  it('slot events outside the current room, or before any RoomEntered, are rejected with lock-not-in-room', () => {
+    const room1 = manifest.rooms[0];
+    const room2 = manifest.rooms[1];
+    const inRoomOne: State = { ...started, currentRoomId: room1?.roomId ?? null };
+    const slotIds = (room: typeof room1): string[] => room?.lockSlots.map((s) => s.slotId) ?? [];
+    const slotEventArb = (slotId: string): fc.Arbitrary<Event> =>
+      fc.constantFrom<Event>(
+        { kind: 'LockOpened', slotId },
+        { kind: 'HintUsed', slotId },
+        { kind: 'AnswerSubmitted', slotId, submission: {} } as unknown as Event,
+        { kind: 'Skipped', slotId },
+        { kind: 'Challenged', slotId },
+      );
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...slotIds(room2)).chain(slotEventArb),
+        fc.constantFrom(...slotIds(room1)).chain(slotEventArb),
+        (otherRoomEvent, earlyEvent) => {
+          expect(applyAndCheckNoOp(inRoomOne, otherRoomEvent)).toEqual({ ok: false, error: { kind: 'lock-not-in-room' } });
+          expect(applyAndCheckNoOp(started, earlyEvent)).toEqual({ ok: false, error: { kind: 'lock-not-in-room' } });
+        },
+      ),
+      { numRuns: 50 },
     );
   });
 });
