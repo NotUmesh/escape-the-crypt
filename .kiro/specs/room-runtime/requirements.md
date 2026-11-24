@@ -13,7 +13,9 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 ## Glossary
 
 - **Runtime**: The pure reducer and its helper functions in `packages/core/src/runtime/`. Exposes `initial(manifest, settings)` and `apply(state, event)`.
-- **Manifest**: The immutable `CryptManifest` produced by the generation spec. It holds rooms, each room's locks, concepts, evidence references, the final-door set and hint effects.
+- **Manifest**: The immutable `CryptManifest` produced by the generation spec. It holds rooms, each room's locks, concepts, evidence references, the final-door set and the Hint_Effect carried by each question.
+- **QuestionSpec**: The Manifest record of one question: a primary question, an Alternate or a Reserved_Final_Door_Question. Each QuestionSpec carries a Question_Id, its LockType, its answer data and its Hint_Effect or none.
+- **Question_Id**: The `questionId` string carried by every QuestionSpec. It is unique within the Manifest across all primary questions, Alternates and Reserved_Final_Door_Questions.
 - **Run_Settings**: The learner's choices for one run: length (short, standard, long), difficulty (Apprentice, Gravedigger, Lich) and hint allowance.
 - **Event**: A serialisable record of one learner or job action, defined in `packages/core/src/types.ts`.
 - **Event_Log**: The ordered list of Events for one run. The Event_Log and the Manifest are all that persistence needs to restore a run.
@@ -29,15 +31,17 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 - **Return_Slot**: A separate slot that the Runtime adds to a room or to the Final_Door when a Ghost or deferred skip becomes due. It holds the Return question. It has no Station_Type and is not a lock station.
 - **Slot_Status**: One of exactly `open`, `solved`, `settled` or `challenged`. `settled` means finished by a wrong answer or a skip. `challenged` means settled by a challenge with no further question. A slot whose question was replaced by the Alternate after a challenge stays `open`.
 - **Spirit_Candle**: A candle lit in a room, or at the Final_Door, by a correct answer on a Return. It belongs to the place where the Return is answered and is not the candle of any Lock_Slot.
-- **Manifest_Check**: The pure function in `packages/core/src/runtime/` that tests whether a Manifest respects the one-lock-per-type rule.
-- **Judge**: A pure function in `packages/core/src/locks/<type>.ts` that returns correct, wrong or invalid for one submission to one question of that LockType. The six Judges are Rune_Cipher_Judge, Seance_Board_Judge, Bone_Ordering_Judge, Bound_Threads_Judge, Cursed_Object_Judge and Combination_Dial_Judge.
+- **Manifest_Check**: The pure function in `packages/core/src/runtime/` that tests whether a Manifest respects the one-lock-per-type rule and carries unique Question_Ids.
+- **Hint_Effect**: The effect of a hint on one question, fixed in the Manifest as a field of that question (for example removing an option, locking the first bone or tying a thread). Each primary question, Alternate and Reserved_Final_Door_Question carries its own Hint_Effect or none. A Hint_Effect belongs to the question, not to the slot that shows it.
+- **Applied_Hint**: The Hint_Effect of the question currently shown in a slot, once `HintUsed` has been applied for that question, or none if no hint was used on it. State records it per slot and question. A hint spent on a question that is later challenged stays spent and does not apply to the Alternate.
+- **Judge**: A pure function in `packages/core/src/locks/<type>.ts`, called as `judge(question, submission, appliedHint)`, that returns correct, wrong or invalid for one submission to one question of that LockType, taking account of the Applied_Hint of that question. The six Judges are Rune_Cipher_Judge, Seance_Board_Judge, Bone_Ordering_Judge, Bound_Threads_Judge, Cursed_Object_Judge and Combination_Dial_Judge.
 - **Open_Slot**: A Lock_Slot or Return_Slot that is neither solved nor settled.
 - **Solved**: A Lock_Slot or Return_Slot whose current question was judged correct.
 - **Settled**: A Lock_Slot or Return_Slot that is finished without a correct answer: judged wrong, skipped, or challenged with no replacement shown. A settled slot is excluded from the candle count. Slot_Status `settled` and `challenged` are both Settled.
 - **Judged_Answer**: A valid `AnswerSubmitted` event that the judge marked correct or wrong.
 - **Invalid_Submission**: A submission that cannot be judged, such as an empty answer or an option ID from another question. It is not a wrong answer.
 - **Ghost**: A pending return of a Concept after a wrong answer. A Ghost has a return number (1 or 2).
-- **Return**: A later question for a Concept shown in a Return_Slot because of a Ghost or a deferred skip. Return 1 uses the Alternate. Return 2 reuses one of the Concept's questions and is labelled "Review".
+- **Return**: A later question for a Concept shown in a Return_Slot because of a Ghost or a deferred skip. Return 1 uses the Alternate when one is unused. Return 2 reuses one of the Concept's questions and is always labelled "Review". A Return is labelled "Review" when its question was already shown for the Concept earlier in the run, and has no label otherwise.
 - **Lingering_Spirit**: A Concept that was answered wrong on return 2. It is reported as review due.
 - **GHOST_DELAY**: The named constant `3`. The number of other Judged_Answers that must pass before a Ghost or deferred skip becomes due.
 - **Cleared**: A room in which every Lock_Slot and every due Return_Slot is solved or settled.
@@ -135,7 +139,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 
 1. WHEN `RoomPublished` is applied for a room in the Manifest that is not yet published, THE Runtime SHALL mark the room published.
 2. WHEN `RoomPublished` is applied for a room that is already published, THE Runtime SHALL return an unchanged State as a successful no-op.
-3. WHEN a published room exists, THE Runtime SHALL keep its locks, option order and hint effects unchanged for the rest of the run.
+3. WHEN a published room exists, THE Runtime SHALL keep its locks, option order and the Hint_Effect of each question unchanged for the rest of the run.
 4. WHEN `CryptFinalised` is applied, THE Runtime SHALL record the final room count.
 5. WHEN `CryptShortened` is applied with a final room count at or above the number of published rooms, THE Runtime SHALL record the new final room count and leave every published room unchanged.
 6. IF `CryptShortened` carries a final room count below the number of published rooms, THEN THE Runtime SHALL return a Typed_Rejection with kind `cannot-shorten-published`.
@@ -171,7 +175,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 
 #### Acceptance Criteria
 
-1. WHEN `AnswerSubmitted` is applied for an Open_Slot, THE Runtime SHALL run the Judge for the slot's Current_Question_Type, chosen from the six Judges by LockType, inside the reducer and store the result in State.
+1. WHEN `AnswerSubmitted` is applied for an Open_Slot, THE Runtime SHALL run the Judge for the slot's Current_Question_Type, chosen from the six Judges by LockType, inside the reducer, pass the question actually shown and the Applied_Hint of that question, and store the result in State.
 2. WHEN the judge marks a submission correct, THE Runtime SHALL mark the Lock_Slot solved.
 3. WHEN the judge marks a submission wrong, THE Runtime SHALL mark the Lock_Slot settled and spawn a Ghost for the Concept under Requirement 14.
 4. WHEN a Judged_Answer is stored, THE Runtime SHALL open the evidence panel for that Lock_Slot in State until `EvidenceContinued` is applied.
@@ -205,10 +209,10 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 
 1. THE Seance_Board_Judge SHALL be a pure function in `packages/core/src/locks/seance-board.ts` with matching tests in `seance-board.test.ts`.
 2. WHEN the selected option ID equals the key option ID, THE Seance_Board_Judge SHALL return correct.
-3. WHEN the selected option ID is one of the question's option IDs and differs from the key option ID, THE Seance_Board_Judge SHALL return wrong.
-4. IF the selected option ID is not one of the question's option IDs, THEN THE Seance_Board_Judge SHALL return invalid.
+3. WHEN the selected option ID is a listed option ID of the question, is not removed by the Applied_Hint and differs from the key option ID, THE Seance_Board_Judge SHALL return wrong.
+4. IF the selected option ID is not a listed option ID of the question, or is an option removed by the Applied_Hint, THEN THE Seance_Board_Judge SHALL return invalid.
 5. IF the submission has no selected option ID, THEN THE Seance_Board_Judge SHALL return invalid.
-6. THE Seance_Board_Judge SHALL return a typed result and throw no exception for any input.
+6. THE Seance_Board_Judge SHALL accept the signature `judge(question, submission, appliedHint)`, return a typed result and throw no exception for any input.
 
 ### Requirement 13: Candles
 
@@ -238,7 +242,8 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 6. WHEN a Return is judged correct, THE Runtime SHALL emit a `ghostLaidToRest` Outcome_Notice.
 7. THE Runtime SHALL hold at most one pending Ghost per Concept at any time.
 8. THE Runtime SHALL cap the return number of any Ghost at 2.
-9. WHEN a Return question differs from the question the learner missed, THE Runtime SHALL show no "Review" label on it.
+9. WHEN a Return question was already shown for the Concept earlier in the run, THE Runtime SHALL label it "Review".
+10. WHEN a Return question was not shown for the Concept earlier in the run, THE Runtime SHALL show no label on it.
 
 ### Requirement 15: Ghost schedule by answer count
 
@@ -259,12 +264,13 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 
 #### Acceptance Criteria
 
-1. WHEN `Skipped` is applied for an Open_Slot, THE Runtime SHALL mark the Lock_Slot settled and exclude it from the candle count.
+1. WHEN `Skipped` is applied for an Open_Slot, THE Runtime SHALL mark the slot settled and exclude it from the candle count.
 2. WHEN `Skipped` is applied, THE Runtime SHALL emit no `ghostSpawned` Outcome_Notice and show no ghost.
-3. WHEN `Skipped` is applied and the Concept has an unused Alternate, THE Runtime SHALL queue a deferred return for the Concept that uses the Alternate and becomes due under Requirement 15.
-4. WHEN `Skipped` is applied and the Concept has no unused Alternate, THE Runtime SHALL set the Review_Due_Flag on the Concept.
+3. WHEN `Skipped` is applied for a Lock_Slot or Return_Slot and the Concept has an unused Alternate, THE Runtime SHALL queue a deferred return for the Concept that uses the Alternate and becomes due under Requirement 15.
+4. WHEN `Skipped` is applied for a Lock_Slot or Return_Slot and the Concept has no unused Alternate, THE Runtime SHALL set the Review_Due_Flag on the Concept.
 5. WHEN a deferred-skip Return is judged correct, THE Runtime SHALL count the Concept as retried.
 6. IF a deferred-skip Return is judged wrong, THEN THE Runtime SHALL treat the result as a return 1 wrong answer under Requirement 14.
+7. WHEN `Skipped` is applied for a Reserved_Final_Door_Question, THE Runtime SHALL settle the slot, queue no deferred Return, set no Review_Due_Flag and leave the Concept_Outcome of its Concept unchanged, consistent with Requirement 20, criteria 4 and 10.
 
 ### Requirement 17: Challenge
 
@@ -286,12 +292,14 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 
 #### Acceptance Criteria
 
-1. WHEN `HintUsed` is applied for an Open_Slot and the remaining hint count is above 0, THE Runtime SHALL reduce the remaining hint count by 1 and apply the hint effect fixed in the Manifest for that question.
+1. WHEN `HintUsed` is applied for an Open_Slot and the remaining hint count is above 0, THE Runtime SHALL reduce the remaining hint count by 1 and apply the Hint_Effect that the Manifest fixes on the question shown in that slot, and record it as the Applied_Hint of that question.
 2. IF `HintUsed` is applied while the remaining hint count is 0, THEN THE Runtime SHALL return a Typed_Rejection with kind `no-hints-left`.
 3. IF `HintUsed` targets a solved or settled Lock_Slot, THEN THE Runtime SHALL return a Typed_Rejection with kind `lock-already-settled`.
 4. THE Runtime SHALL keep the remaining hint count at or above 0.
-5. WHEN a hint has been used on a question and that question is later judged correct, THE Runtime SHALL record the answer as assisted.
+5. WHEN a question that had a hint applied is judged correct, THE Runtime SHALL record the answer as assisted.
 6. IF `HintUsed` is applied to a question for which a hint was already used, THEN THE Runtime SHALL return a Typed_Rejection with kind `hint-already-used`.
+7. WHEN `Challenged` is applied to a question that had a hint applied, THE Runtime SHALL leave the remaining hint count unchanged and refund no hint.
+8. WHEN a challenged question is replaced by an Alternate, THE Runtime SHALL carry no Applied_Hint over to the Alternate.
 
 ### Requirement 19: Settling locks and clearing rooms
 
@@ -346,10 +354,11 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 4. WHEN a challenged question is replaced by an Alternate that is then answered, THE Runtime SHALL assign the outcome from the Alternate's result.
 5. WHEN a Concept is a Lingering_Spirit, was skipped with no Alternate left, or has a challenged Return after an earlier unchallenged wrong answer or skip, THE Runtime SHALL assign the outcome Review due, unless criterion 3 applies.
 6. WHEN a Concept was answered correctly on a Return after a wrong answer or a skip, THE Runtime SHALL assign the outcome Retried.
-7. WHEN a Concept was answered correctly on the first question with a hint used, THE Runtime SHALL assign the outcome Assisted.
-8. WHEN a Concept was answered correctly on the first question with no hint used, THE Runtime SHALL assign the outcome First-try correct.
+7. WHEN a Concept was answered correctly with no earlier wrong answer or skip for the Concept, and the question judged correct had an Applied_Hint, THE Runtime SHALL assign the outcome Assisted.
+8. WHEN a Concept was answered correctly with no earlier wrong answer or skip for the Concept, and the question judged correct had no Applied_Hint, THE Runtime SHALL assign the outcome First-try correct.
 9. THE Runtime SHALL make the sum of the five Concept_Outcome counts, Challenged included, equal to the number of Concepts in the Manifest.
 10. THE Runtime SHALL make no claim of mastery, exam readiness or learning gain in any Concept_Outcome or its label.
+11. WHEN a primary question that had an Applied_Hint is challenged and replaced by an Alternate that is judged correct with no Applied_Hint on the Alternate, THE Runtime SHALL assign the outcome First-try correct, because the hint was applied to the challenged question and not to the question judged correct.
 
 ### Requirement 23: Autopsy labels in the copy catalogue
 
@@ -385,7 +394,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 #### Acceptance Criteria
 
 1. THE Fixture_Builder SHALL reside in `packages/core/src/test-support/` next to `arbitraries.ts` and build a valid Manifest from a small set of options.
-2. THE Fixture_Builder SHALL accept the number of rooms (1 to 5), the number of Concepts per room (1 to 6) with a distinct primary LockType for each Concept within the same room, whether each Concept has an Alternate, the LockType of each question, and an optional `lockTypes` list that defaults to all six LockTypes.
+2. THE Fixture_Builder SHALL accept the number of rooms (1 to 5), the number of Concepts per room (1 to 6) with a distinct primary LockType for each Concept within the same room, whether each Concept has an Alternate, the LockType of each question, an optional Hint_Effect for each primary question, Alternate and Reserved_Final_Door_Question (carried on the question, not on the slot), and an optional `lockTypes` list that defaults to all six LockTypes.
 3. THE Fixture_Builder SHALL build Alternates with a lock type different from the primary question.
 4. THE Fixture_Builder SHALL build a final-door set of 2 to 4 questions drawn from Concepts across rooms.
 5. THE Fixture_Builder SHALL produce the same Manifest for the same options and call no source of randomness unless a seed is supplied.
@@ -395,6 +404,8 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 9. WHERE the `lockTypes` list holds fewer than six LockTypes, THE Fixture_Builder SHALL draw every primary and Alternate LockType only from that list and SHALL cap the number of Concepts per room at the number of LockTypes in the list.
 10. WHERE the `lockTypes` list holds one LockType, THE Fixture_Builder SHALL build no Alternates, because an Alternate needs a LockType different from its primary question.
 11. THE manifest arbitraries SHALL draw from all six LockTypes and SHALL generate rooms of 4 to 6 Lock_Slots in a share of cases, so that a Return_Slot becomes due inside a room under Requirement 15 and Requirement 30.
+12. THE Fixture_Builder SHALL give every QuestionSpec it builds, including every Alternate and every Reserved_Final_Door_Question, a Question_Id that is unique within the Manifest.
+13. THE manifest arbitraries SHALL generate only Manifests in which every Question_Id is unique within the Manifest.
 
 ### Requirement 26: Judges for the other four lock types
 
@@ -403,15 +414,15 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 #### Acceptance Criteria
 
 1. THE Bone_Ordering_Judge SHALL return correct only when the submitted permutation equals the key exactly, and SHALL return invalid for a submission that is not a permutation of the items.
-2. WHEN a hint has locked the first bone, THE Bone_Ordering_Judge SHALL return invalid for a submission that moves that bone.
+2. WHEN the Applied_Hint locks the first bone, THE Bone_Ordering_Judge SHALL return invalid for a submission that moves that bone.
 3. THE Bound_Threads_Judge SHALL return correct only when the set of submitted pairs equals the key set, and SHALL return invalid when any left item is not tied.
-4. WHEN a hint has tied a thread, THE Bound_Threads_Judge SHALL return invalid for a submission that removes that thread.
-5. THE Cursed_Object_Judge SHALL return correct only when the selected ID equals the odd-one-out ID.
+4. WHEN the Applied_Hint ties a thread, THE Bound_Threads_Judge SHALL return invalid for a submission that removes that thread.
+5. THE Cursed_Object_Judge SHALL return correct when the selected ID equals the odd-one-out ID, SHALL return wrong when the selected ID is a listed object that the Applied_Hint does not remove and differs from the odd-one-out ID, and SHALL return invalid when the selected ID is not listed or is an object removed by the Applied_Hint.
 6. THE Combination_Dial_Judge SHALL return correct for an exact value or a value inside the stated range or tolerance, with units fixed by the question and at most one decimal place supported.
 7. THE Combination_Dial_Judge SHALL return invalid for non-numeric input or input with more than one decimal place, and SHALL return wrong for `59.9` against a range of 60 to 100.
 8. THE Combination_Dial_Judge SHALL return correct for `60` and `100` against a range of 60 to 100, and for `21.5` against a key of 21.5.
 9. THE Judge for each of these four lock types SHALL reside in `packages/core/src/locks/<type>.ts` with a matching `<type>.test.ts`, where `<type>` is `bone-ordering`, `bound-threads`, `cursed-object` or `combination-dial`.
-10. THE Judge for each of these four lock types SHALL be a pure function that returns a typed result and throws no exception for any input.
+10. THE Judge for each of these four lock types SHALL be a pure function with the signature `judge(question, submission, appliedHint)` that returns a typed result and throws no exception for any input.
 
 ### Requirement 27: Lock type IDs
 
@@ -437,6 +448,9 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 5. THE Runtime SHALL include `invalid-manifest` in the closed union of Typed_Rejection kinds defined under Requirement 3.
 6. THE Manifest_Check SHALL ignore Return_Slots, because Return_Slots are not part of the Manifest.
 7. WHEN `RunStarted` is applied, THE Runtime SHALL apply the Manifest_Check to the Manifest as stated in Requirement 2, criterion 6, and `initial(manifest, settings)` SHALL NOT apply it and SHALL NOT throw for a Manifest that fails it.
+8. THE Manifest_Check SHALL require every QuestionSpec, including every Alternate and every Reserved_Final_Door_Question, to carry a Question_Id.
+9. IF two QuestionSpecs in the Manifest carry the same Question_Id, THEN THE Manifest_Check SHALL return `{ ok: false, error: { kind: 'invalid-manifest', questionId } }` naming the first duplicated Question_Id found.
+10. IF a Manifest has both a repeated Station_Type in a room and a duplicated Question_Id, THEN THE Manifest_Check SHALL report the repeated Station_Type under criterion 3.
 
 ### Requirement 29: Station type and current question type
 
