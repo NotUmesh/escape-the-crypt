@@ -31,8 +31,32 @@ jobs:
       - name: Test
         run: pnpm test
 
+      # Browsers are cached per OS and Playwright version, so an upgrade gets a fresh cache.
+      - name: Read Playwright version
+        id: playwright-version
+        run: |
+          version="$(pnpm --filter @escape-the-crypt/web exec playwright --version | awk '{print $2}')"
+          if [ -z "$version" ]; then
+            echo "Could not read the Playwright version" >&2
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm --filter @escape-the-crypt/web exec playwright install --with-deps chromium firefox
+
+      # The cache holds the browsers only; system libraries still have to be installed.
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter @escape-the-crypt/web exec playwright install-deps chromium firefox
 
       - name: E2E
         run: pnpm e2e

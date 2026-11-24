@@ -13,6 +13,7 @@ inclusion: always
 - **Browser storage:** IndexedDB for manifests, event log, review state.
 - **PDF:** pinned pdf.js running in a web worker.
 - **Validation:** Zod for every schema crossing a boundary (model output, API requests, stored records).
+  - Note: parseNotesRecord is hand-checked and tested; migrate to Zod in spec 3.
 - **Package manager:** pnpm workspaces.
 
 ## Testing
