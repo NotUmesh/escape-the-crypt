@@ -1,4 +1,4 @@
-# Art asset contract (v1, Nov 24)
+# Art asset contract (v1.1, Nov 24)
 
 This is the agreement between the art track (Blender scenes and renders by the author, set up with Claude through the Blender MCP) and the app code (written by Kiro). Kiro builds against placeholder files with exactly these names and sizes; the real renders replace them later with **no code changes**.
 
@@ -47,18 +47,19 @@ apps/web/public/art/
   rooms/<room>/
     scene.json                  # anchors, hotspots, layer order (section 4)
     desktop/
-      background.webp           # the room with NO lock objects, all candles unlit (teal)
+      background.webp           # the room with NO lock objects, every progress candle unlit (no flame)
       background@2x.webp
       foreground.webp           # nearest depth layer (pillar, chains, rubble), alpha
       lock-<lock>.webp          # one per lock type, alpha, includes its contact shadow
       light-<lock>.webp         # warm light pass for that lock's candle, black background
+      lock-<lock>-hover.webp    # same lock under a brighter cool-white light; crossfaded in on hover/focus
       door-closed.webp          # exit door layer, alpha
       door-open.webp
     mobile/
       (same names, 1080×1920 portrait framing)
   locks/<lock>/
-    closed.webp                 # close-up shown behind the question panel
-    open.webp
+    closed.webp                 # close-up shown behind the question panel; candle unlit
+    open.webp                   # same shot after solving; candle lit and its warm light on the lock
   desk/
     desktop/ background.webp, background@2x.webp, foreground.webp, candle.webp
     mobile/  (same names)
@@ -112,18 +113,23 @@ Positions are fractions of the frame (0 to 1, from the top-left), so they work a
 - `ambientCandles`: always-lit decorative candles (wall sconces); code draws their flames too.
 - `panelSide`: which side the question panel opens on, so it never covers its lock.
 - The renders and `scene.json` are produced together from the Blender camera, so they always match.
+- `depth`: each lock's distance from the camera in metres. Hotspots can overlap (the pin frame stands partly behind the altar); when they do, the lock with the smaller depth is on top.
+- `size`: the frame the coordinates were measured on. All layers are full-frame (same size as the background) and stack at 0,0.
+- **Contact shadows are baked into `background.webp`** (lock objects are invisible to the camera there but still cast shadows), so lock layers are just the objects. Locks never move, so this is exact.
 
 ---
 
 ## 5. How candles work (the core metaphor)
 
-1. `background.webp` is rendered with **every candle unlit**: cold teal light only, and no flames (code draws them).
+1. **One candle rule.** An unsolved lock's candle is **unlit**: wax and a dark wick, **no flame and no light**. `background.webp` and every lock layer are rendered that way, with only the cold ambient light and each lock's dim cool face light. Nothing is baked in that code would need to switch off. (Wall sconces in `ambientCandles` are the only always-lit flames.)
 2. For each lock, `light-<lock>.webp` holds **only the extra warm light** that lock's candle adds when lit (rendered as lit minus unlit, on black).
-3. When a lock is solved, code changes that candle's flame from teal to gold and fades its light pass in over about 600 ms. With reduced motion it switches instantly.
-4. Several solved locks simply add their light passes together, so the room warms up lock by lock.
-5. A lock answered wrong or skipped stays unlit. If its concept later returns as a ghost and is answered correctly, the light belongs to the room where that happens: code draws a small **spirit candle** at one of the room's `ghostAnchors` (flame and glow in code, no light pass). A challenged lock never lights.
+3. When a lock is solved, code **ignites** that candle: it draws a gold flame at the lock's `candle` point (a short flare, then a steady flicker) and fades its light pass in over about 600 ms. With reduced motion both switch on instantly. There is no teal or "unlit" flame; before solving, code draws nothing at `candle`.
+4. Several solved locks simply add their light passes together, so the room warms up lock 5. **Three states, three different signals.** *Available:* every lock is lit by its own dim cool light from high in front, all at the same angle, so its working face is readable but the room stays dark. *Hovered or keyboard-focused:* code crossfades `lock-<lock>.webp` to `lock-<lock>-hover.webp` (the same lock under a brighter **cool-white** light) over about 200 ms, and back on leave (instant with reduced motion); code may also add a thin outline glow on the hotspot. *Solved:* the lock's candle ignites gold and its light pass adds a **warm** pool. Warm means solved only; hover never uses warm light.s solved.
+6. A lock answered wrong or skipped stays unlit. If its concept later returns as a ghost and is answered correctly, the light belongs to the room where that happens: code draws a small **spirit candle** at one of the room's `ghostAnchors` (flame and glow in code, no light pass). A challenged lock never lights.
 
 ---
+
+**Note (v1.1):** `design-system.md` still describes unsolved candles as a "teal flame". That wording is superseded by point 1: unsolved means no flame at all.
 
 ## 6. One rule this needs from the runtime and generation specs
 
