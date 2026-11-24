@@ -1,0 +1,31 @@
+.ingest-flow {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.ingest-confirmed {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.ingest-confirmed svg {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ingest-confirmed.is-lit {
+  border-color: var(--candle-400);
+}
+
+.ingest-confirmed.is-lit svg {
+  color: var(--candle-400);
+}

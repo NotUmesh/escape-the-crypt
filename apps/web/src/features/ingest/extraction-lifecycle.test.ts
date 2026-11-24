@@ -178,3 +178,75 @@ describe('worker lifecycle (mocked worker)', () => {
     expect(received).toEqual([]);
     expect(secondTerminate).not.toHaveBeenCalled();
   });});
+
+describe('page count request (mocked worker)', () => {
+  const countFile = {
+    size: 10,
+    arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+  };
+
+  it('sends only a count message, then terminates the worker on counted', async () => {
+    const h = makeHarness();
+    await h.client.count({ file: countFile, onMessage: (m) => h.received.push(m) });
+    expect(h.calls).toEqual(['create', 'count']);
+    h.worker.onmessage?.({ data: { type: 'counted', pageCount: 4, labels: [null, null, null, null] } });
+    expect(h.received).toEqual([{ type: 'counted', pageCount: 4, labels: [null, null, null, null] }]);
+    expect(h.terminate).toHaveBeenCalledTimes(1);
+    expect(h.clearTimer).toHaveBeenCalledTimes(1);
+    expect(h.worker.onmessage).toBeNull();
+  });
+
+  it('terminates the worker when the count finds an encrypted file', async () => {
+    const h = makeHarness();
+    await h.client.count({ file: countFile, onMessage: (m) => h.received.push(m) });
+    const error = mapPdfError(await openEncryptedFixture());
+    h.worker.onmessage?.({ data: { type: 'error', error } });
+    expect(h.received).toEqual([{ type: 'error', error: { kind: 'encrypted' } }]);
+    expect(h.terminate).toHaveBeenCalledTimes(1);
+  });
+
+  it('terminates the worker and sends nothing when cancelled during the count', async () => {
+    const h = makeHarness();
+    await h.client.count({ file: countFile, onMessage: (m) => h.received.push(m) });
+    const staleOnMessage = h.worker.onmessage;
+    h.client.cancel();
+    expect(h.terminate).toHaveBeenCalledTimes(1);
+    expect(h.clearTimer).toHaveBeenCalledTimes(1);
+    staleOnMessage?.({ data: { type: 'counted', pageCount: 4, labels: [null, null, null, null] } });
+    h.timers[0]?.();
+    expect(h.received).toEqual([]);
+    expect(h.terminate).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates no worker when cancelled while the file is being read', async () => {
+    const h = makeHarness();
+    let release: (b: ArrayBuffer) => void = () => undefined;
+    const slow = {
+      size: 10,
+      arrayBuffer: () => new Promise<ArrayBuffer>((resolve) => (release = resolve)),
+    };
+    const pending = h.client.count({ file: slow, onMessage: (m) => h.received.push(m) });
+    h.client.cancel();
+    release(new ArrayBuffer(10));
+    await pending;
+    expect(h.calls).toEqual([]);
+  });
+
+  it('reports a time error and terminates when the count times out', async () => {
+    const h = makeHarness();
+    await h.client.count({ file: countFile, onMessage: (m) => h.received.push(m) });
+    h.timers[0]?.();
+    expect(h.received).toEqual([{ type: 'error', error: { kind: 'time', limitMs: MAX_EXTRACTION_MS } }]);
+    expect(h.terminate).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects an oversized file without creating a worker', async () => {
+    const h = makeHarness();
+    const result = await h.client.count({
+      file: { size: 6 * 1024 * 1024, arrayBuffer: () => Promise.reject(new Error('never read')) },
+      onMessage: (m) => h.received.push(m),
+    });
+    expect(result.ok).toBe(false);
+    expect(h.calls).toEqual([]);
+  });
+});

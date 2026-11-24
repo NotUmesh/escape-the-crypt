@@ -26,6 +26,7 @@ export function PdfPicker(props: PdfPickerProps): React.JSX.Element {
   const { status, pageCount, selectedPages, progress, errorMessage } = props;
   const id = useId();
   const extracting = status === 'extracting';
+  const counting = status === 'counting';
   const choosing = status === 'pdf-chosen';
   const atLimit = selectedPages.length >= MAX_SELECTED_PAGES;
 
@@ -48,7 +49,7 @@ export function PdfPicker(props: PdfPickerProps): React.JSX.Element {
         type="file"
         accept="application/pdf,.pdf"
         aria-describedby={`${id}-hint`}
-        disabled={extracting}
+        disabled={extracting || counting}
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) props.onFileSelected(file);
@@ -95,12 +96,16 @@ export function PdfPicker(props: PdfPickerProps): React.JSX.Element {
           </div>
         </>
       ) : null}
-      {extracting ? (
+      {extracting || counting ? (
         <div className="ingest-pdf-actions">
           <button type="button" className="ingest-button" onClick={props.onStop}>
             {INGEST_UI_COPY.stop}
           </button>
-          <span>{INGEST_UI_COPY.reading(Math.min(progress.done + 1, progress.total), progress.total)}</span>
+          <span>
+            {counting
+              ? INGEST_UI_COPY.counting
+              : INGEST_UI_COPY.reading(Math.min(progress.done + 1, progress.total), progress.total)}
+          </span>
         </div>
       ) : null}
     </section>

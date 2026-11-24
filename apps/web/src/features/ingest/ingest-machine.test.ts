@@ -1,6 +1,12 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { ANNOUNCEMENT_COPY, MAX_EXTRACTED_WORDS, errorMessage } from '@escape-the-crypt/core';
+import {
+  ANNOUNCEMENT_COPY,
+  MAX_EXTRACTED_WORDS,
+  MAX_FILE_SIZE_BYTES,
+  errorMessage,
+  storageFailedMessage,
+} from '@escape-the-crypt/core';
 import { INITIAL_INGEST_STATE, canConfirm, ingestReducer } from './ingest-machine';
 import type { IngestEvent, IngestState, IngestUnit } from './ingest-machine';
 
@@ -18,7 +24,8 @@ function pdfPage(index: number, text = PROSE): IngestEvent {
 
 function extractedTwoPages(): IngestState {
   return run([
-    { type: 'FILE_SELECTED', sizeBytes: 1000, pageCount: 2 },
+    { type: 'FILE_SELECTED', sizeBytes: 1000 },
+    { type: 'PAGE_COUNT_KNOWN', pageCount: 2 },
     { type: 'PAGES_CHOSEN', pageIndexes: [0, 1] },
     pdfPage(0),
     pdfPage(1, `Interleaving mixes related topics. ${PROSE}`),
@@ -128,7 +135,8 @@ describe('ingest state machine', () => {
 
   it('cancel while extracting discards partial results and announces it', () => {
     const partial = run([
-      { type: 'FILE_SELECTED', sizeBytes: 1000, pageCount: 3 },
+      { type: 'FILE_SELECTED', sizeBytes: 1000 },
+      { type: 'PAGE_COUNT_KNOWN', pageCount: 3 },
       { type: 'PAGES_CHOSEN', pageIndexes: [0, 1, 2] },
       pdfPage(0),
     ]);
@@ -142,5 +150,59 @@ describe('ingest state machine', () => {
   it('ignores cancel outside extraction', () => {
     const preview = extractedTwoPages();
     expect(ingestReducer(preview, { type: 'CANCEL' })).toBe(preview);
+  });
+});
+
+describe('PDF count step and saving', () => {
+  it('rejects an oversized file at FILE_SELECTED and never reaches the counting step', () => {
+    const state = run([{ type: 'FILE_SELECTED', sizeBytes: MAX_FILE_SIZE_BYTES + 1 }]);
+    expect(state.status).toBe('idle');
+    expect(state.error).toEqual({ kind: 'file-size', limitBytes: MAX_FILE_SIZE_BYTES });
+    expect(state.announcement).toBe(errorMessage({ kind: 'file-size', limitBytes: MAX_FILE_SIZE_BYTES }));
+  });
+
+  it('accepts a file at exactly the limit and waits for the page count', () => {
+    const state = run([{ type: 'FILE_SELECTED', sizeBytes: MAX_FILE_SIZE_BYTES }]);
+    expect(state.status).toBe('counting');
+    expect(state.error).toBeNull();
+    const counted = run([{ type: 'PAGE_COUNT_KNOWN', pageCount: 7 }], state);
+    expect(counted.status).toBe('pdf-chosen');
+    expect(counted.pageCount).toBe(7);
+  });
+
+  it('ignores a page count that arrives outside the counting step', () => {
+    expect(run([{ type: 'PAGE_COUNT_KNOWN', pageCount: 7 }])).toEqual(INITIAL_INGEST_STATE);
+  });
+
+  it('turns a count error into the typed error and goes back to idle', () => {
+    const state = run([
+      { type: 'FILE_SELECTED', sizeBytes: 1000 },
+      { type: 'EXTRACTION_ERROR', error: { kind: 'encrypted' } },
+    ]);
+    expect(state.status).toBe('idle');
+    expect(state.error).toEqual({ kind: 'encrypted' });
+  });
+
+  it('cancel while counting returns to idle with the stopped announcement', () => {
+    const state = run([{ type: 'FILE_SELECTED', sizeBytes: 1000 }, { type: 'CANCEL' }]);
+    expect(state).toEqual({ ...INITIAL_INGEST_STATE, announcement: ANNOUNCEMENT_COPY.stopped });
+  });
+
+  it('announces a successful save and a failed save after confirm', () => {
+    const confirmed = run([{ type: 'PASTE_CHANGED', text: PROSE }, { type: 'CONFIRM' }]);
+    expect(confirmed.status).toBe('confirmed');
+    const saved = run([{ type: 'SAVE_SUCCEEDED' }], confirmed);
+    expect(saved.saveStatus).toBe('saved');
+    expect(saved.announcement).toBe(ANNOUNCEMENT_COPY.saved);
+    const failed = run([{ type: 'SAVE_FAILED' }], confirmed);
+    expect(failed.saveStatus).toBe('failed');
+    expect(failed.announcement).toBe(storageFailedMessage());
+    expect(failed.chunks).toEqual(confirmed.chunks);
+  });
+
+  it('ignores save results before confirm', () => {
+    const preview = run([{ type: 'PASTE_CHANGED', text: PROSE }]);
+    expect(run([{ type: 'SAVE_SUCCEEDED' }], preview)).toBe(preview);
+    expect(run([{ type: 'SAVE_FAILED' }], preview)).toBe(preview);
   });
 });

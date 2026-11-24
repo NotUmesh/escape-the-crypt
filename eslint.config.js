@@ -27,6 +27,8 @@ export default tseslint.config(
   {
     files: ['apps/web/src/features/ingest/**/*.{ts,tsx}'],
     rules: {
+      // Notes text must never reach logs or error reports (18.6).
+      'no-console': 'error',
       'no-restricted-syntax': [
         'error',
         {

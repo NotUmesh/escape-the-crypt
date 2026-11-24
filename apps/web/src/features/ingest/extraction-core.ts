@@ -42,6 +42,10 @@ export type ExtractionMessageIn =
       readonly pageIndexes: readonly number[];
       readonly startedAtMs: number;
     }
+  | {
+      readonly type: 'count';
+      readonly fileBuffer: ArrayBuffer;
+    }
   | { readonly type: 'cancel' };
 
 export type ExtractionMessageOut =
@@ -52,6 +56,12 @@ export type ExtractionMessageOut =
       readonly printedPageLabel: string | null;
       readonly text: string;
       readonly flag: PageFlag;
+    }
+  | {
+      readonly type: 'counted';
+      readonly pageCount: number;
+      /** Printed page labels, one per page; null where the PDF has none. */
+      readonly labels: readonly (string | null)[];
     }
   | { readonly type: 'error'; readonly error: IngestError }
   | { readonly type: 'done' };
@@ -131,4 +141,39 @@ export async function runExtraction(run: ExtractionRun): Promise<void> {
     });
   }
   post({ type: 'done' });
+}
+
+export interface CountRun {
+  /** Opens the document; a password or parse failure rejects. The caller destroys it. */
+  readonly open: () => Promise<PdfDocumentLike>;
+  readonly post: (message: ExtractionMessageOut) => void;
+  readonly isCancelled: () => boolean;
+}
+
+/**
+ * Opens the document and reports its page count and printed page labels.
+ * Posts `counted` or `error`; posts nothing when cancelled.
+ */
+export async function runCount(run: CountRun): Promise<void> {
+  const { open, post, isCancelled } = run;
+  try {
+    const doc = await open();
+    let labels: readonly string[] | null = null;
+    try {
+      labels = await doc.getPageLabels();
+    } catch {
+      labels = null;
+    }
+    if (isCancelled()) return;
+    post({
+      type: 'counted',
+      pageCount: doc.numPages,
+      labels: Array.from({ length: doc.numPages }, (_, i) => {
+        const label = labels?.[i];
+        return label === undefined || label === '' ? null : label;
+      }),
+    });
+  } catch (err) {
+    if (!isCancelled()) post({ type: 'error', error: mapPdfError(err) });
+  }
 }

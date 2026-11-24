@@ -1,0 +1,27 @@
+/* Page frame for the app screens. Colours come from tokens.css. */
+body {
+  margin: 0;
+  background-color: var(--stone-950);
+  color: var(--bone-50);
+  font-family: var(--font-body);
+}
+
+.screen {
+  display: block;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.screen-title {
+  font-family: var(--font-title);
+}
+
+.screen a {
+  color: var(--spectre-300);
+}
+
+.screen :focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}

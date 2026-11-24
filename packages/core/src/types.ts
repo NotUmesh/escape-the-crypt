@@ -41,3 +41,10 @@ export type IngestError =
   | { kind: 'unreadable' }
   | { kind: 'empty' }
   | { kind: 'storage-unavailable' };
+
+/** What the app keeps on the device for one confirmed document. No file bytes, no file name. */
+export interface NotesRecord {
+  readonly schemaVersion: number;
+  readonly documentDigest: string;
+  readonly chunks: readonly Chunk[];
+}

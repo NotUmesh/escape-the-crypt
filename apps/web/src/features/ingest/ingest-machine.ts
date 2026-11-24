@@ -6,10 +6,20 @@ import {
   chunkDocument,
   countWords,
   errorMessage,
+  storageFailedMessage,
 } from '@escape-the-crypt/core';
 import type { Chunk, IngestError, PageFlag } from '@escape-the-crypt/core';
 
-export type IngestStatus = 'idle' | 'pdf-chosen' | 'extracting' | 'preview' | 'confirmed';
+export type IngestStatus =
+  | 'idle'
+  | 'counting'
+  | 'pdf-chosen'
+  | 'extracting'
+  | 'preview'
+  | 'confirmed';
+
+/** Outcome of saving the confirmed notes on this device. */
+export type SaveStatus = 'idle' | 'saved' | 'failed';
 
 /** One reviewable piece of the notes: a pasted paragraph or an extracted PDF page. */
 export type IngestUnit =
@@ -45,11 +55,13 @@ export interface IngestState {
   readonly announcement: string;
   /** Set only after a successful CONFIRM. */
   readonly chunks: readonly Chunk[];
+  readonly saveStatus: SaveStatus;
 }
 
 export type IngestEvent =
   | { readonly type: 'PASTE_CHANGED'; readonly text: string }
-  | { readonly type: 'FILE_SELECTED'; readonly sizeBytes: number; readonly pageCount: number }
+  | { readonly type: 'FILE_SELECTED'; readonly sizeBytes: number }
+  | { readonly type: 'PAGE_COUNT_KNOWN'; readonly pageCount: number }
   | { readonly type: 'PAGES_CHOSEN'; readonly pageIndexes: readonly number[] }
   | {
       readonly type: 'EXTRACTION_PAGE';
@@ -62,7 +74,9 @@ export type IngestEvent =
   | { readonly type: 'CANCEL' }
   | { readonly type: 'PAGE_REMOVED'; readonly unitId: string }
   | { readonly type: 'TEXT_EDITED'; readonly unitId: string; readonly text: string }
-  | { readonly type: 'CONFIRM' };
+  | { readonly type: 'CONFIRM' }
+  | { readonly type: 'SAVE_SUCCEEDED' }
+  | { readonly type: 'SAVE_FAILED' };
 
 export const INITIAL_INGEST_STATE: IngestState = {
   status: 'idle',
@@ -72,6 +86,7 @@ export const INITIAL_INGEST_STATE: IngestState = {
   error: null,
   announcement: '',
   chunks: [],
+  saveStatus: 'idle',
 };
 
 
@@ -117,9 +132,16 @@ function onPaste(text: string): IngestState {
   return { ...INITIAL_INGEST_STATE, status: 'preview', units };
 }
 
-function onFile(sizeBytes: number, pageCount: number): IngestState {
+/** The size check comes first. A file over the limit is never opened. */
+function onFile(sizeBytes: number): IngestState {
   const size = checkFileSize(sizeBytes);
   if (!size.ok) return fail(size.error);
+  return { ...INITIAL_INGEST_STATE, status: 'counting' };
+}
+
+function onPageCount(state: IngestState, pageCount: number): IngestState {
+  if (state.status !== 'counting') return state;
+  if (pageCount < 1) return fail({ kind: 'empty' });
   return { ...INITIAL_INGEST_STATE, status: 'pdf-chosen', pageCount };
 }
 
@@ -232,16 +254,18 @@ export function ingestReducer(state: IngestState, event: IngestEvent): IngestSta
     case 'PASTE_CHANGED':
       return state.status === 'confirmed' ? state : onPaste(event.text);
     case 'FILE_SELECTED':
-      return state.status === 'confirmed' ? state : onFile(event.sizeBytes, event.pageCount);
+      return state.status === 'confirmed' ? state : onFile(event.sizeBytes);
+    case 'PAGE_COUNT_KNOWN':
+      return onPageCount(state, event.pageCount);
     case 'PAGES_CHOSEN':
       return onPagesChosen(state, event.pageIndexes);
     case 'EXTRACTION_PAGE':
       return onExtractionPage(state, event);
     case 'EXTRACTION_ERROR':
-      return state.status === 'extracting' ? fail(event.error) : state;
+      return state.status === 'extracting' || state.status === 'counting' ? fail(event.error) : state;
     case 'CANCEL':
       // Partial results are discarded (2.6).
-      return state.status === 'extracting'
+      return state.status === 'extracting' || state.status === 'counting'
         ? { ...INITIAL_INGEST_STATE, announcement: ANNOUNCEMENT_COPY.stopped }
         : state;
     case 'PAGE_REMOVED':
@@ -250,5 +274,13 @@ export function ingestReducer(state: IngestState, event: IngestEvent): IngestSta
       return onTextEdited(state, event.unitId, event.text);
     case 'CONFIRM':
       return onConfirm(state);
+    case 'SAVE_SUCCEEDED':
+      return state.status === 'confirmed'
+        ? { ...state, saveStatus: 'saved', announcement: ANNOUNCEMENT_COPY.saved }
+        : state;
+    case 'SAVE_FAILED':
+      return state.status === 'confirmed'
+        ? { ...state, saveStatus: 'failed', announcement: storageFailedMessage() }
+        : state;
   }
 }

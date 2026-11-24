@@ -8,6 +8,7 @@ export type {
   Result,
   LimitError,
   IngestError,
+  NotesRecord,
 } from './types';
 export {
   MAX_FILE_SIZE_BYTES,
@@ -50,6 +51,8 @@ export {
   PRIVACY_NOTICE_TEXT,
   PAGE_FLAG_COPY,
   CITATION_COPY,
+  STORAGE_FAILED_COPY,
+  storageFailedMessage,
   ANNOUNCEMENT_COPY,
   INGEST_UI_COPY,
   BANNED_COPY_PHRASES,
@@ -59,3 +62,4 @@ export {
 export type { ChunkInput, PdfPageInput } from './chunker';
 export { chunkDocument } from './chunker';
 export { citationLabel } from './citation-labeller';
+export { NOTES_SCHEMA_VERSION, makeNotesRecord, parseNotesRecord } from './notes-record';

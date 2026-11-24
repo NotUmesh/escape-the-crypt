@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { MAX_EXTRACTED_WORDS, MAX_EXTRACTION_MS } from '@escape-the-crypt/core';
-import { mapPdfError, runExtraction } from './extraction-core';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { mapPdfError, runCount, runExtraction } from './extraction-core';
 import type {
   ExtractionMessageOut,
   PdfDocumentLike,
@@ -92,5 +94,80 @@ describe('runExtraction', () => {
     const out = await run(doc, { pageIndexes: [0, 1], cancelAfter: 1 });
     expect(out.filter((m) => m.type === 'page')).toHaveLength(1);
     expect(out.some((m) => m.type === 'done' || m.type === 'error')).toBe(false);
+  });
+});
+
+describe('runCount', () => {
+  async function count(
+    open: () => Promise<PdfDocumentLike>,
+    isCancelled: () => boolean = () => false,
+  ): Promise<ExtractionMessageOut[]> {
+    const out: ExtractionMessageOut[] = [];
+    await runCount({ open, post: (m) => out.push(m), isCancelled });
+    return out;
+  }
+
+  it('reports the page count and printed labels', async () => {
+    const doc = fakeDoc([[line(prose, 700)], [line(prose, 700)], [line(prose, 700)]], ['i', '', 'iii']);
+    expect(await count(() => Promise.resolve(doc))).toEqual([
+      { type: 'counted', pageCount: 3, labels: ['i', null, 'iii'] },
+    ]);
+  });
+
+  it('gives null labels when the PDF has none or reading them fails', async () => {
+    const none = fakeDoc([[line(prose, 700)], [line(prose, 700)]], null);
+    expect(await count(() => Promise.resolve(none))).toEqual([
+      { type: 'counted', pageCount: 2, labels: [null, null] },
+    ]);
+    const failing: PdfDocumentLike = { ...none, getPageLabels: () => Promise.reject(new Error('x')) };
+    expect(await count(() => Promise.resolve(failing))).toEqual([
+      { type: 'counted', pageCount: 2, labels: [null, null] },
+    ]);
+  });
+
+  it('maps a password failure to encrypted and any other failure to unreadable', async () => {
+    const password = Object.assign(new Error('password'), { name: 'PasswordException' });
+    expect(await count(() => Promise.reject(password))).toEqual([
+      { type: 'error', error: { kind: 'encrypted' } },
+    ]);
+    expect(await count(() => Promise.reject(new Error('bad')))).toEqual([
+      { type: 'error', error: { kind: 'unreadable' } },
+    ]);
+  });
+
+  it('posts nothing when cancelled while opening or after it opened', async () => {
+    const doc = fakeDoc([[line(prose, 700)]]);
+    expect(await count(() => Promise.resolve(doc), () => true)).toEqual([]);
+    const password = Object.assign(new Error('password'), { name: 'PasswordException' });
+    expect(await count(() => Promise.reject(password), () => true)).toEqual([]);
+  });
+
+  describe('with real pdf.js (legacy build, no worker)', () => {
+    async function countFixture(name: string): Promise<ExtractionMessageOut[]> {
+      const pdfjs = (await import('pdfjs-dist/legacy/build/pdf.mjs')) as unknown as typeof import('pdfjs-dist');
+      const bytes = await readFile(join(import.meta.dirname, 'fixtures', name));
+      const task = pdfjs.getDocument({
+        data: new Uint8Array(bytes),
+        useWorkerFetch: false,
+        useSystemFonts: false,
+      });
+      try {
+        return await count(async () => (await task.promise) as unknown as PdfDocumentLike);
+      } finally {
+        await task.destroy();
+      }
+    }
+
+    it('counts the pages of the 11-page fixture', async () => {
+      const [message] = await countFixture('eleven-pages.pdf');
+      expect(message).toMatchObject({ type: 'counted', pageCount: 11 });
+      expect(message?.type === 'counted' && message.labels).toHaveLength(11);
+    });
+
+    it('reports the encrypted fixture as encrypted', async () => {
+      expect(await countFixture('encrypted.pdf')).toEqual([
+        { type: 'error', error: { kind: 'encrypted' } },
+      ]);
+    });
   });
 });

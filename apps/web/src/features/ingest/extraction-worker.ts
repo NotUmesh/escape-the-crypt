@@ -2,21 +2,41 @@
 import * as pdfjs from 'pdfjs-dist';
 import type { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api';
 import { EXTRACTION_MODE } from './extraction-mode';
-import { mapPdfError, runExtraction } from './extraction-core';
-import { pdfWorkerUrl } from './pdf-worker-url';
+import { mapPdfError, runCount, runExtraction } from './extraction-core';
 import type {
   Clock,
   ExtractionMessageIn,
   ExtractionMessageOut,
   PdfDocumentLike,
 } from './extraction-core';
-
+import { pdfWorkerUrl } from './pdf-worker-url';
 
 const clock: Clock = { now: () => Date.now() };
 let cancelled = false;
 
 function post(message: ExtractionMessageOut): void {
   self.postMessage(message);
+}
+
+/**
+ * Opens a PDF with the safe options. No password callback is set; scripting is
+ * off; cMap and standard-font fetching are off, so nothing is requested from
+ * another origin.
+ */
+function openTask(fileBuffer: ArrayBuffer): ReturnType<typeof pdfjs.getDocument> {
+  // Both "nested-worker" and "in-thread" load the same self-hosted file:
+  // pdf.js starts it as a worker, or imports it for its in-thread mode.
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl(
+    import.meta.env.BASE_URL,
+    self.location.origin,
+  );
+  const params: DocumentInitParameters & { enableScripting: false } = {
+    data: new Uint8Array(fileBuffer),
+    enableScripting: false,
+    useWorkerFetch: false,
+    useSystemFonts: false,
+  };
+  return pdfjs.getDocument(params);
 }
 
 async function start(msg: Extract<ExtractionMessageIn, { type: 'start' }>): Promise<void> {
@@ -26,22 +46,7 @@ async function start(msg: Extract<ExtractionMessageIn, { type: 'start' }>): Prom
     post({ type: 'error', error: { kind: 'unreadable' } });
     return;
   }
-  // Both "nested-worker" and "in-thread" load the same self-hosted file:
-  // pdf.js starts it as a worker, or imports it for its in-thread mode.
-  pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl(
-    import.meta.env.BASE_URL,
-    self.location.origin,
-  );
-
-  // No password callback is set; scripting is off; cMap and standard-font
-  // fetching are off, so nothing is requested from another origin.
-  const params: DocumentInitParameters & { enableScripting: false } = {
-    data: new Uint8Array(msg.fileBuffer),
-    enableScripting: false,
-    useWorkerFetch: false,
-    useSystemFonts: false,
-  };
-  const task = pdfjs.getDocument(params);
+  const task = openTask(msg.fileBuffer);
   try {
     const doc: PdfDocumentLike = await task.promise;
     await runExtraction({
@@ -59,11 +64,29 @@ async function start(msg: Extract<ExtractionMessageIn, { type: 'start' }>): Prom
   }
 }
 
+async function count(msg: Extract<ExtractionMessageIn, { type: 'count' }>): Promise<void> {
+  cancelled = false;
+  if (EXTRACTION_MODE === 'main-thread') {
+    post({ type: 'error', error: { kind: 'unreadable' } });
+    return;
+  }
+  const task = openTask(msg.fileBuffer);
+  try {
+    await runCount({
+      open: async () => (await task.promise) as PdfDocumentLike,
+      post,
+      isCancelled: () => cancelled,
+    });
+  } finally {
+    await task.destroy();
+  }
+}
+
 self.onmessage = (event: MessageEvent<ExtractionMessageIn>): void => {
   const msg = event.data;
   if (msg.type === 'cancel') {
     cancelled = true;
     return;
   }
-  void start(msg);
+  void (msg.type === 'count' ? count(msg) : start(msg));
 };

@@ -233,6 +233,6 @@ if (process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.
   for (const [name, build] of Object.entries(FILES)) {
     const bytes = await build();
     writeFileSync(join(out, name), bytes);
-    console.log(`${name}  ${bytes.length} bytes`);
+    process.stdout.write(`${name}  ${bytes.length} bytes\n`);
   }
 }

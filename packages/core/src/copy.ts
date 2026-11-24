@@ -52,9 +52,19 @@ export const ERROR_COPY: Readonly<Record<IngestError['kind'], ErrorCopy>> = {
   },
 };
 
+/** Shown when the notes could not be saved on this device (11.4, 18.8). */
+export const STORAGE_FAILED_COPY: ErrorCopy = {
+  what: "We couldn't save your notes on this device, so they'll last only until you close this tab.",
+  next: 'You can keep going, or try again later.',
+};
+
 /** Joins the two parts. The only way a problem message is rendered. */
 export function renderError(copy: ErrorCopy): string {
   return `${copy.what} ${copy.next}`;
+}
+
+export function storageFailedMessage(): string {
+  return renderError(STORAGE_FAILED_COPY);
 }
 
 export function errorMessage(error: IngestError): string {
@@ -111,6 +121,7 @@ function pageReference(page: number, printedLabel: string | null): string {
 export const ANNOUNCEMENT_COPY = {
   stopped: 'Reading stopped. Nothing was kept.',
   edited: 'Text edited',
+  saved: 'Notes confirmed and saved on this device',
   confirmed: 'Notes confirmed',
   pageRemoved: (page: number): string => `Page ${page} removed`,
   paragraphRemoved: (n: number): string => `Paragraph ${n} removed`,
@@ -134,7 +145,10 @@ export const INGEST_UI_COPY = {
   readPages: 'Read these pages',
   readPagesNone: 'Choose at least one page to read.',
   stop: 'Stop reading',
+  counting: 'Opening your PDF',
   reading: (done: number, total: number): string => `Reading page ${done} of ${total}`,
+  confirmedTitle: 'Your notes are ready',
+  chunkCount: (n: number): string => (n === 1 ? '1 piece of your notes' : ` pieces of your notes`),
   pagesReadTitle: 'Pages we read',
   removePage: 'Remove page',
   removePageFor: (page: number): string => `Remove page ${page}`,
