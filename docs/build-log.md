@@ -34,3 +34,28 @@
 - The same script checks that `packages/core` imports nothing but `@noble/hashes` and relative files (tests may also use vitest, fast-check and `node:`), uses no DOM global, has `@noble/hashes` at an exact version as its only runtime dependency, that no source file passes 300 lines, that file names are kebab-case, and that the shared types are declared only in `types.ts`.
 - Firefox and axe: Playwright's Firefox crashes the page when axe runs on a page that has also run the pdf.js worker (axe 4.14, Playwright 1.65, legacy mode too). The real-PDF page-list scan is tagged `@real-pdf-axe` and runs on Chromium and Pixel; the Firefox project excludes it with `grepInvert`. Every project, Firefox included, also scans the page list rendered through the test parent with `?client=canned`: a fake Extraction Client (`src/test-support/canned-extraction-client.ts`) returns one ok, one low-text and one suspicious page with printed labels iv, v and vi, flagged by the real Page Checker, and runs no pdf.js worker. A unit test checks the canned pages get those three flags.
 - parseNotesRecord is hand-checked and tested; migrate to Zod in spec 3.
+
+## Room runtime: reducer, judges, ghosts, final door, outcomes (spec room-runtime, task 7.8)
+- What exists: a pure reducer in `packages/core/src/runtime/` (`apply(state, event)` returns the next state and notices, or a typed rejection). Game state is a fold over a JSON-safe event log, so a reload replays to the same state. The reducer has no timers, randomness or I/O. Invalid events return a typed error and leave the state as it was.
+- Six answer judges, one file per lock type in `packages/core/src/locks/`: rune cipher, séance board, bone ordering, bound threads, cursed object, combination dial. Each judge returns correct, wrong or invalid, and `judge-registry.ts` holds exactly those six IDs. The combination dial compares on integer tenths, so `22.1` against 21.5 ± 0.5 is wrong and `22.15` is invalid.
+- Ghost queue: a wrong first answer raises a ghost. It comes back as a Return slot after `GHOST_DELAY = 3` judged answers. Return 1 uses the unused Alternate (otherwise the primary), return 2 uses the primary and is labelled "Review". A second miss leaves a lingering spirit and sets the review-due flag. Skips and challenges never count toward the delay. A Return never shows a challenged question.
+- Final door: it mixes the manifest's reserved questions with every outstanding ghost and deferred skip, with the delay waived. Escape is always reachable, including after all wrong answers or all challenges (zero candles).
+- Outcomes: each concept ends as first-try correct, assisted, retried, challenged or review due. Challenged questions are excluded from the score and from candle counts.
+- Hook change: `.kiro/hooks/run-core-tests.mjs` now picks its command by saved path. A save under `packages/core/src/runtime/` or `packages/core/src/locks/` runs `vitest run src/runtime src/locks`. Any other save under `packages/core/src/` still runs the full core suite, and saves outside it are skipped. CI remains the release gate.
+- Full core suite, run for this entry (`pnpm --filter @escape-the-crypt/core test --run`): 66 test files passed, 439 tests passed, 0 failed, 0 skipped. Duration about 21 s. No known failures in core.
+- Not covered by that run: lint, typecheck, and the web and worker packages.
+- Bugs caught in review (spec 2):
+  - Requirements: a wrong return 1 at the final door would have left the concept with no outcome.
+  - Requirements: the Challenged outcome was unreachable under D4.
+  - Requirements: job events were rejected before RunStarted.
+  - Design: bound-threads used Set, which JSON drops, so answers would vanish on reload.
+  - Design: reserved final-door questions had no question content.
+  - Design: judges couldn't see which hint was applied.
+  - Design: a challenged primary followed by a correct Alternate matched none of the five outcomes (fixed with `answeredCorrectFirst`).
+  - Code review: four judges threw on a null or wrong-typed submission.
+  - Code review: answer, hint, skip and challenge were accepted for locks outside the current room.
+  - Code review: a challenged question could come back as a "Review" Return.
+  - Code review: door slots were gated on availability instead of entry.
+  - Tests: Property 2 was flaky because random runs rarely got far enough.
+  - Tests: model runs ran below 100 iterations, with no proof they reached ghosts (coverage counters added).
+  - Process: a test helper left out of a commit broke CI typecheck.

@@ -4,6 +4,7 @@ import {
   MAX_FILE_SIZE_BYTES,
   MAX_SELECTED_PAGES,
 } from './limits';
+import type { ConceptOutcome } from './runtime/state-types';
 import type { IngestError, PageFlag } from './types';
 
 /** A problem message always has both parts, so no message can omit the next step. */
@@ -149,6 +150,18 @@ export const INGEST_UI_COPY = {
   previewHint: 'Fix anything that looks wrong. Only the text shown here is used.',
   confirm: 'Confirm notes',
 } as const;
+
+/** One Autopsy label per concept outcome (room-runtime Req 23.1, 23.2). */
+export const AUTOPSY_LABELS: Readonly<Record<ConceptOutcome, string>> = {
+  'first-try-correct': 'First-try correct',
+  assisted: 'Assisted',
+  retried: 'Retried',
+  challenged: 'Challenged: excluded from score',
+  'review-due': 'Review due',
+};
+
+/** Label for a ghost's later question (room-runtime Req 23.3). */
+export const RETURN_LABEL = 'Review';
 
 /** Words ingest copy and labels must never contain. Used by tests. */
 export const BANNED_COPY_PHRASES: readonly string[] = [

@@ -10,6 +10,9 @@ import type {
   State,
 } from './state-types';
 
+export { selectAutopsy } from './autopsy-selector';
+export type { AutopsyView, AutopsyEntry, AutopsyCounts } from './autopsy-selector';
+
 /** Read-only projections of State for the interface (Req 31). All JSON-safe. */
 export interface LockSlotView {
   readonly slotId: string;

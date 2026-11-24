@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { citationLabel } from './citation-labeller';
 import {
   ANNOUNCEMENT_COPY,
+  AUTOPSY_LABELS,
   BANNED_COPY_PHRASES,
+  RETURN_LABEL,
   CITATION_COPY,
   ERROR_COPY,
   INGEST_UI_COPY,
@@ -54,6 +56,34 @@ const chunk: fc.Arbitrary<Chunk> = fc.record({
   edited: fc.boolean(),
 });
 
+describe('Autopsy labels (room-runtime Req 23)', () => {
+  /** **Validates: Requirements 23.1, 23.2, 23.3** */
+  it('uses the exact label text for each outcome and the Return label', () => {
+    expect(AUTOPSY_LABELS).toEqual({
+      'first-try-correct': 'First-try correct',
+      assisted: 'Assisted',
+      retried: 'Retried',
+      challenged: 'Challenged: excluded from score',
+      'review-due': 'Review due',
+    });
+    expect(RETURN_LABEL).toBe('Review');
+  });
+
+  /** **Validates: Requirements 23.4, 22.10** */
+  it('has no banned phrase and no learning-gain claim in any label', () => {
+    const gainClaims = [
+      /learning gain/i,
+      /you (have )?learned/i,
+      /improv\w* (your )?(grade|score|retention)/i,
+      /retention/i,
+    ];
+    for (const s of [...collectStrings(AUTOPSY_LABELS), RETURN_LABEL]) {
+      expect(findBanned(s), s).toEqual([]);
+      for (const re of gainClaims) expect(re.test(s), s).toBe(false);
+    }
+  });
+});
+
 describe('Property 20: Banned words never appear in labels or copy', () => {
   /** **Validates: Requirements 8.4, 11.2** */
   it('has no banned phrase in any static copy string', () => {
@@ -63,6 +93,8 @@ describe('Property 20: Banned words never appear in labels or copy', () => {
       ...collectStrings(PRIVACY_NOTICE),
       ...collectStrings(ANNOUNCEMENT_COPY),
       ...collectStrings(INGEST_UI_COPY),
+      ...collectStrings(AUTOPSY_LABELS),
+      RETURN_LABEL,
       PRIVACY_NOTICE_TEXT,
     ];
     expect(strings.length).toBeGreaterThan(0);

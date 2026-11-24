@@ -59,6 +59,14 @@
     "6.7 Write property test for room progression": {
       "status": "passed",
       "lastRunTimestamp": 1795539439962
+    },
+    "7.4 Write property test for one outcome per concept": {
+      "status": "passed",
+      "lastRunTimestamp": 1795540571679
+    },
+    "7.5 Write paired-run property test for challenges, parts (b) and (c)": {
+      "status": "passed",
+      "lastRunTimestamp": 1795540689694
     }
   },
   "executionHistory": {
@@ -717,6 +725,121 @@
         "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
         "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
         "timestamp": 1795539515384
+      }
+    ],
+    "7.1 Implement concept outcome derivation": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540176707
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540339070
+      }
+    ],
+    "7.2 Add Autopsy labels and the banned-words test": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540177720
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540339634
+      }
+    ],
+    "7.7 Update the hook script": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540177888
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540340112
+      }
+    ],
+    "7.3 Expose outcomes and Autopsy availability": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540342961
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540477344
+      }
+    ],
+    "7.4 Write property test for one outcome per concept": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540483551
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540701466
+      }
+    ],
+    "7.5 Write paired-run property test for challenges, parts (b) and (c)": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540483786
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540702665
+      }
+    ],
+    "7.6 Add outcome assertions to the named sequences": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540483853
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540703075
+      }
+    ],
+    "7.8 Add the build-log entry": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540703586
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540760028
+      }
+    ],
+    "7.9 Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540763024
+      },
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540832921
+      }
+    ],
+    "7. Outcomes, Autopsy labels, hook update and build log": [
+      {
+        "executionId": "67ab5ec4-1298-4eee-8a8a-33d9ca117fdf",
+        "chatSessionId": "sess_cf14ff03-8f9d-45ff-a358-4d30866add51",
+        "timestamp": 1795540832975
       }
     ]
   }

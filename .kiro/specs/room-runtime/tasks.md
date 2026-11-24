@@ -259,44 +259,44 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 20.7, 21.1_
 
-- [ ] 7. Outcomes, Autopsy labels, hook update and build log
-  - [ ] 7.1 Implement concept outcome derivation
+- [x] 7. Outcomes, Autopsy labels, hook update and build log
+  - [x] 7.1 Implement concept outcome derivation
     - `runtime/outcomes.ts` with `outcomes.test.ts`: `deriveConceptOutcome` and `deriveAllOutcomes` with the precedence Challenged, Review due, Retried, Assisted, First-try correct. A replacement answered after a challenge takes the Alternate's result; a challenged Return after an earlier unchallenged miss gives Review due; reserved final-door results never change an outcome; one outcome per concept; no mastery or exam-readiness claim.
     - Assisted means `hintUsedOnCorrectQuestion` is true: a hint was applied to the question judged correct. The spent hint is never refunded.
     - Unit cases: first question correct with a hint is Assisted; first question correct with no hint is First-try correct; hint on a primary, `Challenged`, Alternate correct with no hint is First-try correct and `hintUsedOnCorrectQuestion` is false (Req 22.11, 18.7, 18.8); hint on the Alternate then correct is Assisted; a hint on a Return answered correctly still gives Retried (higher precedence).
     - _Requirements: 18.5, 18.7, 18.8, 20.10, 20.11, 22.1, 22.2, 22.3, 22.4, 22.5, 22.6, 22.7, 22.8, 22.9, 22.10, 22.11_
 
-  - [ ] 7.2 Add Autopsy labels and the banned-words test
+  - [x] 7.2 Add Autopsy labels and the banned-words test
     - Extend `copy.ts` with the labels "First-try correct", "Assisted", "Retried", "Challenged: excluded from score", "Review due" and the Return label "Review", in the tone of `.kiro/steering/tone.md` (load that steering file before writing). Add or extend the banned-words test over `copy.ts` for "verified", "guaranteed", "100% accurate", "hallucination-free", "mastered", "exam-ready".
     - _Requirements: 23.1, 23.2, 23.3, 23.4, 23.5, 22.10_
 
-  - [ ] 7.3 Expose outcomes and Autopsy availability
+  - [x] 7.3 Expose outcomes and Autopsy availability
     - Update `runtime/selectors.ts`, `selectors.test.ts` and `runtime/index.ts`: Autopsy available only at Escaped; outcomes, labels and counts exposed to the interface; export `initial`, `apply`, selectors and `GHOST_DELAY`.
     - _Requirements: 21.6, 22.1, 23.1_
 
-  - [ ] 7.4 Write property test for one outcome per concept
+  - [x] 7.4 Write property test for one outcome per concept
     - In `runtime/runtime-model.test.ts`. Every escaped run gives each concept exactly one outcome and the five counts sum to the manifest's concept count, for all four policies.
     - **Property 10: Exactly one outcome per concept, outcomes sum to the concept count**
     - **Validates: Requirements 22.1, 22.9, 20.11**
 
-  - [ ] 7.5 Write paired-run property test for challenges, parts (b) and (c)
+  - [x] 7.5 Write paired-run property test for challenges, parts (b) and (c)
     - In `runtime/runtime-properties.test.ts`. A shared driver with a policy table keyed by concept, return number and lock type. Run A challenges the first question shown for concept Q; run B skips it. Assert every other concept's outcome is equal across runs (b); an arm that challenges every question of Q gives Challenged, otherwise Q's outcome matches an independent oracle computed from the log (c).
     - **Property 9: Challenging is free, isolated and follows the outcome precedence** (parts b and c)
     - **Validates: Requirements 17.5, 22.2, 22.3, 22.4**
 
-  - [ ] 7.6 Add outcome assertions to the named sequences
+  - [x] 7.6 Add outcome assertions to the named sequences
     - In `runtime/runtime-sequences.test.ts`: all wrong escapes with every concept Review due and zero candles; all challenged escapes with every concept Challenged, zero candles and zero wrong answers; no alternates ends in Review due flags; the five counts sum to the concept count.
     - _Requirements: 22.1, 22.3, 22.5, 22.9_
 
-  - [ ] 7.7 Update the hook script
+  - [x] 7.7 Update the hook script
     - In `.kiro/hooks/run-core-tests.mjs`, choose the suite from the saved path: under `packages/core/src/runtime/` or `packages/core/src/locks/` run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks`; any other path under `packages/core/src/` runs the full core suite as today. Do not add a second hook and do not change the matcher in `run-core-tests-on-save.json`. Verify by running the script with a sample payload for each path kind (command construction only; no logs or user content written under `.kiro/`).
     - _Requirements: 1.7_
 
-  - [ ] 7.8 Add the build-log entry
+  - [x] 7.8 Add the build-log entry
     - Append an entry to `docs/build-log.md` describing the room-runtime work: the reducer, six judges, ghost queue, final door, outcomes and the hook change. Report real test counts and any known failures. Use no claims of learning gains and none of the banned words.
     - _Requirements: 23.4_
 
-  - [ ] 7.9 Checkpoint - Ensure all tests pass
+  - [x] 7.9 Checkpoint - Ensure all tests pass
     - Check that the string `handler-not-wired` no longer appears in non-test code under `packages/core/src` (for example `rg handler-not-wired packages/core/src --glob "!*.test.ts"` returns nothing). Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks src/test-support`, the full core suite, `pnpm lint` and `pnpm typecheck`. Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
