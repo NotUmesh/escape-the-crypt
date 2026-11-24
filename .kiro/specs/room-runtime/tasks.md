@@ -67,39 +67,39 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/test-support`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 1.7_
 
-- [ ] 2. Six answer judges and the judge registry
-  - [ ] 2.1 Implement the rune cipher judge
+- [x] 2. Six answer judges and the judge registry
+  - [x] 2.1 Implement the rune cipher judge
     - `locks/rune-cipher.ts` and `locks/rune-cipher.test.ts`. Trim, collapse spaces, case-insensitive unless flagged, exact match on answer or reviewed alias; empty after trim is invalid; never throws.
     - Tests: `"  Atrioventricular "` correct; "AV" correct as alias; "atrio-ventricular" wrong; "NA" wrong for case-sensitive "Na"; empty and whitespace-only invalid; a fast-check test that any string input returns a typed result.
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9_
 
-  - [ ] 2.2 Implement the séance board judge
+  - [x] 2.2 Implement the séance board judge
     - `locks/seance-board.ts` and `locks/seance-board.test.ts`. Signature `judge(question, submission, appliedHint)`. Key is correct; listed, not removed, not key is wrong; unlisted, null, or an option removed by an applied `remove-option` hint is invalid.
     - Tests: stale option ID from another question is invalid; hint-removed option is invalid; same submission judges normally with `appliedHint: null`; a hint of another kind is ignored.
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6_
 
-  - [ ] 2.3 Implement the bone ordering judge
+  - [x] 2.3 Implement the bone ordering judge
     - `locks/bone-ordering.ts` and `locks/bone-ordering.test.ts`. Exact key is correct; another permutation is wrong; not a permutation (duplicates, missing items) is invalid; a submission that moves a bone locked by an applied `lock-first-bone` hint is invalid.
     - _Requirements: 26.1, 26.2, 26.9, 26.10_
 
-  - [ ] 2.4 Implement the bound threads judge
+  - [x] 2.4 Implement the bound threads judge
     - `locks/bound-threads.ts` and `locks/bound-threads.test.ts`. Compare sorted, de-duplicated pair sets; equal is correct; every left item tied once but not the key is wrong; an untied left item is invalid; a missing pair tied by an applied `tie-thread` hint is invalid. Same pairs in any order give the same result.
     - _Requirements: 26.3, 26.4, 26.9, 26.10_
 
-  - [ ] 2.5 Implement the cursed object judge
+  - [x] 2.5 Implement the cursed object judge
     - `locks/cursed-object.ts` and `locks/cursed-object.test.ts`. Odd one is correct; a listed object not removed by the hint and not the odd one is wrong; unlisted, null, or hint-removed is invalid.
     - _Requirements: 26.5, 26.9, 26.10_
 
-  - [ ] 2.6 Implement the combination dial judge
+  - [x] 2.6 Implement the combination dial judge
     - `locks/combination-dial.ts` and `locks/combination-dial.test.ts`. Kinds `exact`, `range` (inclusive) and `tolerance` (value ± tolerance, inclusive). Parse `rawInput` as at most one decimal place, compare on integer tenths. Non-numeric or more than one decimal place is invalid.
     - Tests: `60` and `100` correct for 60 to 100; `59.9` wrong; `21.5` correct for exact 21.5; for 21.5 ± 0.5, `21.0` and `22.0` correct, `22.1` and `20.9` wrong, `22.15` invalid; `tolerance: 0`; one-decimal rule for each kind; non-numeric invalid.
     - _Requirements: 26.6, 26.7, 26.8, 26.9, 26.10_
 
-  - [ ] 2.7 Implement the judge registry
+  - [x] 2.7 Implement the judge registry
     - `locks/judge-registry.ts` with the per-type question and submission types, the `Judge` interface and `judgeRegistry: Record<LockType, Judge>`; create `locks/lock-types.test.ts` asserting the registry has exactly the six `LockType` IDs, every lock file name matches an ID, and no other spelling appears.
     - _Requirements: 27.1, 27.2, 29.5_
 
-  - [ ] 2.8 Verify task 2
+  - [x] 2.8 Verify task 2
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/locks`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 11.1, 26.9_
 

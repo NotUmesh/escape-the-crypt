@@ -77,6 +77,119 @@
         "chatSessionId": "sess_637e5c80-d05d-4bc6-b694-229fbf538fa7",
         "timestamp": 1795529694836
       }
+    ],
+    "2. Six answer judges and the judge registry": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530321822
+      },
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530550486
+      }
+    ],
+    "2.1 Implement the rune cipher judge": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530326895
+      },
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530393344
+      }
+    ],
+    "2.2 Implement the séance board judge": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530326956
+      },
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530393902
+      }
+    ],
+    "2.3 Implement the bone ordering judge": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530327385
+      },
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530394699
+      }
+    ],
+    "2.4 Implement the bound threads judge": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530328077
+      },
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530395488
+      }
+    ],
+    "2.5 Implement the cursed object judge": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530328565
+      },
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530396297
+      }
+    ],
+    "2.6 Implement the combination dial judge": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530396714
+      },
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530435528
+      }
+    ],
+    "2.7 Implement the judge registry": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530439701
+      },
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530549869
+      }
+    ],
+    "2.8 Verify task 2": [
+      {
+        "executionId": "2dd783ab-549a-4ffa-a2e0-0b7a1a005526",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530550433
+      },
+      {
+        "executionId": "baa39542-85e2-4b8c-a760-6cfbb79f1d53",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795530977515
+      },
+      {
+        "executionId": "baa39542-85e2-4b8c-a760-6cfbb79f1d53",
+        "chatSessionId": "sess_0c543f72-09cf-47da-8e82-7dae51a5c6e7",
+        "timestamp": 1795531100819
+      }
     ]
   }
 }
