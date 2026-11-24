@@ -108,8 +108,8 @@ packages/core/src/
     notices.test.ts
     selectors.ts                     # read-only State projections for Req 31 (per-room/per-slot views)
     selectors.test.ts
-    runtime.model.test.ts            # fast-check model-based test (fc.commands), Section "Correctness Properties"
-    runtime.properties.test.ts       # standalone property tests not naturally commands (order fixed, paired-run challenge test)
+    runtime-model.test.ts            # fast-check model-based test (fc.commands), Section "Correctness Properties"
+    runtime-properties.test.ts       # standalone property tests not naturally commands (order fixed, paired-run challenge test)
     serialisation.test.ts            # Event JSON round-trip for every variant, State JSON-safety, replay determinism (Req 4)
     index.ts                         # re-exports: initial, apply, selectors, GHOST_DELAY
 
@@ -486,7 +486,7 @@ export type RunStatus = 'not started' | 'in progress' | 'left' | 'escaped';
 export interface State {
   readonly manifestId: string;
   readonly status: RunStatus;
-  readonly settings: RunSettings | null;
+  readonly manifest: CryptManifest;   // non-null; set by initial(), never changes\n  readonly settings: RunSettings;     // non-null; set by initial(), never changes
   readonly remainingHints: number;
   readonly candleCount: number;
   readonly judgedAnswerCount: number;             // Req 15.2/15.4 counter
@@ -502,7 +502,7 @@ export interface State {
 
 This directly satisfies Req 31's exposure list: per-room `LockSlotState` carries station type, current question type, status and candle flag (31.1-31.6); `dueReturnSlots` carries concept, return number, current question type and status (31.7); `ghosts` exposes concept, return number and a due flag (31.8); `spiritCandles` names concept and Return_Slot per room (31.9); `cleared` is a `RoomState` field (31.10); `FinalDoorState.slots` names origin (reserved vs Return), current question type, status and spirit candles (31.11). Everything is derived only from manifest, settings and the event log, and the whole shape is JSON-serialisable (31.12, Req 4.2) — no functions and no `Map` or `Set` anywhere in `State`, in any Event, or in any question or submission payload (bound-threads pairs are arrays of `[leftId, rightId]` tuples).
 
-**Leave and resume.** `RunLeft` changes only `status` to `'left'`. `RunResumed` changes only `status` back to `'in progress'`. Nothing else in `State` is touched between them (Req 21.1, 21.2), so no snapshot is stored.
+**Leave and resume.** `RunLeft` changes only `status` to `'left'`. `RunResumed` changes only `status` back to `'in progress'`. Nothing else in `State` is touched between them (Req 21.1, 21.2), so no snapshot is stored. `RunLeft` before `RunStarted` returns `run-not-started` from the not-started guard (Req 2.5); `RunLeft` while left returns `cannot-leave` (Req 21.4), so the left guard in `apply.ts` exempts both `RunResumed` and `RunLeft`.
 
 **Hints and evidence on every slot kind.** `LockSlotState`, `ReturnSlotState` and `FinalDoorSlotState` all carry `appliedHint` and `evidencePanelOpen`. `handlers-hint.ts` sets `appliedHint` on whichever slot kind `slotId` names to `{ questionId: currentQuestionId, effect }`, where `effect` is the `hintEffect` of the `QuestionSpec` currently shown in that slot (primary or Alternate for a Lock_Slot, the reserved question for a reserved final-door slot, the returned question for a Return_Slot). It rejects with `hint-already-used` when `appliedHint` is already set for the current question ID. `handlers-answer.ts` sets `evidencePanelOpen` on the judged slot, and `EvidenceContinued` clears it, for any slot kind. `selectors.ts` exposes both flags for every slot kind, so the interface reads one shape for locks, returns and final-door slots.
 
@@ -551,7 +551,7 @@ Reserved_Final_Door_Questions never feed `ConceptRecord` (Req 20.4, 20.10): a co
 
 ### Model-based test design
 
-`runtime/runtime.model.test.ts` uses fast-check `fc.commands`. The **model** is a small counter-based summary kept alongside the real `State`, not a second reducer:
+`runtime/runtime-model.test.ts` uses fast-check `fc.commands`. The **model** is a small counter-based summary kept alongside the real `State`, not a second reducer:
 
 ```ts
 interface Model {
@@ -639,7 +639,7 @@ For any manifest, any policy for the other concepts, and any Lock_Slot or Return
 - (b) every concept other than Q's has the same Concept_Outcome as in the paired run in which Q's question is not challenged;
 - (c) Q's concept ends as Challenged only if every question shown for it was challenged, and otherwise its outcome is derived from the Alternate's result (and any later Return results) under Req 22.2 to 22.8.
 
-**Paired-run construction.** The test lives in `runtime.properties.test.ts`, not in the `fc.commands` model, because it compares two runs. It generates `(manifest, policy, Q)`. `policy` is a pure function of `(conceptId, returnNumber, lockType)` that returns `correct`, `wrong`, `skip` or `challenge`, drawn once per test case from a generated lookup table. It never reads event position, judged-answer count or Ghost due timing, so a shift in when a Return becomes due cannot change what any other concept does. Both runs use one shared driver that opens rooms in order and acts on every open slot until `escaped` or a step budget runs out, asking the policy what to do for each slot. Run A (challenge arm) overrides the policy with `challenge` for the first question shown for Q's concept. Run B (fallback arm) overrides it with `skip` for that same question. Every later question of Q's concept follows the policy table in both runs, so no restriction to a challenge-everything policy is needed. A second arm A2 overrides the policy with `challenge` for every question shown for Q's concept, to cover the Challenged outcome.
+**Paired-run construction.** The test lives in `runtime-properties.test.ts`, not in the `fc.commands` model, because it compares two runs. It generates `(manifest, policy, Q)`. `policy` is a pure function of `(conceptId, returnNumber, lockType)` that returns `correct`, `wrong`, `skip` or `challenge`, drawn once per test case from a generated lookup table. It never reads event position, judged-answer count or Ghost due timing, so a shift in when a Return becomes due cannot change what any other concept does. Both runs use one shared driver that opens rooms in order and acts on every open slot until `escaped` or a step budget runs out, asking the policy what to do for each slot. Run A (challenge arm) overrides the policy with `challenge` for the first question shown for Q's concept. Run B (fallback arm) overrides it with `skip` for that same question. Every later question of Q's concept follows the policy table in both runs, so no restriction to a challenge-everything policy is needed. A second arm A2 overrides the policy with `challenge` for every question shown for Q's concept, to cover the Challenged outcome.
 
 Assertions:
 
@@ -689,7 +689,7 @@ All fifteen properties run at a minimum of 100 iterations each and are tagged:
 
 **Feature: room-runtime, Property N: <property text>**
 
-Properties that are naturally one `fc.commands` run (Properties 1, 2, 3, 5, 8, 10, 14, 15) live inside `runtime.model.test.ts`. Property 6 lives in `serialisation.test.ts`. The rest, which compare two related runs or check a structural invariant over `manifestArb` directly (Properties 4, 7, 9, 11, 12, 13), live in `runtime.properties.test.ts` and `manifest-check.test.ts`.
+Properties that are naturally one `fc.commands` run (Properties 1, 2, 3, 5, 8, 10, 14, 15) live inside `runtime-model.test.ts`. Property 6 lives in `serialisation.test.ts`. The rest, which compare two related runs or check a structural invariant over `manifestArb` directly (Properties 4, 7, 9, 11, 12, 13), live in `runtime-properties.test.ts` and `manifest-check.test.ts`.
 
 ## Named example sequences
 
@@ -705,7 +705,7 @@ Implemented as unit tests (not property tests) that pin down the brief's named s
 
 ## Error Handling
 
-Every handler returns `Result`-shaped values; nothing in `runtime/` or `locks/` throws for any input, including malformed events (Req 1.6, 3.7, 9 in locks). `apply.ts` runs guards that apply to every event first — unknown reference (Req 3.3), run-left except `RunResumed` (Req 3.4), run-finished for anything (Req 3.5), targeting a settled slot when an open one is required (Req 3.6) — before dispatching to a per-event-group handler, so each handler only needs its own event-specific checks. A handler failure returns `{ ok: false, error }` and the caller's `State` reference is never mutated (Req 1.5, 3.1); handlers build and return a new `State` object by shallow-copying only the branches that change.
+Every handler returns `Result`-shaped values; nothing in `runtime/` or `locks/` throws for any input, including malformed events (Req 1.6, 3.7, 9 in locks). `apply.ts` runs guards that apply to every event first — unknown reference (Req 3.3), run-left except `RunResumed` and `RunLeft` (Req 3.4; `RunLeft` while left returns `cannot-leave`, and before `RunStarted` it returns `run-not-started`, Req 2.5), run-finished for anything (Req 3.5), targeting a settled slot when an open one is required (Req 3.6) — before dispatching to a per-event-group handler, so each handler only needs its own event-specific checks. A handler failure returns `{ ok: false, error }` and the caller's `State` reference is never mutated (Req 1.5, 3.1); handlers build and return a new `State` object by shallow-copying only the branches that change.
 
 **Manifest_Check rules.** `manifestCheck(manifest)` is pure, returns a typed result and never throws, even for a structurally broken Manifest. It runs three passes in a fixed order, and the first failure found is the one returned:
 
@@ -737,4 +737,4 @@ Vitest is the runner (existing `packages/core/vitest.config.ts`, `include: src/*
 
 ## Forward note: `apps/web/src/state/`
 
-Out of scope for this spec. The React binding will call `initial`/`apply`, hold the resulting `State` and `Event_Log` in React state, persist the `Event_Log` to IndexedDB (spec 4), and translate `Outcome_Notice`s into visual effects (spec 5). It will contain no game rules of its own, per `structure.md`.
+Out of scope for this spec. The React binding will call `initial`/`apply`, hold the resulting `State` and `Event_Log` in React state, persist the `Event_Log` to IndexedDB (spec 4), and translate `Outcome_Notice`s into visual effects (spec 5). **Note for spec 4:** persistence stores the manifest, the `RunSettings` and the event log, never `State`. `RunStarted` does not carry the settings, so they must be stored beside the log. `State` is rebuilt on load with `events.reduce(apply, initial(manifest, settings))`. It will contain no game rules of its own, per `structure.md`.

@@ -16,8 +16,8 @@ Ordering notes where the fixed phasing and the code dependencies meet:
 
 ## Tasks
 
-- [ ] 1. Types, fixture builder, manifest check, reducer skeleton and serialisation test
-  - [ ] 1.1 Define shared types
+- [x] 1. Types, fixture builder, manifest check, reducer skeleton and serialisation test
+  - [x] 1.1 Define shared types
     - In `types.ts` add `LockType`, `JudgeResult`, `HintEffectSpec`, `ThreadPair`, the `Event` union (all 14 variants), `RuntimeErrorKind`, `Typed_Rejection`. `HintEffectSpec` and `ThreadPair` live here so `locks/` depends only on `types.ts`.
     - In `runtime/manifest-types.ts` add `CryptManifest`, `RoomSpec`, `LockSlotSpec`, `QuestionSpec`, `FinalDoorSlotSpec`, `RunSettings`.
     - In `runtime/state-types.ts` add `State`, `RoomState`, `LockSlotState`, `ReturnSlotState`, `FinalDoorSlotState`, `FinalDoorState`, `GhostState`, `SpiritCandleState`, `ConceptRecord`, `AppliedHintState`, `SlotStatus`, `ConceptOutcome`, `RunStatus`.
@@ -25,14 +25,14 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - All types are plain JSON shapes: no `Set`, `Map`, `Date`, function or `undefined`.
     - _Requirements: 3.2, 4.1, 4.2, 6.1, 27.1, 27.2, 29.3, 31.12_
 
-  - [ ] 1.2 Implement the Manifest_Check
+  - [x] 1.2 Implement the Manifest_Check
     - Create `runtime/manifest-check.ts` and `runtime/manifest-check.test.ts`.
     - Accept only when each room holds at most one Lock_Slot per Station_Type; exempt the Final_Door; ignore Return_Slots; return `{ ok: false, error: { kind: 'invalid-manifest', room, lockType } }` for the first room and first repeated type; also reject a lock type outside `LockType`; never throw.
     - Also require every QuestionSpec (primary, Alternate, reserved final-door) to carry a non-empty `questionId`, unique within the manifest. A missing or empty one returns `{ ok: false, error: { kind: 'invalid-manifest', questionId: '', slotId } }`; the first duplicate returns `{ kind: 'invalid-manifest', questionId }`. Passes run in order: lock types, then Station_Types, then question IDs, so a repeated Station_Type is reported before a duplicate `questionId`.
     - Unit tests: the exact error shape, Final_Door repeats allowed, unknown lock type, empty rooms, malformed input; missing or empty `questionId` on a primary, an Alternate and a reserved final-door question; a `questionId` duplicated between a primary and an Alternate, across two rooms, and between a room question and a reserved question; a manifest with both a repeated Station_Type and a duplicate `questionId` reports the Station_Type error.
     - _Requirements: 27.4, 28.1, 28.2, 28.3, 28.4, 28.5, 28.6, 28.8, 28.9, 28.10_
 
-  - [ ] 1.3 Implement the Fixture_Builder and manifest arbitraries
+  - [x] 1.3 Implement the Fixture_Builder and manifest arbitraries
     - Create `test-support/manifest-fixture.ts` with `buildManifest(options)` and `test-support/manifest-fixture.test.ts`.
     - Options: rooms 1 to 5, concepts per room 1 to 6 with distinct primary types per room, alternate yes/no per concept, question lock types, optional `hintEffect` per primary, Alternate and reserved final-door question, optional `lockTypes` list (default all six), optional seed. Same options give the same manifest. Fictional content only. Alternates differ in type from the primary. Final door has 2 to 4 full `FinalDoorSlotSpec`s across rooms. Every primary, Alternate and reserved question gets a non-empty `questionId` that is unique within the manifest (generated from a counter).
     - With a `lockTypes` list shorter than six, cap concepts per room at the list length; with one type, build no Alternates.
@@ -40,7 +40,7 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - Tests: every built and generated manifest passes `manifestCheck`; every `questionId` is non-empty and unique in built and generated manifests; determinism; the `lockTypes` cap and single-type rules.
     - _Requirements: 25.1, 25.2, 25.3, 25.4, 25.5, 25.6, 25.7, 25.8, 25.9, 25.10, 25.11, 25.12, 25.13, 20.1_
 
-  - [ ] 1.4 Implement the reducer skeleton with typed rejections
+  - [x] 1.4 Implement the reducer skeleton with typed rejections
     - Create `runtime/initial.ts`, `runtime/apply.ts`, `runtime/handlers-run.ts` (only `RunStarted` for now), `runtime/index.ts`, with `initial.test.ts`, `apply.test.ts` and `handlers-run.test.ts`.
     - `initial(manifest, settings)` returns status "not started", zero candles, no ghosts, no room entered; it never throws and never runs the Manifest_Check, even for a bad manifest.
     - `apply` returns `{ ok, state, notices }` or `{ ok: false, error }`. Guards: `malformed-event` (unknown type or lock type not in `LockType`), `run-not-started` (before `RunStarted`, except `RoomPublished`, `CryptFinalised`, `CryptShortened`), `run-finished`, `run-left`, `unknown-reference`, `lock-already-settled`. Other event kinds are dispatched to handlers added in later tasks and return `malformed-event`-free placeholders only until then; do not leave orphaned code, so wire each new handler through `apply.ts` in the task that adds it.
@@ -48,22 +48,22 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - New State object on success, input never mutated, no exceptions for any input.
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1, 3.3, 3.4, 3.5, 3.6, 3.7, 5.1, 5.2, 5.3, 27.3, 28.7_
 
-  - [ ] 1.5 Write property test for one lock per type per room
+  - [x] 1.5 Write property test for one lock per type per room
     - In `runtime/manifest-check.test.ts`.
     - Also assert unique, non-empty `questionId`s for accepted manifests, and that a missing or duplicated `questionId` is rejected with `invalid-manifest` carrying it.
     - **Property 13: One lock per type per room, unique question IDs**
     - **Validates: Requirements 25.12, 25.13, 28.1, 28.3, 28.8, 28.9, 28.10**
 
-  - [ ] 1.6 Write property test for invalid events as no-ops
-    - New file `runtime/apply.properties.test.ts`. Generate arbitrary and malformed events against started and unstarted states; assert a typed rejection, State deep-equal to before, and no throw. Covers the event kinds handled so far; 5.1 extends it to every kind.
+  - [x] 1.6 Write property test for invalid events as no-ops
+    - New file `runtime/apply-properties.test.ts`. Generate arbitrary and malformed events against started and unstarted states; assert a typed rejection, State deep-equal to before, and no throw. Covers the event kinds handled so far; 5.1 extends it to every kind.
     - **Property 5: Invalid events are no-ops**
     - **Validates: Requirements 3.1, 3.6, 3.7**
 
-  - [ ] 1.7 Write the serialisation test
+  - [x] 1.7 Write the serialisation test
     - Create `runtime/serialisation.test.ts`. Build one example of every `Event` variant (and one `AnswerSubmitted` per lock type, bound-threads as tuple arrays) and assert `JSON.parse(JSON.stringify(e))` deep-equals `e`. Assert `eventArb` events and `initial(...)` State survive the same round trip, with no `Set`, `Map` or `undefined`.
     - _Requirements: 4.1, 4.2, 5.1_
 
-  - [ ] 1.8 Verify task 1
+  - [x] 1.8 Verify task 1
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/test-support`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 1.7_
 
@@ -126,22 +126,22 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - _Requirements: 16.1, 16.2, 17.1, 17.2, 17.3, 17.5, 17.6, 17.7, 29.4, 31.2, 31.5_
 
   - [ ] 3.6 Write property test for candles
-    - New file `runtime/runtime.candles.properties.test.ts`. Random event sequences over `manifestArb`; the candle count equals the number of correct judged answers on non-challenged questions, and no other event changes it.
+    - New file `runtime/runtime-candles-properties.test.ts`. Random event sequences over `manifestArb`; the candle count equals the number of correct judged answers on non-challenged questions, and no other event changes it.
     - **Property 2: Candles track non-challenged correct answers only**
     - **Validates: Requirements 13.1, 13.2, 13.3, 13.4**
 
   - [ ] 3.7 Write property test for hints
-    - New file `runtime/runtime.hints.properties.test.ts`. Remaining hints never drop below 0; `HintUsed` on a solved or settled slot or a second hint on one question is rejected; a correct answer on a question that had a hint applied sets `hintUsedOnCorrectQuestion`; `Challenged` on a hinted question leaves `remainingHints` unchanged and the replacement Alternate has no applied hint; a hint on a challenged primary followed by a correct unhinted Alternate does not set `hintUsedOnCorrectQuestion`.
+    - New file `runtime/runtime-hints-properties.test.ts`. Remaining hints never drop below 0; `HintUsed` on a solved or settled slot or a second hint on one question is rejected; a correct answer on a question that had a hint applied sets `hintUsedOnCorrectQuestion`; `Challenged` on a hinted question leaves `remainingHints` unchanged and the replacement Alternate has no applied hint; a hint on a challenged primary followed by a correct unhinted Alternate does not set `hintUsedOnCorrectQuestion`.
     - **Property 8: Hints stay within allowance and mark answers assisted**
     - **Validates: Requirements 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8, 22.7, 22.8, 22.11**
 
   - [ ] 3.8 Write property test for slot status and candle flag
-    - New file `runtime/runtime.slots.properties.test.ts`. Status follows judged history; `candleLit` is true if and only if status is `solved`.
+    - New file `runtime/runtime-slots-properties.test.ts`. Status follows judged history; `candleLit` is true if and only if status is `solved`.
     - **Property 14: Slot status and candle flag follow judged history**
     - **Validates: Requirements 31.2, 31.3, 31.4, 31.5, 31.6**
 
   - [ ] 3.9 Write property test for challenge isolation, part (a)
-    - In `runtime/runtime.properties.test.ts`. For a challenged Lock_Slot question: the event adds no wrong answer, lights no candle, spawns no ghost, leaves `judgedAnswerCount` and `candleCount` unchanged, and emits only `sealCracked` (plus `roomCleared` where it settles the last slot). Parts (b) and (c) need outcomes and are written in 7.5; the Return_Slot case is added in 4.7.
+    - In `runtime/runtime-properties.test.ts`. For a challenged Lock_Slot question: the event adds no wrong answer, lights no candle, spawns no ghost, leaves `judgedAnswerCount` and `candleCount` unchanged, and emits only `sealCracked` (plus `roomCleared` where it settles the last slot). Parts (b) and (c) need outcomes and are written in 7.5; the Return_Slot case is added in 4.7.
     - **Property 9: Challenging is free, isolated and follows the outcome precedence** (part a)
     - **Validates: Requirements 17.1, 17.2, 17.3, 17.5, 17.7**
 
@@ -163,21 +163,21 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - _Requirements: 16.3, 16.4, 16.5, 16.6, 17.4_
 
   - [ ] 4.4 Write the named sequences for ghosts
-    - New file `runtime/runtime.sequences.test.ts`. Against a fixed fixture manifest: (1) all wrong: miss, return 1 on the Alternate with no label wrong, return 2 labelled "Review" wrong, lingering spirit, zero candles; (2) all challenged with alternates: every question and replacement challenged, zero candles, no wrong answer recorded; (3) no alternates at all: wrong answers and skips go straight to a primary Return labelled "Review" and then Review due flags. Assert slots, ghosts, candles and notices. Outcome and escape assertions are added in 6.5 and 7.6.
+    - New file `runtime/runtime-sequences.test.ts`. Against a fixed fixture manifest: (1) all wrong: miss, return 1 on the Alternate with no label wrong, return 2 labelled "Review" wrong, lingering spirit, zero candles; (2) all challenged with alternates: every question and replacement challenged, zero candles, no wrong answer recorded; (3) no alternates at all: wrong answers and skips go straight to a primary Return labelled "Review" and then Review due flags. Assert slots, ghosts, candles and notices. Outcome and escape assertions are added in 6.5 and 7.6.
     - _Requirements: 14.2, 14.3, 14.4, 14.5, 14.9, 14.10, 16.4, 17.1, 17.2, 17.3, 17.5_
 
   - [ ] 4.5 Write property test for ghost cap
-    - New file `runtime/runtime.ghosts.properties.test.ts`. At most one pending ghost per concept at any time; return number never above 2.
+    - New file `runtime/runtime-ghosts-properties.test.ts`. At most one pending ghost per concept at any time; return number never above 2.
     - **Property 3: At most one pending ghost per concept, capped at return 2**
     - **Validates: Requirements 14.7, 14.8**
 
   - [ ] 4.6 Write property test for return question choice and label
-    - In `runtime/runtime.properties.test.ts`. Return 1 uses the unused Alternate (a different lock type from the primary) when one exists, otherwise the primary; the label is "Review" if and only if the question was shown earlier for the concept; return 2 is always "Review".
+    - In `runtime/runtime-properties.test.ts`. Return 1 uses the unused Alternate (a different lock type from the primary) when one exists, otherwise the primary; the label is "Review" if and only if the question was shown earlier for the concept; return 2 is always "Review".
     - **Property 4: Return question choice and Review label follow show history**
     - **Validates: Requirements 14.2, 14.3, 14.4, 14.9, 14.10**
 
   - [ ] 4.7 Extend the challenge isolation test to Return_Slots
-    - In `runtime/runtime.properties.test.ts`: part (a) of Property 9 for a challenged Return question (no wrong answer, candle or ghost from the challenge).
+    - In `runtime/runtime-properties.test.ts`: part (a) of Property 9 for a challenged Return question (no wrong answer, candle or ghost from the challenge).
     - **Property 9: Challenging is free, isolated and follows the outcome precedence** (part a, Return_Slots)
     - **Validates: Requirements 17.4, 17.5, 17.7**
 
@@ -187,7 +187,7 @@ Ordering notes where the fixed phasing and the code dependencies meet:
 
 - [ ] 5. Model-based harness, replay determinism and reload sequence
   - [ ] 5.1 Build the fc.commands harness
-    - Create `runtime/runtime.model.test.ts`: the counter `Model`, one command per event kind handled so far, and deliberately invalid variants (wrong order, stale slot, double submit, hint at zero) that assert the expected `kind` and State unchanged. Learner policies: all wrong, all skip, all challenge, seeded random. Fold in the invariants of Properties 2, 3, 5, 8 and 14 and extend `apply.properties.test.ts` coverage to every event kind. Commands for room progression, final door, leave and resume are added in 6.9.
+    - Create `runtime/runtime-model.test.ts`: the counter `Model`, one command per event kind handled so far, and deliberately invalid variants (wrong order, stale slot, double submit, hint at zero) that assert the expected `kind` and State unchanged. Learner policies: all wrong, all skip, all challenge, seeded random. Fold in the invariants of Properties 2, 3, 5, 8 and 14 and extend `apply-properties.test.ts` coverage to every event kind. Commands for room progression, final door, leave and resume are added in 6.9.
     - **Property 5: Invalid events are no-ops** (every event kind)
     - **Property 2, Property 3, Property 8, Property 14** (as model invariants)
     - **Validates: Requirements 3.1, 3.6, 3.7, 13.4, 14.7, 14.8, 18.4, 31.6**
@@ -198,16 +198,16 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - **Validates: Requirements 4.3, 4.4, 4.5, 4.6**
 
   - [ ] 5.3 Write property test for notices
-    - In `runtime/runtime.model.test.ts`. Replaying a log twice emits the same notices in the same order; each notice is emitted once per causing event; one event's notices follow `candleLit, ghostLaidToRest, ghostSpawned, sealCracked, roomCleared, escaped`; the event log never contains notices.
+    - In `runtime/runtime-model.test.ts`. Replaying a log twice emits the same notices in the same order; each notice is emitted once per causing event; one event's notices follow `candleLit, ghostLaidToRest, ghostSpawned, sealCracked, roomCleared, escaped`; the event log never contains notices.
     - **Property 15: Notices are emitted once, in a fixed order, and identically on replay**
     - **Validates: Requirements 24.5, 24.7, 24.8**
 
   - [ ] 5.4 Write the reload-after-every-event sequence
-    - New file `runtime/runtime.reload.test.ts`. For a fixed 40-event run on a fixture manifest, for every prefix length 1 to 40: fold the prefix, serialise and parse, apply the remaining events, and assert deep-equality with the uninterrupted fold.
+    - New file `runtime/runtime-reload.test.ts`. For a fixed 40-event run on a fixture manifest, for every prefix length 1 to 40: fold the prefix, serialise and parse, apply the remaining events, and assert deep-equality with the uninterrupted fold.
     - _Requirements: 4.3, 4.4, 4.5_
 
   - [ ] 5.5 Write property test for termination of room play
-    - In `runtime/runtime.model.test.ts`. For every policy over `manifestArb` runs, every published room becomes Cleared within `(totalConcepts × 4)` judged prompts, with all four policies including all wrong and all challenged. The escape part of the bound is added in 6.9.
+    - In `runtime/runtime-model.test.ts`. For every policy over `manifestArb` runs, every published room becomes Cleared within `(totalConcepts × 4)` judged prompts, with all four policies including all wrong and all challenged. The escape part of the bound is added in 6.9.
     - **Property 1: Termination** (room play; escape part in 6.9)
     - **Validates: Requirements 19.1, 19.2, 20.7**
 
@@ -228,30 +228,30 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - _Requirements: 16.7, 20.1, 20.2, 20.3, 20.4, 20.5, 20.6, 20.8, 20.9, 20.10, 30.6, 31.11_
 
   - [ ] 6.4 Implement leave and resume
-    - Update `handlers-run.ts` and its test: `RunLeft` changes only the status to "left" (`cannot-leave` before start or when already left); `RunResumed` changes only the status back (`run-not-left` otherwise); nothing else in State changes between them; after Escaped every event, including these, returns `run-finished`; a left run reports as unfinished. The Autopsy is available only at Escaped (selector added in 7.3).
+    - Update `handlers-run.ts` and its test, and change the "left" guard in `apply.ts` to exempt `RunLeft` as well as `RunResumed` (so a second `RunLeft` reaches the handler and returns `cannot-leave`): `RunLeft` changes only the status to "left" (`cannot-leave` when already left; before `RunStarted` it returns `run-not-started` from the existing guard, Req 2.5); `RunResumed` changes only the status back (`run-not-left` otherwise); nothing else in State changes between them; after Escaped every event, including these, returns `run-finished`; a left run reports as unfinished. The Autopsy is available only at Escaped (selector added in 7.3).
     - _Requirements: 3.4, 3.5, 21.1, 21.2, 21.3, 21.4, 21.5_
 
   - [ ] 6.5 Write the multi-room named sequences
-    - In `runtime/runtime.sequences.test.ts`: (4) crypt shortened mid-run: `CryptShortened` after 2 of 5 rooms are published, remaining rooms publish and clear, the Final_Door opens after the new final count; (5) next room not yet published: room 1 Cleared, room 2 unpublished, State reports "waiting for next room", then `RoomPublished` and `RoomEntered` succeed. Also add escape assertions to the all wrong and all challenged sequences from 4.4 (escape with zero candles).
+    - In `runtime/runtime-sequences.test.ts`: (4) crypt shortened mid-run: `CryptShortened` after 2 of 5 rooms are published, remaining rooms publish and clear, the Final_Door opens after the new final count; (5) next room not yet published: room 1 Cleared, room 2 unpublished, State reports "waiting for next room", then `RoomPublished` and `RoomEntered` succeed. Also add escape assertions to the all wrong and all challenged sequences from 4.4 (escape with zero candles).
     - _Requirements: 7.5, 7.7, 8.6, 20.5_
 
   - [ ] 6.6 Write property test for immutable published rooms
-    - In `runtime/runtime.properties.test.ts`. Duplicate or late `RoomPublished` leaves a published room's locks, option order and hint effects unchanged.
+    - In `runtime/runtime-properties.test.ts`. Duplicate or late `RoomPublished` leaves a published room's locks, option order and hint effects unchanged.
     - **Property 7: Published rooms are immutable**
     - **Validates: Requirements 7.2, 7.3**
 
   - [ ] 6.7 Write property test for room progression
-    - In `runtime/runtime.properties.test.ts`. `RoomEntered(k+1)` is accepted only when room k is Cleared and room k+1 is published; a shortened crypt still reaches an available Final_Door.
+    - In `runtime/runtime-properties.test.ts`. `RoomEntered(k+1)` is accepted only when room k is Cleared and room k+1 is published; a shortened crypt still reaches an available Final_Door.
     - **Property 11: Room progression and crypt shortening**
     - **Validates: Requirements 7.5, 7.7, 8.1, 8.2, 8.3, 8.4, 8.5**
 
   - [ ] 6.8 Write property test for order fixed by the manifest
-    - In `runtime/runtime.properties.test.ts`. After every event of any log, option order and bone order in State equal the manifest's.
+    - In `runtime/runtime-properties.test.ts`. After every event of any log, option order and bone order in State equal the manifest's.
     - **Property 12: Order fixed by the manifest**
     - **Validates: Requirements 6.1, 6.2, 6.3**
 
   - [ ] 6.9 Extend the model harness to escape
-    - In `runtime/runtime.model.test.ts`: add commands for room progression, publishing, shortening, final door, leave and resume; complete the escape part of the termination bound `(totalConcepts × 4) + reservedFinalDoorQuestionCount` for all four policies.
+    - In `runtime/runtime-model.test.ts`: add commands for room progression, publishing, shortening, final door, leave and resume; complete the escape part of the termination bound `(totalConcepts × 4) + reservedFinalDoorQuestionCount` for all four policies.
     - **Property 1: Termination** (escape)
     - **Validates: Requirements 20.5, 20.7, 20.8, 20.9**
 
@@ -275,17 +275,17 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - _Requirements: 21.6, 22.1, 23.1_
 
   - [ ] 7.4 Write property test for one outcome per concept
-    - In `runtime/runtime.model.test.ts`. Every escaped run gives each concept exactly one outcome and the five counts sum to the manifest's concept count, for all four policies.
+    - In `runtime/runtime-model.test.ts`. Every escaped run gives each concept exactly one outcome and the five counts sum to the manifest's concept count, for all four policies.
     - **Property 10: Exactly one outcome per concept, outcomes sum to the concept count**
     - **Validates: Requirements 22.1, 22.9, 20.11**
 
   - [ ] 7.5 Write paired-run property test for challenges, parts (b) and (c)
-    - In `runtime/runtime.properties.test.ts`. A shared driver with a policy table keyed by concept, return number and lock type. Run A challenges the first question shown for concept Q; run B skips it. Assert every other concept's outcome is equal across runs (b); an arm that challenges every question of Q gives Challenged, otherwise Q's outcome matches an independent oracle computed from the log (c).
+    - In `runtime/runtime-properties.test.ts`. A shared driver with a policy table keyed by concept, return number and lock type. Run A challenges the first question shown for concept Q; run B skips it. Assert every other concept's outcome is equal across runs (b); an arm that challenges every question of Q gives Challenged, otherwise Q's outcome matches an independent oracle computed from the log (c).
     - **Property 9: Challenging is free, isolated and follows the outcome precedence** (parts b and c)
     - **Validates: Requirements 17.5, 22.2, 22.3, 22.4**
 
   - [ ] 7.6 Add outcome assertions to the named sequences
-    - In `runtime/runtime.sequences.test.ts`: all wrong escapes with every concept Review due and zero candles; all challenged escapes with every concept Challenged, zero candles and zero wrong answers; no alternates ends in Review due flags; the five counts sum to the concept count.
+    - In `runtime/runtime-sequences.test.ts`: all wrong escapes with every concept Review due and zero candles; all challenged escapes with every concept Challenged, zero candles and zero wrong answers; no alternates ends in Review due flags; the five counts sum to the concept count.
     - _Requirements: 22.1, 22.3, 22.5, 22.9_
 
   - [ ] 7.7 Update the hook script
@@ -297,7 +297,7 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - _Requirements: 23.4_
 
   - [ ] 7.9 Checkpoint - Ensure all tests pass
-    - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks src/test-support`, the full core suite, `pnpm lint` and `pnpm typecheck`. Ensure all tests pass, ask the user if questions arise.
+    - Check that the string `handler-not-wired` no longer appears in non-test code under `packages/core/src` (for example `rg handler-not-wired packages/core/src --glob "!*.test.ts"` returns nothing). Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks src/test-support`, the full core suite, `pnpm lint` and `pnpm typecheck`. Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
 

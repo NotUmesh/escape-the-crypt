@@ -1,4 +1,7 @@
 import fc from 'fast-check';
+import type { CryptManifest } from '../runtime/manifest-types';
+import type { Event } from '../types';
+import { buildManifest } from './manifest-fixture';
 
 const word = fc.stringMatching(/^[a-z]{2,9}$/);
 
@@ -96,3 +99,67 @@ export const chunkAndQuoteArb: fc.Arbitrary<{ chunkText: string; quote: string }
         return { chunkText, quote: chunkText.slice(start, end) };
       }),
   );
+
+// --- Room runtime arbitraries ------------------------------------------------
+
+/** Concepts per room: 1-6 in most cases, 4-6 in a share of cases so Returns fall due in-room. */
+const conceptsPerRoomArb: fc.Arbitrary<number> = fc.oneof(
+  { weight: 3, arbitrary: fc.integer({ min: 1, max: 6 }) },
+  { weight: 1, arbitrary: fc.integer({ min: 4, max: 6 }) },
+);
+
+/**
+ * Valid manifests over all six lock types: 1-5 rooms, Alternates present or absent per
+ * concept, optional hint effects, 2-4 reserved final-door questions, plain JSON payloads
+ * and a unique questionId on every question. Built through `buildManifest`.
+ */
+export const manifestArb: fc.Arbitrary<CryptManifest> = fc
+  .record({
+    rooms: fc.integer({ min: 1, max: 5 }),
+    conceptsPerRoom: conceptsPerRoomArb,
+    alternateMask: fc.array(fc.boolean(), { minLength: 30, maxLength: 30 }),
+    hintEffects: fc.boolean(),
+    finalDoorQuestions: fc.integer({ min: 2, max: 4 }),
+    seed: fc.integer({ min: 0, max: 2 ** 31 - 1 }),
+  })
+  .map(({ alternateMask, ...rest }) =>
+    buildManifest({
+      ...rest,
+      alternates: (roomIndex, conceptIndex) => alternateMask[roomIndex * 6 + conceptIndex] ?? true,
+    }),
+  );
+
+const idArb = fc.stringMatching(/^[a-z0-9-]{1,12}$/);
+
+/** A JSON-only submission shaped like one of the six lock types (bound-threads as tuple arrays). */
+export const submissionArb: fc.Arbitrary<unknown> = fc
+  .oneof(
+    fc.record({ text: fc.string({ maxLength: 20 }) }),
+    fc.record({ selectedOptionId: fc.option(idArb, { nil: null }) }),
+    fc.record({ order: fc.array(idArb, { maxLength: 5 }) }),
+    fc.record({ pairs: fc.array(fc.tuple(idArb, idArb), { maxLength: 4 }) }),
+    fc.record({ selectedId: fc.option(idArb, { nil: null }) }),
+    fc.record({ rawInput: fc.string({ maxLength: 8 }) }),
+  )
+  // fast-check records have a null prototype; copy to an ordinary object.
+  .map((record): unknown => ({ ...record }));
+
+/** Any of the 14 Event variants with small ID pools; always plain JSON. */
+export const eventArb: fc.Arbitrary<Event> = fc.oneof(
+  idArb.map((manifestId): Event => ({ kind: 'RunStarted', manifestId })),
+  idArb.map((roomId): Event => ({ kind: 'RoomPublished', roomId })),
+  fc.nat(6).map((finalRoomCount): Event => ({ kind: 'CryptFinalised', finalRoomCount })),
+  fc.nat(6).map((finalRoomCount): Event => ({ kind: 'CryptShortened', finalRoomCount })),
+  idArb.map((roomId): Event => ({ kind: 'RoomEntered', roomId })),
+  idArb.map((slotId): Event => ({ kind: 'LockOpened', slotId })),
+  idArb.map((slotId): Event => ({ kind: 'HintUsed', slotId })),
+  fc
+    .tuple(idArb, submissionArb)
+    .map(([slotId, submission]): Event => ({ kind: 'AnswerSubmitted', slotId, submission })),
+  idArb.map((slotId): Event => ({ kind: 'Skipped', slotId })),
+  idArb.map((slotId): Event => ({ kind: 'Challenged', slotId })),
+  idArb.map((slotId): Event => ({ kind: 'EvidenceContinued', slotId })),
+  fc.constant<Event>({ kind: 'FinalDoorEntered' }),
+  fc.constant<Event>({ kind: 'RunLeft' }),
+  fc.constant<Event>({ kind: 'RunResumed' }),
+);

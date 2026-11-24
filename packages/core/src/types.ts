@@ -48,3 +48,98 @@ export interface NotesRecord {
   readonly documentDigest: string;
   readonly chunks: readonly Chunk[];
 }
+
+// ---------------------------------------------------------------------------
+// Room runtime shared types (spec: room-runtime). Plain JSON shapes only.
+// ---------------------------------------------------------------------------
+
+/** The six lock types. These are the only valid IDs (Req 27.1). */
+export const LOCK_TYPES = [
+  'rune-cipher',
+  'seance-board',
+  'bone-ordering',
+  'bound-threads',
+  'cursed-object',
+  'combination-dial',
+] as const;
+
+export type LockType = (typeof LOCK_TYPES)[number];
+
+export type JudgeResult = 'correct' | 'wrong' | 'invalid';
+
+/** An ordered [leftId, rightId] tuple. */
+export type ThreadPair = readonly [string, string];
+
+/** The hint effect belongs to the question, not to the slot that shows it. */
+export type HintEffectSpec =
+  | { readonly kind: 'remove-option'; readonly optionId: string }
+  | { readonly kind: 'lock-first-bone'; readonly boneId: string }
+  | { readonly kind: 'tie-thread'; readonly pair: ThreadPair }
+  | { readonly kind: 'reveal-digit'; readonly position: number };
+
+export type Event =
+  | { readonly kind: 'RunStarted'; readonly manifestId: string }
+  | { readonly kind: 'RoomPublished'; readonly roomId: string }
+  | { readonly kind: 'CryptFinalised'; readonly finalRoomCount: number }
+  | { readonly kind: 'CryptShortened'; readonly finalRoomCount: number }
+  | { readonly kind: 'RoomEntered'; readonly roomId: string }
+  | { readonly kind: 'LockOpened'; readonly slotId: string }
+  | { readonly kind: 'HintUsed'; readonly slotId: string }
+  /** `submission` is JSON data only, narrowed by the slot's Current_Question_Type. */
+  | { readonly kind: 'AnswerSubmitted'; readonly slotId: string; readonly submission: unknown }
+  | { readonly kind: 'Skipped'; readonly slotId: string }
+  | { readonly kind: 'Challenged'; readonly slotId: string }
+  | { readonly kind: 'EvidenceContinued'; readonly slotId: string }
+  | { readonly kind: 'FinalDoorEntered' }
+  | { readonly kind: 'RunLeft' }
+  | { readonly kind: 'RunResumed' };
+
+export type EventKind = Event['kind'];
+
+/** Every Event kind, in declaration order. */
+export const EVENT_KINDS = [
+  'RunStarted',
+  'RoomPublished',
+  'CryptFinalised',
+  'CryptShortened',
+  'RoomEntered',
+  'LockOpened',
+  'HintUsed',
+  'AnswerSubmitted',
+  'Skipped',
+  'Challenged',
+  'EvidenceContinued',
+  'FinalDoorEntered',
+  'RunLeft',
+  'RunResumed',
+] as const satisfies readonly EventKind[];
+
+/** Closed union of rejection kinds (Req 3.2). */
+export type RuntimeErrorKind =
+  | 'manifest-mismatch'
+  | 'run-already-started'
+  | 'run-not-started'
+  | 'invalid-manifest'
+  | 'unknown-reference'
+  | 'run-left'
+  | 'run-finished'
+  | 'lock-already-settled'
+  | 'malformed-event'
+  | 'room-not-published'
+  | 'room-not-cleared'
+  | 'room-out-of-order'
+  | 'cannot-shorten-published'
+  | 'lock-not-in-room'
+  | 'invalid-submission'
+  | 'no-evidence-open'
+  | 'no-hints-left'
+  | 'hint-already-used'
+  | 'final-door-unavailable'
+  | 'run-not-left'
+  | 'cannot-leave';
+
+/** A typed rejection. Extra fields are diagnostics only and never carry user content. */
+export type Typed_Rejection = {
+  readonly kind: RuntimeErrorKind;
+  readonly [key: string]: unknown;
+};

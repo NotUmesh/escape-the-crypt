@@ -93,7 +93,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 1. IF an Event is invalid for the current State, THEN THE Runtime SHALL return a Typed_Rejection and leave the State deep-equal to the State before the call.
 2. THE Runtime SHALL define the Typed_Rejection kinds as a closed union of string literals in `packages/core/src/types.ts`.
 3. IF an Event names a room, lock, concept or option that does not exist in the Manifest, THEN THE Runtime SHALL return a Typed_Rejection with kind `unknown-reference`.
-4. IF a learner Event is applied while the run status is "left", THEN THE Runtime SHALL return a Typed_Rejection with kind `run-left`, except for `RunResumed`.
+4. IF a learner Event is applied while the run status is "left", THEN THE Runtime SHALL return a Typed_Rejection with kind `run-left`, except for `RunResumed` and `RunLeft` (`RunLeft` while left returns `cannot-leave`, see Requirement 21.4).
 5. IF any Event, including `RunLeft` and `RunResumed`, is applied after the run has Escaped, THEN THE Runtime SHALL return a Typed_Rejection with kind `run-finished`.
 6. IF an Event targets a Lock_Slot that is solved or settled and the Event requires an Open_Slot, THEN THE Runtime SHALL return a Typed_Rejection with kind `lock-already-settled`.
 7. IF an Event is malformed or has a type the Runtime does not recognise, THEN THE Runtime SHALL return a Typed_Rejection with kind `malformed-event`.
@@ -338,7 +338,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 1. WHEN `RunLeft` is applied during a run that is in progress, THE Runtime SHALL set the run status to "left" and keep all other State unchanged.
 2. WHEN `RunResumed` is applied while the run status is "left", THE Runtime SHALL set the run status to "in progress" and restore the State from before `RunLeft`.
 3. IF `RunResumed` is applied while the run status is not "left", THEN THE Runtime SHALL return a Typed_Rejection with kind `run-not-left`.
-4. IF `RunLeft` is applied before the run starts or while the run status is already "left", THEN THE Runtime SHALL return a Typed_Rejection with kind `cannot-leave`.
+4. IF `RunLeft` is applied while the run status is already "left", THEN THE Runtime SHALL return a Typed_Rejection with kind `cannot-leave`.
 5. WHILE the run status is "left", THE Runtime SHALL report the run as unfinished in State.
 6. THE Runtime SHALL make the Autopsy available only when the run status is Escaped.
 
