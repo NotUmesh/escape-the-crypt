@@ -81,6 +81,7 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+dist-e2e
 .output
 
 # NitroJS
@@ -94,6 +95,7 @@ dist
 
 # vuepress build output
 .vuepress/dist
+dist-e2e
 
 # vuepress v2.x temp directory
 .temp
@@ -103,6 +105,7 @@ dist
 
 # vitepress build output
 **/.vitepress/dist
+dist-e2e
 
 # vitepress cache directory
 **/.vitepress/cache

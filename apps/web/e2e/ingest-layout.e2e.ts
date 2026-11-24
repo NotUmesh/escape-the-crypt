@@ -207,3 +207,64 @@ test.describe('style', () => {
     expect(sawLight && sawDark).toBe(true);
   });
 });
+
+test.describe('Stop button', () => {
+  type Hooks = { releaseCount(): void; releaseStart(): void };
+  const release = (page: Page, which: 'releaseCount' | 'releaseStart'): Promise<void> =>
+    page.evaluate((name) => (globalThis as unknown as { ingestTest: Hooks }).ingestTest[name](), which);
+
+  async function openHeld(page: Page): Promise<Locator> {
+    await page.setViewportSize({ width: 480, height: 1000 });
+    await page.goto('/test-parent.html?width=360&hold=1');
+    await page.locator('input[type="file"]').setInputFiles(fixture('image-only.pdf'));
+    return page.getByRole('button', { name: 'Stop reading' });
+  }
+
+  async function expectMeasurable(page: Page, stop: Locator): Promise<void> {
+    await expect(stop).toBeVisible();
+    // checkControls measures every control, Stop included, and checks none is covered.
+    await checkControls(page);
+    const box = await stop.boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+  }
+
+  test('is visible, 44x44, uncovered and keyboard-operable while the PDF is opened', async ({ page }) => {
+    const stop = await openHeld(page);
+    await expect(page.getByText('Opening your PDF')).toBeVisible();
+    await expectMeasurable(page, stop);
+    await stop.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('status')).toHaveText('Reading stopped. Nothing was kept.');
+    await expect(stop).toHaveCount(0);
+    await release(page, 'releaseCount');
+    // A stopped count stays stopped after it is released.
+    await expect(page.locator('.ingest-pdf-page')).toHaveCount(0);
+  });
+
+  test('is visible, 44x44, uncovered and keyboard-operable while pages are read', async ({ page }) => {
+    const stop = await openHeld(page);
+    await release(page, 'releaseCount');
+    await expect(page.locator('.ingest-pdf-page')).toHaveCount(1);
+    await page.locator('.ingest-pdf-page input').check();
+    await page.getByRole('button', { name: 'Read these pages' }).click();
+    await expect(page.getByText('Reading page 1 of 1')).toBeVisible();
+    await expectMeasurable(page, stop);
+    // Release the held read: Stop goes away and the preview appears.
+    await release(page, 'releaseStart');
+    await expect(page.locator('.ingest-preview')).toBeVisible();
+    await expect(stop).toHaveCount(0);
+  });
+
+  test('stops a held read with the Space key', async ({ page }) => {
+    const stop = await openHeld(page);
+    await release(page, 'releaseCount');
+    await page.locator('.ingest-pdf-page input').check();
+    await page.getByRole('button', { name: 'Read these pages' }).click();
+    await stop.focus();
+    await page.keyboard.press('Space');
+    await expect(page.getByRole('status')).toHaveText('Reading stopped. Nothing was kept.');
+    await release(page, 'releaseStart');
+    await expect(page.locator('.ingest-preview')).toHaveCount(0);
+  });
+});

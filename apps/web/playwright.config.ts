@@ -15,11 +15,17 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+      // axe on a page that has run the pdf.js worker crashes Playwright's Firefox; a
+      // canned-pages scan of the same screen runs there instead (e2e/ingest.e2e.ts).
+      grepInvert: /@real-pdf-axe/,
+    },
     { name: "pixel", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: `pnpm build --mode e2e && pnpm preview --port ${PORT} --strictPort`,
+    command: `pnpm build --mode e2e && pnpm preview --mode e2e --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env["CI"],
     timeout: 120_000,

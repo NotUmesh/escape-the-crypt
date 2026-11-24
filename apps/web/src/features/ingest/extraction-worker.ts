@@ -1,6 +1,5 @@
 /// <reference lib="webworker" />
 import * as pdfjs from 'pdfjs-dist';
-import type { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api';
 import { EXTRACTION_MODE } from './extraction-mode';
 import { mapPdfError, runCount, runExtraction } from './extraction-core';
 import type {
@@ -9,6 +8,7 @@ import type {
   ExtractionMessageOut,
   PdfDocumentLike,
 } from './extraction-core';
+import { safeDocumentParams } from './extraction-options';
 import { pdfWorkerUrl } from './pdf-worker-url';
 
 const clock: Clock = { now: () => Date.now() };
@@ -19,9 +19,7 @@ function post(message: ExtractionMessageOut): void {
 }
 
 /**
- * Opens a PDF with the safe options. No password callback is set; scripting is
- * off; cMap and standard-font fetching are off, so nothing is requested from
- * another origin.
+ * Opens a PDF with the safe options from extraction-options.ts.
  */
 function openTask(fileBuffer: ArrayBuffer): ReturnType<typeof pdfjs.getDocument> {
   // Both "nested-worker" and "in-thread" load the same self-hosted file:
@@ -30,13 +28,7 @@ function openTask(fileBuffer: ArrayBuffer): ReturnType<typeof pdfjs.getDocument>
     import.meta.env.BASE_URL,
     self.location.origin,
   );
-  const params: DocumentInitParameters & { enableScripting: false } = {
-    data: new Uint8Array(fileBuffer),
-    enableScripting: false,
-    useWorkerFetch: false,
-    useSystemFonts: false,
-  };
-  return pdfjs.getDocument(params);
+  return pdfjs.getDocument(safeDocumentParams(fileBuffer));
 }
 
 async function start(msg: Extract<ExtractionMessageIn, { type: 'start' }>): Promise<void> {

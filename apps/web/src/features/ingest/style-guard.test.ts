@@ -6,7 +6,7 @@ import { type GuardRule, scanFile } from './style-guard-rules';
 
 const WEB_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const PUBLIC_DIR = join(WEB_ROOT, 'public');
-const SKIP_DIRS = new Set(['node_modules', 'dist', 'test-results', 'fixtures']);
+const SKIP_DIRS = new Set(['node_modules', 'dist', 'dist-e2e', 'test-results', 'fixtures']);
 const SKIP_FILES = new Set([
   'src/features/ingest/style-guard.test.ts',
   'src/features/ingest/style-guard-rules.ts',

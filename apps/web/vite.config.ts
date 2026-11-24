@@ -6,6 +6,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   worker: { format: "es" },
   build: {
+    // The e2e build goes to its own folder, so dist only ever holds a normal build.
+    outDir: mode === "e2e" ? "dist-e2e" : "dist",
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL("./index.html", import.meta.url)),

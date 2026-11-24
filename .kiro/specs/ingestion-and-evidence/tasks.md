@@ -341,6 +341,7 @@ All test tasks are required and part of done. Property tests for one module are 
     - The upload screen contains both privacy statements and "your notes"
     - No `div` or `span` in the ingest output carries a button role (native elements only)
     - Create `apps/web/src/features/ingest/test-parent.tsx` (it stays in `src`; the e2e file imports or loads it as needed): a minimal 360px-wide parent layout with a parchment background and a decorative atmosphere overlay set to `pointer-events: none`. File: `apps/web/e2e/ingest-layout.e2e.ts` renders `IngestFlow` in the test parent and checks that every control is visible, is not covered (`elementFromPoint` returns the control), measures at least 44x44 px (the target-size check lives here, not in the jsdom test), and works by click and keyboard. Repeat at 720px to confirm the components fill the width the parent gives
+    - Stop button check in the same file: a held test client keeps the count and the read pending until the test releases them, so Stop can be checked for visibility, 44x44 size, no cover and Enter/Space operation
     - Playwright style check in the same file: computed `font-family` on a title, the preview, a textarea and a button; computed `font-size` and `line-height` at 360px (16px, 1.5) and at a 1024px parent (18px, 1.5); and a 2px outline after Tab on each control: `--ink-900` (`--focus-ring-on-light`) for preview-editor controls, which sit on parchment inside `.ingest-on-light`, and `--spectre-300` (`--focus-ring`) for all others
     - _Requirements: 4.6, 5.7, 9.3, 9.5, 9.6, 9.7, 10.1, 10.2, 10.3, 16.3, 16.4, 16.9, 16.10, 17.3, 17.4, 17.5, 17.6, 17.7_
 
@@ -356,26 +357,27 @@ All test tasks are required and part of done. Property tests for one module are 
     - _Requirements: 18.2, 18.3, 18.5, 18.6, 18.7_
 
 - [ ] 12. Integration, end-to-end and structure checks
-  - [ ] 12.1 Write the network guarantee test
+  - [x] 12.1 Write the network guarantee test
     - File: `apps/web/e2e/ingest-network.e2e.ts`
     - During a fixture PDF extraction, allow same-origin GETs without a body, and fail on any cross-origin request, any request with a body, or any request containing extracted text
     - Same-origin `GET /fonts/*.woff2` requests are allowed, because the self-hosted fonts are same-origin static files; a request to Google Fonts or any other origin must still fail the test
     - _Requirements: 2.4, 16.5, 16.6_
 
-  - [ ] 12.2 Write the PDF actions smoke test
+  - [x] 12.2 Write the PDF actions smoke test
     - File: `apps/web/src/features/ingest/extraction-actions.test.ts`
     - Assert the pdf.js options have scripting disabled and the embedded-JavaScript fixture causes no side effect
     - _Requirements: 2.5_
 
-  - [ ] 12.3 Write the Playwright paste flow test with axe
+  - [x] 12.3 Write the Playwright paste flow test with axe
     - File: `apps/web/e2e/ingest.e2e.ts`
     - Paste three paragraphs of at least 40 characters, check Confirm is disabled and explained while empty, check the preview shows plain text, edit paragraph 2, confirm
     - Read stored chunks: only chunk 2 has `edited: true`; labels read "Paragraph 1 of your notes", "Paragraph 2 of your notes", "Paragraph 3 of your notes"
     - Repeat the flow with keyboard only, and run axe on the upload, page-list and preview screens
     - _Requirements: 5.4, 5.6, 8.2, 9.1, 15.1_
 
-  - [ ] 12.4 Add architecture and structure checks
+  - [x] 12.4 Add architecture and structure checks
     - Add lint or CI checks that `packages/core` imports nothing from React, `pdfjs-dist` or the DOM, that `@noble/hashes` is its only runtime dependency (exact version), that no source file exceeds 300 lines, that file names are kebab-case, and that shared types live in `packages/core/src/types.ts`
+    - After a normal `pnpm build`, assert `apps/web/dist` contains no `test-parent` or e2e entry and no test hook; the e2e build writes to `apps/web/dist-e2e` instead
     - Wire them into `pnpm lint` (the CI workflow from task 0.4 already runs it on every push)
     - _Requirements: 12.1, 12.2, 12.3, 12.4_
 

@@ -9,13 +9,14 @@
   },
   "scripts": {
     "dev": "pnpm --filter @escape-the-crypt/web dev",
-    "test": "pnpm -r test --run",
-    "lint": "eslint .",
-    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test --run && vitest run --project scripts",
+    "lint": "eslint . && node scripts/check-structure.ts",
+    "typecheck": "pnpm -r typecheck && tsc -p scripts",
     "e2e": "pnpm --filter @escape-the-crypt/web e2e"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@types/node": "^22.20.5",
     "eslint": "^9.17.0",
     "globals": "^15.14.0",
     "typescript": "^5.7.2",
