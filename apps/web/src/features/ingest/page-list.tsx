@@ -38,7 +38,7 @@ export function PageList({ units, onRemove }: PageListProps): React.JSX.Element 
           return (
             <li className="ingest-pages-item" key={unit.id}>
               <div className="ingest-pages-main">
-                <span className="ingest-pages-name">{INGEST_UI_COPY.pageName(page)}</span>{' '}
+                <span className="ingest-pages-name">{INGEST_UI_COPY.pageName(page, unit.printedPageLabel)}</span>{' '}
                 <span className="ingest-flag" data-flag={unit.flag}>
                   <FlagIcon flag={unit.flag} />
                   {copy.label}

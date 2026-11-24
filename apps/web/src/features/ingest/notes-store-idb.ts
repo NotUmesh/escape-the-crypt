@@ -37,7 +37,7 @@ function openDatabase(factory: IDBFactory): Promise<IDBDatabase | null> {
  * IndexedDB adapter. Errors are turned into the kind only and never logged:
  * an error message could contain notes text (18.6).
  */
-export function createIdbStore(factory: IDBFactory | undefined = globalThis.indexedDB): NotesStore {
+export function createIdbStore(factory: IDBFactory | undefined): NotesStore {
   const withStore = async <T>(
     mode: IDBTransactionMode,
     run: (store: IDBObjectStore, done: (value: T) => void) => void,

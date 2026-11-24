@@ -1,0 +1,17 @@
+/* A stand-in for a host screen: parchment page, fixed width, decorative overlay. */
+.test-parent {
+  position: relative;
+  box-sizing: border-box;
+  padding: 1rem;
+  background-color: var(--parchment-100);
+  color: var(--ink-900);
+}
+
+/* Atmosphere layer. It sits above the flow and must never take a click. */
+.test-parent-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 3rem var(--stone-950);
+  opacity: 0.4;
+}

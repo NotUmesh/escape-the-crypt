@@ -19,7 +19,7 @@ export default defineConfig({
     { name: "pixel", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: `pnpm build && pnpm preview --port ${PORT} --strictPort`,
+    command: `pnpm build --mode e2e && pnpm preview --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env["CI"],
     timeout: 120_000,

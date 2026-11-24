@@ -8,6 +8,8 @@ export interface PdfPickerProps {
   readonly status: IngestStatus;
   /** Page count of the chosen PDF. Used once the file passed the size check. */
   readonly pageCount: number;
+  /** Printed page labels from the count, one per page. */
+  readonly pageLabels: readonly (string | null)[];
   /** 0-based indexes of the chosen pages. */
   readonly selectedPages: readonly number[];
   /** Pages read so far and pages expected, while extracting. */
@@ -23,7 +25,7 @@ export interface PdfPickerProps {
 
 /** Native file input, page checkboxes (stopping at the page limit) and Stop (2.3, 2.6, 3.2, 3.3). */
 export function PdfPicker(props: PdfPickerProps): React.JSX.Element {
-  const { status, pageCount, selectedPages, progress, errorMessage } = props;
+  const { status, pageCount, pageLabels, selectedPages, progress, errorMessage } = props;
   const id = useId();
   const extracting = status === 'extracting';
   const counting = status === 'counting';
@@ -72,7 +74,7 @@ export function PdfPicker(props: PdfPickerProps): React.JSX.Element {
                       disabled={blocked}
                       onChange={(e) => toggle(index, e.target.checked)}
                     />
-                    {INGEST_UI_COPY.pageName(index + 1)}
+                    {INGEST_UI_COPY.pageName(index + 1, pageLabels[index] ?? null)}
                   </label>
                 );
               })}

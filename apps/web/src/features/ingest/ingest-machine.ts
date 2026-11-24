@@ -6,7 +6,6 @@ import {
   chunkDocument,
   countWords,
   errorMessage,
-  storageFailedMessage,
 } from '@escape-the-crypt/core';
 import type { Chunk, IngestError, PageFlag } from '@escape-the-crypt/core';
 
@@ -50,6 +49,8 @@ export interface IngestState {
   readonly expectedPages: number;
   /** Page count of the chosen PDF, for the page picker. */
   readonly pageCount: number;
+  /** Printed page labels from the count, one per page; null where the PDF has none. */
+  readonly pageLabels: readonly (string | null)[];
   readonly error: IngestError | null;
   /** Latest message for the polite live region. */
   readonly announcement: string;
@@ -61,7 +62,11 @@ export interface IngestState {
 export type IngestEvent =
   | { readonly type: 'PASTE_CHANGED'; readonly text: string }
   | { readonly type: 'FILE_SELECTED'; readonly sizeBytes: number }
-  | { readonly type: 'PAGE_COUNT_KNOWN'; readonly pageCount: number }
+  | {
+      readonly type: 'PAGE_COUNT_KNOWN';
+      readonly pageCount: number;
+      readonly labels: readonly (string | null)[];
+    }
   | { readonly type: 'PAGES_CHOSEN'; readonly pageIndexes: readonly number[] }
   | {
       readonly type: 'EXTRACTION_PAGE';
@@ -83,6 +88,7 @@ export const INITIAL_INGEST_STATE: IngestState = {
   units: [],
   expectedPages: 0,
   pageCount: 0,
+  pageLabels: [],
   error: null,
   announcement: '',
   chunks: [],
@@ -139,10 +145,14 @@ function onFile(sizeBytes: number): IngestState {
   return { ...INITIAL_INGEST_STATE, status: 'counting' };
 }
 
-function onPageCount(state: IngestState, pageCount: number): IngestState {
+function onPageCount(
+  state: IngestState,
+  pageCount: number,
+  labels: readonly (string | null)[],
+): IngestState {
   if (state.status !== 'counting') return state;
   if (pageCount < 1) return fail({ kind: 'empty' });
-  return { ...INITIAL_INGEST_STATE, status: 'pdf-chosen', pageCount };
+  return { ...INITIAL_INGEST_STATE, status: 'pdf-chosen', pageCount, pageLabels: labels };
 }
 
 function onPagesChosen(state: IngestState, pageIndexes: readonly number[]): IngestState {
@@ -256,7 +266,7 @@ export function ingestReducer(state: IngestState, event: IngestEvent): IngestSta
     case 'FILE_SELECTED':
       return state.status === 'confirmed' ? state : onFile(event.sizeBytes);
     case 'PAGE_COUNT_KNOWN':
-      return onPageCount(state, event.pageCount);
+      return onPageCount(state, event.pageCount, event.labels);
     case 'PAGES_CHOSEN':
       return onPagesChosen(state, event.pageIndexes);
     case 'EXTRACTION_PAGE':
@@ -280,7 +290,7 @@ export function ingestReducer(state: IngestState, event: IngestEvent): IngestSta
         : state;
     case 'SAVE_FAILED':
       return state.status === 'confirmed'
-        ? { ...state, saveStatus: 'failed', announcement: storageFailedMessage() }
+        ? { ...state, saveStatus: 'failed', announcement: errorMessage({ kind: 'storage-unavailable' }) }
         : state;
   }
 }

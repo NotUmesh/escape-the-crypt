@@ -4,7 +4,7 @@
 1 0 obj
 <<
 /Type /Pages
-/Kids [ 5 0 R ]
+/Kids [ 4 0 R ]
 /Count 1
 >>
 endobj
@@ -13,20 +13,11 @@ endobj
 <<
 /Type /Catalog
 /Pages 1 0 R
-/OpenAction 7 0 R
+/OpenAction 6 0 R
 >>
 endobj
 
 3 0 obj
-<<
-/Producer <FEFF007000640066002D006C006900620020002800680074007400700073003A002F002F006700690074006800750062002E0063006F006D002F0048006F007000640069006E0067002F007000640066002D006C006900620029>
-/ModDate (D:20261123200217Z)
-/Creator <FEFF007000640066002D006C006900620020002800680074007400700073003A002F002F006700690074006800750062002E0063006F006D002F0048006F007000640069006E0067002F007000640066002D006C006900620029>
-/CreationDate (D:20261123200217Z)
->>
-endobj
-
-4 0 obj
 <<
 /Type /Font
 /Subtype /Type1
@@ -35,13 +26,13 @@ endobj
 >>
 endobj
 
-5 0 obj
+4 0 obj
 <<
 /Type /Page
 /Parent 1 0 R
 /Resources <<
 /Font <<
-/Helvetica-7098480789 4 0 R
+/Helvetica-7098480789 3 0 R
 >>
 /XObject <<
 >>
@@ -50,11 +41,11 @@ endobj
 >>
 /MediaBox [ 0 0 612 792 ]
 /Annots [ ]
-/Contents [ 6 0 R ]
+/Contents [ 5 0 R ]
 >>
 endobj
 
-6 0 obj
+5 0 obj
 <<
 /Filter /FlateDecode
 /Length 400
@@ -64,7 +55,7 @@ xœ­SÉJ1½ç+rÄT–ªˆ0Ó¼ý"£(z¿ßW•îqÁ‹CÓ®¼ª¼%½wÛÙ¯ÏÇ³»ºÝ½}í>_.%Ô.wAºê‰ü
 endstream
 endobj
 
-7 0 obj
+6 0 obj
 <<
 /Type /Action
 /S /JavaScript
@@ -73,23 +64,21 @@ endobj
 endobj
 
 xref
-0 8
+0 7
 0000000000 65535 f 
 0000000016 00000 n 
 0000000076 00000 n 
 0000000144 00000 n 
-0000000614 00000 n 
-0000000712 00000 n 
-0000000907 00000 n 
-0000001380 00000 n 
+0000000242 00000 n 
+0000000437 00000 n 
+0000000910 00000 n 
 
 trailer
 <<
-/Size 8
+/Size 7
 /Root 2 0 R
-/Info 3 0 R
 >>
 
 startxref
-1466
+996
 %%EOF

@@ -74,8 +74,13 @@ function drawLines(page: PDFPage, font: Parameters<PDFPage['setFont']>[0], lines
   }
 }
 
+/** No creation date or producer, so regenerating gives identical bytes. */
+function newDocument(): Promise<PDFDocument> {
+  return PDFDocument.create({ updateMetadata: false });
+}
+
 async function textPdf(pages: (string | null)[][], size = 11): Promise<Uint8Array> {
-  const doc = await PDFDocument.create();
+  const doc = await newDocument();
   const font = await doc.embedFont(StandardFonts.Helvetica);
   for (const lines of pages) drawLines(doc.addPage([612, 792]), font, lines, size);
   return doc.save({ useObjectStreams: false });
@@ -116,9 +121,21 @@ export const buildThreeParagraphs = (): Promise<Uint8Array> =>
     ],
   ]);
 
+/** Three pages whose printed labels are roman numerals (i, ii, iii), so label and page number differ. */
+export async function buildPrintedLabels(): Promise<Uint8Array> {
+  const doc = await newDocument();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const pages = [0, 1, 2].map(() => doc.addPage([612, 792]));
+  pages.forEach((page, i) =>
+    drawLines(page, font, wrap(`${['Alpha', 'Bravo', 'Charlie'][i]} notes. ${proseWords(40)}`, 80)),
+  );
+  doc.catalog.set(PDFName.of('PageLabels'), doc.context.obj({ Nums: [0, { S: 'r' }] }));
+  return doc.save({ useObjectStreams: false });
+}
+
 /** A prose page whose catalog has an OpenAction that runs JavaScript. */
 export async function buildEmbeddedJavaScript(): Promise<Uint8Array> {
-  const doc = await PDFDocument.create();
+  const doc = await newDocument();
   const font = await doc.embedFont(StandardFonts.Helvetica);
   drawLines(doc.addPage([612, 792]), font, wrap(proseWords(60), 80));
   const action = doc.context.obj({
@@ -159,7 +176,7 @@ function tinyPng(): Uint8Array {
 
 /** One page that is only an image, so it has no text layer. */
 export async function buildImageOnly(): Promise<Uint8Array> {
-  const doc = await PDFDocument.create();
+  const doc = await newDocument();
   const page = doc.addPage([612, 792]);
   const image = await doc.embedPng(tinyPng());
   page.drawImage(image, { x: 56, y: 400, width: 400, height: 300 });
@@ -171,7 +188,7 @@ export async function buildImageOnly(): Promise<Uint8Array> {
  * ToUnicode map), so extraction returns unreadable symbols.
  */
 export async function buildGarbled(): Promise<Uint8Array> {
-  const doc = await PDFDocument.create();
+  const doc = await newDocument();
   const page = doc.addPage([612, 792]);
   const cmap = [
     '/CIDInit /ProcSet findresource begin 12 dict begin begincmap',
@@ -206,7 +223,7 @@ export async function buildGarbled(): Promise<Uint8Array> {
  */
 export async function buildOversizedPdf(): Promise<Uint8Array> {
   const make = async (padBytes: number): Promise<Uint8Array> => {
-    const doc = await PDFDocument.create();
+    const doc = await newDocument();
     const font = await doc.embedFont(StandardFonts.Helvetica);
     drawLines(doc.addPage([612, 792]), font, wrap(proseWords(60), 80));
     doc.catalog.set(PDFName.of('FixturePadding'), doc.context.register(doc.context.stream(new Uint8Array(padBytes))));
@@ -225,6 +242,7 @@ const FILES: Record<string, () => Promise<Uint8Array>> = {
   'table-like.pdf': buildTableLike,
   'embedded-javascript.pdf': buildEmbeddedJavaScript,
   'three-paragraphs.pdf': buildThreeParagraphs,
+  'printed-labels.pdf': buildPrintedLabels,
 };
 
 if (process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.argv[1]) {

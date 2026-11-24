@@ -12,6 +12,7 @@ Small PDFs for the extraction tests (tasks 9.4 to 9.6).
 | `table-like.pdf` | Twelve short rows, flag `suspicious` |
 | `embedded-javascript.pdf` | Prose page with an OpenAction that runs JavaScript |
 | `three-paragraphs.pdf` | Three paragraphs; the second has the break "exam-" then "ple" |
+| `printed-labels.pdf` | Three pages with roman printed labels (i, ii, iii), so the label differs from the page number |
 | `encrypted.pdf` | Password protected (user password `user`) |
 
 ## Regenerating

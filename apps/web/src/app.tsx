@@ -6,7 +6,7 @@ import { routeFor } from './routes';
 import './styles/app.css';
 
 // Saved on this device when IndexedDB works; kept for the session when it does not.
-const store = createSessionStore(createIdbStore(), createMemoryStore());
+const store = createSessionStore(createIdbStore(globalThis.indexedDB), createMemoryStore());
 
 export function App(): React.JSX.Element {
   const baseUrl = import.meta.env.BASE_URL;

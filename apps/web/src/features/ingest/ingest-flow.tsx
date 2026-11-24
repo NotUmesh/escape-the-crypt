@@ -2,7 +2,6 @@ import {
   INGEST_UI_COPY,
   errorMessage,
   makeNotesRecord,
-  storageFailedMessage,
   ANNOUNCEMENT_COPY,
 } from '@escape-the-crypt/core';
 import type { Chunk } from '@escape-the-crypt/core';
@@ -86,7 +85,7 @@ export function IngestFlow({ store, onConfirmed, createClient }: IngestFlowProps
         file,
         onMessage: (message) => {
           if (message.type === 'counted') {
-            send({ type: 'PAGE_COUNT_KNOWN', pageCount: message.pageCount });
+            send({ type: 'PAGE_COUNT_KNOWN', pageCount: message.pageCount, labels: message.labels });
           } else if (message.type === 'error') {
             fileRef.current = null;
             send({ type: 'EXTRACTION_ERROR', error: message.error });
@@ -169,7 +168,7 @@ export function IngestFlow({ store, onConfirmed, createClient }: IngestFlowProps
             <p className="ingest-text">{INGEST_UI_COPY.chunkCount(state.chunks.length)}</p>
             <p className="ingest-hint">
               {state.saveStatus === 'failed'
-                ? storageFailedMessage()
+                ? errorMessage({ kind: 'storage-unavailable' })
                 : state.saveStatus === 'saved'
                   ? ANNOUNCEMENT_COPY.saved
                   : ANNOUNCEMENT_COPY.confirmed}
@@ -186,6 +185,7 @@ export function IngestFlow({ store, onConfirmed, createClient }: IngestFlowProps
           <PdfPicker
             status={state.status}
             pageCount={state.pageCount}
+            pageLabels={state.pageLabels}
             selectedPages={selectedPages}
             progress={{ done: state.units.length, total: state.expectedPages }}
             errorMessage={source === 'pdf' ? problem : ''}

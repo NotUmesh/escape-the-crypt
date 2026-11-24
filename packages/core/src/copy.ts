@@ -52,19 +52,9 @@ export const ERROR_COPY: Readonly<Record<IngestError['kind'], ErrorCopy>> = {
   },
 };
 
-/** Shown when the notes could not be saved on this device (11.4, 18.8). */
-export const STORAGE_FAILED_COPY: ErrorCopy = {
-  what: "We couldn't save your notes on this device, so they'll last only until you close this tab.",
-  next: 'You can keep going, or try again later.',
-};
-
 /** Joins the two parts. The only way a problem message is rendered. */
 export function renderError(copy: ErrorCopy): string {
   return `${copy.what} ${copy.next}`;
-}
-
-export function storageFailedMessage(): string {
-  return renderError(STORAGE_FAILED_COPY);
 }
 
 export function errorMessage(error: IngestError): string {
@@ -72,8 +62,8 @@ export function errorMessage(error: IngestError): string {
 }
 
 export const PRIVACY_NOTICE: Readonly<{ stays: string; sent: string }> = {
-  stays: 'Your file stays on this device while we read it.',
-  sent: 'Only the notes text you confirm will be sent later to build questions.',
+  stays: 'Your file stays on this device while we read your notes.',
+  sent: 'Only the text of your notes that you confirm will be sent later to build questions.',
 };
 
 export const PRIVACY_NOTICE_TEXT = `${PRIVACY_NOTICE.stays} ${PRIVACY_NOTICE.sent}`;
@@ -138,7 +128,9 @@ export const INGEST_UI_COPY = {
   pdfLabel: 'Or choose a PDF of your notes',
   pdfHint: `Text PDFs only, up to ${MAX_FILE_SIZE_MB} MB. Scanned pages can't be read.`,
   pagesLegend: 'Choose the pages to include',
-  pageName: (page: number): string => `Page ${page}`,
+  /** `Page 5`, or `Page 5 (printed page iv)` when the printed label differs. */
+  pageName: (page: number, printedLabel: string | null = null): string =>
+    `Page ${pageReference(page, printedLabel)}`,
   paragraphName: (n: number): string => `Paragraph ${n}`,
   pagesChosen: (n: number): string => `${n} of ${MAX_SELECTED_PAGES} pages chosen`,
   pageLimit: `That's ${MAX_SELECTED_PAGES} pages, the most you can include. Uncheck one to choose a different page.`,

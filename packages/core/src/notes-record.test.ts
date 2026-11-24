@@ -23,6 +23,11 @@ const chunks: Chunk[] = [
 ];
 
 describe('notes record', () => {
+  it('names the schema version as the integer 1', () => {
+    expect(Number.isInteger(NOTES_SCHEMA_VERSION)).toBe(true);
+    expect(NOTES_SCHEMA_VERSION).toBe(1);
+  });
+
   it('holds only the schema version, the digest and the chunks', () => {
     const record = makeNotesRecord(chunks);
     expect(Object.keys(record).sort()).toEqual(['chunks', 'documentDigest', 'schemaVersion']);

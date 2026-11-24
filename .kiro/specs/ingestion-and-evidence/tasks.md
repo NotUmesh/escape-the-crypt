@@ -329,12 +329,12 @@ All test tasks are required and part of done. Property tests for one module are 
   - [x] 11.4 Wire the flow and local notes storage
     - In `packages/core` (pure, no DOM, no IndexedDB): create `packages/core/src/notes-record.ts` holding ONLY the `NotesRecord` type, the `NOTES_SCHEMA_VERSION` constant (1) and the pure helpers `makeNotesRecord(chunks)` and `parseNotesRecord(value)`. The record has only `schemaVersion`, `documentDigest` and `chunks`, and `parseNotesRecord` returns a typed error and never throws. Define `NotesRecord` in `types.ts` if task 2.1 did not already, and export the new module from `packages/core/src/index.ts`. `NotesStore`, `createSessionStore` and both adapters do NOT go in `packages/core`, because core must not touch the DOM or IndexedDB
     - In `apps/web/src/features/ingest/` (all store code lives here and imports `NotesRecord` and `Result` from `@escape-the-crypt/core`): create `notes-store.ts` (the `NotesStore` interface, the `storage-unavailable` result and `createSessionStore(primary, fallback)`), `notes-store-idb.ts` (the IndexedDB adapter) and `notes-store-memory.ts` (the in-memory adapter). The IndexedDB adapter uses database `escape-the-crypt`, version 1, object store `notes` with `keyPath: 'documentDigest'` and `put`, so a record with the same digest is replaced. It catches errors and returns the kind only, without logging the error object
-    - Create `ingest-flow.tsx` connecting the components to the state machine, the Extraction Client and the store (passed in as a prop). On Confirm it builds the record with `makeNotesRecord` and saves it. If the save fails, it keeps the chunks in the in-memory store for the session and announces the `storage-failed` message from the copy catalogue (add that message to `copy.ts` with `what` and `next` parts). It announces page flag set, page removed, text edited and notes confirmed
+    - Create `ingest-flow.tsx` connecting the components to the state machine, the Extraction Client and the store (passed in as a prop). On Confirm it builds the record with `makeNotesRecord` and saves it. If the save fails, it keeps the chunks in the in-memory store for the session and announces the `ERROR_COPY['storage-unavailable']` message from the copy catalogue (it already has `what` and `next` parts, so no second storage message exists). It announces page flag set, page removed, text edited and notes confirmed
     - Never store the PDF bytes or file name, never write the text of your notes to console logs or error reports, and never send the notes record to a server. Add `no-console` as an error for `features/ingest` in the ESLint config
     - `ingest-flow.tsx` has no fixed layout, no viewport units, no page background and no background art, imports no router or layout, and takes everything through props, so a later open-book screen can host it unchanged. Add the Ingest screen route in `apps/web`
     - _Requirements: 2.3, 4.5, 5.5, 9.3, 12.2, 17.2, 17.5, 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8, 18.10_
 
-  - [ ] 11.5 Write component and layout tests
+  - [x] 11.5 Write component and layout tests
     - File: `apps/web/src/features/ingest/ingest-ui.test.tsx`
     - Preview text such as `<img src=x onerror=alert(1)>` renders as visible text with no element created; a check rejects `dangerouslySetInnerHTML` in `features/ingest`
     - Flags show an icon and text; live-region announcements appear after remove, edit and confirm; no action needs drag (the 44x44 px target-size check is not done here, because jsdom has no layout; it is in the Playwright layout test below)
@@ -344,14 +344,14 @@ All test tasks are required and part of done. Property tests for one module are 
     - Playwright style check in the same file: computed `font-family` on a title, the preview, a textarea and a button; computed `font-size` and `line-height` at 360px (16px, 1.5) and at a 1024px parent (18px, 1.5); and a 2px outline after Tab on each control: `--ink-900` (`--focus-ring-on-light`) for preview-editor controls, which sit on parchment inside `.ingest-on-light`, and `--spectre-300` (`--focus-ring`) for all others
     - _Requirements: 4.6, 5.7, 9.3, 9.5, 9.6, 9.7, 10.1, 10.2, 10.3, 16.3, 16.4, 16.9, 16.10, 17.3, 17.4, 17.5, 17.6, 17.7_
 
-  - [ ] 11.6 Write storage property tests and the console-capture check
+  - [x] 11.6 Write storage property tests and the console-capture check
     - File: `packages/core/src/notes-record.test.ts`: unit tests that `NOTES_SCHEMA_VERSION` is a named integer constant, that `makeNotesRecord` output has only `schemaVersion`, `documentDigest` and `chunks`, and that `parseNotesRecord` rejects malformed values without throwing
     - File: `apps/web/src/features/ingest/notes-store.test.ts`, using `fake-indexeddb` (add it as a dev dependency of `apps/web`) behind the real IndexedDB adapter:
       - **Property 21: Notes record round trip**
       - **Property 22: Saving the same digest replaces the record**
       - **Property 23: Storage failure keeps notes in the session**
       - Property 23 injects failures: undefined `indexedDB`, a rejected `open`, an aborted write and a quota error
-    - File: `apps/web/e2e/ingest-storage.e2e.ts`: enter a sentinel string in the notes, run the paste flow and confirm, then assert that no console message contains the sentinel, that the `notes` store holds only the allowed record fields with no `ArrayBuffer`, `Blob` or file name, and that no request after Confirm leaves the origin or carries the notes text. Add a component test that renders the flow with a failing store and checks the `storage-failed` message appears in the live region and the flow stays usable
+    - File: `apps/web/e2e/ingest-storage.e2e.ts`: enter a sentinel string in the notes, run the paste flow and confirm, then assert that no console message contains the sentinel, that the `notes` store holds only the allowed record fields with no `ArrayBuffer`, `Blob` or file name, and that no request after Confirm leaves the origin or carries the notes text. Add a component test that renders the flow with a failing store and checks the `storage-unavailable` message appears in the live region and the flow stays usable
     - **Validates: Requirements 18.1, 18.2, 18.4, 18.8, 18.9**
     - _Requirements: 18.2, 18.3, 18.5, 18.6, 18.7_
 

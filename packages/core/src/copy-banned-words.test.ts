@@ -9,7 +9,6 @@ import {
   INGEST_UI_COPY,
   PAGE_FLAG_COPY,
   PRIVACY_NOTICE,
-  STORAGE_FAILED_COPY,
   PRIVACY_NOTICE_TEXT,
 } from './copy';
 import type { Chunk, SourceLocation } from './types';
@@ -62,7 +61,6 @@ describe('Property 20: Banned words never appear in labels or copy', () => {
       ...collectStrings(ERROR_COPY),
       ...collectStrings(PAGE_FLAG_COPY),
       ...collectStrings(PRIVACY_NOTICE),
-      ...collectStrings(STORAGE_FAILED_COPY),
       ...collectStrings(ANNOUNCEMENT_COPY),
       ...collectStrings(INGEST_UI_COPY),
       PRIVACY_NOTICE_TEXT,

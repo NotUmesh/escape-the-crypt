@@ -14,7 +14,7 @@ export interface PreviewEditorProps {
 
 function unitName(unit: IngestUnit): string {
   return unit.kind === 'pdf'
-    ? INGEST_UI_COPY.pageName(unit.pdfPageIndex + 1)
+    ? INGEST_UI_COPY.pageName(unit.pdfPageIndex + 1, unit.printedPageLabel)
     : INGEST_UI_COPY.paragraphName(unit.paragraphNumber);
 }
 

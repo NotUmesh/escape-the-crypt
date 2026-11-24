@@ -5,7 +5,6 @@ import {
   MAX_EXTRACTED_WORDS,
   MAX_FILE_SIZE_BYTES,
   errorMessage,
-  storageFailedMessage,
 } from '@escape-the-crypt/core';
 import { INITIAL_INGEST_STATE, canConfirm, ingestReducer } from './ingest-machine';
 import type { IngestEvent, IngestState, IngestUnit } from './ingest-machine';
@@ -25,7 +24,7 @@ function pdfPage(index: number, text = PROSE): IngestEvent {
 function extractedTwoPages(): IngestState {
   return run([
     { type: 'FILE_SELECTED', sizeBytes: 1000 },
-    { type: 'PAGE_COUNT_KNOWN', pageCount: 2 },
+    { type: 'PAGE_COUNT_KNOWN', pageCount: 2, labels: [null, null] },
     { type: 'PAGES_CHOSEN', pageIndexes: [0, 1] },
     pdfPage(0),
     pdfPage(1, `Interleaving mixes related topics. ${PROSE}`),
@@ -136,7 +135,7 @@ describe('ingest state machine', () => {
   it('cancel while extracting discards partial results and announces it', () => {
     const partial = run([
       { type: 'FILE_SELECTED', sizeBytes: 1000 },
-      { type: 'PAGE_COUNT_KNOWN', pageCount: 3 },
+      { type: 'PAGE_COUNT_KNOWN', pageCount: 3, labels: [null, null, null] },
       { type: 'PAGES_CHOSEN', pageIndexes: [0, 1, 2] },
       pdfPage(0),
     ]);
@@ -165,13 +164,14 @@ describe('PDF count step and saving', () => {
     const state = run([{ type: 'FILE_SELECTED', sizeBytes: MAX_FILE_SIZE_BYTES }]);
     expect(state.status).toBe('counting');
     expect(state.error).toBeNull();
-    const counted = run([{ type: 'PAGE_COUNT_KNOWN', pageCount: 7 }], state);
+    const counted = run([{ type: 'PAGE_COUNT_KNOWN', pageCount: 7, labels: Array(7).fill('x') }], state);
     expect(counted.status).toBe('pdf-chosen');
     expect(counted.pageCount).toBe(7);
+    expect(counted.pageLabels).toHaveLength(7);
   });
 
   it('ignores a page count that arrives outside the counting step', () => {
-    expect(run([{ type: 'PAGE_COUNT_KNOWN', pageCount: 7 }])).toEqual(INITIAL_INGEST_STATE);
+    expect(run([{ type: 'PAGE_COUNT_KNOWN', pageCount: 7, labels: [] }])).toEqual(INITIAL_INGEST_STATE);
   });
 
   it('turns a count error into the typed error and goes back to idle', () => {
@@ -196,7 +196,7 @@ describe('PDF count step and saving', () => {
     expect(saved.announcement).toBe(ANNOUNCEMENT_COPY.saved);
     const failed = run([{ type: 'SAVE_FAILED' }], confirmed);
     expect(failed.saveStatus).toBe('failed');
-    expect(failed.announcement).toBe(storageFailedMessage());
+    expect(failed.announcement).toBe(errorMessage({ kind: 'storage-unavailable' }));
     expect(failed.chunks).toEqual(confirmed.chunks);
   });
 
