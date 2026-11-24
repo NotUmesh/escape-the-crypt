@@ -2,11 +2,15 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { eventArb, manifestArb } from '../test-support/arbitraries';
 import { buildManifest } from '../test-support/manifest-fixture';
+import { submissionFor } from '../test-support/question-answers';
+import { questionFor, roomTargets, openTargets } from '../test-support/runtime-model-support';
 import { SETTINGS } from '../test-support/run-settings';
 import { EVENT_KINDS, LOCK_TYPES } from '../types';
 import type { Event, LockType } from '../types';
 import { apply } from './apply';
 import { initial } from './initial';
+import type { CryptManifest } from './manifest-types';
+import type { State } from './state-types';
 
 /** Fails on undefined, functions, Set, Map, Date, class instances and non-finite numbers. */
 function expectPlainJson(value: unknown, path = '$'): void {
@@ -125,5 +129,112 @@ describe('state serialisation', () => {
     if (!result.ok) throw new Error('setup');
     expectPlainJson(result.state);
     expect(roundTrip(result.state)).toStrictEqual(result.state);
+  });
+});
+
+// --- Property 6: replay determinism --------------------------------------------------------
+
+interface Fold {
+  readonly final: State;
+  readonly states: readonly State[];
+  /** Rejection kind per event, or null when the event was accepted. */
+  readonly rejections: readonly (string | null)[];
+}
+
+function fold(start: State, events: readonly Event[]): Fold {
+  let state = start;
+  const states: State[] = [];
+  const rejections: (string | null)[] = [];
+  for (const event of events) {
+    const result = apply(state, event);
+    if (result.ok) state = result.state;
+    rejections.push(result.ok ? null : result.error.kind);
+    states.push(state);
+  }
+  return { final: state, states, rejections };
+}
+
+interface Step {
+  readonly choice: number;
+  readonly pick: number;
+  readonly correct: boolean;
+  readonly noise: Event;
+}
+
+const stepArb: fc.Arbitrary<Step> = fc.record({
+  choice: fc.integer({ min: 0, max: 99 }),
+  pick: fc.nat(50),
+  correct: fc.boolean(),
+  noise: eventArb,
+});
+
+/** Walks the reducer from a started run, so logs reach answers, skips and challenges as well as rejections. */
+function buildLog(manifest: CryptManifest, steps: readonly Step[]): Event[] {
+  const log: Event[] = [{ kind: 'RunStarted', manifestId: manifest.manifestId }];
+  for (const room of manifest.rooms) log.push({ kind: 'RoomPublished', roomId: room.roomId });
+  log.push({ kind: 'RoomEntered', roomId: manifest.rooms[0]?.roomId ?? '' });
+  let state = fold(initial(manifest, SETTINGS), log).final;
+  for (const step of steps) {
+    const open = openTargets(state);
+    const target = open.length === 0 ? undefined : open[step.pick % open.length];
+    let event: Event = step.noise;
+    if (target !== undefined && step.choice < 80) {
+      const slotId = target.slotId;
+      if (step.choice < 45) {
+        const submission = submissionFor(questionFor(manifest, target.questionId), step.correct);
+        event = { kind: 'AnswerSubmitted', slotId, submission };
+      } else if (step.choice < 55) event = { kind: 'HintUsed', slotId };
+      else if (step.choice < 65) event = { kind: 'Skipped', slotId };
+      else if (step.choice < 72) event = { kind: 'Challenged', slotId };
+      else event = { kind: 'EvidenceContinued', slotId };
+    } else if (step.choice >= 90) {
+      event = { kind: 'EvidenceContinued', slotId: roomTargets(state)[0]?.slotId ?? 'none' };
+    }
+    log.push(event);
+    const result = apply(state, event);
+    if (result.ok) state = result.state;
+  }
+  return log;
+}
+
+describe('Property 6: replay determinism', () => {
+  it('replays a generated log deterministically, in prefixes and through JSON', () => {
+    let sawAnswer = false;
+    let sawRejection = false;
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 1, max: 3 }),
+        fc.array(stepArb, { minLength: 1, maxLength: 40 }),
+        fc.nat(100),
+        (rooms, steps, cut) => {
+          const manifest = buildManifest({ rooms, conceptsPerRoom: 4, hintEffects: true });
+          const start = initial(manifest, SETTINGS);
+          const log = buildLog(manifest, steps);
+          const whole = fold(start, log);
+
+          // Each event survives a JSON round trip.
+          const replayed = log.map((e) => roundTrip(e));
+          expect(replayed).toStrictEqual(log);
+          // Folding the log equals folding its JSON round trip, rejections included.
+          const again = fold(start, replayed);
+          expect(again.final).toStrictEqual(whole.final);
+          expect(again.rejections).toStrictEqual(whole.rejections);
+          // A prefix, then the rest, equals all at once.
+          const at = cut % (log.length + 1);
+          const head = fold(start, log.slice(0, at));
+          expect(fold(head.final, log.slice(at)).final).toStrictEqual(whole.final);
+          // Every intermediate State survives a JSON round trip.
+          for (const state of whole.states) {
+            expectPlainJson(state);
+            expect(roundTrip(state)).toStrictEqual(state);
+          }
+          sawAnswer ||= whole.final.judgedAnswerCount > 0;
+          sawRejection ||= whole.rejections.some((r) => r !== null);
+        },
+      ),
+      { numRuns: 60 },
+    );
+    expect(sawAnswer).toBe(true);
+    expect(sawRejection).toBe(true);
   });
 });

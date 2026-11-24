@@ -185,33 +185,33 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 15.1, 30.5_
 
-- [ ] 5. Model-based harness, replay determinism and reload sequence
-  - [ ] 5.1 Build the fc.commands harness
+- [x] 5. Model-based harness, replay determinism and reload sequence
+  - [x] 5.1 Build the fc.commands harness
     - Create `runtime/runtime-model.test.ts`: the counter `Model`, one command per event kind handled so far, and deliberately invalid variants (wrong order, stale slot, double submit, hint at zero) that assert the expected `kind` and State unchanged. Learner policies: all wrong, all skip, all challenge, seeded random. Fold in the invariants of Properties 2, 3, 5, 8 and 14 and extend `apply-properties.test.ts` coverage to every event kind. Commands for room progression, final door, leave and resume are added in 6.9.
     - **Property 5: Invalid events are no-ops** (every event kind)
     - **Property 2, Property 3, Property 8, Property 14** (as model invariants)
     - **Validates: Requirements 3.1, 3.6, 3.7, 13.4, 14.7, 14.8, 18.4, 31.6**
 
-  - [ ] 5.2 Write property test for replay determinism
+  - [x] 5.2 Write property test for replay determinism
     - In `runtime/serialisation.test.ts`. For any generated event log: each event survives a JSON round trip; folding the log equals folding its JSON round trip; folding a prefix then the rest equals folding all at once; every intermediate State survives a JSON round trip; a rejected event is rejected again with the same kind on replay.
     - **Property 6: Replay determinism**
     - **Validates: Requirements 4.3, 4.4, 4.5, 4.6**
 
-  - [ ] 5.3 Write property test for notices
+  - [x] 5.3 Write property test for notices
     - In `runtime/runtime-model.test.ts`. Replaying a log twice emits the same notices in the same order; each notice is emitted once per causing event; one event's notices follow `candleLit, ghostLaidToRest, ghostSpawned, sealCracked, roomCleared, escaped`; the event log never contains notices.
     - **Property 15: Notices are emitted once, in a fixed order, and identically on replay**
     - **Validates: Requirements 24.5, 24.7, 24.8**
 
-  - [ ] 5.4 Write the reload-after-every-event sequence
+  - [x] 5.4 Write the reload-after-every-event sequence
     - New file `runtime/runtime-reload.test.ts`. For a fixed 40-event run on a fixture manifest, for every prefix length 1 to 40: fold the prefix, serialise and parse, apply the remaining events, and assert deep-equality with the uninterrupted fold.
     - _Requirements: 4.3, 4.4, 4.5_
 
-  - [ ] 5.5 Write property test for termination of room play
+  - [x] 5.5 Write property test for termination of room play
     - In `runtime/runtime-model.test.ts`. For every policy over `manifestArb` runs, every published room becomes Cleared within `(totalConcepts × 4)` judged prompts, with all four policies including all wrong and all challenged. The escape part of the bound is added in 6.9.
     - **Property 1: Termination** (room play; escape part in 6.9)
     - **Validates: Requirements 19.1, 19.2, 20.7**
 
-  - [ ] 5.6 Checkpoint - Ensure all tests pass
+  - [x] 5.6 Checkpoint - Ensure all tests pass
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks`, `pnpm lint` and `pnpm typecheck`. The model-based tests pass for all wrong, all challenged and reload. Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 6. Multiple rooms, publishing, shortening, final door, leave and resume

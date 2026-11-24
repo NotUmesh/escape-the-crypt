@@ -35,6 +35,14 @@
     "4.7 Extend the challenge isolation test to Return_Slots": {
       "status": "passed",
       "lastRunTimestamp": 1795534459026
+    },
+    "5.3 Write property test for notices": {
+      "status": "passed",
+      "lastRunTimestamp": 1795536558752
+    },
+    "5.5 Write property test for termination of room play": {
+      "status": "passed",
+      "lastRunTimestamp": 1795536698963
     }
   },
   "executionHistory": {
@@ -467,6 +475,95 @@
         "executionId": "22211012-a950-4704-8589-c2f6fe7b7e8c",
         "chatSessionId": "sess_3665c1da-1d50-403d-aa33-e63280c74d5d",
         "timestamp": 1795534505395
+      }
+    ],
+    "5.1 Build the fc.commands harness": [
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795535095001
+      },
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536461013
+      },
+      {
+        "executionId": "0bb82d89-2516-458c-9cd0-fcaecbdb0955",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795537838245
+      },
+      {
+        "executionId": "0bb82d89-2516-458c-9cd0-fcaecbdb0955",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795537920184
+      }
+    ],
+    "5.2 Write property test for replay determinism": [
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536461747
+      },
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536639137
+      }
+    ],
+    "5.3 Write property test for notices": [
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536466315
+      },
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536639847
+      }
+    ],
+    "5.4 Write the reload-after-every-event sequence": [
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536466351
+      },
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536640507
+      }
+    ],
+    "5.5 Write property test for termination of room play": [
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536641184
+      },
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536715355
+      }
+    ],
+    "5.6 Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536716057
+      },
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536749802
+      }
+    ],
+    "5. Model-based harness, replay determinism and reload sequence": [
+      {
+        "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
+        "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
+        "timestamp": 1795536749845
       }
     ]
   }

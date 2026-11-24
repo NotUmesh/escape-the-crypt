@@ -83,6 +83,42 @@ describe('Property 5: Invalid events are no-ops', () => {
     );
   });
 
+  /** **Validates: Requirements 3.1, 3.6, 3.7** */
+  it('an invalid instance of every one of the 14 event kinds is rejected and leaves State unchanged', () => {
+    const invalidByKind: Record<Event['kind'], Event> = {
+      RunStarted: { kind: 'RunStarted', manifestId: 'other-manifest' },
+      RoomPublished: { kind: 'RoomPublished', roomId: 'no-such-room' },
+      CryptFinalised: { kind: 'CryptFinalised', finalRoomCount: 2 },
+      CryptShortened: { kind: 'CryptShortened', finalRoomCount: 1 },
+      RoomEntered: { kind: 'RoomEntered', roomId: 'no-such-room' },
+      LockOpened: { kind: 'LockOpened', slotId: 'no-such-slot' },
+      HintUsed: { kind: 'HintUsed', slotId: 'no-such-slot' },
+      AnswerSubmitted: { kind: 'AnswerSubmitted', slotId: 'no-such-slot', submission: {} },
+      Skipped: { kind: 'Skipped', slotId: 'no-such-slot' },
+      Challenged: { kind: 'Challenged', slotId: 'no-such-slot' },
+      EvidenceContinued: { kind: 'EvidenceContinued', slotId: 'no-such-slot' },
+      FinalDoorEntered: { kind: 'FinalDoorEntered' },
+      RunLeft: { kind: 'RunLeft' },
+      RunResumed: { kind: 'RunResumed' },
+    };
+    // Kinds whose handlers arrive in tasks 6.x are refused, never half-applied.
+    const notYetHandled: Event['kind'][] = [
+      'CryptFinalised',
+      'CryptShortened',
+      'FinalDoorEntered',
+      'RunLeft',
+      'RunResumed',
+    ];
+    for (const event of Object.values(invalidByKind)) {
+      const result = applyAndCheckNoOp(started, event);
+      expect(result.ok).toBe(false);
+      if (!result.ok && notYetHandled.includes(event.kind)) {
+        expect(result.error.kind).toBe('malformed-event');
+      }
+      expect(applyAndCheckNoOp(unstarted, event).ok).toBe(false);
+    }
+  });
+
   /** **Validates: Requirements 3.1, 3.6** */
   it('actions on a settled slot are rejected with lock-already-settled', () => {
     const slotId = manifest.rooms[0]?.lockSlots[0]?.slotId as string;
