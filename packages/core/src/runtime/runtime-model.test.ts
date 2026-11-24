@@ -22,6 +22,18 @@ import {
 } from '../test-support/runtime-model-commands';
 import type { RuntimeCommand } from '../test-support/runtime-model-commands';
 import type { Model, Real, TraceEntry } from '../test-support/runtime-model-support';
+import { playToEscape } from '../test-support/escape-driver';
+import {
+  cryptFinalised,
+  cryptShortened,
+  eventAfterEscape,
+  finalDoorEntered,
+  learnerWhileLeft,
+  nextRoomPublished,
+  roomAdvanced,
+  runLeft,
+  runResumed,
+} from '../test-support/runtime-model-escape-commands';
 import { playEnteredRoom } from '../test-support/termination-driver';
 import { apply } from './apply';
 import { initial } from './initial';
@@ -48,6 +60,23 @@ const commonArbs: fc.Arbitrary<RuntimeCommand>[] = [
   pickArb.map(lockOpened),
   pickArb.map(hintUsed),
   pickArb.map(evidenceContinued),
+  fc.constant(null).map(nextRoomPublished),
+  fc.constant(null).map(roomAdvanced),
+  fc.constant(null).map(cryptFinalised),
+  pickArb.map(cryptShortened),
+  fc.constant(null).map(finalDoorEntered),
+  fc.constant(null).map(runLeft),
+  fc.constant(null).map(runResumed),
+  fc.constant(null).map(learnerWhileLeft),
+  fc.constant(null).map(eventAfterEscape),
+];
+
+/** Progression commands again, so the escape-leaning run reaches the final door often. */
+const progressionArbs: fc.Arbitrary<RuntimeCommand>[] = [
+  fc.constant(null).map(nextRoomPublished),
+  fc.constant(null).map(roomAdvanced),
+  fc.constant(null).map(cryptFinalised),
+  fc.constant(null).map(finalDoorEntered),
 ];
 
 /** The learner's choice of action, by policy. */
@@ -73,10 +102,14 @@ interface Coverage {
   returnSlots: number;
   ghostNotices: number;
   replacedBySeal: number;
+  escaped: number;
+  atDoor: number;
 }
 
 /** Count Return_Slots, ghostSpawned notices and sealCracked notices that left the slot open (a replacement). */
 function tally(manifest: CryptManifest, real: Real, into: Coverage): void {
+  if (real.state.status === 'escaped') into.escaped += 1;
+  if (real.state.atFinalDoor) into.atDoor += 1;
   into.returnSlots += real.state.rooms.flatMap((r) => r.dueReturnSlots).length;
   let state = initial(manifest, SETTINGS);
   for (const { event } of real.trace ?? []) {
@@ -92,9 +125,14 @@ function tally(manifest: CryptManifest, real: Real, into: Coverage): void {
   }
 }
 
-function runPolicy(policy: Policy, inspect?: (manifest: CryptManifest, real: Real) => void): Coverage {
-  const coverage: Coverage = { returnSlots: 0, ghostNotices: 0, replacedBySeal: 0 };
-  const commands = fc.commands([...commonArbs, ...learnerArbs(policy), ...learnerArbs(policy)], { size: 'large', maxCommands: 120 });
+function runPolicy(
+  policy: Policy,
+  inspect?: (manifest: CryptManifest, real: Real) => void,
+  leaning = false,
+): Coverage {
+  const coverage: Coverage = { returnSlots: 0, ghostNotices: 0, replacedBySeal: 0, escaped: 0, atDoor: 0 };
+  const arbs = [...commonArbs, ...learnerArbs(policy), ...learnerArbs(policy), ...(leaning ? progressionArbs : [])];
+  const commands = fc.commands(arbs, { size: 'large', maxCommands: leaning ? 300 : 120 });
   let reached = 0;
   fc.assert(
     fc.property(manifestArb, commands, (manifest, cmds) => {
@@ -166,7 +204,7 @@ describe('runtime notices (fc.commands)', () => {
 });
 
 /**
- * Feature: room-runtime, Property 1: Termination (room play; the escape part is added in 6.9).
+ * Feature: room-runtime, Property 1: Termination (room play; the escape part follows below).
  * Later rooms cannot be entered before 6.1, so the entered room (room 1) is the room played.
  */
 describe('runtime termination (room play)', () => {
@@ -207,5 +245,48 @@ describe('runtime model (fc.commands)', () => {
       }
       if (policy === 'all challenge') expect(coverage.replacedBySeal).toBeGreaterThan(0);
     });
+  }
+});
+
+/**
+ * Feature: room-runtime, Property 1: Termination (escape).
+ * A whole run, with rooms published one at a time, an optional shortening and leave/resume,
+ * escapes within (totalConcepts x 4) + reservedFinalDoorQuestionCount prompts.
+ */
+describe('runtime termination (escape)', () => {
+  const policies: Policy[] = ['all wrong', 'all skip', 'all challenge', 'seeded random'];
+  for (const policy of policies) {
+    /** **Validates: Requirements 20.5, 20.7, 20.8, 20.9** */
+    it(`escapes within (totalConcepts x 4) + reserved door questions: ${policy}`, () => {
+      let shortenedRuns = 0;
+      let leftRuns = 0;
+      fc.assert(
+        fc.property(manifestArb, fc.nat(), (manifest, seed) => {
+          const result = playToEscape(manifest, policy, seed);
+          expect(result.exhausted).toBe(false);
+          expect(result.state.status).toBe('escaped');
+          expect(result.prompts).toBeLessThanOrEqual(result.budget);
+          // Every slot at the door is closed, and nothing is still waiting to return.
+          expect(result.state.finalDoor.slots.every((s) => s.status !== 'open')).toBe(true);
+          expect(result.state.ghosts).toEqual([]);
+          if (result.shortened) shortenedRuns += 1;
+          if (result.leaves > 0) leftRuns += 1;
+        }),
+        { numRuns: 100 },
+      );
+      // Coverage guards: shortening and leave/resume are exercised.
+      expect(shortenedRuns).toBeGreaterThan(0);
+      expect(leftRuns).toBeGreaterThan(0);
+    });
+  }
+
+  for (const policy of policies) {
+    /** **Validates: Requirements 20.5, 20.7, 20.8, 20.9** */
+    it(`keeps every invariant through progression, the final door, leave and resume: ${policy}`, () => {
+      const c = runPolicy(policy, undefined, true);
+      expect(c.atDoor).toBeGreaterThan(0);
+      // Skips and challenges settle fastest, so those runs reach the escape within the command budget.
+      if (policy === 'all skip' || policy === 'all challenge') expect(c.escaped).toBeGreaterThan(0);
+    }, 60_000);
   }
 });

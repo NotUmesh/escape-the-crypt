@@ -1,4 +1,6 @@
 import type { Event } from '../types';
+import { findDoorSlot } from './final-door-slots';
+import { handleDoorChallenge, handleDoorSkip } from './handlers-final-door';
 import type { LockSlotSpec } from './manifest-types';
 import { findReturnSlot } from './handlers-return-answer';
 import { challengeReturnSlot, recordSkippedConcept, skipReturnSlot } from './handlers-return-settle';
@@ -20,7 +22,7 @@ interface Located {
 
 /**
  * Find a Lock_Slot and its manifest spec. Return_Slots are handled in handlers-return-settle.ts;
- * Final_Door slots arrive in 6.3.
+ * Final_Door slots are routed to handlers-final-door.ts.
  */
 function locate(state: State, slotId: string): Located | null {
   for (let roomIndex = 0; roomIndex < state.rooms.length; roomIndex += 1) {
@@ -71,7 +73,10 @@ export function handleSkipped(state: State, event: SkippedEvent): ApplyResult {
   const located = locate(state, event.slotId);
   if (located === null) {
     const ret = findReturnSlot(state, event.slotId);
-    if (ret === null) return reject('unknown-reference');
+    if (ret === null) {
+      const door = findDoorSlot(state, event.slotId);
+      return door === null ? reject('unknown-reference') : handleDoorSkip(state, door);
+    }
     if (ret.slot.status !== 'open') return reject('lock-already-settled');
     return skipReturnSlot(state, ret);
   }
@@ -97,7 +102,10 @@ export function handleChallenged(state: State, event: ChallengedEvent): ApplyRes
   const located = locate(state, event.slotId);
   if (located === null) {
     const ret = findReturnSlot(state, event.slotId);
-    if (ret === null) return reject('unknown-reference');
+    if (ret === null) {
+      const door = findDoorSlot(state, event.slotId);
+      return door === null ? reject('unknown-reference') : handleDoorChallenge(state, door);
+    }
     if (ret.slot.status !== 'open') return reject('lock-already-settled');
     return challengeReturnSlot(state, ret);
   }

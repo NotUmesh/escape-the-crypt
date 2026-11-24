@@ -3,132 +3,90 @@ import type { Event } from '../types';
 import { buildManifest } from '../test-support/manifest-fixture';
 import { submissionFor } from '../test-support/question-answers';
 import { SETTINGS } from '../test-support/run-settings';
+import { questionMap, shownQuestionId, step } from '../test-support/sequence-support';
+import type { Outcome_Notice } from './notices';
 import { apply } from './apply';
 import { initial } from './initial';
-import type { CryptManifest, QuestionSpec } from './manifest-types';
+import type { CryptManifest } from './manifest-types';
 import type { State } from './state-types';
 
-const RUN_LENGTH = 40;
-
+/** Folds a log; every event must be accepted. */
 function fold(start: State, events: readonly Event[]): State {
   let state = start;
   for (const event of events) {
     const r = apply(state, event);
-    // A refused event leaves the State unchanged, as a caller replaying the log would see.
-    if (r.ok) state = r.state;
+    if (!r.ok) throw new Error(`rejected ${event.kind}: ${r.error.kind}`);
+    state = r.state;
   }
   return state;
 }
 
-function questionMap(manifest: CryptManifest): Map<string, QuestionSpec> {
-  const map = new Map<string, QuestionSpec>();
-  for (const spec of manifest.rooms.flatMap((r) => r.lockSlots)) {
-    map.set(spec.primaryQuestion.questionId, spec.primaryQuestion);
-    if (spec.alternateQuestion) map.set(spec.alternateQuestion.questionId, spec.alternateQuestion);
-  }
-  return map;
+interface Run {
+  readonly events: readonly Event[];
+  readonly notices: readonly Outcome_Notice[];
 }
 
-/** Builds a fixed, fully accepted run of exactly RUN_LENGTH events by driving the reducer. */
-function buildRun(manifest: CryptManifest): readonly Event[] {
+/**
+ * Builds the fixed 2-room run by driving the reducer, recording each accepted event.
+ * Room 1: a hint, a skip, a challenge and a wrong answer (its ghost is not yet due).
+ * Room 2: the ghost comes due and is answered as a Return. Then the final door and escape.
+ */
+function buildRun(manifest: CryptManifest): Run {
   const questions = questionMap(manifest);
   const events: Event[] = [];
+  const notices: Outcome_Notice[] = [];
   let state = initial(manifest, SETTINGS);
-  const push = (event: Event): void => {
-    const r = apply(state, event);
-    if (!r.ok) throw new Error(`script rejected ${event.kind}: ${r.error.kind}`);
+  const play = (event: Event): void => {
+    const r = step(state, event);
     state = r.state;
     events.push(event);
-  };
-  const room = () => state.rooms.find((r) => r.roomId === state.currentRoomId) ?? state.rooms[0];
-  const shownQuestion = (slotId: string): QuestionSpec => {
-    const all = state.rooms.flatMap((r) => [...r.lockSlots, ...r.dueReturnSlots]);
-    const id = all.find((s) => s.slotId === slotId)?.currentQuestionId;
-    const q = id === undefined ? undefined : questions.get(id);
-    if (!q) throw new Error(`no question for ${slotId}`);
-    return q;
+    notices.push(...r.notices);
   };
   const answer = (slotId: string, correct: boolean): void => {
-    const isLock = room()?.lockSlots.some((s) => s.slotId === slotId) ?? false;
-    if (isLock && state.focusedSlotId !== slotId) push({ kind: 'LockOpened', slotId });
-    push({ kind: 'AnswerSubmitted', slotId, submission: submissionFor(shownQuestion(slotId), correct) });
+    const q = questions.get(shownQuestionId(state, slotId));
+    if (!q) throw new Error(`no question for ${slotId}`);
+    play({ kind: 'AnswerSubmitted', slotId, submission: submissionFor(q, correct) });
   };
-  const openEvidence = (): string | undefined => {
-    const all = state.rooms.flatMap((r) => [...r.lockSlots, ...r.dueReturnSlots]);
-    return all.find((s) => s.evidencePanelOpen)?.slotId;
-  };
-  const specs = manifest.rooms[0]?.lockSlots ?? [];
-  const ids = specs.map((s) => s.slotId);
-  const slot = (i: number): string => ids[i] ?? '';
+  const [room1, room2] = manifest.rooms;
+  if (!room1 || !room2) throw new Error('fixture needs 2 rooms');
+  const s1 = room1.lockSlots.map((s) => s.slotId);
+  const s2 = room2.lockSlots.map((s) => s.slotId);
+  const at = (ids: readonly string[], i: number): string => ids[i] ?? '';
 
-  const roomId = manifest.rooms[0]?.roomId ?? '';
-  push({ kind: 'RunStarted', manifestId: manifest.manifestId });
-  push({ kind: 'RoomPublished', roomId });
-  push({ kind: 'RoomEntered', roomId });
-  push({ kind: 'LockOpened', slotId: slot(0) });
-  push({ kind: 'HintUsed', slotId: slot(0) });
-  answer(slot(0), true);
-  push({ kind: 'EvidenceContinued', slotId: slot(0) });
-  answer(slot(1), false);
-  push({ kind: 'EvidenceContinued', slotId: slot(1) });
-  answer(slot(2), false);
-  push({ kind: 'EvidenceContinued', slotId: slot(2) });
-  push({ kind: 'Skipped', slotId: slot(3) });
-  push({ kind: 'Challenged', slotId: slot(4) });
-  answer(slot(4), true);
-  push({ kind: 'EvidenceContinued', slotId: slot(4) });
-  answer(slot(5), false);
+  play({ kind: 'RunStarted', manifestId: manifest.manifestId });
+  play({ kind: 'RoomPublished', roomId: room1.roomId });
+  play({ kind: 'CryptFinalised', finalRoomCount: manifest.rooms.length });
+  play({ kind: 'RoomEntered', roomId: room1.roomId });
+  play({ kind: 'LockOpened', slotId: at(s1, 0) });
+  play({ kind: 'HintUsed', slotId: at(s1, 0) });
+  answer(at(s1, 0), true);
+  play({ kind: 'Challenged', slotId: at(s1, 1) });
+  answer(at(s1, 1), true); // the Alternate that replaced the challenged question
+  answer(at(s1, 2), true);
+  answer(at(s1, 3), true);
+  play({ kind: 'Skipped', slotId: at(s1, 4) }); // queues a return for the skipped concept
+  answer(at(s1, 5), false); // ghost spawns; neither return is due until later judged answers
 
-  let returnsAnswered = 0;
-  let lockCount = 0;
-  while (events.length < RUN_LENGTH) {
-    const pending = openEvidence();
-    if (pending !== undefined) {
-      push({ kind: 'EvidenceContinued', slotId: pending });
-      continue;
-    }
-    const next = room()?.dueReturnSlots.find((s) => s.status === 'open');
-    if (!next) {
-      const lock = room()?.lockSlots.find((s) => s.status === 'open');
-      if (lock) {
-        lockCount += 1;
-        if (lockCount % 3 === 0) push({ kind: 'Challenged', slotId: lock.slotId });
-        else answer(lock.slotId, lockCount % 2 === 0);
-        continue;
-      }
-      break;
-    }
-    if (returnsAnswered === 0 && state.remainingHints > 0) {
-      push({ kind: 'HintUsed', slotId: next.slotId });
-      if (events.length >= RUN_LENGTH) break;
-    }
-    answer(next.slotId, returnsAnswered % 2 === 0);
-    returnsAnswered += 1;
-  }
-  // Tail: events the reducer must refuse. They leave the State unchanged.
-  const refused: Event[] = [
-    { kind: 'AnswerSubmitted', slotId: slot(0), submission: {} },
-    { kind: 'RunStarted', manifestId: manifest.manifestId },
-    { kind: 'EvidenceContinued', slotId: slot(0) },
-    { kind: 'HintUsed', slotId: slot(0) },
-    { kind: 'Skipped', slotId: slot(1) },
-  ];
-  for (let i = 0; events.length < RUN_LENGTH; i += 1) {
-    const event = refused[i % refused.length] as Event;
-    if (apply(state, event).ok) throw new Error(`expected refusal of ${event.kind}`);
-    events.push(event);
-  }
-  return events;
+  play({ kind: 'RoomPublished', roomId: room2.roomId });
+  play({ kind: 'RoomEntered', roomId: room2.roomId });
+  for (const slotId of s2) answer(slotId, true);
+  const returns = state.rooms.find((r) => r.roomId === room2.roomId)?.dueReturnSlots ?? [];
+  const open = returns.filter((s) => s.status === 'open');
+  if (open.length === 0) throw new Error('expected a due Return in room 2');
+  for (const ret of open) answer(ret.slotId, true);
+
+  play({ kind: 'FinalDoorEntered' });
+  for (const slot of manifest.finalDoor.slots) answer(slot.slotId, true);
+  return { events, notices };
 }
 
 describe('reload at any point (Req 4.3, 4.4, 4.5)', () => {
-  const manifest = buildManifest({ rooms: 1, conceptsPerRoom: 6, alternates: true, hintEffects: true });
-  const events = buildRun(manifest);
+  const manifest = buildManifest({ rooms: 2, conceptsPerRoom: 6, alternates: true, hintEffects: true });
+  const { events, notices } = buildRun(manifest);
   const start = initial(manifest, SETTINGS);
   const uninterrupted = fold(start, events);
 
-  it('uses a fixed 40-event run that exercises every named event kind', () => {
-    expect(events).toHaveLength(RUN_LENGTH);
+  it('uses a fixed 2-room run that reaches the escape', () => {
     const kinds = new Set(events.map((e) => e.kind));
     for (const kind of [
       'RunStarted',
@@ -139,15 +97,16 @@ describe('reload at any point (Req 4.3, 4.4, 4.5)', () => {
       'HintUsed',
       'Skipped',
       'Challenged',
-      'EvidenceContinued',
+      'FinalDoorEntered',
     ] as const) {
       expect(kinds.has(kind)).toBe(true);
     }
-    expect(uninterrupted.ghosts.length + uninterrupted.rooms[0]!.dueReturnSlots.length).toBeGreaterThan(0);
+    expect(uninterrupted.status).toBe('escaped');
+    expect(notices.filter((n) => n.kind === 'escaped')).toHaveLength(1);
   });
 
   it('serialising the State after any prefix and continuing gives the uninterrupted State', () => {
-    for (let n = 1; n <= RUN_LENGTH; n += 1) {
+    for (let n = 1; n <= events.length; n += 1) {
       const mid = fold(start, events.slice(0, n));
       const reloaded = JSON.parse(JSON.stringify(mid)) as State;
       expect(reloaded).toEqual(mid);

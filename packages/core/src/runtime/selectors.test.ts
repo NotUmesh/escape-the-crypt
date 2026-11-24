@@ -54,6 +54,8 @@ function richState(): State {
         {
           slotId: 'fd-1',
           origin: 'reserved',
+          conceptId: 'concept-z',
+          returnNumber: null,
           currentQuestionId: 'q-f',
           currentQuestionType: 'cursed-object',
           label: null,

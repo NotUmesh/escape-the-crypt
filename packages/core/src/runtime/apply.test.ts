@@ -55,10 +55,11 @@ describe('apply guards', () => {
     }
   });
 
-  it('rejects learner events while left, except RunResumed', () => {
+  it('rejects learner events while left, except RunLeft and RunResumed', () => {
     const left: State = { ...started(), status: 'left' };
     expect(kindOf(left, { kind: 'LockOpened', slotId: firstSlotId })).toBe('run-left');
     expect(kindOf(left, { kind: 'RunResumed' })).not.toBe('run-left');
+    expect(kindOf(left, { kind: 'RunLeft' })).toBe('cannot-leave');
   });
 
   it('rejects unknown rooms and slots with unknown-reference', () => {

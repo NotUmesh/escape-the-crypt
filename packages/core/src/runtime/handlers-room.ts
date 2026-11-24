@@ -21,15 +21,19 @@ export function handleRoomPublished(state: State, event: RoomPublishedEvent): Ap
 }
 
 /**
- * Enter a room. Only the first room is handled here; rooms after it are refused with
- * `room-out-of-order` until the progression checks arrive (task 6.1).
+ * Enter a room. Room k+1 needs room k Cleared and room k+1 published; a skipped, repeated
+ * or backwards target is `room-out-of-order` (Req 8.2 to 8.5).
  */
 export function handleRoomEntered(state: State, event: RoomEnteredEvent): ApplyResult {
   const index = findRoomIndex(state, event.roomId);
   const room = state.rooms[index];
   if (room === undefined) return reject('unknown-reference');
+  // Rooms are entered strictly in order: room 1 first, then k+1 from k (Req 8.2, 8.5).
+  const currentIndex = state.currentRoomId === null ? -1 : findRoomIndex(state, state.currentRoomId);
+  if (index !== currentIndex + 1) return reject('room-out-of-order');
+  const previous = currentIndex >= 0 ? state.rooms[currentIndex] : undefined;
+  if (currentIndex >= 0 && previous?.cleared !== true) return reject('room-not-cleared');
   if (!room.published) return reject('room-not-published');
-  if (index !== 0) return reject('room-out-of-order');
   // Entering shows every Lock_Slot's primary question, so record it for Review labels
   // (Req 14.9). Ghosts that carried over are materialised through the shared site (Req 15.5).
   const shownIds = new Map<string, string>();

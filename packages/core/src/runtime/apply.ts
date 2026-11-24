@@ -1,9 +1,16 @@
 import type { Event, EventKind } from '../types';
 import { isEvent } from './event-guard';
 import { handleAnswerSubmitted, handleEvidenceContinued } from './handlers-answer';
+import { handleFinalDoorEntered } from './handlers-final-door';
 import { handleHintUsed } from './handlers-hint';
 import { handleLockOpened, handleRoomEntered, handleRoomPublished } from './handlers-room';
-import { handleRunStarted } from './handlers-run';
+import {
+  handleCryptFinalised,
+  handleCryptShortened,
+  handleRunLeft,
+  handleRunResumed,
+  handleRunStarted,
+} from './handlers-run';
 import { handleChallenged, handleSkipped } from './handlers-skip-challenge';
 import { reject } from './result';
 import type { ApplyResult } from './result';
@@ -26,6 +33,7 @@ const NOT_LEARNER: ReadonlySet<EventKind> = new Set<EventKind>([
   'RoomPublished',
   'CryptFinalised',
   'CryptShortened',
+  'RunLeft',
   'RunResumed',
 ]);
 
@@ -43,7 +51,7 @@ const NEEDS_OPEN_SLOT: ReadonlySet<EventKind> = new Set<EventKind>([
  * or, while the Final_Door is the place being played, a Final_Door slot (Req 9.5).
  */
 function slotIsInPlay(state: State, slotId: string): boolean {
-  if (state.finalDoor.available) return state.finalDoor.slots.some((s) => s.slotId === slotId);
+  if (state.atFinalDoor) return state.finalDoor.slots.some((s) => s.slotId === slotId);
   const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
   if (room === undefined) return false;
   return (
@@ -100,6 +108,10 @@ export function apply(state: State, event: Event): ApplyResult {
       return handleRunStarted(state, candidate);
     case 'RoomPublished':
       return handleRoomPublished(state, candidate);
+    case 'CryptFinalised':
+      return handleCryptFinalised(state, candidate);
+    case 'CryptShortened':
+      return handleCryptShortened(state, candidate);
     case 'RoomEntered':
       return handleRoomEntered(state, candidate);
     case 'LockOpened':
@@ -110,13 +122,15 @@ export function apply(state: State, event: Event): ApplyResult {
       return handleEvidenceContinued(state, candidate);
     case 'HintUsed':
       return handleHintUsed(state, candidate);
+    case 'FinalDoorEntered':
+      return handleFinalDoorEntered(state);
     case 'Skipped':
       return handleSkipped(state, candidate);
     case 'Challenged':
       return handleChallenged(state, candidate);
-    default:
-      // Handlers for the other kinds are wired in later tasks. Until then the event is
-      // refused rather than silently accepted, and State stays unchanged.
-      return reject('malformed-event', { reason: 'handler-not-wired', eventKind: candidate.kind });
+    case 'RunLeft':
+      return handleRunLeft(state);
+    case 'RunResumed':
+      return handleRunResumed(state);
   }
 }

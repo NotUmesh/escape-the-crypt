@@ -1,4 +1,6 @@
 import type { Event } from '../types';
+import { findDoorSlot } from './final-door-slots';
+import { handleDoorAnswer, handleDoorEvidenceContinued } from './handlers-final-door';
 import { hasEligibleReturnQuestion, recordQuestionShown, spawnGhost } from './ghost-queue';
 import { findReturnSlot, handleReturnAnswer } from './handlers-return-answer';
 import { candleLitForSlot, ghostSpawned, orderNotices } from './notices';
@@ -64,7 +66,9 @@ export function handleAnswerSubmitted(state: State, event: AnswerSubmittedEvent)
   const located = findLockSlot(state, event.slotId);
   if (located === null) {
     const returned = findReturnSlot(state, event.slotId);
-    return returned === null ? reject('unknown-reference') : handleReturnAnswer(state, event, returned);
+    if (returned !== null) return handleReturnAnswer(state, event, returned);
+    const door = findDoorSlot(state, event.slotId);
+    return door === null ? reject('unknown-reference') : handleDoorAnswer(state, event, door);
   }
   const { roomIndex, slotIndex, slot } = located;
   if (slot.status !== 'open') return reject('lock-already-settled');
@@ -141,7 +145,7 @@ export function handleEvidenceContinued(state: State, event: EvidenceContinuedEv
   const located = findLockSlot(state, event.slotId);
   if (located === null) {
     const returned = findReturnSlot(state, event.slotId);
-    if (returned === null) return reject('unknown-reference');
+    if (returned === null) return handleDoorEvidenceContinued(state, event.slotId) ?? reject('unknown-reference');
     if (!returned.slot.evidencePanelOpen) {
       return reject('no-evidence-open', { slotId: returned.slot.slotId });
     }

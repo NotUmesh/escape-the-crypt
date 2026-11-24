@@ -203,7 +203,7 @@ Ordering notes where the fixed phasing and the code dependencies meet:
     - **Validates: Requirements 24.5, 24.7, 24.8**
 
   - [x] 5.4 Write the reload-after-every-event sequence
-    - New file `runtime/runtime-reload.test.ts`. For a fixed 40-event run on a fixture manifest, for every prefix length 1 to 40: fold the prefix, serialise and parse, apply the remaining events, and assert deep-equality with the uninterrupted fold.
+    - New file `runtime/runtime-reload.test.ts`. For a fixed 2-room run of 26 events on a fixture manifest (room 1 with a hint, a challenge, a skip and a wrong answer; room 2 with due Returns; then FinalDoorEntered, the door slots and escape; every event accepted, no padding), for every prefix length 1 to 26 (derived from the log length): fold the prefix, serialise and parse, apply the remaining events, and assert deep-equality with the uninterrupted fold. The `escaped` notice appears exactly once.
     - _Requirements: 4.3, 4.4, 4.5_
 
   - [x] 5.5 Write property test for termination of room play
@@ -214,48 +214,48 @@ Ordering notes where the fixed phasing and the code dependencies meet:
   - [x] 5.6 Checkpoint - Ensure all tests pass
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks`, `pnpm lint` and `pnpm typecheck`. The model-based tests pass for all wrong, all challenged and reload. Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Multiple rooms, publishing, shortening, final door, leave and resume
-  - [ ] 6.1 Implement room progression and the waiting state
+- [x] 6. Multiple rooms, publishing, shortening, final door, leave and resume
+  - [x] 6.1 Implement room progression and the waiting state
     - Update `handlers-room.ts` and its test: `RoomEntered(k+1)` only when room k is Cleared and room k+1 published (`room-not-cleared`, `room-not-published`, `room-out-of-order`); status "waiting for next room" while the current room is Cleared, the next room is within the final count or the count is unknown, and the next room is unpublished. Published rooms never change.
     - _Requirements: 7.3, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [ ] 6.2 Implement crypt finalising and shortening
+  - [x] 6.2 Implement crypt finalising and shortening
     - Update `handlers-run.ts` and its test: `CryptFinalised` records the final room count; `CryptShortened` at or above the published count records it and leaves published rooms unchanged, below it returns `cannot-shorten-published`; the Final_Door becomes available when every room up to the count is Cleared.
     - _Requirements: 7.4, 7.5, 7.6, 7.7_
 
-  - [ ] 6.3 Implement the final door
+  - [x] 6.3 Implement the final door
     - `runtime/handlers-final-door.ts` with `handlers-final-door.test.ts`. `FinalDoorEntered` (`final-door-unavailable` otherwise) makes every outstanding ghost and deferred skip due and adds them as Final_Door Return slots; GHOST_DELAY is waived at the door, so a ghost spawned there is due at once and a wrong return 1 there spawns a due return 2. Reserved questions are exactly the manifest's 2 to 4; a wrong answer or a skip settles with no Return, no deferred return, no Review_Due_Flag and no change to the concept record; a correct answer lights one candle; a challenge follows Requirement 17. Final door slots accept answer, skip, challenge and hint like room slots. All slots solved or settled sets status Escaped and emits `escaped` once. Update `handlers-skip-challenge.ts` for reserved-question skips. State gets an `atFinalDoor` flag set by `FinalDoorEntered`. The slot guard in `apply.ts` switches from `finalDoor.available` to `atFinalDoor`, so Final_Door slots return `lock-not-in-room` until `FinalDoorEntered` is applied. Test: answering a reserved door question when the door is available but not entered is rejected with `lock-not-in-room` and State unchanged.
     - _Requirements: 16.7, 20.1, 20.2, 20.3, 20.4, 20.5, 20.6, 20.8, 20.9, 20.10, 30.6, 31.11_
 
-  - [ ] 6.4 Implement leave and resume
+  - [x] 6.4 Implement leave and resume
     - Update `handlers-run.ts` and its test, and change the "left" guard in `apply.ts` to exempt `RunLeft` as well as `RunResumed` (so a second `RunLeft` reaches the handler and returns `cannot-leave`): `RunLeft` changes only the status to "left" (`cannot-leave` when already left; before `RunStarted` it returns `run-not-started` from the existing guard, Req 2.5); `RunResumed` changes only the status back (`run-not-left` otherwise); nothing else in State changes between them; after Escaped every event, including these, returns `run-finished`; a left run reports as unfinished. The Autopsy is available only at Escaped (selector added in 7.3).
     - _Requirements: 3.4, 3.5, 21.1, 21.2, 21.3, 21.4, 21.5_
 
-  - [ ] 6.5 Write the multi-room named sequences
+  - [x] 6.5 Write the multi-room named sequences
     - In `runtime/runtime-sequences.test.ts`: (4) crypt shortened mid-run: `CryptShortened` after 2 of 5 rooms are published, remaining rooms publish and clear, the Final_Door opens after the new final count; (5) next room not yet published: room 1 Cleared, room 2 unpublished, State reports "waiting for next room", then `RoomPublished` and `RoomEntered` succeed. Also add escape assertions to the all wrong and all challenged sequences from 4.4 (escape with zero candles).
     - _Requirements: 7.5, 7.7, 8.6, 20.5_
 
-  - [ ] 6.6 Write property test for immutable published rooms
+  - [x] 6.6 Write property test for immutable published rooms
     - In `runtime/runtime-properties.test.ts`. Duplicate or late `RoomPublished` leaves a published room's locks, option order and hint effects unchanged.
     - **Property 7: Published rooms are immutable**
     - **Validates: Requirements 7.2, 7.3**
 
-  - [ ] 6.7 Write property test for room progression
+  - [x] 6.7 Write property test for room progression
     - In `runtime/runtime-properties.test.ts`. `RoomEntered(k+1)` is accepted only when room k is Cleared and room k+1 is published; a shortened crypt still reaches an available Final_Door.
     - **Property 11: Room progression and crypt shortening**
     - **Validates: Requirements 7.5, 7.7, 8.1, 8.2, 8.3, 8.4, 8.5**
 
-  - [ ] 6.8 Write property test for order fixed by the manifest
+  - [x] 6.8 Write property test for order fixed by the manifest
     - In `runtime/runtime-properties.test.ts`. After every event of any log, option order and bone order in State equal the manifest's.
     - **Property 12: Order fixed by the manifest**
     - **Validates: Requirements 6.1, 6.2, 6.3**
 
-  - [ ] 6.9 Extend the model harness to escape
+  - [x] 6.9 Extend the model harness to escape
     - In `runtime/runtime-model.test.ts`: add commands for room progression, publishing, shortening, final door, leave and resume; complete the escape part of the termination bound `(totalConcepts × 4) + reservedFinalDoorQuestionCount` for all four policies.
     - **Property 1: Termination** (escape)
     - **Validates: Requirements 20.5, 20.7, 20.8, 20.9**
 
-  - [ ] 6.10 Verify task 6
+  - [x] 6.10 Verify task 6
     - Run `pnpm --filter @escape-the-crypt/core exec vitest run src/runtime src/locks`, `pnpm lint` and `pnpm typecheck`. All pass.
     - _Requirements: 20.7, 21.1_
 

@@ -25,7 +25,10 @@ export function findReturnSlot(state: State, slotId: string): ReturnSlotLocation
 }
 
 /** The question a Return_Slot shows: the concept's primary or Alternate. */
-function findReturnQuestion(state: State, slot: ReturnSlotState): QuestionSpec | null {
+export function findReturnQuestion(
+  state: State,
+  slot: { readonly conceptId: string; readonly currentQuestionId: string },
+): QuestionSpec | null {
   for (const room of state.manifest.rooms) {
     for (const spec of room.lockSlots) {
       if (spec.conceptId !== slot.conceptId) continue;
@@ -36,9 +39,10 @@ function findReturnQuestion(state: State, slot: ReturnSlotState): QuestionSpec |
   return null;
 }
 
-function conceptAfterReturn(
+/** Record a judged Return on the concept (return 2 wrong makes a Lingering_Spirit, Req 14.5). */
+export function conceptAfterReturn(
   record: ConceptRecord,
-  slot: ReturnSlotState,
+  returnNumber: 1 | 2,
   result: 'correct' | 'wrong',
   assisted: boolean,
 ): ConceptRecord {
@@ -46,7 +50,7 @@ function conceptAfterReturn(
     ...record,
     hintUsedOnCorrectQuestion: record.hintUsedOnCorrectQuestion || (result === 'correct' && assisted),
   };
-  if (slot.returnNumber === 1) return { ...base, return1Result: result };
+  if (returnNumber === 1) return { ...base, return1Result: result };
   const lingering = result === 'wrong';
   return {
     ...base,
@@ -97,7 +101,7 @@ export function handleReturnAnswer(
       : r,
   );
   let concepts = state.concepts.map((c) =>
-    c.conceptId === slot.conceptId ? conceptAfterReturn(c, slot, result, hint !== null) : c,
+    c.conceptId === slot.conceptId ? conceptAfterReturn(c, slot.returnNumber, result, hint !== null) : c,
   );
 
   const notices: Outcome_Notice[] = [];

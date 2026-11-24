@@ -2,7 +2,7 @@ import { chooseReturnQuestion, partitionGhosts } from './ghost-queue';
 import type { LockSlotSpec } from './manifest-types';
 import { roomCleared } from './notices';
 import type { Outcome_Notice } from './notices';
-import type { ReturnSlotState, RoomState, SlotStatus, State } from './state-types';
+import type { FinalDoorSlotState, ReturnSlotState, RoomState, SlotStatus, State } from './state-types';
 
 function isDone(status: SlotStatus): boolean {
   return status !== 'open';
@@ -97,7 +97,33 @@ export function updateRoomCleared(state: State, roomId: string): ClearingResult 
     return { state, notices: [] };
   }
   const rooms = state.rooms.map((r, i) => (i === index ? { ...r, cleared: true } : r));
-  return { state: { ...state, rooms }, notices: [roomCleared(roomId)] };
+  return { state: refreshFinalDoor({ ...state, rooms }), notices: [roomCleared(roomId)] };
+}
+
+/**
+ * Make the Final_Door available once the final room count is known and every room up to
+ * that count is Cleared (Req 7.7). Once available it stays available.
+ */
+export function refreshFinalDoor(state: State): State {
+  const count = state.finalRoomCount;
+  if (state.finalDoor.available || count === null || count < 1) return state;
+  const upTo = state.rooms.slice(0, count);
+  if (upTo.length < count || !upTo.every((r) => r.cleared)) return state;
+  const reserved: FinalDoorSlotState[] = state.manifest.finalDoor.slots.map((spec) => ({
+    slotId: spec.slotId,
+    origin: 'reserved',
+    conceptId: spec.conceptId,
+    returnNumber: null,
+    currentQuestionId: spec.question.questionId,
+    currentQuestionType: spec.question.lockType,
+    label: null,
+    status: 'open',
+    candleLit: false,
+    appliedHint: null,
+    evidencePanelOpen: false,
+  }));
+  // The reserved slots exist from now on but are not in play until `FinalDoorEntered`.
+  return { ...state, finalDoor: { ...state.finalDoor, available: true, slots: reserved } };
 }
 
 /**

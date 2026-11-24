@@ -33,7 +33,7 @@ export interface TraceEntry {
 export interface Target {
   readonly slotId: string;
   readonly questionId: string;
-  readonly kind: 'lock' | 'return';
+  readonly kind: 'lock' | 'return' | 'door';
 }
 
 /** Apply one event. A rejection must leave State untouched (Property 5); returns the result. */
@@ -51,20 +51,32 @@ export function applyChecked(real: Real, event: Event): ReturnType<typeof apply>
   return result;
 }
 
-/** Slots in the current room, open or not. */
-export function roomTargets(state: State): Target[] {
+interface PlayableSlot {
+  readonly slotId: string;
+  readonly currentQuestionId: string;
+  readonly status: string;
+  readonly evidencePanelOpen: boolean;
+  readonly appliedHint: { readonly questionId: string } | null;
+}
+
+/** Slots in play: the Final_Door's once it is entered, otherwise the current room's. */
+function playable(state: State): { slot: PlayableSlot; kind: Target['kind'] }[] {
+  if (state.atFinalDoor) return state.finalDoor.slots.map((slot) => ({ slot, kind: 'door' as const }));
   const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
   if (room === undefined) return [];
   return [
-    ...room.lockSlots.map((s) => ({ slotId: s.slotId, questionId: s.currentQuestionId, kind: 'lock' as const })),
-    ...room.dueReturnSlots.map((s) => ({ slotId: s.slotId, questionId: s.currentQuestionId, kind: 'return' as const })),
+    ...room.lockSlots.map((slot) => ({ slot, kind: 'lock' as const })),
+    ...room.dueReturnSlots.map((slot) => ({ slot, kind: 'return' as const })),
   ];
 }
 
+/** Slots in play, open or not. */
+export function roomTargets(state: State): Target[] {
+  return playable(state).map(({ slot, kind }) => ({ slotId: slot.slotId, questionId: slot.currentQuestionId, kind }));
+}
+
 export function statusOf(state: State, slotId: string): string | null {
-  const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
-  const slot = [...(room?.lockSlots ?? []), ...(room?.dueReturnSlots ?? [])].find((s) => s.slotId === slotId);
-  return slot?.status ?? null;
+  return playable(state).find((p) => p.slot.slotId === slotId)?.slot.status ?? null;
 }
 
 export interface SlotView {
@@ -73,10 +85,9 @@ export interface SlotView {
   readonly hinted: boolean;
 }
 
-/** The current-room slot with this ID, as the few fields the commands read. */
+/** The slot in play with this ID, as the few fields the commands read. */
 export function viewSlot(state: State, slotId: string): SlotView | null {
-  const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
-  const slot = [...(room?.lockSlots ?? []), ...(room?.dueReturnSlots ?? [])].find((s) => s.slotId === slotId);
+  const slot = playable(state).find((p) => p.slot.slotId === slotId)?.slot;
   if (slot === undefined) return null;
   return {
     status: slot.status,
@@ -84,7 +95,6 @@ export function viewSlot(state: State, slotId: string): SlotView | null {
     hinted: slot.appliedHint !== null && slot.appliedHint.questionId === slot.currentQuestionId,
   };
 }
-
 /** Open slots of the current room. */
 export function openTargets(state: State): Target[] {
   return roomTargets(state).filter((t) => statusOf(state, t.slotId) === 'open');
@@ -102,6 +112,9 @@ export function questionFor(manifest: CryptManifest, questionId: string): Questi
       if (spec.alternateQuestion?.questionId === questionId) return spec.alternateQuestion;
     }
   }
+  for (const slot of manifest.finalDoor.slots) {
+    if (slot.question.questionId === questionId) return slot.question;
+  }
   throw new Error(`unknown question ${questionId}`);
 }
 
@@ -114,9 +127,11 @@ export function checkInvariants(model: Model, real: Real): void {
   const lockSlots = s.rooms.flatMap((r) => r.lockSlots);
   const returnSlots = s.rooms.flatMap((r) => r.dueReturnSlots);
   const spirit = s.rooms.reduce((n, r) => n + r.spiritCandles.length, 0);
-  expect(lockSlots.filter((x) => x.candleLit).length + spirit).toBe(s.candleCount);
+  const door = s.finalDoor.slots;
+  const doorLit = door.filter((x) => x.origin === 'reserved' && x.candleLit).length + s.finalDoor.spiritCandles.length;
+  expect(lockSlots.filter((x) => x.candleLit).length + spirit + doorLit).toBe(s.candleCount);
   // Property 14: the candle flag is true iff the slot is solved.
-  for (const slot of [...lockSlots, ...returnSlots]) expect(slot.candleLit).toBe(slot.status === 'solved');
+  for (const slot of [...lockSlots, ...returnSlots, ...door]) expect(slot.candleLit).toBe(slot.status === 'solved');
   // Property 3: one pending ghost per concept, return number at most 2.
   const concepts = s.ghosts.map((g) => g.conceptId);
   expect(new Set(concepts).size).toBe(concepts.length);

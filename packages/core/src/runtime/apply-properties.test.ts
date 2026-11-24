@@ -56,6 +56,8 @@ describe('Property 5: Invalid events are no-ops', () => {
     fc.assert(
       fc.property(eventArb, (event) => {
         const result = applyAndCheckNoOp(unstarted, event);
+        // Crypt count events are valid before the run starts (Req 2.5, 7.4).
+        if (event.kind === 'CryptFinalised' || event.kind === 'CryptShortened') return;
         expect(result.ok).toBe(false);
         if (result.ok) return;
         if (!BEFORE_START.includes(event.kind)) expect(result.error.kind).toBe('run-not-started');
@@ -68,14 +70,15 @@ describe('Property 5: Invalid events are no-ops', () => {
   it('generated events against started, left and escaped runs are typed rejections that leave State unchanged', () => {
     fc.assert(
       fc.property(eventArb, (event) => {
+        const crypt = event.kind === 'CryptFinalised' || event.kind === 'CryptShortened';
         const inProgress = applyAndCheckNoOp(started, event);
-        expect(inProgress.ok).toBe(false);
+        if (!crypt && event.kind !== 'RunLeft') expect(inProgress.ok).toBe(false);
         if (!inProgress.ok && event.kind === 'RunStarted') {
           expect(['manifest-mismatch', 'run-already-started']).toContain(inProgress.error.kind);
         }
         const whileLeft = applyAndCheckNoOp(left, event);
-        expect(whileLeft.ok).toBe(false);
-        const learner = !['RunStarted', 'RoomPublished', 'CryptFinalised', 'CryptShortened', 'RunResumed'].includes(event.kind);
+        if (!crypt && event.kind !== 'RunResumed') expect(whileLeft.ok).toBe(false);
+        const learner = !['RunStarted', 'RoomPublished', 'CryptFinalised', 'CryptShortened', 'RunLeft', 'RunResumed'].includes(event.kind);
         if (!whileLeft.ok && learner) expect(whileLeft.error.kind).toBe('run-left');
         expect(applyAndCheckNoOp(escaped, event)).toEqual({ ok: false, error: { kind: 'run-finished' } });
       }),
@@ -88,7 +91,7 @@ describe('Property 5: Invalid events are no-ops', () => {
     const invalidByKind: Record<Event['kind'], Event> = {
       RunStarted: { kind: 'RunStarted', manifestId: 'other-manifest' },
       RoomPublished: { kind: 'RoomPublished', roomId: 'no-such-room' },
-      CryptFinalised: { kind: 'CryptFinalised', finalRoomCount: 2 },
+      CryptFinalised: { kind: 'CryptFinalised', finalRoomCount: -1 },
       CryptShortened: { kind: 'CryptShortened', finalRoomCount: 1 },
       RoomEntered: { kind: 'RoomEntered', roomId: 'no-such-room' },
       LockOpened: { kind: 'LockOpened', slotId: 'no-such-slot' },
@@ -101,21 +104,18 @@ describe('Property 5: Invalid events are no-ops', () => {
       RunLeft: { kind: 'RunLeft' },
       RunResumed: { kind: 'RunResumed' },
     };
-    // Kinds whose handlers arrive in tasks 6.x are refused, never half-applied.
-    const notYetHandled: Event['kind'][] = [
-      'CryptFinalised',
-      'CryptShortened',
-      'FinalDoorEntered',
-      'RunLeft',
-      'RunResumed',
-    ];
+    const bothPublished = (state: State): State => ({
+      ...state,
+      rooms: state.rooms.map((r) => ({ ...r, published: true })),
+    });
     for (const event of Object.values(invalidByKind)) {
-      const result = applyAndCheckNoOp(started, event);
+      // Shortening below the published count needs published rooms to be invalid.
+      const pick = (state: State): State => (event.kind === 'CryptShortened' ? bothPublished(state) : state);
+      // RunLeft is invalid only when the run is already left.
+      const base = event.kind === 'RunLeft' ? left : started;
+      const result = applyAndCheckNoOp(pick(base), event);
       expect(result.ok).toBe(false);
-      if (!result.ok && notYetHandled.includes(event.kind)) {
-        expect(result.error.kind).toBe('malformed-event');
-      }
-      expect(applyAndCheckNoOp(unstarted, event).ok).toBe(false);
+      expect(applyAndCheckNoOp(pick(unstarted), event).ok).toBe(false);
     }
   });
 

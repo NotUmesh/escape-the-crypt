@@ -60,6 +60,7 @@ export function initial(manifest: CryptManifest, settings: RunSettings): State {
     currentRoomId: null,
     finalRoomCount: null,
     finalDoor: { available: false, slots: [], spiritCandles: [] },
+    atFinalDoor: false,
     ghosts: [],
     concepts: conceptIds.map(conceptRecord),
     focusedSlotId: null,

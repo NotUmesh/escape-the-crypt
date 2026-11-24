@@ -3,6 +3,7 @@ import { buildManifest } from '../test-support/manifest-fixture';
 import { SETTINGS } from '../test-support/run-settings';
 import { apply } from './apply';
 import { initial } from './initial';
+import { selectWaitingForNextRoom } from './selectors';
 import type { State } from './state-types';
 
 const manifest = buildManifest({ rooms: 2, conceptsPerRoom: 2 });
@@ -51,6 +52,70 @@ describe('RoomEntered', () => {
   });
 });
 
+function withCleared(state: State, index: number): State {
+  return { ...state, rooms: state.rooms.map((r, i) => (i === index ? { ...r, cleared: true } : r)) };
+}
+
+describe('RoomEntered progression', () => {
+  const cleared = withCleared(entered, 0);
+  const both = run(cleared, { kind: 'RoomPublished', roomId: room2.roomId });
+
+  it('rejects room 2 while room 1 is not cleared', () => {
+    const open = run(entered, { kind: 'RoomPublished', roomId: room2.roomId });
+    expect(apply(open, { kind: 'RoomEntered', roomId: room2.roomId })).toEqual({
+      ok: false,
+      error: { kind: 'room-not-cleared' },
+    });
+  });
+
+  it('rejects room 2 when cleared but unpublished', () => {
+    expect(apply(cleared, { kind: 'RoomEntered', roomId: room2.roomId })).toEqual({
+      ok: false,
+      error: { kind: 'room-not-published' },
+    });
+  });
+
+  it('enters room 2 when room 1 is cleared and room 2 published', () => {
+    const result = apply(both, { kind: 'RoomEntered', roomId: room2.roomId });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.state.currentRoomId).toBe(room2.roomId);
+  });
+
+  it('rejects skipping, repeating and entering before room 1', () => {
+    const m3 = buildManifest({ rooms: 3, conceptsPerRoom: 1 });
+    const r = m3.rooms.map((x) => x.roomId);
+    let s = run(initial(m3, SETTINGS), { kind: 'RunStarted', manifestId: m3.manifestId });
+    for (const id of r) s = run(s, { kind: 'RoomPublished', roomId: id });
+    expect(apply(s, { kind: 'RoomEntered', roomId: r[1] ?? '' })).toEqual({ ok: false, error: { kind: 'room-out-of-order' } });
+    s = withCleared(run(s, { kind: 'RoomEntered', roomId: r[0] ?? '' }), 0);
+    expect(apply(s, { kind: 'RoomEntered', roomId: r[2] ?? '' })).toEqual({ ok: false, error: { kind: 'room-out-of-order' } });
+    expect(apply(s, { kind: 'RoomEntered', roomId: r[0] ?? '' })).toEqual({ ok: false, error: { kind: 'room-out-of-order' } });
+  });
+});
+
+describe('waiting for next room', () => {
+  const cleared = withCleared(entered, 0);
+
+  it('is waiting when room 1 is cleared, room 2 unpublished and the count unknown', () => {
+    expect(selectWaitingForNextRoom(cleared)).toBe(true);
+  });
+
+  it('is not waiting while the room is not cleared, or once the next room is published', () => {
+    expect(selectWaitingForNextRoom(entered)).toBe(false);
+    expect(selectWaitingForNextRoom(run(cleared, { kind: 'RoomPublished', roomId: room2.roomId }))).toBe(false);
+  });
+
+  it('is not waiting when room 1 is the final room', () => {
+    expect(selectWaitingForNextRoom({ ...cleared, finalRoomCount: 1 })).toBe(false);
+    expect(selectWaitingForNextRoom({ ...cleared, finalRoomCount: 2 })).toBe(true);
+  });
+
+  it('keeps a published room unchanged when it is published again', () => {
+    const again = apply(cleared, { kind: 'RoomPublished', roomId: room1.roomId });
+    expect(again.ok && again.state.rooms[0]).toEqual(cleared.rooms[0]);
+  });
+});
+
 describe('LockOpened', () => {
   it('records the focused lock for a slot in the current room', () => {
     const result = apply(entered, { kind: 'LockOpened', slotId: slot1 });
@@ -89,3 +154,4 @@ describe('LockOpened', () => {
     expect(JSON.stringify(settled)).toBe(before);
   });
 });
+

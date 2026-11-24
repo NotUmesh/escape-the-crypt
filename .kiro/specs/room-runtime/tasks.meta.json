@@ -43,6 +43,22 @@
     "5.5 Write property test for termination of room play": {
       "status": "passed",
       "lastRunTimestamp": 1795536698963
+    },
+    "6.6 Write property test for immutable published rooms": {
+      "status": "passed",
+      "lastRunTimestamp": 1795539023760
+    },
+    "6.9 Extend the model harness to escape": {
+      "status": "passed",
+      "lastRunTimestamp": 1795539333666
+    },
+    "6.8 Write property test for order fixed by the manifest": {
+      "status": "passed",
+      "lastRunTimestamp": 1795539416026
+    },
+    "6.7 Write property test for room progression": {
+      "status": "passed",
+      "lastRunTimestamp": 1795539439962
     }
   },
   "executionHistory": {
@@ -533,6 +549,16 @@
         "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
         "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
         "timestamp": 1795536640507
+      },
+      {
+        "executionId": "35ffd423-cc88-4253-8c5e-1564c813cbb8",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539871343
+      },
+      {
+        "executionId": "35ffd423-cc88-4253-8c5e-1564c813cbb8",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795540061106
       }
     ],
     "5.5 Write property test for termination of room play": [
@@ -564,6 +590,133 @@
         "executionId": "fbd4e3e5-9d56-49bf-a6cb-cab73ce0bcd2",
         "chatSessionId": "sess_acb894fe-e364-41c9-9ffc-ed136aa84f98",
         "timestamp": 1795536749845
+      }
+    ],
+    "6.1 Implement room progression and the waiting state": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795537995510
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538142450
+      }
+    ],
+    "6.2 Implement crypt finalising and shortening": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538142803
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538324145
+      }
+    ],
+    "6.3 Implement the final door": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538323375
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538835884
+      }
+    ],
+    "6.4 Implement leave and resume": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538835030
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538970721
+      }
+    ],
+    "6.5 Write the multi-room named sequences": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538969619
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539346479
+      }
+    ],
+    "6.6 Write property test for immutable published rooms": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538975058
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539346579
+      }
+    ],
+    "6.9 Extend the model harness to escape": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795538975140
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539346925
+      }
+    ],
+    "6.7 Write property test for room progression": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539347481
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539471733
+      }
+    ],
+    "6.8 Write property test for order fixed by the manifest": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539348064
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539472901
+      }
+    ],
+    "6.10 Verify task 6": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539473050
+      },
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539515301
+      }
+    ],
+    "6. Multiple rooms, publishing, shortening, final door, leave and resume": [
+      {
+        "executionId": "97e01c7f-e44f-4f4f-a96d-a004966a6380",
+        "chatSessionId": "sess_0e16f0b3-c5b5-4bcb-b799-85e9c5ffd291",
+        "timestamp": 1795539515384
       }
     ]
   }

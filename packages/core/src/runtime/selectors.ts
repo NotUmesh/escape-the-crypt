@@ -136,6 +136,20 @@ export function selectIsCleared(state: State, roomId: string): boolean {
   return state.rooms.find((room) => room.roomId === roomId)?.cleared ?? false;
 }
 
+/**
+ * "Waiting for next room" (Req 8.6): the current room is Cleared, the next room is within
+ * the final count (or the count is unknown) and the next room is not published.
+ */
+export function selectWaitingForNextRoom(state: State): boolean {
+  if (state.status !== 'in progress' || state.currentRoomId === null) return false;
+  const currentIndex = state.rooms.findIndex((room) => room.roomId === state.currentRoomId);
+  const current = state.rooms[currentIndex];
+  if (current === undefined || !current.cleared) return false;
+  const next = state.rooms[currentIndex + 1];
+  if (next === undefined || next.published) return false;
+  return state.finalRoomCount === null || currentIndex + 2 <= state.finalRoomCount;
+}
+
 export function selectFinalDoor(state: State): FinalDoorView {
   return {
     available: state.finalDoor.available,

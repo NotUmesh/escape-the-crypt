@@ -42,6 +42,9 @@ export interface ReturnSlotState {
 export interface FinalDoorSlotState {
   readonly slotId: string;
   readonly origin: 'reserved' | 'return';
+  readonly conceptId: string;
+  /** Null for origin 'reserved'. */
+  readonly returnNumber: 1 | 2 | null;
   readonly currentQuestionId: string;
   readonly currentQuestionType: LockType;
   /** Always null for origin 'reserved'. */
@@ -121,6 +124,8 @@ export interface State {
   readonly currentRoomId: string | null;
   readonly finalRoomCount: number | null;
   readonly finalDoor: FinalDoorState;
+  /** True once `FinalDoorEntered` is applied. Final_Door slots are in play only then. */
+  readonly atFinalDoor: boolean;
   readonly ghosts: readonly GhostState[];
   readonly concepts: readonly ConceptRecord[];
   readonly focusedSlotId: string | null;

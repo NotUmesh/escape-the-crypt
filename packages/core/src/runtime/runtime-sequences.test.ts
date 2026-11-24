@@ -1,64 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import type { Event } from '../types';
 import { buildManifest } from '../test-support/manifest-fixture';
 import { submissionFor } from '../test-support/question-answers';
-import { SETTINGS } from '../test-support/run-settings';
+import {
+  clearRoomCorrectly,
+  passDoor,
+  questionMap,
+  shownQuestionId,
+  startRun as start,
+  step,
+} from '../test-support/sequence-support';
+import type { Step } from '../test-support/sequence-support';
 import { apply } from './apply';
-import { initial } from './initial';
-import type { CryptManifest, QuestionSpec } from './manifest-types';
-import type { Outcome_Notice } from './notices';
+import type { CryptManifest } from './manifest-types';
+import { selectWaitingForNextRoom } from './selectors';
 import type { ConceptRecord, ReturnSlotState, State } from './state-types';
-
-interface Step {
-  readonly state: State;
-  readonly notices: readonly Outcome_Notice[];
-}
-
-function start(manifest: CryptManifest): State {
-  const room = manifest.rooms[0];
-  if (!room) throw new Error('fixture');
-  let state = initial(manifest, SETTINGS);
-  const events: Event[] = [
-    { kind: 'RunStarted', manifestId: manifest.manifestId },
-    { kind: 'RoomPublished', roomId: room.roomId },
-    { kind: 'RoomEntered', roomId: room.roomId },
-  ];
-  for (const event of events) {
-    const r = apply(state, event);
-    if (!r.ok) throw new Error(`setup rejected: ${r.error.kind}`);
-    state = r.state;
-  }
-  return state;
-}
-
-function questionMap(manifest: CryptManifest): Map<string, QuestionSpec> {
-  const map = new Map<string, QuestionSpec>();
-  for (const spec of manifest.rooms.flatMap((r) => r.lockSlots)) {
-    map.set(spec.primaryQuestion.questionId, spec.primaryQuestion);
-    if (spec.alternateQuestion) map.set(spec.alternateQuestion.questionId, spec.alternateQuestion);
-  }
-  return map;
-}
 
 /** Drives one fixed manifest; every call applies one event and fails the test on a rejection. */
 function driver(manifest: CryptManifest) {
   const questions = questionMap(manifest);
   const room = (s: State) => s.rooms[0];
-  const shownId = (s: State, slotId: string): string => {
-    const r = room(s);
-    const id =
-      r?.lockSlots.find((x) => x.slotId === slotId)?.currentQuestionId ??
-      r?.dueReturnSlots.find((x) => x.slotId === slotId)?.currentQuestionId;
-    if (id === undefined) throw new Error(`no slot ${slotId}`);
-    return id;
-  };
-  const run = (state: State, event: Event): Step => {
-    const r = apply(state, event);
-    if (!r.ok) throw new Error(`rejected ${event.kind}: ${r.error.kind}`);
-    return { state: r.state, notices: r.notices };
-  };
+  const run = step;
   const answer = (state: State, slotId: string, correct: boolean): Step => {
-    const q = questions.get(shownId(state, slotId));
+    const q = questions.get(shownQuestionId(state, slotId));
     if (!q) throw new Error('question');
     return run(state, { kind: 'AnswerSubmitted', slotId, submission: submissionFor(q, correct) });
   };
@@ -153,6 +116,14 @@ describe('named sequence: all wrong', () => {
     expect(drained.rooms[0]?.spiritCandles).toEqual([]);
     expect(drained.rooms[0]?.dueReturnSlots.every((s) => !s.candleLit)).toBe(true);
     expect(drained.rooms[0]?.cleared).toBe(true);
+
+    // Escape is always possible: the Final_Door opens and answering it all wrong still escapes.
+    const finalised = step(drained, { kind: 'CryptFinalised', finalRoomCount: 1 }).state;
+    expect(finalised.finalDoor.available).toBe(true);
+    const door = passDoor(manifest, finalised, 'wrong');
+    expect(door.state.status).toBe('escaped');
+    expect(door.notices.map((n) => n.kind)).toContain('escaped');
+    expect(door.state.candleCount).toBe(0);
   });
 });
 
@@ -190,6 +161,72 @@ describe('named sequence: all challenged with alternates', () => {
         reviewDueFlag: false,
       });
     }
+
+    // Escape with zero candles: every reserved door question is challenged.
+    const finalised = step(state, { kind: 'CryptFinalised', finalRoomCount: 1 }).state;
+    const door = passDoor(manifest, finalised, 'challenge');
+    expect(door.state.status).toBe('escaped');
+    expect(door.notices.map((n) => n.kind)).toContain('escaped');
+    expect(door.state.candleCount).toBe(0);
+  });
+});
+
+describe('named sequence: crypt shortened mid-run', () => {
+  const manifest = buildManifest({ rooms: 5, conceptsPerRoom: 2 });
+  const [r1, r2, r3, r4, r5] = manifest.rooms;
+  if (!r1 || !r2 || !r3 || !r4 || !r5) throw new Error('fixture');
+
+  it('opens the Final_Door after the new final count and leaves later rooms unpublished', () => {
+    let state = start(manifest);
+    state = clearRoomCorrectly(manifest, state, 0);
+    state = step(state, { kind: 'RoomPublished', roomId: r2.roomId }).state;
+    expect(state.rooms.filter((r) => r.published)).toHaveLength(2);
+
+    // Below the published count is refused; at the published count it is accepted.
+    expect(apply(state, { kind: 'CryptShortened', finalRoomCount: 1 })).toEqual({
+      ok: false,
+      error: { kind: 'cannot-shorten-published' },
+    });
+    state = step(state, { kind: 'CryptShortened', finalRoomCount: 3 }).state;
+    expect(state.finalRoomCount).toBe(3);
+    expect(state.finalDoor.available).toBe(false);
+
+    state = step(state, { kind: 'RoomEntered', roomId: r2.roomId }).state;
+    state = clearRoomCorrectly(manifest, state, 1);
+    expect(state.finalDoor.available).toBe(false);
+    state = step(state, { kind: 'RoomPublished', roomId: r3.roomId }).state;
+    state = step(state, { kind: 'RoomEntered', roomId: r3.roomId }).state;
+    state = clearRoomCorrectly(manifest, state, 2);
+
+    expect(state.rooms.map((r) => r.cleared)).toEqual([true, true, true, false, false]);
+    expect(state.rooms.map((r) => r.published)).toEqual([true, true, true, false, false]);
+    expect(state.finalDoor.available).toBe(true);
+
+    const door = passDoor(manifest, state, 'correct');
+    expect(door.state.status).toBe('escaped');
+    expect(door.state.candleCount).toBe(6 + manifest.finalDoor.slots.length);
+  });
+});
+
+describe('named sequence: next room not yet published', () => {
+  const manifest = buildManifest({ rooms: 2, conceptsPerRoom: 2 });
+  const room2 = manifest.rooms[1];
+  if (!room2) throw new Error('fixture');
+
+  it('waits after room 1 is Cleared, then accepts the publish and the entry', () => {
+    let state = clearRoomCorrectly(manifest, start(manifest), 0);
+    expect(state.rooms[0]?.cleared).toBe(true);
+    expect(state.rooms[1]?.published).toBe(false);
+    expect(selectWaitingForNextRoom(state)).toBe(true);
+    expect(apply(state, { kind: 'RoomEntered', roomId: room2.roomId })).toEqual({
+      ok: false,
+      error: { kind: 'room-not-published' },
+    });
+
+    state = step(state, { kind: 'RoomPublished', roomId: room2.roomId }).state;
+    expect(selectWaitingForNextRoom(state)).toBe(false);
+    state = step(state, { kind: 'RoomEntered', roomId: room2.roomId }).state;
+    expect(state.currentRoomId).toBe(room2.roomId);
   });
 });
 

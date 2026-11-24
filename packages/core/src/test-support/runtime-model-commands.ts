@@ -15,15 +15,21 @@ import type { Model, Real, Target } from './runtime-model-support';
 
 export type RuntimeCommand = fc.Command<Model, Real>;
 
-function command(
+/**
+ * Wrap a command with the invariant check. Unless `anyStatus` is set, the command does nothing
+ * while the run is left or escaped (those states have their own commands).
+ */
+export function command(
   name: string,
   check: (m: Readonly<Model>) => boolean,
   run: (m: Model, r: Real) => void,
+  anyStatus = false,
 ): RuntimeCommand {
   return {
     check,
     run: (m, r) => {
-      run(m, r);
+      const idle = r.state.status === 'left' || r.state.status === 'escaped';
+      if (anyStatus || !idle) run(m, r);
       checkInvariants(m, r);
     },
     toString: () => name,
@@ -33,12 +39,12 @@ function command(
 const always = (): boolean => true;
 const inPlay = (m: Readonly<Model>): boolean => m.entered;
 
-function pickOf(list: readonly Target[], pick: number): Target | null {
+export function pickOf(list: readonly Target[], pick: number): Target | null {
   return list.length === 0 ? null : (list[pick % list.length] ?? null);
 }
 
 /** Expect a rejection of `kind` with State unchanged (applyChecked asserts the no-op). */
-function expectRejected(real: Real, event: Event, kind: string): void {
+export function expectRejected(real: Real, event: Event, kind: string): void {
   const result = applyChecked(real, event);
   expect(result.ok).toBe(false);
   if (!result.ok) expect(result.error.kind).toBe(kind);
@@ -159,8 +165,9 @@ export const answerBeforeStart = (): RuntimeCommand =>
 
 export const runStartedAgain = (): RuntimeCommand =>
   command('RunStarted again', (m) => m.started, (_m, r) => {
-    expectRejected(r, { kind: 'RunStarted', manifestId: r.state.manifestId }, 'run-already-started');
-  });
+    const kind = r.state.status === 'escaped' ? 'run-finished' : 'run-already-started';
+    expectRejected(r, { kind: 'RunStarted', manifestId: r.state.manifestId }, kind);
+  }, true);
 
 export const staleSlot = (): RuntimeCommand =>
   command('stale slot id', inPlay, (_m, r) => {

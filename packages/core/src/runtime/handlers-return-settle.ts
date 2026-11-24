@@ -74,7 +74,7 @@ export function skipReturnSlot(state: State, located: ReturnSlotLocation): Apply
  * result of null means the concept's first question was skipped, since a Return exists only
  * after a wrong answer or a skip.
  */
-function hasEarlierWrongOrSkip(record: ConceptRecord, returnNumber: 1 | 2): boolean {
+export function hasEarlierWrongOrSkip(record: ConceptRecord, returnNumber: 1 | 2): boolean {
   return (
     record.firstQuestionResult === null ||
     record.firstQuestionResult === 'wrong' ||
