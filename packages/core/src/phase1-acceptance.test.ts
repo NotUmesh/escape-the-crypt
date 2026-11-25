@@ -213,7 +213,7 @@ describe('sample crypt (Req 9.7, 9.9)', () => {
 
   it('builds, and passes the manifest schema and manifestCheck', () => {
     if (!manifest.ok) throw new Error(`sample crypt build failed: ${JSON.stringify(manifest.error)}`);
-    expect(parseManifest(JSON.parse(JSON.stringify(manifest.value))).ok).toBe(true);
-    expect(manifestCheck(manifest.value)).toEqual({ ok: true });
+    expect(parseManifest(JSON.parse(JSON.stringify(manifest.value.manifest))).ok).toBe(true);
+    expect(manifestCheck(manifest.value.manifest)).toEqual({ ok: true });
   });
 });

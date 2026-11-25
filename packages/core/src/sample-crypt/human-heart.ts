@@ -1,17 +1,17 @@
 import { parseAuthoringQuestion } from '../authoring/parse';
 import type { AuthoringQuestion } from '../authoring/schema';
 import { buildDocumentChunkMaps, mapAuthoringQuestionToSpec } from '../mapper/manifest-mapper';
-import type { DocumentChunkMaps, MapperError } from '../mapper/manifest-mapper';
+import type { DocumentChunkMaps, MapperError, MappedQuestion } from '../mapper/manifest-mapper';
+import type { CryptContent } from '../mapper/crypt-content';
 import type { InvalidManifestError } from '../runtime/manifest-check';
 import type { ManifestSchemaError } from '../runtime/manifest-schema';
 import type {
   CryptManifest,
   FinalDoorSlotSpec,
   LockSlotSpec,
-  QuestionSpec,
 } from '../runtime/manifest-types';
 import { validateManifestForPublish } from '../runtime/publish-manifest';
-import type { LockType, Result } from '../types';
+import type { Chunk, LockType, Result } from '../types';
 
 /**
  * Shape of `samples/questions/human-heart.json`. Questions stay `unknown` here because the
@@ -28,6 +28,13 @@ export interface HumanHeartQuestionsFile {
 export type SampleQuestionError =
   | { readonly kind: 'sample-question-missing'; readonly questionId: string }
   | { readonly kind: 'sample-question-invalid'; readonly questionId: string; readonly path: string };
+
+/** The sample crypt: manifest, learner-facing content and the document chunks it cites. */
+export interface SampleCryptResult {
+  readonly manifest: CryptManifest;
+  readonly content: CryptContent;
+  readonly chunks: ReadonlyMap<string, Chunk>;
+}
 
 export type SampleCryptError =
   | MapperError
@@ -68,17 +75,28 @@ const FINAL_DOOR_SELECTION: readonly FinalDoorSelection[] = [
   { slotId: 'hh-final-3', conceptId: 'hh-c07', questionId: 'hh-q12' },
 ];
 
+// Plain-text concept titles for the sample. The questions file carries none.
+export const SAMPLE_CONCEPT_TITLES: Readonly<Record<string, string>> = {
+  'hh-c01': 'The atrioventricular valves',
+  'hh-c02': 'What each chamber does',
+  'hh-c03': 'The path of blood through the right side',
+  'hh-c04': 'Blood vessels and their jobs',
+  'hh-c05': 'The four chambers',
+  'hh-c06': 'Resting heart rate',
+  'hh-c07': "The heart's natural pacemaker",
+};
+
 function findQuestion(file: HumanHeartQuestionsFile, questionId: string): unknown {
   return file.questions.find(
     (q) => typeof q === 'object' && q !== null && (q as { id?: unknown }).id === questionId,
   );
 }
 
-function loadQuestion(
+function loadMappedQuestion(
   file: HumanHeartQuestionsFile,
   maps: DocumentChunkMaps,
   questionId: string,
-): Result<QuestionSpec, SampleCryptError> {
+): Result<MappedQuestion, SampleCryptError> {
   const raw = findQuestion(file, questionId);
   if (raw === undefined) return { ok: false, error: { kind: 'sample-question-missing', questionId } };
   const parsed = parseAuthoringQuestion(raw);
@@ -87,13 +105,18 @@ function loadQuestion(
   }
   const question: AuthoringQuestion = parsed.value;
   // The authoring id is unique within this file, so it is the manifest question ID.
-  return mapAuthoringQuestionToSpec(question, maps, questionId);
+  return mapAuthoringQuestionToSpec(question, maps, questionId, SAMPLE_CONCEPT_TITLES[question.conceptId]);
+}
+
+function record(content: CryptContent, questionId: string, mapped: MappedQuestion): void {
+  content.questions[questionId] = mapped.content;
+  content.concepts[mapped.concept.conceptId] = { title: mapped.concept.title };
 }
 
 /**
  * Builds the Gate 1 sample crypt from `samples/human-heart.txt` and its questions file.
  * Pure: the caller reads the files. Any failure is a typed error naming the question (or the
- * manifest check that failed); no partial manifest is ever returned.
+ * manifest check that failed); no partial result is ever returned.
  *
  * Ghosts: the room has 2 locks and `GHOST_DELAY` is 3, so a missed concept cannot return inside
  * the room. Ghosts return only at the final door. This is expected runtime behaviour.
@@ -101,29 +124,33 @@ function loadQuestion(
 export function buildHumanHeartSampleCrypt(
   notesText: string,
   questionsJson: HumanHeartQuestionsFile,
-): Result<CryptManifest, SampleCryptError> {
+): Result<SampleCryptResult, SampleCryptError> {
   const maps = buildDocumentChunkMaps(notesText);
+  const content: CryptContent = { questions: {}, concepts: {} };
 
   const lockSlots: LockSlotSpec[] = [];
   for (const sel of ROOM_SELECTION) {
-    const primary = loadQuestion(questionsJson, maps, sel.primaryId);
+    const primary = loadMappedQuestion(questionsJson, maps, sel.primaryId);
     if (!primary.ok) return primary;
-    const alternate = loadQuestion(questionsJson, maps, sel.alternateId);
+    const alternate = loadMappedQuestion(questionsJson, maps, sel.alternateId);
     if (!alternate.ok) return alternate;
     lockSlots.push({
       slotId: sel.slotId,
       stationType: sel.stationType,
       conceptId: sel.conceptId,
-      primaryQuestion: primary.value,
-      alternateQuestion: alternate.value,
+      primaryQuestion: primary.value.spec,
+      alternateQuestion: alternate.value.spec,
     });
+    record(content, sel.primaryId, primary.value);
+    record(content, sel.alternateId, alternate.value);
   }
 
   const slots: FinalDoorSlotSpec[] = [];
   for (const sel of FINAL_DOOR_SELECTION) {
-    const question = loadQuestion(questionsJson, maps, sel.questionId);
-    if (!question.ok) return question;
-    slots.push({ slotId: sel.slotId, conceptId: sel.conceptId, question: question.value });
+    const mapped = loadMappedQuestion(questionsJson, maps, sel.questionId);
+    if (!mapped.ok) return mapped;
+    slots.push({ slotId: sel.slotId, conceptId: sel.conceptId, question: mapped.value.spec });
+    record(content, sel.questionId, mapped.value);
   }
 
   const manifest: CryptManifest = {
@@ -131,5 +158,18 @@ export function buildHumanHeartSampleCrypt(
     rooms: [{ roomId: ROOM_ID, lockSlots }],
     finalDoor: { slots },
   };
-  return validateManifestForPublish(manifest);
+
+  const owners: readonly { conceptId: string; questionId: string }[] = [
+    ...lockSlots.map((s) => ({ conceptId: s.conceptId, questionId: s.primaryQuestion.questionId })),
+    ...slots.map((s) => ({ conceptId: s.conceptId, questionId: s.question.questionId })),
+  ];
+  for (const o of owners) {
+    if (content.concepts[o.conceptId] === undefined) {
+      return { ok: false, error: { kind: 'concept-label-missing', questionId: o.questionId, conceptId: o.conceptId } };
+    }
+  }
+
+  const published = validateManifestForPublish(manifest);
+  if (!published.ok) return published;
+  return { ok: true, value: { manifest: published.value, content, chunks: maps.chunks } };
 }

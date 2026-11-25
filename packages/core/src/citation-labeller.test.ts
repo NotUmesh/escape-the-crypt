@@ -49,3 +49,56 @@ describe('Property 19: Citation labels follow the chunk metadata', () => {
     );
   });
 });
+
+describe('citationLabel source variants', () => {
+  const paste = chunk({ sourceType: 'paste', paragraphNumber: 3 }, false);
+  const pdf = chunk({ sourceType: 'pdf', pdfPageIndex: 4, printedPageLabel: null }, false);
+  const pdfPrinted = chunk({ sourceType: 'pdf', pdfPageIndex: 4, printedPageLabel: 'iv' }, false);
+  const editedPdf = chunk({ sourceType: 'pdf', pdfPageIndex: 4, printedPageLabel: null }, true);
+
+  it('sample paste uses the sample wording', () => {
+    expect(citationLabel(paste, 'sample')).toBe('Paragraph 3 of the sample notes');
+  });
+
+  it('notes and default paste keep "of your notes"', () => {
+    expect(citationLabel(paste, 'notes')).toBe('Paragraph 3 of your notes');
+    expect(citationLabel(paste)).toBe('Paragraph 3 of your notes');
+  });
+
+  it('PDF and edited-PDF labels are the same for sample and notes', () => {
+    for (const c of [pdf, pdfPrinted, editedPdf]) {
+      expect(citationLabel(c, 'sample')).toBe(citationLabel(c, 'notes'));
+      expect(citationLabel(c, 'notes')).toBe(citationLabel(c));
+    }
+    expect(citationLabel(pdfPrinted, 'sample')).toBe('PDF page 5 (printed page iv)');
+    expect(citationLabel(editedPdf, 'sample')).toBe(
+      'Your edited notes, originally extracted from PDF page 5',
+    );
+  });
+});
+
+describe('Property 8: citationLabel source variants', () => {
+  const location = fc.oneof(
+    fc.integer({ min: 1, max: 5000 }).map((n): SourceLocation => ({ sourceType: 'paste', paragraphNumber: n })),
+    fc
+      .tuple(fc.nat(5000), printedLabel)
+      .map(([i, l]): SourceLocation => ({ sourceType: 'pdf', pdfPageIndex: i, printedPageLabel: l })),
+  );
+
+  /** **Validates: Requirements 3.8, 3.9, 3.10, 3.11, 3.12, 25.12** */
+  it('notes/default output is unchanged; sample changes only paste wording', () => {
+    fc.assert(
+      fc.property(location, fc.boolean(), (loc, edited) => {
+        const c = chunk(loc, edited);
+        expect(citationLabel(c, 'notes')).toBe(citationLabel(c));
+        const sample = citationLabel(c, 'sample');
+        expect(sample.endsWith('of your notes')).toBe(false);
+        if (loc.sourceType === 'paste') {
+          expect(sample).toBe(`Paragraph ${loc.paragraphNumber} of the sample notes`);
+        } else {
+          expect(sample).toBe(citationLabel(c));
+        }
+      }),
+    );
+  });
+});

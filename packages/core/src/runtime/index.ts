@@ -20,6 +20,7 @@ export type {
   FinalDoorView,
 } from './selectors';
 export type { AutopsyView, AutopsyEntry, AutopsyCounts } from './selectors';
+export type { LockSlotState, ReturnSlotState, FinalDoorSlotState } from './state-types';
 export type { ApplyResult } from './result';
 export { manifestCheck } from './manifest-check';
 export type { ManifestCheckResult, InvalidManifestError } from './manifest-check';

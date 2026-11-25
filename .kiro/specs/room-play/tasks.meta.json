@@ -1,0 +1,129 @@
+{
+  "pbtResults": {
+    "1.2 Add `cryptContentArb` and write the round-trip property test": {
+      "status": "passed",
+      "lastRunTimestamp": 1795624694273
+    },
+    "1.5 Write the mapper completeness property test": {
+      "status": "passed",
+      "lastRunTimestamp": 1795625608946
+    }
+  },
+  "executionHistory": {
+    "1.1 Add the Crypt_Content type and Zod schema": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623144336
+      },
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623708324
+      }
+    ],
+    "1.6 Add the `Citation_Source` variant to `citationLabel`": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623144898
+      },
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623709412
+      }
+    ],
+    "1.8 Export `FinalDoorSlotState` from the core runtime index": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623145818
+      },
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623708243
+      }
+    ],
+    "1.2 Add `cryptContentArb` and write the round-trip property test": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623750544
+      },
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795624913700
+      }
+    ],
+    "1.3 Change the Manifest_Mapper to hand off Crypt_Content": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623751277
+      },
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795624914232
+      }
+    ],
+    "1.7 Add the room-play strings to `copy.ts`": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795623751724
+      },
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795624913096
+      }
+    ],
+    "1.4 Return `{ manifest, content, chunks }` from `buildHumanHeartSampleCrypt`": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795624928390
+      },
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795625410812
+      }
+    ],
+    "1.5 Write the mapper completeness property test": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795625430357
+      },
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795625644176
+      }
+    ],
+    "1. Core groundwork for the loop (`packages/core`)": [
+      {
+        "executionId": "50e68d31-c7a2-4bfa-a812-c1702b19cefd",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795625644213
+      }
+    ],
+    "2. Checkpoint - Core groundwork": [
+      {
+        "executionId": "5a1d9d03-20d7-4987-8697-5ef7f039f591",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795625767342
+      },
+      {
+        "executionId": "5a1d9d03-20d7-4987-8697-5ef7f039f591",
+        "chatSessionId": "sess_4aa7ea22-dfba-4f15-be2a-67e314e8d9fd",
+        "timestamp": 1795626445138
+      }
+    ]
+  }
+}

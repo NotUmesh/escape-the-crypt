@@ -14,20 +14,20 @@ Every task is required. Property tests sit next to the code they test and cite t
 
 ## Tasks
 
-- [ ] 1. Core groundwork for the loop (`packages/core`)
-  - [ ] 1.1 Add the Crypt_Content type and Zod schema
+- [x] 1. Core groundwork for the loop (`packages/core`)
+  - [x] 1.1 Add the Crypt_Content type and Zod schema
     - Create `packages/core/src/mapper/crypt-content.ts` starting with `import { z } from '../zod';` (never `'zod'`, per the repo lint rule), with `CryptContentExcerptSchema`, `CryptContentEntrySchema` (strict object, `superRefine` that an `optionId` must name an option of the same entry), `CryptContentConceptSchema` (`z.strictObject({ title: z.string().trim().min(1) })`), `CryptContentSchema` (`z.strictObject({ questions: z.record(...), concepts: z.record(...) })`) and `parseCryptContentEntry` returning a typed `Result` with `CryptContentSchemaError`
     - Export `CryptContent` as `{ questions, concepts }`, plus `CryptContentEntry`, `CryptContentExcerpt` and `CryptContentConcept`; define no answer-key field anywhere
     - Write `crypt-content.test.ts`: accepts a valid entry; rejects an extra `answer` or `key` field; rejects empty `excerpts`; accepts an excerpt without `optionId`; rejects an `optionId` that `options` does not hold and an `optionId` on an entry with no `options`; rejects a concept with an empty or whitespace-only title and a concept with an extra field; accepts a `concepts` record with plain-text titles; a source check that the file imports `z` from `../zod` and contains no import from `'zod'`; `parseCryptContentEntry` never throws on malformed input
     - _Requirements: 6.1, 6.2, 6.3, 6.10, 6.12, 6.13, 6.19, 6.20_
 
-  - [ ] 1.2 Add `cryptContentArb` and write the round-trip property test
+  - [x] 1.2 Add `cryptContentArb` and write the round-trip property test
     - Add `cryptContentArb` to `packages/core/src/test-support/` next to `arbitraries.ts`; build `options` first and draw each `optionId` from them; also generate a non-empty `concepts` record with non-blank plain-text titles
     - **Property 3: Crypt_Content survives a JSON round trip, including `optionId`** (covers `concepts` and every concept title)
     - **Validates: Requirements 6.11, 6.18, 6.23**
     - _Requirements: 25.15_
 
-  - [ ] 1.3 Change the Manifest_Mapper to hand off Crypt_Content
+  - [x] 1.3 Change the Manifest_Mapper to hand off Crypt_Content
     - In `packages/core/src/mapper/manifest-mapper.ts`, make `mapAuthoringQuestionToSpec(question, maps, questionId, conceptTitle)` return `Result<MappedQuestion, MapperError>` with `{ spec, content, concept: { conceptId, title } }`; `conceptTitle` is the generated concept's label, or the sample's fixed title
     - Build question-level excerpts without `optionId`; for séance questions build one Option_Excerpt per option from that option's own evidence, in option order, resolved through `maps.chunksByParagraph`
     - Build `evidenceRefs` from the same excerpts so every `evidenceRefs` ID appears as an excerpt `chunkId`
@@ -38,7 +38,7 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Extend `manifest-mapper.test.ts`: content per question, no `optionId` on question-level excerpts, `option-evidence-missing` (tested with a synthetic séance question whose option has no evidence, not with the sample file), `content-schema-invalid`, `concept-label-missing` for an undefined and a blank `conceptTitle` (no spec, no content), a present title fills `concept`, no throw on malformed input
     - _Requirements: 6.4, 6.8, 6.10, 6.12, 6.14, 6.15, 6.16, 6.21, 6.24_
 
-  - [ ] 1.4 Return `{ manifest, content, chunks }` from `buildHumanHeartSampleCrypt`
+  - [x] 1.4 Return `{ manifest, content, chunks }` from `buildHumanHeartSampleCrypt`
     - In `packages/core/src/sample-crypt/human-heart.ts`, add `SampleCryptResult` (`manifest`, `content`, `chunks`); change `loadQuestion` to `loadMappedQuestion` returning `Result<MappedQuestion, SampleCryptError>`; for every primary, Alternate and reserved final-door question set `content.questions[questionId] = mapped.content` and `content.concepts[mapped.concept.conceptId] = { title }` next to each `lockSlots.push(...)` / `slots.push(...)`; return `maps.chunks` verbatim as `chunks`
     - Add a fixed `SAMPLE_CONCEPT_TITLES` table (conceptId to plain-text title) in `human-heart.ts` next to the fixed question selection and pass `SAMPLE_CONCEPT_TITLES[conceptId]` as `conceptTitle`; before returning, check that every conceptId of the manifest has an entry in `content.concepts` and return the `concept-label-missing` error (propagated as `SampleCryptError`, never thrown) on a gap
     - Do not edit `samples/questions/human-heart.json`: every séance option in it already carries its own evidence, its `status` stays "draft" so `isHumanReviewed` stays false, and the concept titles live in the table, not in the file
@@ -46,30 +46,30 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Extend `human-heart.test.ts`: `content` passes `CryptContentSchema`; has an entry for every manifest Question_Id including Alternates and `hh-final-1` to `hh-final-3`; exactly one Option_Excerpt per séance payload option; the test reads the unedited `samples/questions/human-heart.json` and asserts every séance option carries its own evidence; `content.concepts` holds a title for both manifest conceptIds, equal to the `SAMPLE_CONCEPT_TITLES` entries; an in-memory copy of the questions JSON with a conceptId missing from the table returns `concept-label-missing`; every cited `chunkId` exists in `chunks`; `isHumanReviewed` is false; malformed input returns a typed error and never throws
     - _Requirements: 2.1, 6.5, 6.6, 6.7, 6.8, 6.10, 6.17, 6.22, 6.24, 25.11, 25.15_
 
-  - [ ] 1.5 Write the mapper completeness property test
+  - [x] 1.5 Write the mapper completeness property test
     - Use `test-support/authoring-arbitraries.ts` to generate rune cipher and séance board questions with per-option evidence
     - Give every generated question a concept title; the property also asserts every conceptId of the manifest has a non-empty title in `content.concepts`; add a second case that removes one title and expects `concept-label-missing`
     - **Property 4: The mapper gives every question complete content**
     - **Validates: Requirements 6.4, 6.5, 6.6, 6.8, 6.14, 6.17, 6.21, 6.24**
 
-  - [ ] 1.6 Add the `Citation_Source` variant to `citationLabel`
+  - [x] 1.6 Add the `Citation_Source` variant to `citationLabel`
     - Add `CITATION_COPY.sampleParagraph(n)` ("Paragraph N of the sample notes") to `packages/core/src/copy.ts`
     - Change `citationLabel(chunk, source: CitationSource = 'notes')` in `packages/core/src/citation-labeller.ts`; only the paste branch changes
     - Extend `citation-labeller.test.ts` with explicit `'sample'` and `'notes'` examples for paste, PDF and edited-PDF chunks
     - **Property 8: `citationLabel` source variants**
     - **Validates: Requirements 3.8, 3.9, 3.10, 3.11, 3.12, 25.12**
 
-  - [ ] 1.7 Add the room-play strings to `copy.ts`
+  - [x] 1.7 Add the room-play strings to `copy.ts`
     - Add: the sample-crypt line for "Enter the crypt" (generating from your own notes comes later; this is a sample crypt), the visible sample-crypt label, `ROOM_START_ERROR_COPY` (`{ what, next }` for `SampleCryptError`, `PublishManifestError` and start rejections, including the `concept-label-missing` kind), `FINAL_DOOR_STATUS_LABELS` (keyed by `SlotStatus`: "Not yet answered", "Solved", "Excluded from score", "Challenged: excluded from score"), the `ROOM_ANNOUNCEMENT_COPY` catalogue (one entry per Outcome_Notice kind `candleLit`, `ghostSpawned`, `ghostLaidToRest`, `sealCracked`, `roomCleared`, `escaped`; one per new slot status `solved`, `settled`, `challenged`; one per evidence result `correct` and `wrong`), `ESCAPE_COPY.message`, the final door button name text used by `doorButtonName()`, panel and button labels (including "Open the Autopsy" and "Play again"), empty-answer messages, "No hints left", the no-penalty line, "Not this time. Here's what your notes say.", "Source excerpt matched", "Challenged: excluded from score", ghost and Return_Slot name templates, the "This ghost returns later." line, and the unplayable-type message
     - Extend `copy.test.ts` so the banned-words test covers every new catalogue and string, including `ROOM_ANNOUNCEMENT_COPY`, `FINAL_DOOR_STATUS_LABELS`, `ESCAPE_COPY`, `ROOM_START_ERROR_COPY` and `CITATION_COPY.sampleParagraph`
     - _Requirements: 1.3, 1.4, 3.3, 3.5, 3.6, 3.7, 3.11, 14.3, 15.3, 16.3, 16.10, 17.7, 18.9, 19.2, 19.8, 19.9, 20.8, 20.11, 21.2, 21.3, 21.4, 21.5_
 
-  - [ ] 1.8 Export `FinalDoorSlotState` from the core runtime index
+  - [x] 1.8 Export `FinalDoorSlotState` from the core runtime index
     - In `packages/core/src/runtime/index.ts` add `export type { FinalDoorSlotState }` next to the other slot types; no logic change to the runtime
     - Add `runtime/index-exports.test.ts`: a type-level test that imports `FinalDoorSlotState`, `LockSlotState` and `ReturnSlotState` from the runtime index and assigns an element of `State['finalDoor']['slots']` to `FinalDoorSlotState` (fails `pnpm typecheck` if the export is missing)
     - _Requirements: 4.11_
 
-- [ ] 2. Checkpoint - Core groundwork
+- [x] 2. Checkpoint - Core groundwork
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 3. Room_Binding (`apps/web/src/state/`)

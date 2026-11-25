@@ -98,6 +98,8 @@ export const CITATION_COPY = {
     `PDF page ${pageReference(page, printedLabel)}`,
   pasteParagraph: (paragraphNumber: number): string =>
     `Paragraph ${paragraphNumber} of your notes`,
+  sampleParagraph: (paragraphNumber: number): string =>
+    `Paragraph ${paragraphNumber} of the sample notes`,
   editedPdf: (page: number, printedLabel: string | null): string =>
     `Your edited notes, originally extracted from PDF page ${pageReference(page, printedLabel)}`,
 } as const;
@@ -162,6 +164,8 @@ export const AUTOPSY_LABELS: Readonly<Record<ConceptOutcome, string>> = {
 
 /** Label for a ghost's later question (room-runtime Req 23.3). */
 export const RETURN_LABEL = 'Review';
+
+export * from './copy-room-play';
 
 /** Words ingest copy and labels must never contain. Used by tests. */
 export const BANNED_COPY_PHRASES: readonly string[] = [

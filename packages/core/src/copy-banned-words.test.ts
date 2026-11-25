@@ -12,6 +12,15 @@ import {
   PAGE_FLAG_COPY,
   PRIVACY_NOTICE,
   PRIVACY_NOTICE_TEXT,
+  ENTER_CRYPT_LABEL,
+  ESCAPE_COPY,
+  FINAL_DOOR_BUTTON_TEXT,
+  FINAL_DOOR_STATUS_LABELS,
+  ROOM_ANNOUNCEMENT_COPY,
+  ROOM_PLAY_LABELS,
+  ROOM_START_ERROR_COPY,
+  SAMPLE_CRYPT_LABEL,
+  SAMPLE_CRYPT_LINE,
 } from './copy';
 import type { Chunk, SourceLocation } from './types';
 
@@ -84,6 +93,64 @@ describe('Autopsy labels (room-runtime Req 23)', () => {
   });
 });
 
+describe('Room-play copy', () => {
+  /** **Validates: Requirements 3.6, 3.7** */
+  it('has no banned phrase in any room-play string, and every error has what and next', () => {
+    const strings = [
+      ...collectStrings(ROOM_ANNOUNCEMENT_COPY),
+      ...collectStrings(FINAL_DOOR_STATUS_LABELS),
+      ...collectStrings(ESCAPE_COPY),
+      ...collectStrings(ROOM_START_ERROR_COPY),
+      ...collectStrings(ROOM_PLAY_LABELS),
+      SAMPLE_CRYPT_LINE,
+      SAMPLE_CRYPT_LABEL,
+      ENTER_CRYPT_LABEL,
+      FINAL_DOOR_BUTTON_TEXT,
+      CITATION_COPY.sampleParagraph(1),
+      ROOM_PLAY_LABELS.hintsLeft(0),
+      ROOM_PLAY_LABELS.hintsLeft(1),
+      ROOM_PLAY_LABELS.hintsLeft(3),
+      ROOM_PLAY_LABELS.ghostName(2),
+      ROOM_PLAY_LABELS.returnSlotName(true),
+      ROOM_PLAY_LABELS.returnSlotName(false),
+    ];
+    for (const s of strings) {
+      expect(s.length, s).toBeGreaterThan(0);
+      expect(findBanned(s), s).toEqual([]);
+    }
+    for (const e of Object.values(ROOM_START_ERROR_COPY)) {
+      expect(e.what.length).toBeGreaterThan(0);
+      expect(e.next.length).toBeGreaterThan(0);
+    }
+  });
+
+  /** **Validates: Requirements 3.5, 16.3, 19.2, 19.9, 20.9, 20.11** */
+  it('uses the exact required wording', () => {
+    expect(FINAL_DOOR_STATUS_LABELS).toEqual({
+      open: 'Not yet answered',
+      solved: 'Solved',
+      settled: 'Excluded from score',
+      challenged: 'Challenged: excluded from score',
+    });
+    expect(CITATION_COPY.sampleParagraph(3)).toBe('Paragraph 3 of the sample notes');
+    expect(ROOM_PLAY_LABELS.openAutopsy).toBe('Open the Autopsy');
+    expect(ROOM_PLAY_LABELS.playAgain).toBe('Play again');
+    expect(ROOM_PLAY_LABELS.noHintsLeft).toBe('No hints left');
+    expect(ROOM_PLAY_LABELS.excerptMatched).toBe('Source excerpt matched');
+    expect(ROOM_PLAY_LABELS.challengedLabel).toBe('Challenged: excluded from score');
+    expect(ROOM_PLAY_LABELS.ghostReturnsLater).toBe('This ghost returns later.');
+    expect(ROOM_PLAY_LABELS.wrongOpening).toBe("Not this time. Here's what your notes say.");
+    expect(Object.keys(ROOM_ANNOUNCEMENT_COPY.notice)).toEqual([
+      'candleLit',
+      'ghostSpawned',
+      'ghostLaidToRest',
+      'sealCracked',
+      'roomCleared',
+      'escaped',
+    ]);
+  });
+});
+
 describe('Property 20: Banned words never appear in labels or copy', () => {
   /** **Validates: Requirements 8.4, 11.2** */
   it('has no banned phrase in any static copy string', () => {
@@ -139,6 +206,7 @@ describe('Property 20: Banned words never appear in labels or copy', () => {
           CITATION_COPY.pdfPage(page, label),
           CITATION_COPY.editedPdf(page, label),
           CITATION_COPY.pasteParagraph(para),
+          CITATION_COPY.sampleParagraph(para),
         ];
         for (const t of texts) expect(findBanned(t), t).toEqual([]);
       }),

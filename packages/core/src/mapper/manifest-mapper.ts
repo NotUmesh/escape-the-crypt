@@ -1,3 +1,4 @@
+import { parseAuthoringQuestion } from '../authoring/parse';
 import type {
   AuthoringQuestion,
   RuneCipherAuthoringQuestion,
@@ -9,11 +10,36 @@ import { runChecks } from '../checks/run-checks';
 import type { CheckId } from '../checks/types';
 import type { QuestionSpec } from '../runtime/manifest-types';
 import type { Chunk, HintEffectSpec, Result } from '../types';
+import { buildContentEntry, everyOptionHasEvidence } from './build-content';
+import { parseCryptContentEntry, type CryptContentEntry } from './crypt-content';
 
 export type MapperError =
   | { readonly kind: 'paragraph-not-found'; readonly questionId: string; readonly paragraph: number }
   | { readonly kind: 'check-failed'; readonly questionId: string; readonly checkId: CheckId }
-  | { readonly kind: 'hint-mismatch'; readonly questionId: string };
+  | { readonly kind: 'hint-mismatch'; readonly questionId: string }
+  | { readonly kind: 'option-evidence-missing'; readonly questionId: string; readonly conceptId: string }
+  | { readonly kind: 'content-schema-invalid'; readonly questionId: string; readonly conceptId: string }
+  | { readonly kind: 'concept-label-missing'; readonly questionId: string; readonly conceptId: string }
+  /** A missing or mistyped field broke a check, hint or content read. `conceptId` is '' when unreadable. */
+  | { readonly kind: 'authoring-schema-invalid'; readonly questionId: string; readonly conceptId: string };
+
+/** Reads `conceptId` from an unvalidated value without throwing. */
+function readConceptId(value: unknown): string {
+  try {
+    if (typeof value !== 'object' || value === null) return '';
+    const id = (value as { conceptId?: unknown }).conceptId;
+    return typeof id === 'string' ? id : '';
+  } catch {
+    return '';
+  }
+}
+
+/** One mapped question: the manifest spec, its learner-facing content and its concept title. */
+export interface MappedQuestion {
+  readonly spec: QuestionSpec;
+  readonly content: CryptContentEntry;
+  readonly concept: { readonly conceptId: string; readonly title: string };
+}
 
 /** Chunk lookups for one document, built once. */
 export interface DocumentChunkMaps {
@@ -75,6 +101,64 @@ function seanceHint(
  * `chunks` and `chunksByParagraph` come from `buildDocumentChunkMaps`.
  */
 export function mapAuthoringQuestionToSpec(
+  input: AuthoringQuestion,
+  maps: DocumentChunkMaps,
+  questionId: string,
+  conceptTitle: string | undefined,
+): Result<MappedQuestion, MapperError> {
+  const conceptId = readConceptId(input);
+  if (typeof conceptTitle !== 'string' || conceptTitle.trim() === '') {
+    return { ok: false, error: { kind: 'concept-label-missing', questionId, conceptId } };
+  }
+  if (!everyOptionHasEvidence(input)) {
+    return { ok: false, error: { kind: 'option-evidence-missing', questionId, conceptId } };
+  }
+  // The type says the question is valid, but callers can hand over anything. A malformed
+  // question that reaches a check, hint or content read and breaks it is reported as
+  // `authoring-schema-invalid`; problems the existing guards find keep their own kinds.
+  const invalid: Result<MappedQuestion, MapperError> = {
+    ok: false,
+    error: { kind: 'authoring-schema-invalid', questionId, conceptId },
+  };
+  try {
+    const result = mapValidated(input, maps, questionId, conceptId, conceptTitle);
+    // A question the schema rejects never maps, even if every read happened to succeed.
+    if (result.ok && !parseAuthoringQuestion(input as unknown).ok) return invalid;
+    return result;
+  } catch {
+    return invalid;
+  }
+}
+
+function mapValidated(
+  question: AuthoringQuestion,
+  maps: DocumentChunkMaps,
+  questionId: string,
+  conceptId: string,
+  conceptTitle: string,
+): Result<MappedQuestion, MapperError> {
+  const specResult = mapSpec(question, maps, questionId);
+  if (!specResult.ok) return specResult;
+  const spec = specResult.value;
+
+  const entry = buildContentEntry(question, maps);
+  const parsed = parseCryptContentEntry(questionId, entry);
+  if (!parsed.ok) {
+    return { ok: false, error: { kind: 'content-schema-invalid', questionId, conceptId } };
+  }
+  // evidenceRefs come from the same excerpts as the content.
+  const evidenceRefs = [...new Set(parsed.value.excerpts.map((e) => e.chunkId))];
+  return {
+    ok: true,
+    value: {
+      spec: { ...spec, evidenceRefs },
+      content: parsed.value,
+      concept: { conceptId, title: conceptTitle },
+    },
+  };
+}
+
+function mapSpec(
   question: AuthoringQuestion,
   maps: DocumentChunkMaps,
   questionId: string,

@@ -64,6 +64,7 @@ export type {
   HumanHeartQuestionsFile,
   SampleQuestionError,
   SampleCryptError,
+  SampleCryptResult,
 } from './sample-crypt/human-heart';
-export { buildHumanHeartSampleCrypt, isHumanReviewed } from './sample-crypt/human-heart';
+export { buildHumanHeartSampleCrypt, isHumanReviewed, SAMPLE_CONCEPT_TITLES } from './sample-crypt/human-heart';
 export { NOTES_SCHEMA_VERSION, makeNotesRecord, parseNotesRecord } from './notes-record';

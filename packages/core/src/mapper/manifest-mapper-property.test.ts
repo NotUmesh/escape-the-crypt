@@ -116,10 +116,10 @@ describe('Property 14: Mapper hint rules', () => {
           })),
         ),
         (c) => {
-          const result = mapAuthoringQuestionToSpec(c.question, c.doc.maps, 'q1');
+          const result = mapAuthoringQuestionToSpec(c.question, c.doc.maps, 'q1', 'Title');
           expect(result.ok).toBe(true);
           if (!result.ok) return;
-          expect(result.value.hintEffect).toEqual({
+          expect(result.value.spec.hintEffect).toEqual({
             kind: 'reveal-first-letter',
             firstLetter: c.codePoints[0],
             length: c.codePoints.length,
@@ -140,7 +140,7 @@ describe('Property 14: Mapper hint rules', () => {
           mismatchingHintArb(c).map((hint) => ({ ...c, question: { ...c.question, hint } })),
         ),
         (c) => {
-          const result = mapAuthoringQuestionToSpec(c.question, c.doc.maps, 'q1');
+          const result = mapAuthoringQuestionToSpec(c.question, c.doc.maps, 'q1', 'Title');
           expect(result).toEqual({ ok: false, error: { kind: 'hint-mismatch', questionId: 'q1' } });
         },
       ),
@@ -193,12 +193,12 @@ describe('Property 9: Manifest_Mapper preserves séance-board option order', () 
     let mapped = 0;
     fc.assert(
       fc.property(seanceArb, ({ doc, question }) => {
-        const result = mapAuthoringQuestionToSpec(question, doc.maps, 's1');
+        const result = mapAuthoringQuestionToSpec(question, doc.maps, 's1', 'Title');
         expect(result.ok).toBe(true);
         if (!result.ok) return;
         mapped++;
-        expect(result.value.lockType).toBe('seance-board');
-        expect(result.value.payload).toEqual({
+        expect(result.value.spec.lockType).toBe('seance-board');
+        expect(result.value.spec.payload).toEqual({
           optionIds: question.options.map((o) => o.id),
           keyOptionId: question.answer,
         });
@@ -217,12 +217,12 @@ describe('Property 14: Mapper hint rules (séance board)', () => {
     const positions = new Set<number>();
     fc.assert(
       fc.property(seanceArb, ({ doc, question }) => {
-        const result = mapAuthoringQuestionToSpec(question, doc.maps, 's1');
+        const result = mapAuthoringQuestionToSpec(question, doc.maps, 's1', 'Title');
         expect(result.ok).toBe(true);
         if (!result.ok) return;
         const first = question.options.find((o) => o.label === 'contradicted');
         expect(first).toBeDefined();
-        expect(result.value.hintEffect).toEqual({ kind: 'remove-option', optionId: first?.id });
+        expect(result.value.spec.hintEffect).toEqual({ kind: 'remove-option', optionId: first?.id });
         positions.add(question.options.findIndex((o) => o === first));
       }),
       { numRuns: 100 },

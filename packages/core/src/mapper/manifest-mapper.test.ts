@@ -61,9 +61,9 @@ function chunkIdOfParagraph(maps: DocumentChunkMaps, paragraph: number): string 
   return id;
 }
 function mapOk(question: AuthoringQuestion, maps: DocumentChunkMaps = heartMaps): QuestionSpec {
-  const result = mapAuthoringQuestionToSpec(question, maps, question.id);
+  const result = mapAuthoringQuestionToSpec(question, maps, question.id, 'Title');
   if (!result.ok) throw new Error(`mapping failed: ${JSON.stringify(result.error)}`);
-  return result.value;
+  return result.value.spec;
 }
 
 describe('mapper-one-example-per-phase-1-lock-type', () => {
@@ -105,7 +105,7 @@ describe('mapper-errors', () => {
   it('returns paragraph-not-found naming the question and paragraph, with no spec', () => {
     const raw = heartRaw('hh-q01');
     const moved = parse({ ...raw, evidence: [{ paragraph: 99, quote: 'anything' }] });
-    expect(mapAuthoringQuestionToSpec(moved, heartMaps, 'hh-q01')).toEqual({
+    expect(mapAuthoringQuestionToSpec(moved, heartMaps, 'hh-q01', 'Title')).toEqual({
       ok: false,
       error: { kind: 'paragraph-not-found', questionId: 'hh-q01', paragraph: 99 },
     });
@@ -116,7 +116,7 @@ describe('mapper-errors', () => {
     const options = raw.options.map((o, i) =>
       i === 2 ? { ...o, evidence: { ...o.evidence, paragraph: 50 } } : o,
     );
-    const result = mapAuthoringQuestionToSpec(parse({ ...raw, options }), heartMaps, 'hh-q03');
+    const result = mapAuthoringQuestionToSpec(parse({ ...raw, options }), heartMaps, 'hh-q03', 'Title');
     expect(result).toEqual({
       ok: false,
       error: { kind: 'paragraph-not-found', questionId: 'hh-q03', paragraph: 50 },
@@ -129,7 +129,7 @@ describe('mapper-errors', () => {
       { kind: 'first-letter-and-length', firstLetter: 'a', length: 15 },
     ]) {
       const question = parse({ ...heartRaw('hh-q01'), hint });
-      expect(mapAuthoringQuestionToSpec(question, heartMaps, 'hh-q01')).toEqual({
+      expect(mapAuthoringQuestionToSpec(question, heartMaps, 'hh-q01', 'Title')).toEqual({
         ok: false,
         error: { kind: 'hint-mismatch', questionId: 'hh-q01' },
       });
@@ -141,7 +141,7 @@ describe('mapper-errors', () => {
       ...heartRaw('hh-q01'),
       evidence: [{ paragraph: 6, quote: 'This sentence is not in the notes at all' }],
     });
-    const result = mapAuthoringQuestionToSpec(question, heartMaps, 'hh-q01');
+    const result = mapAuthoringQuestionToSpec(question, heartMaps, 'hh-q01', 'Title');
     expect(result.ok).toBe(false);
     expect(!result.ok && result.error.kind).toBe('check-failed');
     expect(!result.ok && result.error.questionId).toBe('hh-q01');
@@ -186,7 +186,7 @@ describe('mapper-hint-table', () => {
 
   it('rune cipher, hint disagrees: typed hint-mismatch, no spec', () => {
     const question = parse({ ...raw01, hint: { kind: 'first-letter-and-length', firstLetter: 'x', length: 3 } });
-    const result = mapAuthoringQuestionToSpec(question, heartMaps, 'hh-q01');
+    const result = mapAuthoringQuestionToSpec(question, heartMaps, 'hh-q01', 'Title');
     expect(result).toEqual({ ok: false, error: { kind: 'hint-mismatch', questionId: 'hh-q01' } });
     expect('value' in result).toBe(false);
   });
@@ -216,7 +216,7 @@ describe('mapper-hint-table', () => {
   it('séance board with no contradicted option: check-failed, no spec', () => {
     const raw = heartRaw('hh-q06') as { options: { label: string }[] };
     const options = raw.options.map((o) => (o.label === 'contradicted' ? { ...o, label: 'supported' } : o));
-    const result = mapAuthoringQuestionToSpec(parse({ ...raw, options }), heartMaps, 'hh-q06');
+    const result = mapAuthoringQuestionToSpec(parse({ ...raw, options }), heartMaps, 'hh-q06', 'Title');
     expect(result.ok).toBe(false);
     expect(!result.ok && result.error).toEqual({
       kind: 'check-failed',
@@ -253,7 +253,7 @@ describe('mapper-paragraph-map', () => {
   it('citing the title paragraph fails with quote-too-short', () => {
     const raw = heartRaw('hh-q01') as { evidence: { paragraph: number; quote: string }[] };
     const question = parse({ ...raw, evidence: [{ paragraph: 1, quote: 'The human heart' }] });
-    const result = mapAuthoringQuestionToSpec(question, heartMaps, 'hh-q01');
+    const result = mapAuthoringQuestionToSpec(question, heartMaps, 'hh-q01', 'Title');
     expect(result).toEqual({
       ok: false,
       error: { kind: 'check-failed', questionId: 'hh-q01', checkId: 'quote-too-short' },
