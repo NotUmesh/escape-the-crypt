@@ -169,8 +169,8 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
     - **Property 14: Mapper hint rules**
     - **Validates: Requirements 8.4, 8.8, 8.9, 8.10, 8.11**
 
-- [ ] 6. Gate 1 sample crypt
-  - [~] 6.1 Implement `buildHumanHeartSampleCrypt`
+- [x] 6. Gate 1 sample crypt
+  - [x] 6.1 Implement `buildHumanHeartSampleCrypt`
     - Create `packages/core/src/sample-crypt/human-heart.ts`: pure function taking the notes text and parsed questions file
     - Fixed selection: room locks from `hh-c01` (rune primary `hh-q01`, séance alternate `hh-q02`) and `hh-c02` (séance primary `hh-q03`, rune alternate `hh-q04`); final-door slots from `hh-c03` (`hh-q06`), `hh-c04` (`hh-q08`) and `hh-c07` (`hh-q12`), each a full slot spec
     - Map every question through the mapper, assemble one room, and validate with `validateManifestForPublish`; return a typed error naming the question on any failure, never a partial manifest
@@ -179,12 +179,12 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
     - Export the builder from `packages/core/src/index.ts`
     - _Requirements: 19.1, 19.2, 19.4, 27.1, 27.2, 27.3, 27.4, 27.5, 27.6, 27.7, 27.9_
 
-  - [~] 6.2 Write tests for the sample crypt
+  - [x] 6.2 Write tests for the sample crypt
     - Build from the real `samples/human-heart.txt` and `samples/questions/human-heart.json`; assert the schema and `manifestCheck` accept it (Req 27.3), the exact room and final-door concept split, and that every sample rune cipher question has `reveal-first-letter` and every séance question with a `contradicted` option has `remove-option`
     - Do not expect an in-room ghost return
     - _Requirements: 27.1, 27.2, 27.3, 27.9_
 
-  - [~] 6.3 Write property test for sample crypt determinism
+  - [x] 6.3 Write property test for sample crypt determinism
     - **Property 12: Sample crypt build is deterministic**
     - **Validates: Requirements 27.8**
 

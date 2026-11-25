@@ -60,4 +60,10 @@ export {
 export type { ChunkInput, PdfPageInput } from './chunker';
 export { chunkDocument } from './chunker';
 export { citationLabel } from './citation-labeller';
+export type {
+  HumanHeartQuestionsFile,
+  SampleQuestionError,
+  SampleCryptError,
+} from './sample-crypt/human-heart';
+export { buildHumanHeartSampleCrypt, isHumanReviewed } from './sample-crypt/human-heart';
 export { NOTES_SCHEMA_VERSION, makeNotesRecord, parseNotesRecord } from './notes-record';
