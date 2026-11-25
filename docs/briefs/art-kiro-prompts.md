@@ -47,6 +47,8 @@ All are Poly Haven 2K sets (diffuse, normal, roughness and displacement maps), C
 >
 > **Motion:** parallax uses the `parallax` factors and moves only a few pixels with the pointer or device tilt. Reduced motion turns off parallax and flicker, and makes every crossfade instant.
 >
+> **Phones:** use the `mobile/` set only when `scene.json` has a `mobile` block. Otherwise show the desktop layers with `object-fit: cover`, centred on the union of the lock hotspots, and map hotspot, candle and anchor coordinates through the same crop. Write a unit test for that mapping.
+>
 > **Close-ups:** behind the question panel, show `locks/<lock>/closed.webp`, switching to `open.webp` when solved.
 >
 > **Tests:**
