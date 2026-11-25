@@ -8,7 +8,7 @@ Generation from the learner's own notes is not built yet. This spec therefore pl
 
 The game rules stay in the room-runtime (`initial`, `apply`, selectors in `packages/core/src/runtime/`). This spec adds the React binding in `apps/web/src/state/`, the room screen built from the layered art described in `docs/art/asset-contract.md` (v1.3) and Prompt 2 of `docs/briefs/art-kiro-prompts.md`, the question panels for rune cipher and séance board, the evidence panel, ghosts and the final door, the escape, and the Autopsy.
 
-The room runtime's manifest payloads hold answer keys and option IDs but not prompt text, option text, quotes or explanations. The runtime stays text-free. Requirement 6 therefore adds a generic Crypt_Content type with a Zod schema in `packages/core`. The spec 3 Manifest_Mapper produces one Crypt_Content entry alongside each QuestionSpec, and `buildHumanHeartSampleCrypt` returns `{ manifest, content }`. Any later crypt, generated or not, can use the same type.
+The room runtime's manifest payloads hold answer keys and option IDs but not prompt text, option text, quotes or explanations. The runtime stays text-free. Requirement 6 therefore adds a generic Crypt_Content type with a Zod schema in `packages/core`. The spec 3 Manifest_Mapper produces one `content.questions[questionId]` entry alongside each QuestionSpec, and `buildHumanHeartSampleCrypt` returns `{ manifest, content }`. Any later crypt, generated or not, can use the same type.
 
 Spec 4 will persist the Crypt_Content together with the manifest. That persistence is out of scope here.
 
@@ -18,7 +18,7 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 
 - **Room_Play**: The feature specified here: the "Enter the crypt" step, the Room_Binding, the Room_Screen, the panels, the final door, the escape and the Autopsy.
 - **Sample_Crypt**: The CryptManifest in the `manifest` field of the result of `buildHumanHeartSampleCrypt(notesText, questionsJson)`, with manifest ID `human-heart-sample`. The `content` field of the same result is the Sample_Content.
-- **Manifest_Mapper**: The spec 3 function that maps checked questions to manifest QuestionSpecs and, for each QuestionSpec, produces its Crypt_Content entry.
+- **Manifest_Mapper**: The spec 3 function that maps checked questions to manifest QuestionSpecs and, for each QuestionSpec, produces its `content.questions[questionId]` entry.
 - **Runtime**: The pure reducer `initial(manifest, settings)` and `apply(state, event)` in `packages/core/src/runtime/`, plus its selectors.
 - **State**: The runtime `State` type from `packages/core/src/runtime/state-types.ts`.
 - **Event_Log**: The ordered list of runtime Events for the current run.
@@ -36,7 +36,8 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 - **Evidence_Panel**: The panel shown after a judged answer, with the cited excerpt, its Citation_Label, the explanation and the label "Source excerpt matched".
 - **Citation_Label**: The text returned by `citationLabel(chunk, source)` in `packages/core/src/citation-labeller.ts`.
 - **Citation_Source**: The optional second argument of `citationLabel`. The value `notes` is the default and gives the learner-notes wording. The value `sample` gives the sample wording "Paragraph N of the sample notes".
-- **Crypt_Content**: The type `Record<QuestionId, { prompt, options?: Record<OptionId, text>, excerpts: { chunkId, quote, optionId? }[], explanation }>` defined with a Zod schema in `packages/core`. It holds all text a screen shows for a question and no answer key.
+- **Crypt_Content**: The value `{ questions, concepts }` defined with a Zod schema in `packages/core`. The field `questions` is `Record<QuestionId, { prompt, options?: Record<OptionId, text>, excerpts: { chunkId, quote, optionId? }[], explanation }>`. The field `concepts` is `Record<conceptId, { title: string }>`, where each title is plain text. Crypt_Content holds all text a screen shows for a question or a concept and no answer key.
+- **RoomAssets**: The value `{ content, chunks, firstQuestionByConcept }` that the Room_Binding builds once per run. The field `content` is the Crypt_Content, `chunks` is the chunk map and `firstQuestionByConcept` is `Record<conceptId, questionId>`, which names the primary question of each concept in the manifest.
 - **Option_Excerpt**: An entry of `excerpts` that carries an `optionId`. It is the evidence of that one séance board option. An entry without `optionId` is a question-level excerpt.
 - **Sample_Content**: The Crypt_Content of the Sample_Crypt.
 - **Lantern_Setting**: The remembered on or off value of Lantern_Mode, stored in the browser's `localStorage` under one key.
@@ -75,6 +76,8 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 2. WHEN `buildHumanHeartSampleCrypt` returns an error, THE Room_Play SHALL show a message that states what happened and what the learner can do next, and SHALL start no run.
 3. THE Room_Play SHALL include the sample files in the web build so that no request to another origin is needed to start a run.
 4. THE Room_Binding SHALL leave the Sample_Crypt and the Sample_Content unchanged for the whole run.
+5. WHEN a run starts, THE Room_Binding SHALL build RoomAssets from the Sample_Crypt and the Sample_Content, where `firstQuestionByConcept` maps every conceptId of the manifest to the Question_Id of that concept's primary question in the manifest.
+6. THE Room_Binding SHALL hold the RoomAssets unchanged for the whole run, including `firstQuestionByConcept`.
 
 ### Requirement 3: Honest labels for the sample
 
@@ -111,6 +114,7 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 8. THE Room_Binding SHALL keep Draft_Answer values out of the Event_Log and out of State.
 9. THE Room_Play SHALL change the game state only by dispatching Events through the Room_Binding.
 10. WHERE the page is reloaded, THE Room_Play SHALL start from the notes preview with no run, because saving runs belongs to spec 4.
+11. THE Runtime index in `packages/core/src/runtime/` SHALL export the type `FinalDoorSlotState`, so that the Room_Binding and the screens import it from the Runtime index.
 
 ### Requirement 5: Run start sequence
 
@@ -129,24 +133,30 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 
 #### Acceptance Criteria
 
-1. THE Crypt_Content type and its Zod schema SHALL reside in `packages/core`, import nothing from React, the database or an AI SDK, and define for each Question_Id a `prompt`, an optional `options` record from option ID to text, a list `excerpts` of `{ chunkId, quote, optionId? }` and an `explanation`, where the optional `optionId` marks an Option_Excerpt.
-2. THE Crypt_Content schema SHALL define no field for an answer key, so that a Question_Panel reads no key from the content.
+1. THE Crypt_Content type and its Zod schema SHALL reside in `packages/core`, import nothing from React, the database or an AI SDK, and define `content.questions[questionId]` for each Question_Id with a `prompt`, an optional `options` record from option ID to text, a list `excerpts` of `{ chunkId, quote, optionId? }` and an `explanation`, where the optional `optionId` marks an Option_Excerpt.
+2. THE Crypt_Content schema SHALL define no field for an answer key in `questions` or `concepts`, so that a Question_Panel reads no key from the content.
 3. THE Runtime and the manifest SHALL stay free of prompt text, option text, quotes and explanations.
-4. WHEN the Manifest_Mapper produces a QuestionSpec, THE Manifest_Mapper SHALL produce the Crypt_Content entry of that question's Question_Id in the same call.
+4. WHEN the Manifest_Mapper produces a QuestionSpec, THE Manifest_Mapper SHALL produce the `content.questions[questionId]` entry of that question's Question_Id in the same call.
 5. WHEN `buildHumanHeartSampleCrypt` succeeds, THE `buildHumanHeartSampleCrypt` function SHALL return `{ manifest, content }`, where `content` is a Crypt_Content that passes the Crypt_Content schema.
-6. FOR ALL questions of the Sample_Crypt, THE Sample_Content SHALL hold an entry for every Question_Id in the manifest, including every Alternate and every Reserved_Final_Door_Question.
-7. FOR EACH séance board question, THE Sample_Content SHALL hold an option text for every option ID of the manifest payload, and THE Question_Panel SHALL show the options in manifest order.
+6. FOR ALL questions of the Sample_Crypt, THE Sample_Content SHALL hold a `content.questions[questionId]` entry for every Question_Id in the manifest, including every Alternate and every Reserved_Final_Door_Question.
+7. FOR EACH séance board question, THE Sample_Content SHALL hold, in `content.questions[questionId].options`, an option text for every option ID of the manifest payload, and THE Question_Panel SHALL show the options in manifest order.
 8. THE Sample_Content SHALL take chunk IDs from the same chunk maps that `buildHumanHeartSampleCrypt` uses, so that every `evidenceRefs` ID of a question appears as the `chunkId` of one of its excerpts.
 9. THE Room_Play SHALL compute the Citation_Label of an excerpt from the chunk named by its `chunkId`, using the Citation_Source `sample`.
 10. THE Manifest_Mapper and `buildHumanHeartSampleCrypt` SHALL return a typed result and throw no exception for any input.
 11. FOR ALL Crypt_Content values that pass the Crypt_Content schema, parsing the JSON serialisation of the value with the schema SHALL produce an equal value (round-trip property).
 12. IF a Crypt_Content value fails the Crypt_Content schema, THEN THE Manifest_Mapper SHALL return a typed error and no content.
 13. THE Crypt_Content schema SHALL accept an excerpt without `optionId`, and SHALL accept an excerpt with an `optionId` only WHERE the same entry has an `options` record that holds that option ID.
-14. FOR EACH séance board question, WHEN the Manifest_Mapper produces the Crypt_Content entry, THE Manifest_Mapper SHALL create one Option_Excerpt per option from that option's own evidence, carrying the `chunkId` and `quote` of that evidence and the `optionId` of that option.
+14. FOR EACH séance board question, WHEN the Manifest_Mapper produces the `content.questions[questionId]` entry, THE Manifest_Mapper SHALL create one Option_Excerpt per option from that option's own evidence, carrying the `chunkId` and `quote` of that evidence and the `optionId` of that option.
 15. FOR EACH séance board question, THE Manifest_Mapper SHALL keep the question-level evidence as excerpts without `optionId`.
 16. IF a séance board option has no evidence of its own, THEN THE Manifest_Mapper SHALL return a typed error and no content.
-17. FOR ALL séance board questions of the Sample_Crypt, THE Sample_Content SHALL hold exactly one Option_Excerpt for every option ID of the manifest payload.
+17. FOR ALL séance board questions of the Sample_Crypt, THE Sample_Content SHALL hold exactly one Option_Excerpt in `content.questions[questionId].excerpts` for every option ID of the manifest payload.
 18. FOR ALL Crypt_Content values that pass the Crypt_Content schema and include Option_Excerpts, parsing the JSON serialisation of the value SHALL preserve every `optionId` (round-trip property).
+19. THE Crypt_Content schema SHALL define `concepts` as a record from conceptId to `{ title: string }`, with the title as plain text.
+20. THE Crypt_Content schema SHALL import `z` from `packages/core/src/zod.ts` and SHALL NOT import from `zod` directly, as the project lint rule requires.
+21. WHEN the Manifest_Mapper produces Crypt_Content for a generated crypt, THE Manifest_Mapper SHALL fill `concepts` with one entry per conceptId of the manifest, taking each title from the label of that concept.
+22. THE `buildHumanHeartSampleCrypt` function SHALL hold a fixed concept title table next to its fixed selection and SHALL fill `content.concepts` from that table, leaving `samples/questions/human-heart.json` unedited.
+23. FOR ALL Crypt_Content values that pass the Crypt_Content schema, THE Crypt_Content SHALL hold a title for every conceptId of its manifest, and parsing the JSON serialisation of the value SHALL preserve every concept title (round-trip property).
+24. IF a conceptId of the manifest has no title in `concepts`, THEN THE Manifest_Mapper SHALL return a typed error and no content.
 
 ### Requirement 7: Room art chosen by room order
 
@@ -257,7 +267,7 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 
 #### Acceptance Criteria
 
-1. WHEN the Question_Panel is open for a slot whose Current_Question_Type is `rune-cipher`, THE Question_Panel SHALL show the prompt from the Sample_Content as plain text and a labelled text input.
+1. WHEN the Question_Panel is open for a slot whose Current_Question_Type is `rune-cipher`, THE Question_Panel SHALL show `content.questions[questionId].prompt` as plain text and a labelled text input.
 2. WHEN the learner submits with the Enter key or the "Submit answer" button, THE Room_Binding SHALL dispatch `AnswerSubmitted` with the submission `{ text }` holding the typed string.
 3. IF the typed string is empty after trimming, THEN THE Question_Panel SHALL show a short message that asks for an answer and SHALL dispatch no Event.
 4. IF the Room_Binding exposes the rejection kind `invalid-submission`, THEN THE Question_Panel SHALL show a short message that asks for an answer, keep the Draft_Answer and keep the slot open.
@@ -304,20 +314,20 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 #### Acceptance Criteria
 
 1. WHEN `State` holds `evidencePanelOpen` true for a slot, THE Room_Screen SHALL show the Evidence_Panel for that slot.
-2. THE Evidence_Panel SHALL show the result of the judged answer as text and an icon, so that colour is not the only signal. For a Lock_Slot the result comes from `judgedResult`. For a Return_Slot, which has no `judgedResult`, the result text comes from the slot `status`: `solved` shows the correct result text, `settled` shows the wrong result text, and `challenged` shows no result text.
-3. THE Evidence_Panel SHALL show every cited excerpt of the question from the Sample_Content exactly once, as plain text, each with the Citation_Label of its chunk in the form "Paragraph N of the sample notes".
-4. WHERE the question is a séance board question, THE Evidence_Panel SHALL show the text of the option the learner chose and the text of the key option, both taken from the Sample_Content options, and SHALL show the excerpts in this order: the Option_Excerpt of the chosen option, then the Option_Excerpt of the key option, then every remaining excerpt in Sample_Content order.
-5. THE Evidence_Panel SHALL show the explanation of the question from the Sample_Content.
+2. THE Evidence_Panel SHALL show the result of the judged answer as text and an icon, so that colour is not the only signal. For a Lock_Slot the result comes from `judgedResult`. For a Return_Slot or a Final_Door_Slot, which have no `judgedResult`, the result text comes from the slot `status`: `solved` shows the correct result text, `settled` shows the wrong result text, and `challenged` shows no result text.
+3. THE Evidence_Panel SHALL show every cited excerpt of the question from `content.questions[questionId].excerpts` exactly once, as plain text, each with the Citation_Label of its chunk in the form "Paragraph N of the sample notes".
+4. WHERE the question is a séance board question, THE Evidence_Panel SHALL show the text of the option the learner chose and the text of the key option, both taken from `content.questions[questionId].options`, and SHALL show the excerpts in this order: the Option_Excerpt of the chosen option, then the Option_Excerpt of the key option, then every remaining excerpt in `content.questions[questionId].excerpts` order.
+5. THE Evidence_Panel SHALL show `content.questions[questionId].explanation`.
 6. WHEN the excerpt is resolved against its chunk, THE Evidence_Panel SHALL show the label "Source excerpt matched" under criterion 3 of Requirement 3.
-7. WHEN the judged answer is wrong (for a Return_Slot, WHEN the slot `status` is `settled`), THE Evidence_Panel SHALL open with a kind sentence that begins the explanation, for example "Not this time. Here's what your notes say."
+7. WHEN the judged answer is wrong (for a Return_Slot or a Final_Door_Slot, WHEN the slot `status` is `settled`), THE Evidence_Panel SHALL open with a kind sentence that begins the explanation, for example "Not this time. Here's what your notes say."
 8. THE Evidence_Panel SHALL show a "Continue" button.
 9. WHEN the learner activates the "Continue" button, THE Room_Binding SHALL dispatch `EvidenceContinued` for the slot and THE Room_Screen SHALL close the Evidence_Panel.
 10. WHEN the Evidence_Panel closes, THE Room_Screen SHALL return keyboard focus to the Hotspot_Button of the slot, or to the next control that the State makes available when the slot's lock is no longer shown.
 11. THE Evidence_Panel SHALL offer no way to submit a second answer to the same question.
 12. WHEN the Evidence_Panel is open, THE Room_Screen SHALL move keyboard focus into it.
-13. WHERE the chosen option is the key option of a séance board question, THE Evidence_Panel SHALL show its Option_Excerpt once, first, followed by the remaining excerpts in Sample_Content order.
-14. WHERE the question is not a séance board question, THE Evidence_Panel SHALL show the excerpts in Sample_Content order.
-15. THE Evidence_Panel SHALL determine the chosen option from the accepted `AnswerSubmitted` Event in the Room_Binding's `eventLog` and the key option from the manifest payload, and SHALL read neither from the Crypt_Content.
+13. WHERE the chosen option is the key option of a séance board question, THE Evidence_Panel SHALL show its Option_Excerpt once, first, followed by the remaining excerpts in `content.questions[questionId].excerpts` order.
+14. WHERE the question is not a séance board question, THE Evidence_Panel SHALL show the excerpts in `content.questions[questionId].excerpts` order.
+15. THE Evidence_Panel SHALL determine the chosen option from the accepted `AnswerSubmitted` Event in the Room_Binding's `eventLog` and the key option from the manifest payload, and SHALL read neither from `content.questions`.
 16. FOR ALL séance board questions of the Sample_Crypt and FOR ALL chosen options, THE Evidence_Panel SHALL show each excerpt exactly once, with the chosen option's Option_Excerpt first and the key option's Option_Excerpt next (property test).
 
 ### Requirement 18: Ghosts and return slots
@@ -364,15 +374,15 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 
 1. WHEN State has status "escaped", THE Room_Play SHALL show the Autopsy built from `selectAutopsy(state)`.
 2. WHILE State does not have status "escaped", THE Room_Play SHALL show no Autopsy.
-3. THE Autopsy SHALL list one entry for every concept in `State.concepts`, which is two entries for the Sample_Crypt, each with a short concept title and the outcome label from `AUTOPSY_LABELS` in `packages/core/src/copy.ts`.
+3. THE Autopsy SHALL list one entry for every concept in `State.concepts`, which is two entries for the Sample_Crypt, each with its concept title, taken from `content.concepts[conceptId].title` and rendered as plain text, where the web layer joins the title to the entry and the runtime AutopsyEntry stays text-free, and the outcome label from `AUTOPSY_LABELS` in `packages/core/src/copy.ts`.
 4. THE Autopsy SHALL show the five outcome counts from the Autopsy_View.
 5. THE Autopsy SHALL show each outcome as text and an icon, so that colour is not the only signal.
-6. WHEN the learner activates the link of an Autopsy entry, THE Autopsy SHALL show the first cited excerpt of that concept's first question with its Citation_Label in the form "Paragraph N of the sample notes", taken from the Sample_Content.
+6. WHEN the learner activates the link of an Autopsy entry, THE Autopsy SHALL find the first question of that concept through `RoomAssets.firstQuestionByConcept` and show that question's first cited excerpt from `content.questions[questionId].excerpts` with its Citation_Label in the form "Paragraph N of the sample notes".
 7. WHERE an outcome is "Challenged: excluded from score", THE Autopsy SHALL state that the concept is excluded from the score.
 8. THE Autopsy SHALL contain no claim of mastery, exam readiness or learning gain, and no Banned_Phrases.
 9. THE Autopsy SHALL show a "Play again" button, and WHEN the learner activates it, THE Room_Binding SHALL start a new run with an empty Event_Log.
 10. THE Autopsy SHALL list only the concepts that `State.concepts` holds and only the questions that `State.finalDoor.slots` holds, add none of its own, and need no change to the Runtime.
-11. THE Autopsy SHALL show a Final_Door_Section that lists each question of `State.finalDoor.slots` with its prompt from the Sample_Content and its final status as a text label taken from `packages/core/src/copy.ts`.
+11. THE Autopsy SHALL show a Final_Door_Section that lists each question of `State.finalDoor.slots` with its prompt from `content.questions[questionId].prompt` and its final status as a text label taken from `packages/core/src/copy.ts`.
 12. THE Autopsy SHALL show each final status of criterion 11 as text and an icon, so that colour is not the only signal.
 13. WHERE a final door slot has the status `settled` or `challenged`, THE Final_Door_Section SHALL state that the question is excluded from the score.
 
@@ -445,10 +455,12 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 8. THE Test_Suite SHALL include a Playwright test on a Phone_Viewport that every drawn Hotspot_Button is at least 44 by 44 px and a lock can be opened and answered.
 9. THE Test_Suite SHALL include a Playwright test that makes no network request to another origin during a run.
 10. THE Test_Suite SHALL read the correct answers for the Playwright tests from the Sample_Crypt manifest and call no AI provider.
-11. THE Test_Suite SHALL include a unit test that `buildHumanHeartSampleCrypt` returns a `content` that passes the Crypt_Content schema and holds an entry for every Question_Id of the manifest.
+11. THE Test_Suite SHALL include a unit test that `buildHumanHeartSampleCrypt` returns a `content` that passes the Crypt_Content schema and holds a `content.questions[questionId]` entry for every Question_Id of the manifest.
 12. THE Test_Suite SHALL include a unit test for `citationLabel` that the Citation_Source `sample` returns "Paragraph N of the sample notes" and that the default returns the learner-notes wording.
 13. THE Test_Suite SHALL include a Playwright test that the Lantern_Setting survives a page reload, and a unit test that a throwing `localStorage` leaves Lantern_Mode off without an error.
 14. THE Test_Suite SHALL include a Playwright test that every Citation_Label shown during a run reads "Paragraph N of the sample notes".
+15. THE Test_Suite SHALL include a unit test that the `content` returned by `buildHumanHeartSampleCrypt` holds a `concepts` title for every conceptId of the manifest, and a property-based test of the concept-title round trip of Requirement 6, criterion 23.
+16. THE Test_Suite SHALL include a unit test that `firstQuestionByConcept` of the RoomAssets maps every conceptId of the Sample_Crypt manifest to a Question_Id of that concept's primary question.
 
 ## Out of Scope
 
