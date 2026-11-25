@@ -211,6 +211,16 @@
         "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
         "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
         "timestamp": 1795632558489
+      },
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795633370801
+      },
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795635714644
       }
     ],
     "4.2 Add `evidenceResult` in `evidence-text.ts`": [
@@ -218,6 +228,54 @@
         "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
         "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
         "timestamp": 1795632558553
+      },
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795633371345
+      }
+    ],
+    "4.3 Add `announcements.ts`, `live-region.tsx` and the notice-to-announcement mapping": [
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795633392291
+      },
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795634616317
+      }
+    ],
+    "4.4 Build the simple `room-screen.tsx` and the base typography": [
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795633392779
+      },
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795634616834
+      }
+    ],
+    "4.5 Build `crypt-flow.tsx` and the error boundary": [
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795634638251
+      },
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795635463787
+      }
+    ],
+    "4. Room screen with simple hotspot buttons (no layered art)": [
+      {
+        "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795635463840
       }
     ]
   }

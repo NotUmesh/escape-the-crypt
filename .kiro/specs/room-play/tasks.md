@@ -105,26 +105,26 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Write `room-selectors.test.ts`: returns the id of the accepted séance submission; returns the latest one when a slot has several `AnswerSubmitted` events (retry, Return_Slot or Alternate); ignores events of other slots and other kinds; returns `undefined` for an empty log, a rune `{ text }` submission and a malformed submission; a rejected submission (absent from the log) is not returned; add a binding test that the exposed `eventLog` follows `dispatch` (grows on accepted actions, unchanged on rejected ones) and that `chosenOptionFor(eventLog, slotId)` over it returns the submitted option
     - _Requirements: 4.2, 4.3, 17.4, 17.15_
 
-- [ ] 4. Room screen with simple hotspot buttons (no layered art)
+- [x] 4. Room screen with simple hotspot buttons (no layered art)
   - [-] 4.1 Add `accessible-names.ts` with table-driven tests
     - Pure functions for lock, ghost, Return_Slot, final door button and seal names, each stating status in words (for example "Rune tablet: rune cipher, unsolved")
     - Write `accessible-names.test.ts` over every `SlotStatus`
     - _Requirements: 10.3, 18.3, 18.7, 21.6_
 
-  - [-] 4.2 Add `evidenceResult` in `evidence-text.ts`
+  - [x] 4.2 Add `evidenceResult` in `evidence-text.ts`
     - Create `apps/web/src/features/crypt/evidence-text.ts` with the type `EvidenceResult = 'correct' | 'wrong' | null` and the pure `evidenceResult(slot: LockSlotState | ReturnSlotState | FinalDoorSlotState)`, importing all three slot types from the core runtime index (`FinalDoorSlotState` from task 1.8): a Lock_Slot gives `correct` or `wrong` from `judgedResult` and `null` for anything else; a Return_Slot and a Final_Door slot (no `judgedResult`) give `correct` for `solved`, `wrong` for `settled` and `null` for `challenged` and `open`
     - Write `evidence-text.test.ts`, table-driven: Lock_Slot `judgedResult` `correct`, `wrong`, `invalid` and `null`; Return_Slot and Final_Door slot (both `origin` values) for each of the four `SlotStatus` values, whatever else the slot holds
     - Task 7.1 adds `resolveExcerpt` and `orderExcerpts` to the same file
     - _Requirements: 17.2, 17.7, 21.5_
 
-  - [ ] 4.3 Add `announcements.ts`, `live-region.tsx` and the notice-to-announcement mapping
+  - [x] 4.3 Add `announcements.ts`, `live-region.tsx` and the notice-to-announcement mapping
     - Create `announcements.ts` with the pure `announcementsFor(previous: State, next: State, notices: readonly Outcome_Notice[]): readonly string[]`, returning for one accepted dispatch, in this order: (1) one correct or not-correct message from `evidenceResult` when a slot's `evidencePanelOpen` turns true; (2) one message naming the new status for every Lock_Slot, Return_Slot or Final_Door slot whose `status` changed from `open` to `solved`, `settled` or `challenged`; (3) one message per Outcome_Notice (`candleLit`, `ghostSpawned`, `ghostLaidToRest`, `sealCracked`, `roomCleared`, `escaped`) in notice order; every message is a `ROOM_ANNOUNCEMENT_COPY` entry from `copy.ts`
     - Create `live-region.tsx`: the one `aria-live="polite"` region, showing one message at a time from a queue so two messages from one dispatch are not merged
     - Write `announcements.test.ts`, table-driven over every notice kind, every `open` to `solved`, `settled` or `challenged` change on a lock, return and final-door slot, and an Evidence_Panel opening with a correct and a not-correct result; an unchanged State with no notices (a rejected dispatch) gives no messages; every returned string equals a `ROOM_ANNOUNCEMENT_COPY` entry; ordering is evidence result, then status, then notices
     - Component tests for the live region: one polite region, queued messages shown one at a time
     - _Requirements: 21.1, 21.2, 21.3, 21.4, 21.5_
 
-  - [ ] 4.4 Build the simple `room-screen.tsx` and the base typography
+  - [x] 4.4 Build the simple `room-screen.tsx` and the base typography
     - Render one native button per Lock_Slot of the current room (no art), each at least 44 by 44 px with the focus outline `2px` in `--spectre-300` from `tokens.css`, ordered left to right by slot order
     - Show the remaining hint count from State, the visible sample-crypt label and the "Challenged: excluded from score" label on challenged locks
     - Activating a button of an open slot dispatches `LockOpened` and opens a panel slot; activating a solved, settled or challenged slot shows a short status text and dispatches no Event
@@ -132,7 +132,7 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Component tests for all of the above
     - _Requirements: 1.6, 3.5, 5.4, 8.6, 10.1, 10.2, 10.3, 10.6, 10.9, 10.10, 21.7, 22.3, 22.4_
 
-  - [ ] 4.5 Build `crypt-flow.tsx` and the error boundary
+  - [x] 4.5 Build `crypt-flow.tsx` and the error boundary
     - Own `useRoomBinding`; route to the start view, the `start-failed` message built from `ROOM_START_ERROR_COPY`, `<RoomScreen>` while `state.status` is `in progress` and `!state.atFinalDoor`, `<FinalDoor>` while `state.atFinalDoor` and the status is not `escaped`, `<FinalDoor escaped>` (the escape view) while the status is `escaped` and the Autopsy has not been requested, and `<AutopsyView>` only while the status is `escaped` and the Autopsy has been requested
     - Hold the "Autopsy requested" flag as a local `useState<boolean>` that holds no game state: set by the escape view's "Open the Autopsy" button, cleared when `playAgain` is dispatched so a new run starts in room 1 with no Autopsy showing
     - Keep the previous `State` in a `useRef` and, in an effect on each accepted dispatch, call `announcementsFor(previous, state, notices)` and feed the result to `live-region.tsx`; a rejected dispatch announces nothing

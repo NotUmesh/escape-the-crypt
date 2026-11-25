@@ -71,7 +71,21 @@ export { buildHumanHeartSampleCrypt, isHumanReviewed, SAMPLE_CONCEPT_TITLES } fr
 export type { CryptManifest, RunSettings } from './runtime/manifest-types';
 export type { State, LockSlotState, ReturnSlotState, FinalDoorSlotState, SlotStatus } from './runtime/state-types';
 export type { Outcome_Notice } from './runtime/notices';
-export type { Typed_Rejection } from './types';
+export type { Typed_Rejection, LockType } from './types';
+export {
+  LOCK_OBJECT_NAMES,
+  SLOT_STATUS_WORDS,
+  FINAL_DOOR_BUTTON_TEXT,
+  FINAL_DOOR_STATUS_LABELS,
+  ROOM_PLAY_LABELS,
+  ROOM_ANNOUNCEMENT_COPY,
+  SAMPLE_CRYPT_LABEL,
+  SAMPLE_CRYPT_LINE,
+  ENTER_CRYPT_LABEL,
+  ROOM_START_ERROR_COPY,
+  ESCAPE_COPY,
+} from './copy-room-play';
+export type { RoomStartErrorKind } from './copy-room-play';
 export { initial } from './runtime/initial';
 export { apply } from './runtime/apply';
 export type { CryptContent } from './mapper/crypt-content';

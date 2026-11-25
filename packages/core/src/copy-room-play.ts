@@ -127,3 +127,21 @@ export const ROOM_PLAY_LABELS = {
     isReview ? 'Returning question: Review' : 'Returning question',
   unplayableType: "This kind of question can't be played in this version. You can skip it.",
 } as const;
+
+/** Names of the lock objects, keyed by lock type (Requirement 10.3). */
+export const LOCK_OBJECT_NAMES = {
+  'rune-cipher': { object: 'Rune tablet', kind: 'rune cipher' },
+  'seance-board': { object: 'Séance table', kind: 'séance board' },
+  'bone-ordering': { object: 'Bone shelf', kind: 'bone ordering' },
+  'bound-threads': { object: 'Thread frame', kind: 'bound threads' },
+  'cursed-object': { object: 'Cursed casket', kind: 'cursed object' },
+  'combination-dial': { object: 'Combination safe', kind: 'combination dial' },
+} as const;
+
+/** Status in words for accessible names (Requirement 21.6). */
+export const SLOT_STATUS_WORDS: Readonly<Record<SlotStatus, string>> = {
+  open: 'unsolved',
+  solved: 'solved',
+  settled: 'settled, excluded from score',
+  challenged: 'challenged, excluded from score',
+};
