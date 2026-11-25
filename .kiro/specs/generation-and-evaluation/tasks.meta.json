@@ -15,6 +15,10 @@
     "6.3 Write property test for sample crypt determinism": {
       "status": "passed",
       "lastRunTimestamp": 1795595538819
+    },
+    "9.3 Write property test for NotesRecord round-trip": {
+      "status": "passed",
+      "lastRunTimestamp": 1795603714033
     }
   },
   "executionHistory": {
@@ -644,6 +648,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590148401
+      },
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795603566492
+      },
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795603647907
       }
     ],
     "9.2 Write the differential migration test": [
@@ -651,6 +665,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590148445
+      },
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795603648465
+      },
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795604258262
       }
     ],
     "9.3 Write property test for NotesRecord round-trip": [
@@ -658,6 +682,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590148484
+      },
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795603649269
+      },
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795604258344
       }
     ],
     "9.4 Update the tech rule note": [
@@ -665,6 +699,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590148552
+      },
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795603649674
+      },
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795604258411
       }
     ],
     "10. Final checkpoint - Ensure all tests pass": [
@@ -672,6 +716,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590148614
+      },
+      {
+        "executionId": "2002524a-9709-4c93-bcf0-0687d2ee43a8",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795604599142
+      },
+      {
+        "executionId": "2002524a-9709-4c93-bcf0-0687d2ee43a8",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795604743848
       }
     ],
     "3. Code_Check framework and checks": [
@@ -700,6 +754,13 @@
         "executionId": "5ed7d0ef-5477-40c1-b864-3cb605da8e97",
         "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
         "timestamp": 1795600850209
+      }
+    ],
+    "9. `parseNotesRecord` Zod migration": [
+      {
+        "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
+        "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
+        "timestamp": 1795604258506
       }
     ]
   }

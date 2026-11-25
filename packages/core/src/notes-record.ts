@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { Chunk, NotesRecord, Result, SourceLocation } from './types';
 
 export const NOTES_SCHEMA_VERSION = 1;
@@ -31,48 +32,38 @@ function copyLocation(location: SourceLocation): SourceLocation {
     : { sourceType: 'paste', paragraphNumber: location.paragraphNumber };
 }
 
-type Obj = Record<string, unknown>;
+const isInteger = (n: number): boolean => Number.isInteger(n);
 
-function isObject(value: unknown): value is Obj {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+const indexSchema = z.number().refine((n) => isInteger(n) && n >= 0);
 
-function isIndex(value: unknown): value is number {
-  return typeof value === 'number' && Number.isInteger(value) && value >= 0;
-}
+const locationSchema = z.discriminatedUnion('sourceType', [
+  z.object({
+    sourceType: z.literal('pdf'),
+    pdfPageIndex: indexSchema,
+    printedPageLabel: z.string().nullable(),
+  }),
+  z.object({
+    sourceType: z.literal('paste'),
+    paragraphNumber: z.number().refine((n) => isInteger(n) && n >= 1),
+  }),
+]);
 
-function parseLocation(value: unknown): SourceLocation | null {
-  if (!isObject(value)) return null;
-  if (value['sourceType'] === 'pdf') {
-    const label = value['printedPageLabel'];
-    if (!isIndex(value['pdfPageIndex']) || !(label === null || typeof label === 'string')) return null;
-    return { sourceType: 'pdf', pdfPageIndex: value['pdfPageIndex'], printedPageLabel: label };
-  }
-  if (value['sourceType'] === 'paste') {
-    const n = value['paragraphNumber'];
-    return typeof n === 'number' && Number.isInteger(n) && n >= 1
-      ? { sourceType: 'paste', paragraphNumber: n }
-      : null;
-  }
-  return null;
-}
+const chunkSchema = z.object({
+  id: z.string(),
+  documentDigest: z.string(),
+  position: indexSchema,
+  text: z.string(),
+  location: locationSchema,
+  edited: z.boolean(),
+});
 
-function parseChunk(value: unknown, digest: string): Chunk | null {
-  if (!isObject(value)) return null;
-  const location = parseLocation(value['location']);
-  const { id, documentDigest, position, text, edited } = value;
-  if (
-    location === null ||
-    typeof id !== 'string' ||
-    documentDigest !== digest ||
-    !isIndex(position) ||
-    typeof text !== 'string' ||
-    typeof edited !== 'boolean'
-  ) {
-    return null;
-  }
-  return { id, documentDigest: digest, position, text, location, edited };
-}
+const notesRecordSchema = z
+  .object({
+    schemaVersion: z.number().refine((n) => isInteger(n) && n >= 1 && n <= NOTES_SCHEMA_VERSION),
+    documentDigest: z.string(),
+    chunks: z.array(chunkSchema),
+  })
+  .refine((r) => r.chunks.every((c) => c.documentDigest === r.documentDigest));
 
 /**
  * Checks a value read back from storage. Returns a typed error for anything that
@@ -80,24 +71,11 @@ function parseChunk(value: unknown, digest: string): Chunk | null {
  * and never throws.
  */
 export function parseNotesRecord(value: unknown): Result<NotesRecord, { kind: 'invalid-record' }> {
-  const invalid = { ok: false, error: { kind: 'invalid-record' } } as const;
-  if (!isObject(value)) return invalid;
-  const { schemaVersion, documentDigest, chunks } = value;
-  if (
-    typeof schemaVersion !== 'number' ||
-    !Number.isInteger(schemaVersion) ||
-    schemaVersion < 1 ||
-    schemaVersion > NOTES_SCHEMA_VERSION ||
-    typeof documentDigest !== 'string' ||
-    !Array.isArray(chunks)
-  ) {
-    return invalid;
+  try {
+    const parsed = notesRecordSchema.safeParse(value);
+    if (parsed.success) return { ok: true, value: parsed.data };
+  } catch {
+    // A hostile value (throwing getter or proxy) is simply not a valid record.
   }
-  const parsed: Chunk[] = [];
-  for (const item of chunks as unknown[]) {
-    const chunk = parseChunk(item, documentDigest);
-    if (chunk === null) return invalid;
-    parsed.push(chunk);
-  }
-  return { ok: true, value: { schemaVersion, documentDigest, chunks: parsed } };
+  return { ok: false, error: { kind: 'invalid-record' } };
 }

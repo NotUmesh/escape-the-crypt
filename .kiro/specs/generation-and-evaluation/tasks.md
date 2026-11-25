@@ -204,27 +204,27 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
     - Assert no Phase 1 test or source file references `eval/holdout`
     - _Requirements: 9.5, 9.8, 27.7_
 
-- [ ] 9. `parseNotesRecord` Zod migration
-  - [~] 9.1 Reimplement `parseNotesRecord` with Zod
+- [x] 9. `parseNotesRecord` Zod migration
+  - [x] 9.1 Reimplement `parseNotesRecord` with Zod
     - Keep the exported name and signature `(value: unknown) => Result<NotesRecord, { kind: 'invalid-record' }>`, with no thrown errors
     - The existing `notes-record.test.ts` must pass unchanged
     - _Requirements: 10.1, 10.4_
 
-  - [~] 9.2 Write the differential migration test
+  - [x] 9.2 Write the differential migration test
     - Create `notes-record-migration.test.ts` with the pre-migration logic inlined as a private reference, and run a fixed edge-case corpus through both versions, asserting identical accept and reject verdicts
     - Delete the reference copy once the migration is accepted
     - _Requirements: 10.2_
 
-  - [~] 9.3 Write property test for NotesRecord round-trip
+  - [x] 9.3 Write property test for NotesRecord round-trip
     - Reuse the `Chunk` arbitrary in `packages/core/src/test-support/arbitraries.ts`
     - **Property 11: NotesRecord round-trip through the migrated parser**
     - **Validates: Requirements 10.3**
 
-  - [~] 9.4 Update the tech rule note
+  - [x] 9.4 Update the tech rule note
     - In `.kiro/steering/tech.md` (line 16), change the note "parseNotesRecord is hand-checked and tested; migrate to Zod in spec 3" to say it was migrated to Zod
     - _Requirements: 10.5_
 
-- [~] 10. Final checkpoint - Ensure all tests pass
+- [x] 10. Final checkpoint - Ensure all tests pass
   - Run `pnpm test`, `pnpm lint` and `pnpm typecheck`. Ensure all pass, ask the user if questions arise.
 
 ## Notes
