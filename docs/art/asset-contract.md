@@ -1,4 +1,6 @@
-# Art asset contract (v1.3, Nov 25)
+# Art asset contract (v1.4, Nov 25)
+
+**v1.4:** light passes light only the room around the locks; each solved lock layer includes its own candle's light. File names and code behaviour are unchanged.
 
 **v1.3:**
 - light passes no longer contain a flame
@@ -142,7 +144,7 @@ Positions are fractions of the frame (0 to 1, from the top-left), so they work a
 ## 5. How candles work (the core metaphor)
 
 1. **One candle rule.** An unsolved lock's candle is **unlit**: wax and a dark wick, **no flame and no light**. `background.webp` and every lock layer are rendered that way, with only the cold ambient light and each lock's dim cool face light. Nothing is baked in that code would need to switch off. (Wall sconces in `ambientCandles` are the only always-lit flames.)
-2. For each lock, `light-<lock>.webp` holds **only the extra warm light** that lock's candle adds when lit (rendered as lit minus unlit, on black). It contains **no flame** (v1.3); the flame is always drawn by code, so there is never a double flame. Every progress candle stands on the same iron floor stand at the same height, so code can draw the same flame size at every `candle` point.
+2. For each lock, `light-<lock>.webp` holds **only the extra warm light** that lock's candle adds when lit (rendered as lit minus unlit, on black). (v1.4) It lights **only the room around the locks** (floor, walls, steps); every lock object is masked out of it, and `lock-<lock>-solved.webp` already carries its own candle's warm light, rendered for real. That keeps dark materials dark instead of washing them out with additive light. It contains **no flame** (v1.3); the flame is always drawn by code, so there is never a double flame. Every progress candle stands on the same iron floor stand at the same height, so code can draw the same flame size at every `candle` point.
 3. When a lock is solved, code **ignites** that candle: it draws a gold flame at the lock's `candle` point (a short flare, then a steady flicker) and fades its light pass in over about 600 ms. With reduced motion both switch on instantly. There is no teal or "unlit" flame; before solving, code draws nothing at `candle`.
 4. Several solved locks simply add their light passes together, so the room warms up lock by lock.
 5. **Solved layer (v1.2).** When a lock is solved, code also crossfades `lock-<lock>.webp` to `lock-<lock>-solved.webp` (same timing as the light pass), and hover then uses `lock-<lock>-solved-hover.webp`. When the room is cleared, `door-closed` crossfades to `door-open` and `light-door` fades in additively.
