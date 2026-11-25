@@ -9,6 +9,7 @@ export type {
   LimitError,
   IngestError,
   NotesRecord,
+  Event,
 } from './types';
 export {
   MAX_FILE_SIZE_BYTES,
@@ -67,4 +68,12 @@ export type {
   SampleCryptResult,
 } from './sample-crypt/human-heart';
 export { buildHumanHeartSampleCrypt, isHumanReviewed, SAMPLE_CONCEPT_TITLES } from './sample-crypt/human-heart';
+export type { CryptManifest, RunSettings } from './runtime/manifest-types';
+export type { State, LockSlotState, ReturnSlotState, FinalDoorSlotState, SlotStatus } from './runtime/state-types';
+export type { Outcome_Notice } from './runtime/notices';
+export type { Typed_Rejection } from './types';
+export { initial } from './runtime/initial';
+export { apply } from './runtime/apply';
+export type { CryptContent } from './mapper/crypt-content';
 export { NOTES_SCHEMA_VERSION, makeNotesRecord, parseNotesRecord } from './notes-record';
+export { z } from './zod';

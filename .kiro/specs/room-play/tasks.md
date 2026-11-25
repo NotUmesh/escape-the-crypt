@@ -72,13 +72,13 @@ Every task is required. Property tests sit next to the code they test and cite t
 - [x] 2. Checkpoint - Core groundwork
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 3. Room_Binding (`apps/web/src/state/`)
-  - [ ] 3.1 Add `room-actions.ts` and `room-event-mapper.ts`
+- [x] 3. Room_Binding (`apps/web/src/state/`)
+  - [x] 3.1 Add `room-actions.ts` and `room-event-mapper.ts`
     - Define the `RoomAction` union and a pure mapper from each action (except `startRun` and `playAgain`) to exactly one runtime `Event`
     - Write `room-event-mapper.test.ts`: every action maps to one Event of the expected kind, including `enterRoom`
     - _Requirements: 4.4, 4.9_
 
-  - [ ] 3.2 Implement `stepBinding` in `room-binding-model.ts` with its property test
+  - [x] 3.2 Implement `stepBinding` in `room-binding-model.ts` with its property test
     - Define `BindingModel` and the pure `stepBinding(model, action)`: accepted appends one Event, replaces state and notices, clears rejection; rejected leaves log and state unchanged and sets `rejection`
     - Keep Draft_Answer values out of the model
     - Write `room-binding-model.test.ts` with examples for accept, reject and notices replaced rather than accumulated
@@ -86,19 +86,19 @@ Every task is required. Property tests sit next to the code they test and cite t
     - **Validates: Requirements 4.3, 4.5, 4.6**
     - _Requirements: 4.1, 4.2, 4.7, 4.8_
 
-  - [ ] 3.3 Add `room-assets.ts` with `buildFirstQuestionByConcept`
+  - [x] 3.3 Add `room-assets.ts` with `buildFirstQuestionByConcept`
     - Create `apps/web/src/state/room-assets.ts` exporting the `RoomAssets` type (`content: CryptContent`, `chunks: ReadonlyMap<string, Chunk>`, `firstQuestionByConcept: Readonly<Record<string, string>>`) and the pure `buildFirstQuestionByConcept(manifest)`: walk the manifest's primary questions (first Lock_Slot question of each slot, in manifest order; never Alternates, never reserved final-door questions) and keep the first Question_Id seen for each conceptId
     - Write `room-assets.test.ts`: every conceptId of the sample manifest maps to the primary question of its first Lock_Slot; an Alternate or a reserved final-door question is never returned, even when it shares the concept; a synthetic manifest with several slots per concept keeps the first in manifest order; every conceptId of the manifest has an entry
     - _Requirements: 2.5, 2.6, 20.6, 25.16_
 
-  - [ ] 3.4 Implement `useRoomBinding` and `RoomAssets`
+  - [x] 3.4 Implement `useRoomBinding` and `RoomAssets`
     - Create `room-binding.ts`: `useReducer` over `stepBinding`; `startRun` calls an injectable `buildCrypt` (default builds from `samples/human-heart.txt` and `samples/questions/human-heart.json` imported with Vite `?raw` and JSON imports, so no request leaves the origin), then applies `initial(manifest, { length: 'short', difficulty: 'apprentice', hintAllowance: 2 })` and the four start Events in order
     - On a build error or a rejected start Event set phase `start-failed` with the typed error and start no run
     - Read `manifest`, `content` and `chunks` from the `SampleCryptResult`; assemble `assets = { content, chunks, firstQuestionByConcept: buildFirstQuestionByConcept(manifest) }` once at crypt-build time with the `room-assets.ts` function of task 3.3 and hold it unchanged for the run; `playAgain` clears the log and reruns the start sequence against the same built crypt and the same assets
     - Write `room-binding.test.ts`: start sequence order and fixed settings, `buildCrypt` error (including a `concept-label-missing` error) and rejected start event, `playAgain` empties the log, `assets` (including `firstQuestionByConcept`) not reassigned between `startRun` and `playAgain`, drafts never reach `dispatch`, confirmed notes untouched
     - _Requirements: 1.5, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 4.1, 4.2, 4.10, 5.1, 5.2, 5.3, 20.9_
 
-  - [ ] 3.5 Add the chosen-option selector and expose the event log from the binding
+  - [x] 3.5 Add the chosen-option selector and expose the event log from the binding
     - Create `apps/web/src/state/room-selectors.ts` with pure `chosenOptionFor(eventLog: readonly Event[], slotId: string): string | undefined`: it scans the log from the end and returns `selectedOptionId` from the submission of the latest accepted `AnswerSubmitted` event for that slot, and `undefined` when there is none or the submission has no string `selectedOptionId` (for example a rune cipher `{ text }`); it reads the submission through a small Zod schema, never throws and reads nothing from `State`
     - Expose the log from `useRoomBinding` as a read-only `eventLog: readonly Event[]` field next to `state`, `notices` and `rejection` (empty until a run starts); the log lives in the `BindingModel` held by `useReducer`, not in a ref, so a render that reads it is never stale. Components call `chosenOptionFor(eventLog, slotId)` themselves; the hook has no `chosenOptionId` method. Rejected actions are never in the log, so a rejected submission is never returned
     - State and the runtime are unchanged: slots keep `judgedResult` only and do not record the chosen option
@@ -106,12 +106,12 @@ Every task is required. Property tests sit next to the code they test and cite t
     - _Requirements: 4.2, 4.3, 17.4, 17.15_
 
 - [ ] 4. Room screen with simple hotspot buttons (no layered art)
-  - [ ] 4.1 Add `accessible-names.ts` with table-driven tests
+  - [-] 4.1 Add `accessible-names.ts` with table-driven tests
     - Pure functions for lock, ghost, Return_Slot, final door button and seal names, each stating status in words (for example "Rune tablet: rune cipher, unsolved")
     - Write `accessible-names.test.ts` over every `SlotStatus`
     - _Requirements: 10.3, 18.3, 18.7, 21.6_
 
-  - [ ] 4.2 Add `evidenceResult` in `evidence-text.ts`
+  - [-] 4.2 Add `evidenceResult` in `evidence-text.ts`
     - Create `apps/web/src/features/crypt/evidence-text.ts` with the type `EvidenceResult = 'correct' | 'wrong' | null` and the pure `evidenceResult(slot: LockSlotState | ReturnSlotState | FinalDoorSlotState)`, importing all three slot types from the core runtime index (`FinalDoorSlotState` from task 1.8): a Lock_Slot gives `correct` or `wrong` from `judgedResult` and `null` for anything else; a Return_Slot and a Final_Door slot (no `judgedResult`) give `correct` for `solved`, `wrong` for `settled` and `null` for `challenged` and `open`
     - Write `evidence-text.test.ts`, table-driven: Lock_Slot `judgedResult` `correct`, `wrong`, `invalid` and `null`; Return_Slot and Final_Door slot (both `origin` values) for each of the four `SlotStatus` values, whatever else the slot holds
     - Task 7.1 adds `resolveExcerpt` and `orderExcerpts` to the same file
