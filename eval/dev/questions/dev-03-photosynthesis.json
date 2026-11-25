@@ -1,0 +1,114 @@
+{
+  "notes": "dev-03-photosynthesis.txt",
+  "questions": [
+    {
+      "id": "d03-q01", "conceptId": "d03-c01", "role": "primary", "lockType": "rune-cipher",
+      "prompt": "According to your notes, in plants photosynthesis takes place inside small structures called ______, found mostly in leaf cells.",
+      "answer": "chloroplasts", "aliases": ["chloroplast"], "caseSensitive": false,
+      "evidence": [{ "paragraph": 2, "quote": "In plants it takes place inside chloroplasts" }],
+      "explanation": "Paragraph 2 places photosynthesis in the chloroplasts."
+    },
+    {
+      "id": "d03-q02", "conceptId": "d03-c01", "role": "alternate", "lockType": "seance-board",
+      "prompt": "According to your notes, where in a plant does photosynthesis take place?",
+      "options": [
+        { "id": "a", "text": "In the mitochondria", "label": "contradicted", "evidence": { "paragraph": 7, "quote": "Cellular respiration, which happens in the mitochondria of both plants and animals" } },
+        { "id": "b", "text": "In the chloroplasts", "label": "supported", "evidence": { "paragraph": 2, "quote": "In plants it takes place inside chloroplasts" } },
+        { "id": "c", "text": "In the stomata", "label": "contradicted", "evidence": { "paragraph": 3, "quote": "Carbon dioxide enters the leaf through tiny pores called stomata." } }
+      ],
+      "answer": "b",
+      "explanation": "Photosynthesis happens in chloroplasts; respiration happens in mitochondria, and stomata are pores."
+    },
+    {
+      "id": "d03-q03", "conceptId": "d03-c02", "role": "primary", "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are inputs to photosynthesis. Which one is not?",
+      "items": ["Carbon dioxide", "Water", "Light", "Oxygen"],
+      "answer": "Oxygen",
+      "categoryRule": "The three inputs are carbon dioxide, water and light; oxygen is an output.",
+      "evidence": [
+        { "paragraph": 3, "quote": "The process needs three inputs: carbon dioxide from the air, water from the soil, and light from the Sun." },
+        { "paragraph": 3, "quote": "and oxygen, which is released into the air" }
+      ],
+      "explanation": "Your notes list three inputs; oxygen is one of the two outputs."
+    },
+    {
+      "id": "d03-q04", "conceptId": "d03-c02", "role": "alternate", "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each input to where it comes from.",
+      "pairs": [
+        { "left": "Carbon dioxide", "right": "The air", "evidence": { "paragraph": 3, "quote": "carbon dioxide from the air, water from the soil" } },
+        { "left": "Water", "right": "The soil", "evidence": { "paragraph": 3, "quote": "carbon dioxide from the air, water from the soil" } },
+        { "left": "Light", "right": "The Sun", "evidence": { "paragraph": 3, "quote": "water from the soil, and light from the Sun" } }
+      ],
+      "explanation": "Paragraph 3 names the source of each input."
+    },
+    {
+      "id": "d03-q05", "conceptId": "d03-c03", "role": "primary", "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each process to where it takes place.",
+      "pairs": [
+        { "left": "Light-dependent reactions", "right": "Thylakoid membranes", "evidence": { "paragraph": 5, "quote": "The light-dependent reactions take place in the thylakoid membranes" } },
+        { "left": "Calvin cycle", "right": "Stroma", "evidence": { "paragraph": 5, "quote": "also called the Calvin cycle, take place in the stroma" } },
+        { "left": "Cellular respiration", "right": "Mitochondria", "evidence": { "paragraph": 7, "quote": "Cellular respiration, which happens in the mitochondria of both plants and animals" } }
+      ],
+      "explanation": "Paragraphs 5 and 7 give one location for each process."
+    },
+    {
+      "id": "d03-q06", "conceptId": "d03-c03", "role": "alternate", "lockType": "seance-board",
+      "prompt": "According to your notes, where does the Calvin cycle take place?",
+      "options": [
+        { "id": "a", "text": "In the thylakoid membranes", "label": "contradicted", "evidence": { "paragraph": 5, "quote": "The light-dependent reactions take place in the thylakoid membranes" } },
+        { "id": "b", "text": "In the mitochondria", "label": "contradicted", "evidence": { "paragraph": 7, "quote": "Cellular respiration, which happens in the mitochondria of both plants and animals" } },
+        { "id": "c", "text": "In the stroma", "label": "supported", "evidence": { "paragraph": 5, "quote": "also called the Calvin cycle, take place in the stroma" } }
+      ],
+      "answer": "c",
+      "explanation": "The Calvin cycle runs in the stroma, the fluid around the thylakoids."
+    },
+    {
+      "id": "d03-q07", "conceptId": "d03-c04", "role": "primary", "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the light-dependent stage in order.",
+      "steps": [
+        "Chlorophyll absorbs light energy",
+        "The energy splits water molecules, releasing oxygen",
+        "The energy is stored in ATP and NADPH",
+        "ATP and NADPH move to the stroma for the Calvin cycle"
+      ],
+      "evidence": [
+        { "paragraph": 6, "quote": "First, chlorophyll absorbs light energy." },
+        { "paragraph": 6, "quote": "Finally, ATP and NADPH move to the stroma" }
+      ],
+      "explanation": "Paragraph 6 gives the order: first, next, then, finally."
+    },
+    {
+      "id": "d03-q08", "conceptId": "d03-c04", "role": "alternate", "lockType": "rune-cipher",
+      "prompt": "According to your notes, the light energy is stored in two carrier molecules: ATP and ______.",
+      "answer": "NADPH", "aliases": [], "caseSensitive": true,
+      "evidence": [{ "paragraph": 6, "quote": "Then the energy is stored in two carrier molecules, ATP and NADPH." }],
+      "explanation": "The two carriers are ATP and NADPH. The answer is case-sensitive because it is a chemical abbreviation."
+    },
+    {
+      "id": "d03-q09", "conceptId": "d03-c05", "role": "primary", "lockType": "combination-dial",
+      "prompt": "According to your notes, how many molecules of carbon dioxide are needed to make one molecule of glucose?",
+      "answer": { "kind": "exact", "value": 6 }, "units": "molecules",
+      "evidence": [{ "paragraph": 4, "quote": "6 molecules of carbon dioxide and 6 molecules of water produce one molecule of glucose" }],
+      "explanation": "The equation in your notes uses 6 molecules of carbon dioxide."
+    },
+    {
+      "id": "d03-q10", "conceptId": "d03-c05", "role": "alternate", "lockType": "rune-cipher",
+      "prompt": "According to your notes, the chemical formula of glucose is ______.",
+      "answer": "C6H12O6", "aliases": [], "caseSensitive": true,
+      "evidence": [{ "paragraph": 4, "quote": "Glucose has the formula C6H12O6." }],
+      "explanation": "Paragraph 4 gives the formula. Case matters in chemical formulas."
+    },
+    {
+      "id": "d03-q11", "conceptId": "d03-c06", "role": "primary", "lockType": "seance-board",
+      "prompt": "According to your notes, why do leaves look green?",
+      "options": [
+        { "id": "a", "text": "Chlorophyll reflects green light", "label": "supported", "evidence": { "paragraph": 2, "quote": "absorbs red and blue light and reflects green light" } },
+        { "id": "b", "text": "Chlorophyll absorbs green light", "label": "contradicted", "evidence": { "paragraph": 2, "quote": "absorbs red and blue light and reflects green light" } },
+        { "id": "c", "text": "Chlorophyll reflects red and blue light", "label": "contradicted", "evidence": { "paragraph": 2, "quote": "absorbs red and blue light and reflects green light" } }
+      ],
+      "answer": "a",
+      "explanation": "Chlorophyll absorbs red and blue light and reflects green.",
+      "note": "No alternate."
+    }
+  ]
+}

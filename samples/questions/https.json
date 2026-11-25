@@ -1,0 +1,288 @@
+{
+  "notes": "https.txt",
+  "status": "draft: needs your human review before it may carry the 'Human-reviewed' label",
+  "questions": [
+    {
+      "id": "hs-q01",
+      "conceptId": "hs-c01",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the steps of the classic TLS 1.2 handshake in order.",
+      "steps": [
+        "The browser sends a hello listing the encryption methods it supports",
+        "The server replies with its hello and its certificate",
+        "The browser checks the certificate was signed by a trusted certificate authority",
+        "The browser and server agree on a session key",
+        "All further data is encrypted with the session key"
+      ],
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "First, the browser sends a hello message listing the encryption methods it supports."
+        },
+        {
+          "paragraph": 5,
+          "quote": "Finally, all further data is encrypted with that session key."
+        }
+      ],
+      "explanation": "Paragraph 5 gives the classic TLS 1.2 handshake in order. (TLS 1.3 shortens it; see paragraph 6.)"
+    },
+    {
+      "id": "hs-q02",
+      "conceptId": "hs-c01",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what does the server send along with its hello message?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Its certificate",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "the server replies with its own hello and its certificate"
+          }
+        },
+        {
+          "id": "b",
+          "text": "Its private key",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "A private key is kept secret by the server."
+          }
+        },
+        {
+          "id": "c",
+          "text": "The session key",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "After that, the browser and server agree on a session key."
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "The server sends its certificate; its private key stays secret, and the session key is agreed later."
+    },
+    {
+      "id": "hs-q03",
+      "conceptId": "hs-c02",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are protections TLS provides. Which one is not?",
+      "items": [
+        "Encryption",
+        "Authentication",
+        "Integrity",
+        "Anonymity"
+      ],
+      "answer": "Anonymity",
+      "categoryRule": "TLS provides encryption, authentication and integrity.",
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "TLS provides three protections covered in these notes: encryption, authentication and integrity."
+        },
+        {
+          "paragraph": 3,
+          "quote": "Anonymity is not one of these protections"
+        }
+      ],
+      "explanation": "The website still sees your IP address, so HTTPS doesn't make you anonymous."
+    },
+    {
+      "id": "hs-q04",
+      "conceptId": "hs-c02",
+      "role": "alternate",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each protection to what it means.",
+      "pairs": [
+        {
+          "left": "Encryption",
+          "right": "Others on the network can't read the data",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Encryption means others on the network cannot read the data."
+          }
+        },
+        {
+          "left": "Authentication",
+          "right": "You can check you're talking to the real website",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Authentication means you can check you are talking to the real website."
+          }
+        },
+        {
+          "left": "Integrity",
+          "right": "Changes in transit would be detected",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Integrity means the data cannot be changed in transit without it being detected."
+          }
+        }
+      ],
+      "explanation": "Paragraph 3 defines each protection."
+    },
+    {
+      "id": "hs-q05",
+      "conceptId": "hs-c03",
+      "role": "primary",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each item to its description.",
+      "pairs": [
+        {
+          "left": "Public key",
+          "right": "Can be shared openly",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "A public key can be shared openly."
+          }
+        },
+        {
+          "left": "Private key",
+          "right": "Kept secret by the server",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "A private key is kept secret by the server."
+          }
+        },
+        {
+          "left": "Certificate authority",
+          "right": "A trusted organisation that signs certificates",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "A certificate authority is a trusted organisation that signs certificates."
+          }
+        },
+        {
+          "left": "Session key",
+          "right": "A shared key that encrypts the rest of the conversation",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "A session key is a shared key used to encrypt the rest of the conversation."
+          }
+        }
+      ],
+      "explanation": "Paragraph 4 describes each one."
+    },
+    {
+      "id": "hs-q06",
+      "conceptId": "hs-c03",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, which of these is kept secret by the server?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The public key",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "A public key can be shared openly."
+          }
+        },
+        {
+          "id": "b",
+          "text": "The certificate",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "the server replies with its own hello and its certificate"
+          }
+        },
+        {
+          "id": "c",
+          "text": "The private key",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "A private key is kept secret by the server."
+          }
+        }
+      ],
+      "answer": "c",
+      "explanation": "Only the private key stays secret; the public key and certificate are shared."
+    },
+    {
+      "id": "hs-q07",
+      "conceptId": "hs-c04",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, which port does HTTPS use by default?",
+      "answer": {
+        "kind": "exact",
+        "value": 443
+      },
+      "units": "port number",
+      "evidence": [
+        {
+          "paragraph": 2,
+          "quote": "By default, HTTPS uses port 443, while plain HTTP uses port 80."
+        }
+      ],
+      "explanation": "HTTPS uses port 443 by default.",
+      "note": "No alternate."
+    },
+    {
+      "id": "hs-q08",
+      "conceptId": "hs-c05",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, in the newest version, how many round trips does the handshake usually need before encrypted data can flow?",
+      "answer": {
+        "kind": "exact",
+        "value": 1
+      },
+      "units": "round trips",
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "the handshake usually needs only one round trip"
+        }
+      ],
+      "explanation": "Your notes say one round trip in TLS 1.3.",
+      "note": "No alternate."
+    },
+    {
+      "id": "hs-q09",
+      "conceptId": "hs-c06",
+      "role": "primary",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what does the padlock icon in the address bar mean?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The connection is encrypted",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 7,
+            "quote": "A padlock icon in the address bar means the connection is encrypted."
+          }
+        },
+        {
+          "id": "b",
+          "text": "The website is honest and safe",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 7,
+            "quote": "It does not mean the website itself is honest or safe."
+          }
+        },
+        {
+          "id": "c",
+          "text": "You are anonymous to the website",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "the website still sees your IP address"
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "The padlock means encryption, not that the site is trustworthy or that you're anonymous.",
+      "note": "No alternate."
+    }
+  ]
+}

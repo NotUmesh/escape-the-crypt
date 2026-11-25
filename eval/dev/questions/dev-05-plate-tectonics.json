@@ -1,0 +1,100 @@
+{
+  "notes": "dev-05-plate-tectonics.txt",
+  "questions": [
+    {
+      "id": "d05-q01", "conceptId": "d05-c01", "role": "primary", "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are types of plate boundary. Which one is not?",
+      "items": ["Divergent", "Convergent", "Transform", "Hotspot"],
+      "answer": "Hotspot",
+      "categoryRule": "Scientists group plate boundaries into three types: divergent, convergent and transform.",
+      "evidence": [
+        { "paragraph": 5, "quote": "Scientists group plate boundaries into three types." },
+        { "paragraph": 5, "quote": "A hotspot is not a type of plate boundary" }
+      ],
+      "explanation": "Your notes name three boundary types and say a hotspot is not one."
+    },
+    {
+      "id": "d05-q02", "conceptId": "d05-c01", "role": "alternate", "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each boundary type to how the plates move.",
+      "pairs": [
+        { "left": "Divergent", "right": "Plates move apart and new crust forms", "evidence": { "paragraph": 5, "quote": "At divergent boundaries, plates move apart and new crust forms" } },
+        { "left": "Convergent", "right": "Plates move towards each other", "evidence": { "paragraph": 5, "quote": "At convergent boundaries, plates move towards each other" } },
+        { "left": "Transform", "right": "Plates slide past each other sideways", "evidence": { "paragraph": 5, "quote": "At transform boundaries, plates slide past each other sideways" } }
+      ],
+      "explanation": "Paragraph 5 describes the movement at each boundary type."
+    },
+    {
+      "id": "d05-q03", "conceptId": "d05-c02", "role": "primary", "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each place to the kind of boundary it is an example of.",
+      "pairs": [
+        { "left": "Mid-Atlantic Ridge", "right": "Divergent boundary", "evidence": { "paragraph": 5, "quote": "the Mid-Atlantic Ridge is an example" } },
+        { "left": "Himalayas", "right": "Convergent boundary", "evidence": { "paragraph": 5, "quote": "the Himalayas formed where the Indian Plate collided with the Eurasian Plate" } },
+        { "left": "San Andreas Fault", "right": "Transform boundary", "evidence": { "paragraph": 5, "quote": "the San Andreas Fault in California is an example" } }
+      ],
+      "explanation": "Each example follows its boundary type in paragraph 5.",
+      "note": "No alternate."
+    },
+    {
+      "id": "d05-q04", "conceptId": "d05-c03", "role": "primary", "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the steps of subduction at an ocean-continent boundary in order.",
+      "steps": [
+        "The denser oceanic plate bends downward beneath the continental plate",
+        "The sinking plate heats up as it descends into the mantle",
+        "Water from the sinking plate helps nearby mantle rock melt into magma",
+        "Magma rises and can erupt to form a line of volcanoes"
+      ],
+      "evidence": [
+        { "paragraph": 6, "quote": "First, the denser oceanic plate bends downward beneath the continental plate." },
+        { "paragraph": 6, "quote": "Finally, the magma rises and can erupt to form a line of volcanoes" }
+      ],
+      "explanation": "Paragraph 6 gives the order with first, next, then, finally."
+    },
+    {
+      "id": "d05-q05", "conceptId": "d05-c03", "role": "alternate", "lockType": "rune-cipher",
+      "prompt": "According to your notes, when a denser oceanic plate sinks beneath a continental plate, the process is called ______.",
+      "answer": "subduction", "aliases": [], "caseSensitive": false,
+      "evidence": [{ "paragraph": 6, "quote": "When an oceanic plate meets a continental plate, subduction follows a typical order." }],
+      "explanation": "Paragraph 6 names this process subduction."
+    },
+    {
+      "id": "d05-q06", "conceptId": "d05-c04", "role": "primary", "lockType": "rune-cipher",
+      "prompt": "According to your notes, in 1912 the idea of continental drift was proposed by ______.",
+      "answer": "Alfred Wegener", "aliases": ["Wegener"], "caseSensitive": false,
+      "evidence": [{ "paragraph": 4, "quote": "In 1912, Alfred Wegener proposed the idea of continental drift." }],
+      "explanation": "Paragraph 4 credits Alfred Wegener."
+    },
+    {
+      "id": "d05-q07", "conceptId": "d05-c04", "role": "alternate", "lockType": "combination-dial",
+      "prompt": "According to your notes, in what year did Alfred Wegener propose continental drift?",
+      "answer": { "kind": "exact", "value": 1912 }, "units": "year",
+      "evidence": [{ "paragraph": 4, "quote": "In 1912, Alfred Wegener proposed the idea of continental drift." }],
+      "explanation": "Your notes give 1912."
+    },
+    {
+      "id": "d05-q08", "conceptId": "d05-c05", "role": "primary", "lockType": "rune-cipher",
+      "prompt": "According to your notes, the single supercontinent that later broke apart was called ______.",
+      "answer": "Pangaea", "aliases": [], "caseSensitive": false,
+      "evidence": [{ "paragraph": 3, "quote": "a single supercontinent called Pangaea, which then broke apart" }],
+      "explanation": "Paragraph 3 names the supercontinent Pangaea."
+    },
+    {
+      "id": "d05-q09", "conceptId": "d05-c05", "role": "alternate", "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many million years ago were the continents joined in Pangaea?",
+      "answer": { "kind": "exact", "value": 200 }, "units": "million years ago",
+      "evidence": [{ "paragraph": 3, "quote": "About 200 million years ago, the continents were joined" }],
+      "explanation": "Your notes say about 200 million years ago."
+    },
+    {
+      "id": "d05-q10", "conceptId": "d05-c06", "role": "primary", "lockType": "seance-board",
+      "prompt": "According to your notes, what layer do the tectonic plates float on?",
+      "options": [
+        { "id": "a", "text": "The asthenosphere", "label": "supported", "evidence": { "paragraph": 2, "quote": "The plates float on the asthenosphere" } },
+        { "id": "b", "text": "The lithosphere", "label": "contradicted", "evidence": { "paragraph": 2, "quote": "the lithosphere, is broken into large slabs called tectonic plates" } },
+        { "id": "c", "text": "The crust", "label": "contradicted", "evidence": { "paragraph": 2, "quote": "The lithosphere includes the crust and the rigid top layer of the mantle." } }
+      ],
+      "answer": "a",
+      "explanation": "The plates are pieces of the lithosphere, which includes the crust; they float on the asthenosphere.",
+      "note": "No alternate."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+How vaccines train the immune system
+
+A vaccine prepares the immune system to recognise a germ before a real infection happens. It does this by showing the body an antigen, which is a molecule the immune system can recognise as foreign. Most antigens used in vaccines are proteins or sugars from the surface of a virus or bacterium.
+
+Two kinds of white blood cell do most of the work. B cells produce antibodies, which are proteins that attach to a specific antigen and mark it for destruction. T cells come in two main kinds: helper T cells coordinate the response by sending chemical signals, and killer T cells destroy body cells that have already been infected. Antigen-presenting cells, such as dendritic cells, capture antigens and display them to T cells.
+
+After vaccination, the response follows a set order. First, the vaccine introduces the antigen into the body. Second, antigen-presenting cells pick up the antigen and display it to helper T cells. Third, the activated helper T cells signal B cells to multiply. Fourth, the B cells release antibodies that match the antigen. Finally, some B and T cells remain as memory cells, ready to respond quickly to the same germ later.
+
+It usually takes about two weeks after vaccination for the body to build protection. Some vaccines need a second dose, called a booster, because protection from the first dose fades over time or was never strong enough.
+
+There are four main types of vaccine covered in these notes: live-attenuated vaccines, inactivated vaccines, subunit vaccines and mRNA vaccines. Live-attenuated vaccines contain a weakened form of the germ. Inactivated vaccines contain a germ that has been killed. Subunit vaccines contain only selected pieces of the germ, such as one protein. mRNA vaccines contain instructions that tell the body's own cells to make a harmless piece of the germ's protein. Antibiotics are not vaccines at all: they are medicines that kill bacteria or stop them from growing, and they do not train the immune system.
+
+When enough people in a community are immune, a germ struggles to spread from person to person. This indirect protection is called herd immunity, and it helps protect people who cannot be vaccinated, such as those with certain medical conditions.

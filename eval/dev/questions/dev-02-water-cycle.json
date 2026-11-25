@@ -1,0 +1,98 @@
+{
+  "notes": "dev-02-water-cycle.txt",
+  "questions": [
+    {
+      "id": "d02-q01", "conceptId": "d02-c01", "role": "primary", "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each process to what happens.",
+      "pairs": [
+        { "left": "Evaporation", "right": "The Sun turns liquid water into water vapour", "evidence": { "paragraph": 4, "quote": "Evaporation happens when the Sun heats liquid water and turns it into water vapour" } },
+        { "left": "Condensation", "right": "Water vapour cools into tiny liquid droplets", "evidence": { "paragraph": 5, "quote": "water vapour cools and turns back into tiny liquid droplets" } },
+        { "left": "Transpiration", "right": "Plants release water vapour from their leaves", "evidence": { "paragraph": 4, "quote": "Transpiration is the release of water vapour from the leaves of plants." } },
+        { "left": "Sublimation", "right": "Ice turns straight into water vapour without melting", "evidence": { "paragraph": 4, "quote": "Sublimation is when ice turns directly into water vapour without melting first" } }
+      ],
+      "explanation": "Each process is defined once in paragraphs 4 and 5, and no description fits two processes."
+    },
+    {
+      "id": "d02-q02", "conceptId": "d02-c01", "role": "alternate", "lockType": "seance-board",
+      "prompt": "According to your notes, what is sublimation?",
+      "options": [
+        { "id": "a", "text": "Plants releasing water vapour from their leaves", "label": "contradicted", "evidence": { "paragraph": 4, "quote": "Transpiration is the release of water vapour from the leaves of plants." } },
+        { "id": "b", "text": "Water vapour cooling into liquid droplets", "label": "contradicted", "evidence": { "paragraph": 5, "quote": "water vapour cools and turns back into tiny liquid droplets" } },
+        { "id": "c", "text": "Ice turning directly into water vapour without melting", "label": "supported", "evidence": { "paragraph": 4, "quote": "Sublimation is when ice turns directly into water vapour without melting first" } },
+        { "id": "d", "text": "Water soaking down into the soil", "label": "contradicted", "evidence": { "paragraph": 7, "quote": "Infiltration is water soaking down into the soil." } }
+      ],
+      "answer": "c",
+      "explanation": "Your notes define sublimation as ice turning straight into vapour; the other options are other processes."
+    },
+    {
+      "id": "d02-q03", "conceptId": "d02-c02", "role": "primary", "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are forms of precipitation. Which one is not?",
+      "items": ["Rain", "Snow", "Hail", "Fog"],
+      "answer": "Fog",
+      "categoryRule": "Precipitation is water that falls from clouds to the ground, including rain, snow, sleet and hail.",
+      "evidence": [
+        { "paragraph": 6, "quote": "including rain, snow, sleet and hail" },
+        { "paragraph": 6, "quote": "Fog and dew are not precipitation, because they form at ground level" }
+      ],
+      "explanation": "Fog forms at ground level instead of falling from clouds, so your notes say it is not precipitation."
+    },
+    {
+      "id": "d02-q04", "conceptId": "d02-c02", "role": "alternate", "lockType": "rune-cipher",
+      "prompt": "According to your notes, any water that falls from clouds to the ground, such as sleet, is called ______.",
+      "answer": "precipitation", "aliases": [], "caseSensitive": false,
+      "evidence": [{ "paragraph": 6, "quote": "Precipitation is any water that falls from clouds to the ground" }],
+      "explanation": "Paragraph 6 defines precipitation."
+    },
+    {
+      "id": "d02-q05", "conceptId": "d02-c03", "role": "primary", "lockType": "combination-dial",
+      "prompt": "According to your notes, about what percentage of Earth's water is salt water in the oceans?",
+      "answer": { "kind": "exact", "value": 97 }, "units": "percent",
+      "evidence": [{ "paragraph": 3, "quote": "About 97 percent of Earth's water is salt water in the oceans." }],
+      "explanation": "Your notes give about 97 percent."
+    },
+    {
+      "id": "d02-q06", "conceptId": "d02-c03", "role": "alternate", "lockType": "seance-board",
+      "prompt": "According to your notes, where is most of Earth's fresh water?",
+      "options": [
+        { "id": "a", "text": "Frozen in glaciers and ice caps", "label": "supported", "evidence": { "paragraph": 3, "quote": "most of that fresh water is frozen in glaciers and ice caps" } },
+        { "id": "b", "text": "Flowing in rivers and lakes", "label": "contradicted", "evidence": { "paragraph": 3, "quote": "rather than flowing in rivers and lakes" } },
+        { "id": "c", "text": "In the oceans", "label": "contradicted", "evidence": { "paragraph": 3, "quote": "About 97 percent of Earth's water is salt water in the oceans." } }
+      ],
+      "answer": "a",
+      "explanation": "Most fresh water is frozen; the oceans hold salt water."
+    },
+    {
+      "id": "d02-q07", "conceptId": "d02-c04", "role": "primary", "lockType": "combination-dial",
+      "prompt": "According to your notes, for about how many days does a water molecule stay in the atmosphere on average?",
+      "answer": { "kind": "exact", "value": 9 }, "units": "days",
+      "evidence": [{ "paragraph": 5, "quote": "stays in the atmosphere for about nine days on average" }],
+      "explanation": "Your notes say about nine days.",
+      "note": "No alternate."
+    },
+    {
+      "id": "d02-q08", "conceptId": "d02-c05", "role": "primary", "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each path water can take on land to its description.",
+      "pairs": [
+        { "left": "Runoff", "right": "Flows over the surface into streams and rivers", "evidence": { "paragraph": 7, "quote": "Runoff is water that flows over the surface into streams" } },
+        { "left": "Infiltration", "right": "Soaks down into the soil", "evidence": { "paragraph": 7, "quote": "Infiltration is water soaking down into the soil." } },
+        { "left": "Groundwater", "right": "Fills the spaces in rock and can stay underground for thousands of years", "evidence": { "paragraph": 7, "quote": "Water that soaks deep enough to fill the spaces in rock becomes groundwater" } }
+      ],
+      "explanation": "Paragraph 7 describes the three paths."
+    },
+    {
+      "id": "d02-q09", "conceptId": "d02-c05", "role": "alternate", "lockType": "rune-cipher",
+      "prompt": "According to your notes, water that flows over the land's surface into streams, rivers and eventually the sea is called ______.",
+      "answer": "runoff", "aliases": ["run-off"], "caseSensitive": false,
+      "evidence": [{ "paragraph": 7, "quote": "Runoff is water that flows over the surface into streams" }],
+      "explanation": "Paragraph 7 names this runoff."
+    },
+    {
+      "id": "d02-q10", "conceptId": "d02-c06", "role": "primary", "lockType": "rune-cipher",
+      "prompt": "According to your notes, clouds form when billions of droplets gather around specks of ______ in the air.",
+      "answer": "dust", "aliases": [], "caseSensitive": false,
+      "evidence": [{ "paragraph": 5, "quote": "Clouds form when billions of these droplets gather around specks of dust in the air." }],
+      "explanation": "Paragraph 5 says droplets gather around specks of dust.",
+      "note": "No alternate."
+    }
+  ]
+}

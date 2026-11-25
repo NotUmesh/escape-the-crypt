@@ -1,0 +1,200 @@
+{
+  "notes": "dev-10-averages.txt",
+  "questions": [
+    {
+      "id": "d10-q01",
+      "conceptId": "d10-c01",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are measures of central tendency. Which one is not?",
+      "items": [
+        "Mean",
+        "Median",
+        "Mode",
+        "Range"
+      ],
+      "answer": "Range",
+      "categoryRule": "The three common measures of central tendency are the mean, the median and the mode.",
+      "evidence": [
+        {
+          "paragraph": 2,
+          "quote": "the mean, the median and the mode"
+        },
+        {
+          "paragraph": 2,
+          "quote": "The range is not a measure of central tendency"
+        }
+      ],
+      "explanation": "The range is a measure of spread."
+    },
+    {
+      "id": "d10-q02",
+      "conceptId": "d10-c01",
+      "role": "alternate",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each term to its definition.",
+      "pairs": [
+        {
+          "left": "Mean",
+          "right": "The sum of the values divided by how many there are",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The mean is the sum of all the values divided by the number of values."
+          }
+        },
+        {
+          "left": "Median",
+          "right": "The middle value when the data are in order",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The median is the middle value when the data are put in order."
+          }
+        },
+        {
+          "left": "Mode",
+          "right": "The value that appears most often",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The mode is the value that appears most often."
+          }
+        },
+        {
+          "left": "Range",
+          "right": "The largest value minus the smallest value",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The range is the largest value minus the smallest value."
+          }
+        }
+      ],
+      "explanation": "Paragraph 3 defines each term."
+    },
+    {
+      "id": "d10-q03",
+      "conceptId": "d10-c02",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the steps for finding the median in order.",
+      "steps": [
+        "Put the values in order from smallest to largest",
+        "Count how many values there are",
+        "If the count is odd, pick the middle value",
+        "If the count is even, take the mean of the two middle values"
+      ],
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "First, put the values in order from smallest to largest."
+        },
+        {
+          "paragraph": 4,
+          "quote": "Finally, if the count is even, take the mean of the two middle values."
+        }
+      ],
+      "explanation": "Paragraph 4 gives the steps in order."
+    },
+    {
+      "id": "d10-q04",
+      "conceptId": "d10-c02",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, how do you find the median when there is an even number of values?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Take the mean of the two middle values",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "Finally, if the count is even, take the mean of the two middle values."
+          }
+        },
+        {
+          "id": "b",
+          "text": "Pick the middle value",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "Then, if the count is odd, pick the middle value."
+          }
+        },
+        {
+          "id": "c",
+          "text": "Pick the value that appears most often",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The mode is the value that appears most often."
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "With an even count, the median is the mean of the two middle values."
+    },
+    {
+      "id": "d10-q05",
+      "conceptId": "d10-c03",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, what is the range of the example data set 2, 4, 4, 5 and 10?",
+      "answer": {
+        "kind": "template",
+        "template": "difference",
+        "inputs": [
+          10,
+          2
+        ],
+        "value": 8
+      },
+      "units": "(no units)",
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "The largest value is 10 and the smallest is 2."
+        }
+      ],
+      "explanation": "Range = largest minus smallest = 10 − 2 = 8. Computed by code with the allowlisted 'difference' template.",
+      "note": "No alternate."
+    },
+    {
+      "id": "d10-q06",
+      "conceptId": "d10-c04",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, what is the mean of the example data set?",
+      "answer": {
+        "kind": "exact",
+        "value": 5
+      },
+      "units": "(no units)",
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "The mean is 5, the median is 4 and the mode is 4."
+        }
+      ],
+      "explanation": "Your notes give the mean as 5.",
+      "note": "No alternate."
+    },
+    {
+      "id": "d10-q07",
+      "conceptId": "d10-c05",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, values that are far from the rest of the data are called ______.",
+      "answer": "outliers",
+      "aliases": [
+        "outlier"
+      ],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "The mean is affected strongly by outliers, which are values far from the rest."
+        }
+      ],
+      "explanation": "Paragraph 6 defines outliers.",
+      "note": "No alternate."
+    }
+  ]
+}

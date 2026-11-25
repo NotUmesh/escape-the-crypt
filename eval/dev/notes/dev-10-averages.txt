@@ -1,0 +1,11 @@
+Averages and spread in statistics
+
+Statistics uses three common measures of central tendency, which describe the middle of a set of data: the mean, the median and the mode. The range is not a measure of central tendency: it is a measure of spread, which describes how far apart the values are.
+
+The mean is the sum of all the values divided by the number of values. The median is the middle value when the data are put in order. The mode is the value that appears most often. The range is the largest value minus the smallest value.
+
+To find the median, follow these steps in order. First, put the values in order from smallest to largest. Next, count how many values there are. Then, if the count is odd, pick the middle value. Finally, if the count is even, take the mean of the two middle values.
+
+For example, take the data set 2, 4, 4, 5 and 10. The mean is 5, the median is 4 and the mode is 4. The largest value is 10 and the smallest is 2.
+
+The mean is affected strongly by outliers, which are values far from the rest. In the example, the value 10 pulls the mean above the median. The median is often a better summary when data contain outliers.

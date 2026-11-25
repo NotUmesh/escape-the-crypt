@@ -1,0 +1,331 @@
+{
+  "notes": "human-heart.txt",
+  "status": "draft: needs your human review before it may carry the 'Human-reviewed' label",
+  "questions": [
+    {
+      "id": "hh-q01",
+      "conceptId": "hh-c01",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, the valves between the atria and ventricles are called the ______ valves.",
+      "answer": "atrioventricular",
+      "aliases": [
+        "AV"
+      ],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+        }
+      ],
+      "explanation": "Your notes call them the atrioventricular (AV) valves: the tricuspid on the right and the mitral on the left.",
+      "hint": {
+        "kind": "first-letter-and-length",
+        "firstLetter": "a",
+        "length": 16
+      }
+    },
+    {
+      "id": "hh-q02",
+      "conceptId": "hh-c01",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, which atrioventricular valve is on the left side of the heart?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The tricuspid valve",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "the tricuspid valve on the right and the mitral valve on the left"
+          }
+        },
+        {
+          "id": "b",
+          "text": "The mitral valve",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "the tricuspid valve on the right and the mitral valve on the left"
+          }
+        },
+        {
+          "id": "c",
+          "text": "The aortic valve",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "The pulmonary valve and the aortic valve sit where blood leaves the ventricles."
+          }
+        }
+      ],
+      "answer": "b",
+      "explanation": "The mitral valve is the AV valve on the left; the aortic valve is where blood leaves a ventricle."
+    },
+    {
+      "id": "hh-q03",
+      "conceptId": "hh-c02",
+      "role": "primary",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, which chamber pumps oxygen-rich blood to the body?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Right atrium",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The right atrium receives oxygen-poor blood returning from the body."
+          }
+        },
+        {
+          "id": "b",
+          "text": "Left ventricle",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "The left ventricle pumps oxygen-rich blood out to the rest of the body."
+          }
+        },
+        {
+          "id": "c",
+          "text": "Right ventricle",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The right ventricle pumps that blood to the lungs"
+          }
+        },
+        {
+          "id": "d",
+          "text": "Left atrium",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "The left atrium receives oxygen-rich blood from the lungs."
+          }
+        }
+      ],
+      "answer": "b",
+      "explanation": "The left ventricle pumps oxygen-rich blood to the body; the other chambers receive blood or pump it to the lungs."
+    },
+    {
+      "id": "hh-q04",
+      "conceptId": "hh-c02",
+      "role": "alternate",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, the chamber with the thickest muscular wall, because it pumps blood the farthest, is the ______.",
+      "answer": "left ventricle",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "Because it pumps blood the farthest, the left ventricle has the thickest muscular wall"
+        }
+      ],
+      "explanation": "Paragraph 5 links the left ventricle's thick wall to pumping blood to the whole body."
+    },
+    {
+      "id": "hh-q05",
+      "conceptId": "hh-c03",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the path of blood through the right side of the heart in order.",
+      "steps": [
+        "Right atrium",
+        "Tricuspid valve",
+        "Right ventricle",
+        "Pulmonary valve"
+      ],
+      "evidence": [
+        {
+          "paragraph": 7,
+          "quote": "First, it enters the right atrium."
+        },
+        {
+          "paragraph": 7,
+          "quote": "Finally, it is pumped through the pulmonary valve towards the lungs."
+        }
+      ],
+      "explanation": "Paragraph 7 gives the order: first, next, then, finally."
+    },
+    {
+      "id": "hh-q06",
+      "conceptId": "hh-c03",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, which valve does blood pass through between the right atrium and the right ventricle?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The tricuspid valve",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 7,
+            "quote": "Next, it passes through the tricuspid valve."
+          }
+        },
+        {
+          "id": "b",
+          "text": "The mitral valve",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "the tricuspid valve on the right and the mitral valve on the left"
+          }
+        },
+        {
+          "id": "c",
+          "text": "The pulmonary valve",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 7,
+            "quote": "Finally, it is pumped through the pulmonary valve towards the lungs."
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "Blood passes the tricuspid valve on its way from the right atrium to the right ventricle; the pulmonary valve comes last."
+    },
+    {
+      "id": "hh-q07",
+      "conceptId": "hh-c04",
+      "role": "primary",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each blood vessel to its job.",
+      "pairs": [
+        {
+          "left": "Aorta",
+          "right": "Carries blood to the body",
+          "evidence": {
+            "paragraph": 8,
+            "quote": "The aorta carries blood to the body."
+          }
+        },
+        {
+          "left": "Pulmonary artery",
+          "right": "Carries blood to the lungs",
+          "evidence": {
+            "paragraph": 8,
+            "quote": "The pulmonary artery carries blood to the lungs."
+          }
+        },
+        {
+          "left": "Vena cava",
+          "right": "Returns blood to the heart",
+          "evidence": {
+            "paragraph": 8,
+            "quote": "The vena cava returns blood to the heart from the body."
+          }
+        }
+      ],
+      "explanation": "Paragraph 8 gives each vessel one job."
+    },
+    {
+      "id": "hh-q08",
+      "conceptId": "hh-c04",
+      "role": "alternate",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, the blood vessel that carries blood to the lungs is the ______.",
+      "answer": "pulmonary artery",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 8,
+          "quote": "The pulmonary artery carries blood to the lungs."
+        }
+      ],
+      "explanation": "Paragraph 8 names the pulmonary artery."
+    },
+    {
+      "id": "hh-q09",
+      "conceptId": "hh-c05",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are chambers of the heart. Which one is not?",
+      "items": [
+        "Left atrium",
+        "Right ventricle",
+        "Aorta",
+        "Right atrium"
+      ],
+      "answer": "Aorta",
+      "categoryRule": "The heart's four chambers are the right and left atria and the right and left ventricles.",
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "The two upper chambers are the right atrium and the left atrium."
+        },
+        {
+          "paragraph": 3,
+          "quote": "The aorta is not a chamber of the heart"
+        }
+      ],
+      "explanation": "Your notes say the aorta is the largest artery, not a chamber."
+    },
+    {
+      "id": "hh-q10",
+      "conceptId": "hh-c05",
+      "role": "alternate",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, how many chambers does the human heart have?",
+      "answer": {
+        "kind": "exact",
+        "value": 4
+      },
+      "units": "chambers",
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "The heart has four chambers."
+        }
+      ],
+      "explanation": "Your notes say four."
+    },
+    {
+      "id": "hh-q11",
+      "conceptId": "hh-c06",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many times per minute does a resting adult's heart beat? Any value in the normal range counts.",
+      "answer": {
+        "kind": "range",
+        "min": 60,
+        "max": 100
+      },
+      "units": "beats per minute",
+      "evidence": [
+        {
+          "paragraph": 9,
+          "quote": "a normal heart rate is between 60 and 100 beats per minute"
+        }
+      ],
+      "explanation": "Any value from 60 to 100 beats per minute is accepted, because your notes give a range.",
+      "note": "No alternate. Judge: accept any submitted value in [60, 100]."
+    },
+    {
+      "id": "hh-q12",
+      "conceptId": "hh-c07",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, each heartbeat starts with an electrical signal from the ______, the heart's natural pacemaker.",
+      "answer": "sinoatrial node",
+      "aliases": [
+        "SA node"
+      ],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 9,
+          "quote": "Each heartbeat starts with an electrical signal from the sinoatrial node"
+        }
+      ],
+      "explanation": "Paragraph 9 names the sinoatrial node.",
+      "note": "No alternate."
+    }
+  ]
+}

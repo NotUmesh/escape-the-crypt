@@ -1,0 +1,250 @@
+{
+  "notes": "dev-08-butterfly-life-cycle.txt",
+  "questions": [
+    {
+      "id": "d08-q01",
+      "conceptId": "d08-c01",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the stages of a butterfly's life cycle in order.",
+      "steps": [
+        "Egg",
+        "Caterpillar (larva)",
+        "Chrysalis (pupa)",
+        "Adult butterfly"
+      ],
+      "evidence": [
+        {
+          "paragraph": 2,
+          "quote": "First, an adult female lays an egg"
+        },
+        {
+          "paragraph": 2,
+          "quote": "Finally, an adult butterfly emerges"
+        }
+      ],
+      "explanation": "Paragraph 2 gives the four stages with first, next, then, finally."
+    },
+    {
+      "id": "d08-q02",
+      "conceptId": "d08-c01",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what is the pupa of a butterfly called?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A caterpillar",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "a larva, called a caterpillar, hatches"
+          }
+        },
+        {
+          "id": "b",
+          "text": "A chrysalis",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "a pupa, which in butterflies is called a chrysalis"
+          }
+        },
+        {
+          "id": "c",
+          "text": "A nymph",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "with only three stages, egg, nymph and adult"
+          }
+        }
+      ],
+      "answer": "b",
+      "explanation": "A butterfly's pupa is a chrysalis; the caterpillar is the larva, and nymphs belong to incomplete metamorphosis."
+    },
+    {
+      "id": "d08-q03",
+      "conceptId": "d08-c02",
+      "role": "primary",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each stage to its main job.",
+      "pairs": [
+        {
+          "left": "Egg",
+          "right": "Protects the developing embryo",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The egg protects the developing embryo."
+          }
+        },
+        {
+          "left": "Caterpillar",
+          "right": "Eats and stores energy",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The caterpillar's job is to eat and store energy."
+          }
+        },
+        {
+          "left": "Pupa",
+          "right": "The body is reorganised into the adult form",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The pupa is where the body is reorganised into the adult form."
+          }
+        },
+        {
+          "left": "Adult",
+          "right": "Reproduces and spreads to new places",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The adult's job is to reproduce and spread to new places."
+          }
+        }
+      ],
+      "explanation": "Paragraph 3 gives one job per stage."
+    },
+    {
+      "id": "d08-q04",
+      "conceptId": "d08-c02",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what is the caterpillar's main job?",
+      "options": [
+        {
+          "id": "a",
+          "text": "To reproduce and spread to new places",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The adult's job is to reproduce and spread to new places."
+          }
+        },
+        {
+          "id": "b",
+          "text": "To protect the developing embryo",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The egg protects the developing embryo."
+          }
+        },
+        {
+          "id": "c",
+          "text": "To eat and store energy",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "The caterpillar's job is to eat and store energy."
+          }
+        }
+      ],
+      "answer": "c",
+      "explanation": "Eating and storing energy is the caterpillar's job."
+    },
+    {
+      "id": "d08-q05",
+      "conceptId": "d08-c03",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, shedding its skin several times as it grows is a process called ______.",
+      "answer": "moulting",
+      "aliases": [
+        "molting"
+      ],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "it must shed its skin several times, a process called moulting"
+        }
+      ],
+      "explanation": "Paragraph 4 calls it moulting."
+    },
+    {
+      "id": "d08-q06",
+      "conceptId": "d08-c03",
+      "role": "alternate",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many times do most caterpillars shed their skin before becoming a pupa?",
+      "answer": {
+        "kind": "exact",
+        "value": 5
+      },
+      "units": "times",
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "Most caterpillars moult about five times before they become a pupa."
+        }
+      ],
+      "explanation": "Your notes say about five times."
+    },
+    {
+      "id": "d08-q07",
+      "conceptId": "d08-c04",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these go through complete metamorphosis. Which one does not?",
+      "items": [
+        "Butterflies",
+        "Beetles",
+        "Bees",
+        "Grasshoppers"
+      ],
+      "answer": "Grasshoppers",
+      "categoryRule": "Butterflies, beetles, flies and bees go through complete metamorphosis.",
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "Insects that go through complete metamorphosis covered in these notes include butterflies, beetles, flies and bees."
+        },
+        {
+          "paragraph": 5,
+          "quote": "Grasshoppers do not: they go through incomplete metamorphosis"
+        }
+      ],
+      "explanation": "Grasshoppers have incomplete metamorphosis with three stages."
+    },
+    {
+      "id": "d08-q08",
+      "conceptId": "d08-c04",
+      "role": "alternate",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, how many stages does incomplete metamorphosis have?",
+      "answer": {
+        "kind": "exact",
+        "value": 3
+      },
+      "units": "stages",
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "incomplete metamorphosis, with only three stages, egg, nymph and adult"
+        }
+      ],
+      "explanation": "Your notes say three: egg, nymph and adult."
+    },
+    {
+      "id": "d08-q09",
+      "conceptId": "d08-c05",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, up to about how many kilometres do some monarch butterflies migrate each year?",
+      "answer": {
+        "kind": "exact",
+        "value": 4800
+      },
+      "units": "kilometres",
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "Some monarch butterflies migrate up to about 4,800 kilometres"
+        }
+      ],
+      "explanation": "Your notes say up to about 4,800 kilometres.",
+      "note": "No alternate."
+    }
+  ]
+}

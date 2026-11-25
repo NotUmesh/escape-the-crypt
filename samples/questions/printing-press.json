@@ -1,0 +1,279 @@
+{
+  "notes": "printing-press.txt",
+  "status": "draft: needs your human review before it may carry the 'Human-reviewed' label",
+  "questions": [
+    {
+      "id": "pp-q01",
+      "conceptId": "pp-c01",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the steps of printing a page in order.",
+      "steps": [
+        "Arrange letters in a composing stick",
+        "Lock the lines into a forme",
+        "Ink the type with leather ink balls",
+        "Press damp paper onto the type",
+        "Hang the sheet up to dry"
+      ],
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "First, the printer arranged individual letters in a composing stick"
+        },
+        {
+          "paragraph": 5,
+          "quote": "Finally, the printed sheet was hung up to dry."
+        }
+      ],
+      "explanation": "Paragraph 5 gives the order: first, next, then, after that, finally."
+    },
+    {
+      "id": "pp-q02",
+      "conceptId": "pp-c01",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what was the frame that held the locked lines of type called?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A composing stick",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "the printer arranged individual letters in a composing stick"
+          }
+        },
+        {
+          "id": "b",
+          "text": "A forme",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "the lines were locked into a frame called a forme"
+          }
+        },
+        {
+          "id": "c",
+          "text": "An ink ball",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "the type was inked using leather ink balls"
+          }
+        }
+      ],
+      "answer": "b",
+      "explanation": "The forme held the locked lines; the composing stick was for arranging letters."
+    },
+    {
+      "id": "pp-q03",
+      "conceptId": "pp-c02",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these were Gutenberg's innovations. Which one was not?",
+      "items": [
+        "Movable metal type",
+        "Oil-based ink",
+        "Adapted screw press",
+        "Paper"
+      ],
+      "answer": "Paper",
+      "categoryRule": "Gutenberg combined three main innovations: movable metal type, oil-based ink and an adapted screw press.",
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "Gutenberg combined three main innovations."
+        },
+        {
+          "paragraph": 3,
+          "quote": "Paper was not one of his inventions"
+        }
+      ],
+      "explanation": "Paper was invented in China centuries earlier."
+    },
+    {
+      "id": "pp-q04",
+      "conceptId": "pp-c02",
+      "role": "alternate",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each of Gutenberg's innovations to why it mattered.",
+      "pairs": [
+        {
+          "left": "Metal movable type",
+          "right": "Letters could be cast in large numbers and reused",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "individual letters could be cast in large numbers and reused"
+          }
+        },
+        {
+          "left": "Oil-based ink",
+          "right": "Stuck well to metal type",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "He used an oil-based ink that stuck well to metal type."
+          }
+        },
+        {
+          "left": "Adapted screw press",
+          "right": "Pushed paper evenly onto the inked type",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "to push paper evenly onto the inked type"
+          }
+        }
+      ],
+      "explanation": "Paragraph 3 explains each innovation."
+    },
+    {
+      "id": "pp-q05",
+      "conceptId": "pp-c03",
+      "role": "primary",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each name to the printing milestone it belongs to.",
+      "pairs": [
+        {
+          "left": "Bi Sheng",
+          "right": "Movable type made from baked clay, around 1040",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "Bi Sheng made movable type from baked clay around 1040"
+          }
+        },
+        {
+          "left": "Jikji",
+          "right": "A book printed with movable metal type in Korea, 1377",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "the book known as Jikji was printed with movable metal type in 1377"
+          }
+        },
+        {
+          "left": "Johannes Gutenberg",
+          "right": "A complete printing system in Europe, by about 1450",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "By about 1450, Johannes Gutenberg had developed a printing press"
+          }
+        }
+      ],
+      "explanation": "Paragraphs 2 and 4 give each milestone."
+    },
+    {
+      "id": "pp-q06",
+      "conceptId": "pp-c03",
+      "role": "alternate",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, in what year was Jikji printed with movable metal type?",
+      "answer": {
+        "kind": "exact",
+        "value": 1377
+      },
+      "units": "year",
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "the book known as Jikji was printed with movable metal type in 1377"
+        }
+      ],
+      "explanation": "Your notes give 1377."
+    },
+    {
+      "id": "pp-q07",
+      "conceptId": "pp-c04",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, how many lines are on most pages of the Gutenberg Bible?",
+      "answer": {
+        "kind": "exact",
+        "value": 42
+      },
+      "units": "lines",
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "has 42 lines on most pages"
+        }
+      ],
+      "explanation": "Your notes say 42.",
+      "note": "No alternate."
+    },
+    {
+      "id": "pp-q08",
+      "conceptId": "pp-c05",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many copies of the Gutenberg Bible were printed?",
+      "answer": {
+        "kind": "exact",
+        "value": 180
+      },
+      "units": "copies",
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "About 180 copies were printed."
+        }
+      ],
+      "explanation": "Your notes say about 180.",
+      "note": "No alternate."
+    },
+    {
+      "id": "pp-q09",
+      "conceptId": "pp-c06",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, Gutenberg developed his printing press in the city of ______.",
+      "answer": "Mainz",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 2,
+          "quote": "Johannes Gutenberg had developed a printing press in Mainz"
+        }
+      ],
+      "explanation": "Paragraph 2 names Mainz.",
+      "note": "No alternate."
+    },
+    {
+      "id": "pp-q10",
+      "conceptId": "pp-c07",
+      "role": "primary",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what effect did printing have on books in Europe?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It made books cheaper",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 7,
+            "quote": "It made books cheaper, helped ideas travel faster"
+          }
+        },
+        {
+          "id": "b",
+          "text": "It made books more expensive",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 7,
+            "quote": "It made books cheaper, helped ideas travel faster"
+          }
+        },
+        {
+          "id": "c",
+          "text": "It slowed the spread of ideas",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 7,
+            "quote": "helped ideas travel faster and made it easier for more people to learn to read"
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "Printing made books cheaper and helped ideas spread.",
+      "note": "No alternate."
+    }
+  ]
+}

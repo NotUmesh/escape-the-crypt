@@ -1,0 +1,287 @@
+{
+  "notes": "dev-04-apollo-11.txt",
+  "questions": [
+    {
+      "id": "d04-q01",
+      "conceptId": "d04-c01",
+      "role": "primary",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each astronaut to his role on Apollo 11.",
+      "pairs": [
+        {
+          "left": "Neil Armstrong",
+          "right": "Commander",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Neil Armstrong was the commander."
+          }
+        },
+        {
+          "left": "Buzz Aldrin",
+          "right": "Lunar module pilot",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Buzz Aldrin was the lunar module pilot"
+          }
+        },
+        {
+          "left": "Michael Collins",
+          "right": "Command module pilot",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Michael Collins was the command module pilot"
+          }
+        }
+      ],
+      "explanation": "Paragraph 3 gives each crew member one role."
+    },
+    {
+      "id": "d04-q02",
+      "conceptId": "d04-c01",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, which astronaut stayed in lunar orbit while the other two landed?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Neil Armstrong",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "who flew down to the surface with Armstrong"
+          }
+        },
+        {
+          "id": "b",
+          "text": "Buzz Aldrin",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Buzz Aldrin was the lunar module pilot, who flew down to the surface"
+          }
+        },
+        {
+          "id": "c",
+          "text": "Michael Collins",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "who stayed in lunar orbit while the other two landed"
+          }
+        },
+        {
+          "id": "d",
+          "text": "Yuri Gagarin",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Yuri Gagarin was not part of Apollo 11"
+          }
+        }
+      ],
+      "answer": "c",
+      "explanation": "Collins, the command module pilot, stayed in orbit; Armstrong and Aldrin landed."
+    },
+    {
+      "id": "d04-q03",
+      "conceptId": "d04-c02",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these were the Apollo 11 crew. Which one was not?",
+      "items": [
+        "Neil Armstrong",
+        "Buzz Aldrin",
+        "Michael Collins",
+        "Yuri Gagarin"
+      ],
+      "answer": "Yuri Gagarin",
+      "categoryRule": "The Apollo 11 crew had three astronauts: Armstrong, Aldrin and Collins.",
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "The crew had three astronauts."
+        },
+        {
+          "paragraph": 3,
+          "quote": "Yuri Gagarin was not part of Apollo 11"
+        }
+      ],
+      "explanation": "Gagarin was a Soviet cosmonaut, not part of the Apollo 11 crew."
+    },
+    {
+      "id": "d04-q04",
+      "conceptId": "d04-c02",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, who was Yuri Gagarin?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A Soviet cosmonaut, the first human in space",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "a Soviet cosmonaut who became the first human in space in 1961"
+          }
+        },
+        {
+          "id": "b",
+          "text": "The commander of Apollo 11",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Neil Armstrong was the commander."
+          }
+        },
+        {
+          "id": "c",
+          "text": "The Apollo 11 command module pilot",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Michael Collins was the command module pilot"
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "Gagarin was a Soviet cosmonaut and was not part of Apollo 11; Armstrong was the commander and Collins the command module pilot."
+    },
+    {
+      "id": "d04-q05",
+      "conceptId": "d04-c03",
+      "role": "primary",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what was the lunar module named?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Columbia",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The command module, named Columbia, carried the crew to the Moon"
+          }
+        },
+        {
+          "id": "b",
+          "text": "Eagle",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The lunar module, named Eagle, carried two astronauts"
+          }
+        },
+        {
+          "id": "c",
+          "text": "Saturn V",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "on July 16, 1969, on a Saturn V rocket"
+          }
+        }
+      ],
+      "answer": "b",
+      "explanation": "Eagle was the lunar module; Columbia was the command module and Saturn V was the rocket."
+    },
+    {
+      "id": "d04-q06",
+      "conceptId": "d04-c03",
+      "role": "alternate",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, the command module that carried the crew to the Moon and back was named ______.",
+      "answer": "Columbia",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "The command module, named Columbia, carried the crew to the Moon"
+        }
+      ],
+      "explanation": "Paragraph 4 names the command module Columbia."
+    },
+    {
+      "id": "d04-q07",
+      "conceptId": "d04-c04",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the stages of the mission in order.",
+      "steps": [
+        "The Saturn V launches the crew and sends them towards the Moon",
+        "The spacecraft enters orbit around the Moon",
+        "The lunar module separates and lands in the Sea of Tranquility",
+        "The lunar module lifts off and docks with the command module",
+        "The command module splashes down in the Pacific Ocean"
+      ],
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "First, the Saturn V launched the crew into Earth orbit"
+        },
+        {
+          "paragraph": 5,
+          "quote": "Finally, Columbia returned to Earth and splashed down in the Pacific Ocean"
+        }
+      ],
+      "explanation": "Paragraph 5 lists the stages with first, next, then, after, finally."
+    },
+    {
+      "id": "d04-q08",
+      "conceptId": "d04-c04",
+      "role": "alternate",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, on which day of July 1969 did the crew splash down in the Pacific Ocean?",
+      "answer": {
+        "kind": "exact",
+        "value": 24
+      },
+      "units": "July",
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "splashed down in the Pacific Ocean on July 24"
+        }
+      ],
+      "explanation": "Your notes give July 24."
+    },
+    {
+      "id": "d04-q09",
+      "conceptId": "d04-c05",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many kilograms of rock and soil did the moonwalkers collect?",
+      "answer": {
+        "kind": "exact",
+        "value": 21.5
+      },
+      "units": "kilograms",
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "they collected about 21.5 kilograms of rock and soil"
+        }
+      ],
+      "explanation": "Your notes say about 21.5 kilograms.",
+      "note": "No alternate. Deliberately close to '21 and a half hours' in the same paragraph: the prompt must name the unit."
+    },
+    {
+      "id": "d04-q10",
+      "conceptId": "d04-c06",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, a panel of mirrors left on the Moon, still used to measure the distance to the Moon, is called a ______.",
+      "answer": "laser reflector",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 7,
+          "quote": "One experiment left behind was a laser reflector, a panel of mirrors"
+        }
+      ],
+      "explanation": "Paragraph 7 describes the laser reflector.",
+      "note": "No alternate."
+    }
+  ]
+}

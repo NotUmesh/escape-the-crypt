@@ -1,0 +1,306 @@
+{
+  "notes": "dev-01-vaccines.txt",
+  "questions": [
+    {
+      "id": "d01-q01",
+      "conceptId": "d01-c01",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, a second dose of a vaccine, given because protection from the first dose fades over time, is called a ______.",
+      "answer": "booster",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "Some vaccines need a second dose, called a booster"
+        }
+      ],
+      "explanation": "Your notes call the second dose a booster and give two reasons for it."
+    },
+    {
+      "id": "d01-q02",
+      "conceptId": "d01-c01",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what is a second dose of a vaccine called?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A booster",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 5,
+            "quote": "Some vaccines need a second dose, called a booster"
+          }
+        },
+        {
+          "id": "b",
+          "text": "An antigen",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "an antigen, which is a molecule the immune system can recognise as foreign"
+          }
+        },
+        {
+          "id": "c",
+          "text": "An antibody",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "B cells produce antibodies, which are proteins that attach to a specific antigen"
+          }
+        },
+        {
+          "id": "d",
+          "text": "A killer T cell",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "killer T cells destroy body cells that have already been infected"
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "The notes name the second dose a booster; the other three terms are defined as different things."
+    },
+    {
+      "id": "d01-q03",
+      "conceptId": "d01-c02",
+      "role": "primary",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each cell to its job.",
+      "pairs": [
+        {
+          "left": "B cells",
+          "right": "Produce antibodies",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "B cells produce antibodies, which are proteins that attach to a specific antigen"
+          }
+        },
+        {
+          "left": "Helper T cells",
+          "right": "Coordinate the response by sending chemical signals",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "helper T cells coordinate the response by sending chemical signals"
+          }
+        },
+        {
+          "left": "Killer T cells",
+          "right": "Destroy body cells that are already infected",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "killer T cells destroy body cells that have already been infected"
+          }
+        },
+        {
+          "left": "Antigen-presenting cells",
+          "right": "Capture antigens and display them to T cells",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "capture antigens and display them to T cells"
+          }
+        }
+      ],
+      "explanation": "Each cell's job is stated in paragraph 3, and no job fits two cells."
+    },
+    {
+      "id": "d01-q04",
+      "conceptId": "d01-c02",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, which cells produce antibodies?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Helper T cells",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "helper T cells coordinate the response by sending chemical signals"
+          }
+        },
+        {
+          "id": "b",
+          "text": "B cells",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "B cells produce antibodies, which are proteins that attach to a specific antigen"
+          }
+        },
+        {
+          "id": "c",
+          "text": "Killer T cells",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "killer T cells destroy body cells that have already been infected"
+          }
+        },
+        {
+          "id": "d",
+          "text": "Dendritic cells",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Antigen-presenting cells, such as dendritic cells, capture antigens"
+          }
+        }
+      ],
+      "answer": "b",
+      "explanation": "Your notes say B cells produce antibodies; the other cells have different jobs."
+    },
+    {
+      "id": "d01-q05",
+      "conceptId": "d01-c03",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the immune response after vaccination in order.",
+      "steps": [
+        "The vaccine introduces the antigen into the body",
+        "Antigen-presenting cells display the antigen to helper T cells",
+        "Helper T cells signal B cells to multiply",
+        "B cells release matching antibodies",
+        "Some B and T cells remain as memory cells"
+      ],
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "First, the vaccine introduces the antigen into the body."
+        },
+        {
+          "paragraph": 4,
+          "quote": "Finally, some B and T cells remain as memory cells"
+        }
+      ],
+      "explanation": "Paragraph 4 numbers the steps: first, second, third, fourth, finally."
+    },
+    {
+      "id": "d01-q06",
+      "conceptId": "d01-c03",
+      "role": "alternate",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, at the end of the response some B and T cells remain as ______ cells, ready to respond quickly to the same germ later.",
+      "answer": "memory",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "some B and T cells remain as memory cells, ready to respond quickly"
+        }
+      ],
+      "explanation": "The last step in your notes leaves memory cells behind."
+    },
+    {
+      "id": "d01-q07",
+      "conceptId": "d01-c04",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are types of vaccine. Which one is not?",
+      "items": [
+        "Live-attenuated",
+        "Inactivated",
+        "mRNA",
+        "Antibiotic"
+      ],
+      "answer": "Antibiotic",
+      "categoryRule": "The four main types of vaccine in the notes are live-attenuated, inactivated, subunit and mRNA.",
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "live-attenuated vaccines, inactivated vaccines, subunit vaccines and mRNA vaccines"
+        },
+        {
+          "paragraph": 6,
+          "quote": "Antibiotics are not vaccines at all"
+        }
+      ],
+      "explanation": "Your notes list the vaccine types and say antibiotics are not vaccines."
+    },
+    {
+      "id": "d01-q08",
+      "conceptId": "d01-c04",
+      "role": "alternate",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each vaccine type to what it contains.",
+      "pairs": [
+        {
+          "left": "Live-attenuated",
+          "right": "A weakened form of the germ",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "Live-attenuated vaccines contain a weakened form of the germ."
+          }
+        },
+        {
+          "left": "Inactivated",
+          "right": "A germ that has been killed",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "Inactivated vaccines contain a germ that has been killed."
+          }
+        },
+        {
+          "left": "Subunit",
+          "right": "Only selected pieces of the germ",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "Subunit vaccines contain only selected pieces of the germ"
+          }
+        },
+        {
+          "left": "mRNA",
+          "right": "Instructions for the body's cells to make a harmless piece of protein",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "mRNA vaccines contain instructions that tell the body's own cells"
+          }
+        }
+      ],
+      "explanation": "Paragraph 6 states what each type contains."
+    },
+    {
+      "id": "d01-q09",
+      "conceptId": "d01-c05",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many weeks after vaccination does it usually take for the body to build protection?",
+      "answer": {
+        "kind": "exact",
+        "value": 2
+      },
+      "units": "weeks",
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "It usually takes about two weeks after vaccination for the body to build protection."
+        }
+      ],
+      "explanation": "Your notes say about two weeks.",
+      "note": "No alternate: the notes give no other durations, so any choice question would need 'not mentioned' options."
+    },
+    {
+      "id": "d01-q10",
+      "conceptId": "d01-c06",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, the indirect protection a community gets when enough people are immune is called ______.",
+      "answer": "herd immunity",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 7,
+          "quote": "This indirect protection is called herd immunity"
+        }
+      ],
+      "explanation": "Paragraph 7 names this herd immunity.",
+      "note": "No alternate (tests the no-alternate path)."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "about": "SEEDED TEST QUESTION for the video's challenge demo only. Deliberately ambiguous. It must be visibly labelled 'Test question' in the UI and disclosed in the video description. Never include it in evaluation numbers or in the judge-facing sample crypt.",
+  "notes": "human-heart.txt",
+  "replacesInDemoOnly": "hh-q07",
+  "question": {
+    "id": "hh-demo-seeded",
+    "conceptId": "hh-c04",
+    "role": "primary",
+    "lockType": "seance-board",
+    "seededTest": true,
+    "prompt": "According to your notes, which blood vessel carries blood away from the heart?",
+    "options": [
+      { "id": "a", "text": "The aorta", "label": "supported", "evidence": { "paragraph": 8, "quote": "The aorta carries blood to the body." } },
+      { "id": "b", "text": "The pulmonary artery", "label": "contradicted", "evidence": { "paragraph": 8, "quote": "The pulmonary artery carries blood to the lungs." } },
+      { "id": "c", "text": "The vena cava", "label": "contradicted", "evidence": { "paragraph": 8, "quote": "The vena cava returns blood to the heart from the body." } }
+    ],
+    "answer": "a",
+    "explanation": "Ambiguous on purpose: both the aorta and the pulmonary artery carry blood away from the heart, so option b is wrongly labelled 'contradicted'. A careful learner should challenge it."
+  }
+}

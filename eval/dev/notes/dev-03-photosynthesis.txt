@@ -1,0 +1,15 @@
+Photosynthesis
+
+Photosynthesis is the process plants, algae and some bacteria use to turn light energy into chemical energy stored in sugar. In plants it takes place inside chloroplasts, which are small structures found mostly in the cells of leaves. Chloroplasts contain chlorophyll, a green pigment that absorbs red and blue light and reflects green light, which is why leaves look green.
+
+The process needs three inputs: carbon dioxide from the air, water from the soil, and light from the Sun. It produces two outputs: glucose, a sugar the plant uses for energy and growth, and oxygen, which is released into the air. Carbon dioxide enters the leaf through tiny pores called stomata.
+
+The overall equation shows that 6 molecules of carbon dioxide and 6 molecules of water produce one molecule of glucose and 6 molecules of oxygen. Glucose has the formula C6H12O6.
+
+Photosynthesis happens in two stages. The light-dependent reactions take place in the thylakoid membranes, stacks of flattened sacs inside the chloroplast. The light-independent reactions, also called the Calvin cycle, take place in the stroma, the fluid that surrounds the thylakoids.
+
+The light-dependent stage runs in a fixed sequence. First, chlorophyll absorbs light energy. Next, that energy is used to split water molecules, which releases oxygen. Then the energy is stored in two carrier molecules, ATP and NADPH. Finally, ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide.
+
+Photosynthesis and cellular respiration are linked but different. Photosynthesis stores energy in glucose and releases oxygen. Cellular respiration, which happens in the mitochondria of both plants and animals, breaks glucose down to release energy and gives off carbon dioxide. Plants carry out both processes; animals carry out only cellular respiration.
+
+The rate of photosynthesis depends on light intensity, the amount of carbon dioxide and the temperature. If any one of these is in short supply, it limits how fast the whole process can run.

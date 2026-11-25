@@ -1,0 +1,95 @@
+{
+  "notes": "dev-06-supply-demand.txt",
+  "questions": [
+    {
+      "id": "d06-q01", "conceptId": "d06-c01", "role": "primary", "lockType": "seance-board",
+      "prompt": "According to your notes, what happens when the price is set below equilibrium?",
+      "options": [
+        { "id": "a", "text": "A shortage", "label": "supported", "evidence": { "paragraph": 4, "quote": "buyers want more than sellers offer, which creates a shortage" } },
+        { "id": "b", "text": "A surplus", "label": "contradicted", "evidence": { "paragraph": 4, "quote": "If the price is set above equilibrium, sellers offer more than buyers want, which creates a surplus." } },
+        { "id": "c", "text": "No pressure for the price to change", "label": "contradicted", "evidence": { "paragraph": 3, "quote": "At this price there is no pressure for the price to change." } }
+      ],
+      "answer": "a",
+      "explanation": "Below equilibrium, buyers want more than sellers offer, so there is a shortage."
+    },
+    {
+      "id": "d06-q02", "conceptId": "d06-c01", "role": "alternate", "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each price level to its result.",
+      "pairs": [
+        { "left": "Price below equilibrium", "right": "Shortage", "evidence": { "paragraph": 4, "quote": "buyers want more than sellers offer, which creates a shortage" } },
+        { "left": "Price above equilibrium", "right": "Surplus", "evidence": { "paragraph": 4, "quote": "If the price is set above equilibrium, sellers offer more than buyers want, which creates a surplus." } },
+        { "left": "Price at equilibrium", "right": "No pressure to change", "evidence": { "paragraph": 3, "quote": "At this price there is no pressure for the price to change." } }
+      ],
+      "explanation": "Paragraphs 3 and 4 give one result for each price level."
+    },
+    {
+      "id": "d06-q03", "conceptId": "d06-c02", "role": "primary", "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are demand shifters. Which one is not?",
+      "items": ["Income", "Consumer preferences", "Prices of related goods", "Cost of producing the good"],
+      "answer": "Cost of producing the good",
+      "categoryRule": "The notes list three demand shifters: income, consumer preferences and the prices of related goods.",
+      "evidence": [
+        { "paragraph": 6, "quote": "These notes list three demand shifters: income, consumer preferences and the prices of related goods." },
+        { "paragraph": 6, "quote": "The cost of producing the good is not a demand shifter; it affects supply." }
+      ],
+      "explanation": "Production cost affects supply, not demand."
+    },
+    {
+      "id": "d06-q04", "conceptId": "d06-c02", "role": "alternate", "lockType": "seance-board",
+      "prompt": "According to your notes, which of these affects supply rather than demand?",
+      "options": [
+        { "id": "a", "text": "Income", "label": "contradicted", "evidence": { "paragraph": 6, "quote": "These notes list three demand shifters: income, consumer preferences and the prices of related goods." } },
+        { "id": "b", "text": "Consumer preferences", "label": "contradicted", "evidence": { "paragraph": 6, "quote": "These notes list three demand shifters: income, consumer preferences and the prices of related goods." } },
+        { "id": "c", "text": "The cost of producing the good", "label": "supported", "evidence": { "paragraph": 6, "quote": "The cost of producing the good is not a demand shifter; it affects supply." } }
+      ],
+      "answer": "c",
+      "explanation": "Your notes say production cost affects supply; income and preferences shift demand."
+    },
+    {
+      "id": "d06-q05", "conceptId": "d06-c03", "role": "primary", "lockType": "rune-cipher",
+      "prompt": "According to your notes, goods that are used together, such as printers and ink cartridges, are called ______.",
+      "answer": "complements", "aliases": ["complementary goods"], "caseSensitive": false,
+      "evidence": [{ "paragraph": 7, "quote": "Complements are goods used together, such as printers and ink cartridges" }],
+      "explanation": "Paragraph 7 calls goods used together complements.",
+      "note": "No alternate: only two kinds of related goods are named, too few for a 3-option choice or a 3-pair match."
+    },
+    {
+      "id": "d06-q06", "conceptId": "d06-c04", "role": "primary", "lockType": "rune-cipher",
+      "prompt": "According to your notes, a legal minimum price, such as a minimum wage, is called a price ______.",
+      "answer": "floor", "aliases": [], "caseSensitive": false,
+      "evidence": [{ "paragraph": 8, "quote": "A price floor is a legal minimum price, such as a minimum wage" }],
+      "explanation": "Paragraph 8 defines a price floor.",
+      "note": "No alternate."
+    },
+    {
+      "id": "d06-q07", "conceptId": "d06-c05", "role": "primary", "lockType": "combination-dial",
+      "prompt": "According to your notes' coffee example, by how many cups a day did the quantity demanded fall?",
+      "answer": { "kind": "template", "template": "difference", "inputs": [100, 80], "value": 20 }, "units": "cups a day",
+      "evidence": [{ "paragraph": 5, "quote": "the quantity demanded at a cafe fell from 100 cups a day to 80 cups a day" }],
+      "explanation": "From 100 to 80 cups a day is a fall of 20. Computed by code from two stated values (allowlisted 'difference' template)."
+    },
+    {
+      "id": "d06-q08", "conceptId": "d06-c05", "role": "alternate", "lockType": "seance-board",
+      "prompt": "According to your notes' coffee example, what happened to the quantity demanded when the price rose from 2 to 3 dollars?",
+      "options": [
+        { "id": "a", "text": "It rose", "label": "contradicted", "evidence": { "paragraph": 5, "quote": "the quantity demanded at a cafe fell from 100 cups a day to 80 cups a day" } },
+        { "id": "b", "text": "It stayed the same", "label": "contradicted", "evidence": { "paragraph": 5, "quote": "the quantity demanded at a cafe fell from 100 cups a day to 80 cups a day" } },
+        { "id": "c", "text": "It fell", "label": "supported", "evidence": { "paragraph": 5, "quote": "the quantity demanded at a cafe fell from 100 cups a day to 80 cups a day" } }
+      ],
+      "answer": "c",
+      "explanation": "The quantity demanded fell from 100 to 80 cups a day, as the law of demand predicts."
+    },
+    {
+      "id": "d06-q09", "conceptId": "d06-c06", "role": "primary", "lockType": "seance-board",
+      "prompt": "According to your notes, what does the law of supply say?",
+      "options": [
+        { "id": "a", "text": "When the price rises, the quantity supplied rises", "label": "supported", "evidence": { "paragraph": 2, "quote": "when the price of a good rises, the quantity supplied rises" } },
+        { "id": "b", "text": "When the price rises, the quantity supplied falls", "label": "contradicted", "evidence": { "paragraph": 2, "quote": "when the price of a good rises, the quantity supplied rises" } },
+        { "id": "c", "text": "When the price rises, the quantity demanded rises", "label": "contradicted", "evidence": { "paragraph": 2, "quote": "when the price of a good rises, the quantity demanded falls" } }
+      ],
+      "answer": "a",
+      "explanation": "Higher prices lead producers to supply more.",
+      "note": "No alternate."
+    }
+  ]
+}

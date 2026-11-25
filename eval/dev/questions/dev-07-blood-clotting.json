@@ -1,0 +1,235 @@
+{
+  "notes": "dev-07-blood-clotting.txt",
+  "questions": [
+    {
+      "id": "d07-q01",
+      "conceptId": "d07-c01",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the steps of haemostasis in order.",
+      "steps": [
+        "The damaged vessel narrows (vascular spasm)",
+        "Platelets form a loose plug",
+        "Fibrin forms a mesh that traps blood cells",
+        "The clot tightens and the vessel wall is repaired"
+      ],
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "First, the damaged vessel narrows, which is called vascular spasm"
+        },
+        {
+          "paragraph": 3,
+          "quote": "Finally, the clot tightens and the vessel wall is repaired"
+        }
+      ],
+      "explanation": "Paragraph 3 gives the order: first, next, then, finally."
+    },
+    {
+      "id": "d07-q02",
+      "conceptId": "d07-c01",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, what forms the mesh of threads that traps blood cells in a clot?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Fibrin",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "turn fibrinogen into fibrin, which forms a mesh of threads that traps blood cells"
+          }
+        },
+        {
+          "id": "b",
+          "text": "Platelets",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "platelets stick to the damaged wall and to each other, forming a loose platelet plug"
+          }
+        },
+        {
+          "id": "c",
+          "text": "Plasma",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "Plasma is the pale yellow liquid part"
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "Clotting factors turn fibrinogen into fibrin, which forms the mesh; platelets form the earlier loose plug."
+    },
+    {
+      "id": "d07-q03",
+      "conceptId": "d07-c02",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are components of blood. Which one is not?",
+      "items": [
+        "Plasma",
+        "Red blood cells",
+        "Platelets",
+        "Haemoglobin"
+      ],
+      "answer": "Haemoglobin",
+      "categoryRule": "Blood is made of four main components: plasma, red blood cells, white blood cells and platelets.",
+      "evidence": [
+        {
+          "paragraph": 2,
+          "quote": "Blood is made of four main components."
+        },
+        {
+          "paragraph": 2,
+          "quote": "Haemoglobin is not a separate component of blood"
+        }
+      ],
+      "explanation": "Haemoglobin is the protein inside red blood cells, not a separate component."
+    },
+    {
+      "id": "d07-q04",
+      "conceptId": "d07-c02",
+      "role": "alternate",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each blood component to its description.",
+      "pairs": [
+        {
+          "left": "Plasma",
+          "right": "The pale yellow liquid part",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "Plasma is the pale yellow liquid part"
+          }
+        },
+        {
+          "left": "Red blood cells",
+          "right": "Carry oxygen",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "Red blood cells carry oxygen."
+          }
+        },
+        {
+          "left": "White blood cells",
+          "right": "Fight infection",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "White blood cells fight infection."
+          }
+        },
+        {
+          "left": "Platelets",
+          "right": "Help blood clot",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "Platelets are small cell fragments that help blood clot."
+          }
+        }
+      ],
+      "explanation": "Paragraph 2 describes each component once."
+    },
+    {
+      "id": "d07-q05",
+      "conceptId": "d07-c03",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many days do red blood cells live?",
+      "answer": {
+        "kind": "exact",
+        "value": 120
+      },
+      "units": "days",
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "Red blood cells live for about 120 days."
+        }
+      ],
+      "explanation": "Your notes say about 120 days.",
+      "note": "No alternate."
+    },
+    {
+      "id": "d07-q06",
+      "conceptId": "d07-c04",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, give a normal platelet count, in platelets per microlitre of blood. Any value in the normal range counts.",
+      "answer": {
+        "kind": "range",
+        "min": 150000,
+        "max": 450000
+      },
+      "units": "platelets per microlitre",
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "A normal platelet count is between 150,000 and 450,000 platelets per microlitre of blood."
+        }
+      ],
+      "explanation": "Any value from 150,000 to 450,000 is accepted, because your notes give a range.",
+      "note": "No alternate. Tests thousands separators in quotes."
+    },
+    {
+      "id": "d07-q07",
+      "conceptId": "d07-c05",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, the liver needs ______ to make several clotting factors.",
+      "answer": "vitamin K",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "The liver needs vitamin K to make several clotting factors."
+        }
+      ],
+      "explanation": "Paragraph 6 names vitamin K.",
+      "note": "No alternate."
+    },
+    {
+      "id": "d07-q08",
+      "conceptId": "d07-c06",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, an inherited disorder that stops the blood from clotting normally is called ______.",
+      "answer": "haemophilia",
+      "aliases": [
+        "hemophilia"
+      ],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 6,
+          "quote": "Haemophilia is an inherited disorder in which the blood does not clot normally"
+        }
+      ],
+      "explanation": "Paragraph 6 defines haemophilia.",
+      "note": "No alternate. Alias covers US spelling."
+    },
+    {
+      "id": "d07-q09",
+      "conceptId": "d07-c07",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many days do platelets live? Any value in the stated range counts.",
+      "answer": {
+        "kind": "range",
+        "min": 7,
+        "max": 10
+      },
+      "units": "days",
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "Platelets live for only about 7 to 10 days"
+        }
+      ],
+      "explanation": "Any value from 7 to 10 days is accepted.",
+      "note": "No alternate."
+    }
+  ]
+}

@@ -1,0 +1,264 @@
+{
+  "notes": "dev-09-atmosphere-layers.txt",
+  "questions": [
+    {
+      "id": "d09-q01",
+      "conceptId": "d09-c01",
+      "role": "primary",
+      "lockType": "bone-ordering",
+      "prompt": "According to your notes, put the layers of the atmosphere in order, starting at the ground.",
+      "steps": [
+        "Troposphere",
+        "Stratosphere",
+        "Mesosphere",
+        "Thermosphere",
+        "Exosphere"
+      ],
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "Starting at the ground and going up, they are the troposphere, the stratosphere, the mesosphere, the thermosphere and the exosphere."
+        }
+      ],
+      "explanation": "Paragraph 3 lists the layers from the ground up."
+    },
+    {
+      "id": "d09-q02",
+      "conceptId": "d09-c01",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, which is the outermost layer of the atmosphere?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The thermosphere",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "the mesosphere, the thermosphere and the exosphere"
+          }
+        },
+        {
+          "id": "b",
+          "text": "The exosphere",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 6,
+            "quote": "The exosphere is the outermost layer"
+          }
+        },
+        {
+          "id": "c",
+          "text": "The stratosphere",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 3,
+            "quote": "Starting at the ground and going up, they are the troposphere, the stratosphere"
+          }
+        }
+      ],
+      "answer": "b",
+      "explanation": "The exosphere is the outermost layer, fading into space."
+    },
+    {
+      "id": "d09-q03",
+      "conceptId": "d09-c02",
+      "role": "primary",
+      "lockType": "bound-threads",
+      "prompt": "According to your notes, connect each layer to what it is known for.",
+      "pairs": [
+        {
+          "left": "Troposphere",
+          "right": "Almost all weather",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The troposphere is where almost all weather happens."
+          }
+        },
+        {
+          "left": "Stratosphere",
+          "right": "The ozone layer",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The stratosphere contains the ozone layer"
+          }
+        },
+        {
+          "left": "Mesosphere",
+          "right": "Most meteors burn up",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The mesosphere is where most meteors burn up."
+          }
+        },
+        {
+          "left": "Thermosphere",
+          "right": "Auroras and the International Space Station",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The thermosphere is where auroras appear"
+          }
+        }
+      ],
+      "explanation": "Paragraph 4 gives one feature per layer."
+    },
+    {
+      "id": "d09-q04",
+      "conceptId": "d09-c02",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, in which layer do most meteors burn up?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The mesosphere",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The mesosphere is where most meteors burn up."
+          }
+        },
+        {
+          "id": "b",
+          "text": "The stratosphere",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The stratosphere contains the ozone layer"
+          }
+        },
+        {
+          "id": "c",
+          "text": "The troposphere",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 4,
+            "quote": "The troposphere is where almost all weather happens."
+          }
+        }
+      ],
+      "answer": "a",
+      "explanation": "Meteors burn up in the mesosphere."
+    },
+    {
+      "id": "d09-q05",
+      "conceptId": "d09-c03",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about what percentage of dry air is nitrogen?",
+      "answer": {
+        "kind": "exact",
+        "value": 78
+      },
+      "units": "percent",
+      "evidence": [
+        {
+          "paragraph": 2,
+          "quote": "Dry air is about 78 percent nitrogen and about 21 percent oxygen."
+        }
+      ],
+      "explanation": "Your notes say about 78 percent."
+    },
+    {
+      "id": "d09-q06",
+      "conceptId": "d09-c03",
+      "role": "alternate",
+      "lockType": "seance-board",
+      "prompt": "According to your notes, which gas makes up most of the remaining 1 percent of dry air?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Nitrogen",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "Dry air is about 78 percent nitrogen"
+          }
+        },
+        {
+          "id": "b",
+          "text": "Oxygen",
+          "label": "contradicted",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "and about 21 percent oxygen"
+          }
+        },
+        {
+          "id": "c",
+          "text": "Argon",
+          "label": "supported",
+          "evidence": {
+            "paragraph": 2,
+            "quote": "Argon makes up most of the remaining 1 percent."
+          }
+        }
+      ],
+      "answer": "c",
+      "explanation": "Argon makes up most of the remaining 1 percent; nitrogen and oxygen are the 78 and 21 percent."
+    },
+    {
+      "id": "d09-q07",
+      "conceptId": "d09-c04",
+      "role": "primary",
+      "lockType": "cursed-object",
+      "prompt": "According to your notes, three of these are layers of the atmosphere. Which one is not?",
+      "items": [
+        "Troposphere",
+        "Stratosphere",
+        "Mesosphere",
+        "Lithosphere"
+      ],
+      "answer": "Lithosphere",
+      "categoryRule": "The atmosphere has five layers: troposphere, stratosphere, mesosphere, thermosphere and exosphere.",
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "Scientists divide the atmosphere into five layers."
+        },
+        {
+          "paragraph": 3,
+          "quote": "The lithosphere is not a layer of the atmosphere"
+        }
+      ],
+      "explanation": "The lithosphere is the Earth's rocky outer shell."
+    },
+    {
+      "id": "d09-q08",
+      "conceptId": "d09-c04",
+      "role": "alternate",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, the rocky outer shell of the Earth itself is called the ______.",
+      "answer": "lithosphere",
+      "aliases": [],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 3,
+          "quote": "The lithosphere is not a layer of the atmosphere: it is the rocky outer shell of the Earth itself."
+        }
+      ],
+      "explanation": "Paragraph 3 names it the lithosphere."
+    },
+    {
+      "id": "d09-q09",
+      "conceptId": "d09-c05",
+      "role": "primary",
+      "lockType": "combination-dial",
+      "prompt": "According to your notes, about how many kilometres thick is the troposphere on average?",
+      "answer": {
+        "kind": "exact",
+        "value": 12
+      },
+      "units": "kilometres",
+      "evidence": [
+        {
+          "paragraph": 5,
+          "quote": "The troposphere is about 12 kilometres thick on average"
+        }
+      ],
+      "explanation": "Your notes say about 12 kilometres.",
+      "note": "No alternate."
+    }
+  ]
+}

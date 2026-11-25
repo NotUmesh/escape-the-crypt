@@ -1,0 +1,13 @@
+How HTTPS keeps a connection private
+
+HTTPS is the secure version of HTTP, the protocol web browsers use to load pages. It uses a protocol called TLS to protect the data travelling between your browser and a website. By default, HTTPS uses port 443, while plain HTTP uses port 80.
+
+TLS provides three protections covered in these notes: encryption, authentication and integrity. Encryption means others on the network cannot read the data. Authentication means you can check you are talking to the real website. Integrity means the data cannot be changed in transit without it being detected. Anonymity is not one of these protections: the website still sees your IP address.
+
+Several kinds of key and certificate work together. A public key can be shared openly. A private key is kept secret by the server. A certificate authority is a trusted organisation that signs certificates. A session key is a shared key used to encrypt the rest of the conversation.
+
+In the classic TLS 1.2 handshake, which is simpler to follow, the steps happen in order. First, the browser sends a hello message listing the encryption methods it supports. Next, the server replies with its own hello and its certificate. Then the browser checks that the certificate was signed by a certificate authority it trusts. After that, the browser and server agree on a session key. Finally, all further data is encrypted with that session key.
+
+In TLS 1.3, the newest version, the handshake is shorter: the browser and server exchange key information in their hello messages, so the handshake usually needs only one round trip before encrypted data can flow.
+
+A padlock icon in the address bar means the connection is encrypted. It does not mean the website itself is honest or safe.

@@ -1,0 +1,17 @@
+Supply and demand
+
+The law of demand says that, other things being equal, when the price of a good rises, the quantity demanded falls. The law of supply says that when the price of a good rises, the quantity supplied rises, because producers can earn more by selling more.
+
+The market equilibrium is the price at which the quantity demanded equals the quantity supplied. At this price there is no pressure for the price to change.
+
+If the price is set below equilibrium, buyers want more than sellers offer, which creates a shortage. If the price is set above equilibrium, sellers offer more than buyers want, which creates a surplus.
+
+In one worked example from class, the price of a cup of coffee rose from 2 dollars to 3 dollars, and the quantity demanded at a cafe fell from 100 cups a day to 80 cups a day.
+
+A change in price moves the market along the demand curve. A change in anything else that affects buyers shifts the whole curve. These notes list three demand shifters: income, consumer preferences and the prices of related goods. The cost of producing the good is not a demand shifter; it affects supply.
+
+Related goods come in two kinds. Substitutes are goods used in place of each other, such as tea and coffee: when coffee becomes more expensive, demand for tea rises. Complements are goods used together, such as printers and ink cartridges: when printers become cheaper, demand for ink cartridges rises.
+
+Governments sometimes control prices. A price ceiling is a legal maximum price, such as rent control; if it is set below equilibrium, it causes a shortage. A price floor is a legal minimum price, such as a minimum wage; if it is set above equilibrium, it causes a surplus.
+
+Prices act as signals. A rising price tells producers to make more and tells buyers to look for alternatives, which helps markets move back towards equilibrium.
