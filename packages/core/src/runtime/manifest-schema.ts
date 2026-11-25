@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '../zod';
 import { LOCK_TYPES } from '../types';
 import type { LockType, Result } from '../types';
 import { narrowHint } from './manifest-hints';

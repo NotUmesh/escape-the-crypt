@@ -29,10 +29,11 @@ function violations(seen: readonly Seen[], origin: string): string[] {
   return found;
 }
 
-test('a PDF extraction sends no cross-origin request, no body and no extracted text', async ({ page, context, baseURL }) => {
+test('a PDF extraction sends no cross-origin request, no body and no extracted text', async ({ page, context, baseURL, browserName }) => {
   const origin = new URL(baseURL ?? 'http://localhost').origin;
   const seen: Seen[] = [];
-  // The context sees requests from workers as well as from the page.
+  // The context sees requests from the page and the extraction worker. In Firefox it does not
+  // see requests from the pdf.js worker nested inside it; the CSP's connect-src 'self' covers that.
   context.on('request', (r) => seen.push({ url: r.url(), method: r.method(), body: r.postData() }));
 
   await page.goto('/ingest');
@@ -44,7 +45,9 @@ test('a PDF extraction sends no cross-origin request, no body and no extracted t
   await expect(page.locator('.ingest-preview textarea')).toHaveValue(/Spaced repetition/);
 
   // The extraction itself ran: the self-hosted pdf.js worker was fetched from this origin.
-  expect(seen.some((s) => s.url.endsWith('/pdf.worker.min.mjs'))).toBe(true);
+  if (browserName !== 'firefox') {
+    expect(seen.some((s) => s.url.endsWith('/pdf.worker.min.mjs'))).toBe(true);
+  }
   expect(violations(seen, origin)).toEqual([]);
 });
 
@@ -68,4 +71,20 @@ test('the guard fails on a cross-origin request, a request body and extracted te
   expect(violations([{ url: `${origin}/log`, method: 'POST', body: 'x' }], origin)).toHaveLength(2);
   expect(violations([{ url: `${origin}/a?q=Spaced%20repetition`, method: 'GET', body: null }], origin)).toHaveLength(1);
   expect(violations([{ url: `${origin}/a`, method: 'GET', body: 'ACTIVE RECALL' }], origin).length).toBeGreaterThan(0);
+});
+// pdf.js logs "Setting up fake worker" when its own worker cannot start and it falls back to
+// running inside the extraction worker's thread. Page and worker console output reaches `page`.
+test('a PDF extraction runs in the pdf.js worker, with no fake-worker warning or CSP violation', async ({ page }) => {
+  const logs: string[] = [];
+  page.on('console', (m) => logs.push(m.text()));
+  page.on('pageerror', (e) => logs.push(e.message));
+  await page.goto('/ingest');
+  await page.locator('input[type="file"]').setInputFiles(fixture('ok-page.pdf'));
+  await expect(page.locator('.ingest-pdf-page')).toHaveCount(1);
+  await page.locator('.ingest-pdf-page input').check();
+  await page.getByRole('button', { name: 'Read these pages' }).click();
+  await expect(page.locator('.ingest-preview textarea')).toHaveValue(/Spaced repetition/);
+  expect(logs.filter((line) => /fake worker/i.test(line))).toEqual([]);
+  // The preview server sends the production Content-Security-Policy (see vite.config.ts).
+  expect(logs.filter((line) => /content.security.policy|refused to/i.test(line))).toEqual([]);
 });

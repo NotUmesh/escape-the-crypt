@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '../zod';
 
 /**
  * Authoring_Schema (P1): rune cipher and séance board payloads.

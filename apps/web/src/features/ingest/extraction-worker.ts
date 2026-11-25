@@ -18,17 +18,33 @@ function post(message: ExtractionMessageOut): void {
   self.postMessage(message);
 }
 
+interface OpenTask {
+  readonly task: ReturnType<typeof pdfjs.getDocument>;
+  /** Destroys the loading task, then the pdf.js worker this call started. */
+  readonly close: () => Promise<void>;
+}
 /**
  * Opens a PDF with the safe options from extraction-options.ts.
+ *
+ * pdf.js cannot start its own worker from inside a worker: it reads `window.location`,
+ * which does not exist here, and falls back to running in this thread ("fake worker").
+ * So this starts the self-hosted worker file itself and hands pdf.js the port.
+ * Terminating this Extraction Worker also stops the nested one.
  */
-function openTask(fileBuffer: ArrayBuffer): ReturnType<typeof pdfjs.getDocument> {
-  // Both "nested-worker" and "in-thread" load the same self-hosted file:
-  // pdf.js starts it as a worker, or imports it for its in-thread mode.
-  pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl(
-    import.meta.env.BASE_URL,
-    self.location.origin,
-  );
-  return pdfjs.getDocument(safeDocumentParams(fileBuffer));
+function openTask(fileBuffer: ArrayBuffer): OpenTask {
+  const port = new Worker(pdfWorkerUrl(import.meta.env.BASE_URL, self.location.origin), {
+    type: 'module',
+  });
+  const worker = pdfjs.PDFWorker.create({ port });
+  const task = pdfjs.getDocument({ ...safeDocumentParams(fileBuffer), worker });
+  return {
+    task,
+    close: async () => {
+      await task.destroy();
+      worker.destroy();
+      port.terminate();
+    },
+  };
 }
 
 async function start(msg: Extract<ExtractionMessageIn, { type: 'start' }>): Promise<void> {
@@ -38,7 +54,7 @@ async function start(msg: Extract<ExtractionMessageIn, { type: 'start' }>): Prom
     post({ type: 'error', error: { kind: 'unreadable' } });
     return;
   }
-  const task = openTask(msg.fileBuffer);
+  const { task, close } = openTask(msg.fileBuffer);
   try {
     const doc: PdfDocumentLike = await task.promise;
     await runExtraction({
@@ -52,7 +68,7 @@ async function start(msg: Extract<ExtractionMessageIn, { type: 'start' }>): Prom
   } catch (err) {
     post({ type: 'error', error: mapPdfError(err) });
   } finally {
-    await task.destroy();
+    await close();
   }
 }
 
@@ -62,7 +78,7 @@ async function count(msg: Extract<ExtractionMessageIn, { type: 'count' }>): Prom
     post({ type: 'error', error: { kind: 'unreadable' } });
     return;
   }
-  const task = openTask(msg.fileBuffer);
+  const { task, close } = openTask(msg.fileBuffer);
   try {
     await runCount({
       open: async () => (await task.promise) as PdfDocumentLike,
@@ -70,7 +86,7 @@ async function count(msg: Extract<ExtractionMessageIn, { type: 'count' }>): Prom
       isCancelled: () => cancelled,
     });
   } finally {
-    await task.destroy();
+    await close();
   }
 }
 

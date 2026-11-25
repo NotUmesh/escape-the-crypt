@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from './zod';
 import type { Chunk, NotesRecord, Result, SourceLocation } from './types';
 
 export const NOTES_SCHEMA_VERSION = 1;
