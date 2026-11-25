@@ -1,4 +1,13 @@
-# Art asset contract (v1.1, Nov 24)
+# Art asset contract (v1.2, Nov 25)
+
+**v1.2 additions:**
+- `-solved` and `-solved-hover` lock layers
+- `light-door`
+- the full mobile set and the `mobile` block in `scene.json`
+- the desk scene and books
+- motion poster stills
+
+Clip names: the desk part of the descent is `descent-desk` and the crypt part is `descent`.
 
 This is the agreement between the art track (Blender scenes and renders by the author, set up with Claude through the Blender MCP) and the app code (written by Kiro). Kiro builds against placeholder files with exactly these names and sizes; the real renders replace them later with **no code changes**.
 
@@ -53,8 +62,11 @@ apps/web/public/art/
       lock-<lock>.webp          # one per lock type, alpha, includes its contact shadow
       light-<lock>.webp         # warm light pass for that lock's candle, black background
       lock-<lock>-hover.webp    # same lock under a brighter cool-white light; crossfaded in on hover/focus
+      lock-<lock>-solved.webp   # (v1.2) the lock after solving: glyphs lit, safe ajar, threads tied, planchette moved, casket open, bones straightened
+      lock-<lock>-solved-hover.webp  # (v1.2) solved lock under the hover light
       door-closed.webp          # exit door layer, alpha
-      door-open.webp
+      door-open.webp            # door swung back, warm light in the opening
+      light-door.webp           # (v1.2) additive warm spill from the open door, black background
     mobile/
       (same names, 1080×1920 portrait framing)
   locks/<lock>/
@@ -124,8 +136,10 @@ Positions are fractions of the frame (0 to 1, from the top-left), so they work a
 1. **One candle rule.** An unsolved lock's candle is **unlit**: wax and a dark wick, **no flame and no light**. `background.webp` and every lock layer are rendered that way, with only the cold ambient light and each lock's dim cool face light. Nothing is baked in that code would need to switch off. (Wall sconces in `ambientCandles` are the only always-lit flames.)
 2. For each lock, `light-<lock>.webp` holds **only the extra warm light** that lock's candle adds when lit (rendered as lit minus unlit, on black).
 3. When a lock is solved, code **ignites** that candle: it draws a gold flame at the lock's `candle` point (a short flare, then a steady flicker) and fades its light pass in over about 600 ms. With reduced motion both switch on instantly. There is no teal or "unlit" flame; before solving, code draws nothing at `candle`.
-4. Several solved locks simply add their light passes together, so the room warms up lock 5. **Three states, three different signals.** *Available:* every lock is lit by its own dim cool light from high in front, all at the same angle, so its working face is readable but the room stays dark. *Hovered or keyboard-focused:* code crossfades `lock-<lock>.webp` to `lock-<lock>-hover.webp` (the same lock under a brighter **cool-white** light) over about 200 ms, and back on leave (instant with reduced motion); code may also add a thin outline glow on the hotspot. *Solved:* the lock's candle ignites gold and its light pass adds a **warm** pool. Warm means solved only; hover never uses warm light.s solved.
-6. A lock answered wrong or skipped stays unlit. If its concept later returns as a ghost and is answered correctly, the light belongs to the room where that happens: code draws a small **spirit candle** at one of the room's `ghostAnchors` (flame and glow in code, no light pass). A challenged lock never lights.
+4. Several solved locks simply add their light passes together, so the room warms up lock by lock.
+5. **Solved layer (v1.2).** When a lock is solved, code also crossfades `lock-<lock>.webp` to `lock-<lock>-solved.webp` (same timing as the light pass), and hover then uses `lock-<lock>-solved-hover.webp`. When the room is cleared, `door-closed` crossfades to `door-open` and `light-door` fades in additively.
+6. **Three states, three different signals.** *Available:* every lock is lit by its own dim cool light from high in front, all at the same angle, so its working face is readable but the room stays dark. *Hovered or keyboard-focused:* code crossfades `lock-<lock>.webp` to `lock-<lock>-hover.webp` (the same lock under a brighter **cool-white** light) over about 200 ms, and back on leave (instant with reduced motion); code may also add a thin outline glow on the hotspot. *Solved:* the lock's candle ignites gold and its light pass adds a **warm** pool. Warm means solved only; hover never uses warm light.
+7. A lock answered wrong or skipped stays unlit. If its concept later returns as a ghost and is answered correctly, the light belongs to the room where that happens: code draws a small **spirit candle** at one of the room's `ghostAnchors` (flame and glow in code, no light pass). A challenged lock never lights.
 
 ---
 
