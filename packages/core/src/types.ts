@@ -75,7 +75,8 @@ export type HintEffectSpec =
   | { readonly kind: 'remove-option'; readonly optionId: string }
   | { readonly kind: 'lock-first-bone'; readonly boneId: string }
   | { readonly kind: 'tie-thread'; readonly pair: ThreadPair }
-  | { readonly kind: 'reveal-digit'; readonly position: number };
+  | { readonly kind: 'reveal-digit'; readonly position: number }
+  | { readonly kind: 'reveal-first-letter'; readonly firstLetter: string; readonly length: number };
 
 export type Event =
   | { readonly kind: 'RunStarted'; readonly manifestId: string }

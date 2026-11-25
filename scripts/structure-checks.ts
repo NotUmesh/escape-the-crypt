@@ -82,7 +82,7 @@ export function checkCoreImports(root: string): Violation[] {
     for (const m of text.matchAll(specifier)) {
       const name = m[2] ?? '';
       const relative = name.startsWith('.');
-      const allowed = relative || name.startsWith('@noble/hashes') || (test && /^(?:vitest|fast-check|node:)/.test(name));
+      const allowed = relative || name.startsWith('@noble/hashes') || name === 'zod' || (test && /^(?:vitest|fast-check|node:)/.test(name));
       if (!allowed) out.push({ rule: 'core-imports', file: rel(root, file), detail: `imports "${name}"` });
     }
     if (!test && domGlobal.test(text)) {
@@ -96,19 +96,22 @@ export function checkCoreImports(root: string): Violation[] {
   return out;
 }
 
-/** `@noble/hashes`, pinned exactly, is the only runtime dependency of `packages/core`. */
+/** `@noble/hashes` and `zod`, each pinned exactly, are the only runtime dependencies of `packages/core`. */
 export function checkCoreDependencies(root: string): Violation[] {
   const file = join(root, 'packages', 'core', 'package.json');
   const pkg = JSON.parse(readFileSync(file, 'utf8')) as Record<string, Record<string, string> | undefined>;
   const out: Violation[] = [];
   const deps = pkg['dependencies'] ?? {};
   const names = Object.keys(deps);
-  if (names.length !== 1 || names[0] !== '@noble/hashes') {
+  const allowedNames = ['@noble/hashes', 'zod'];
+  if (!names.includes('@noble/hashes') || names.some((n) => !allowedNames.includes(n))) {
     out.push({ rule: 'core-dependencies', file: rel(root, file), detail: `dependencies are [${names.join(', ')}]` });
   }
-  const version = deps['@noble/hashes'];
-  if (version !== undefined && !/^\d+\.\d+\.\d+$/.test(version)) {
-    out.push({ rule: 'core-dependencies', file: rel(root, file), detail: `@noble/hashes "${version}" is not an exact version` });
+  for (const name of allowedNames) {
+    const version = deps[name];
+    if (version !== undefined && !/^\d+\.\d+\.\d+$/.test(version)) {
+      out.push({ rule: 'core-dependencies', file: rel(root, file), detail: `${name} "${version}" is not an exact version` });
+    }
   }
   for (const field of ['peerDependencies', 'optionalDependencies']) {
     if (Object.keys(pkg[field] ?? {}).length > 0) {

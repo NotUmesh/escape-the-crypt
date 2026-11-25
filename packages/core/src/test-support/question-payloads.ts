@@ -3,7 +3,7 @@ import type { HintEffectSpec, LockType } from '../types';
 /** Plain-JSON question payloads with fictional content, shaped for the six judges. */
 export interface BuiltPayload {
   readonly payload: unknown;
-  /** A hint effect that suits the payload, or null for lock types without one. */
+  /** A hint effect that suits the payload, or null if none applies. */
   readonly hint: HintEffectSpec | null;
 }
 
@@ -13,11 +13,18 @@ export interface BuiltPayload {
  */
 export function buildPayload(lockType: LockType, id: string, n: number): BuiltPayload {
   switch (lockType) {
-    case 'rune-cipher':
+    case 'rune-cipher': {
+      const answer = `Glimmerstone ${n}`;
+      const codePoints = Array.from(answer);
       return {
-        payload: { answer: `Glimmerstone ${n}`, aliases: [], caseSensitive: false },
-        hint: null,
+        payload: { answer, aliases: [], caseSensitive: false },
+        hint: {
+          kind: 'reveal-first-letter',
+          firstLetter: codePoints[0] ?? '',
+          length: codePoints.length,
+        },
       };
+    }
     case 'seance-board':
     case 'cursed-object': {
       const optionIds = [0, 1, 2, 3].map((i) => `${id}-o${i}`);

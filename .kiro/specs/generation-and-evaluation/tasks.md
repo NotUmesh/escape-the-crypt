@@ -8,73 +8,73 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
 
 ## Tasks
 
-- [ ] 1. Schemas and hint type
-  - [ ] 1.1 Add Zod and the `reveal-first-letter` hint kind
+- [x] 1. Schemas and hint type
+  - [x] 1.1 Add Zod and the `reveal-first-letter` hint kind
     - Add `zod` as a pinned dependency in `packages/core/package.json`
     - Add `{ kind: 'reveal-first-letter'; firstLetter: string; length: number }` to `HintEffectSpec` in `packages/core/src/types.ts`
     - Fix any exhaustive `switch` over `HintEffectSpec` that `pnpm typecheck` reports, adding a case only (no behaviour change; the rune judge keeps ignoring hints)
     - Add a `reveal-first-letter` arm to `anyHintSpec` in `judge-totality.ts` so every judge is still tested against every hint kind
     - _Requirements: 2.13_
 
-  - [ ] 1.2 Implement the Authoring_Schema and parser
+  - [x] 1.2 Implement the Authoring_Schema and parser
     - Create `packages/core/src/authoring/schema.ts` with strict-object rune cipher and séance board arms in a discriminated union on `lockType`, and the types derived from it
     - Create `packages/core/src/authoring/parse.ts` with `parseAuthoringQuestion` returning a typed `Result` with the failing field path, never throwing
     - Include no offset field anywhere, and no hint field on séance board questions (the mapper decides that hint in code)
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.7, 5.6_
 
-  - [ ] 1.3 Write unit tests for the Authoring_Schema
+  - [x] 1.3 Write unit tests for the Authoring_Schema
     - Parse every real rune cipher and séance board question in `eval/dev/questions/*.json` and `samples/questions/*.json`
     - Reject malformed values with the expected `path`, an unknown `lockType`, empty rune answers, and unknown keys such as `offset`
     - _Requirements: 1.3, 1.4, 1.5, 1.7, 5.6_
 
-  - [ ] 1.4 Write property test for Authoring_Question round-trip
+  - [x] 1.4 Write property test for Authoring_Question round-trip
     - Add `authoringQuestionArb` (rune cipher and séance board, quotes built as exact substrings of generated chunk text) in `packages/core/src/test-support/`
     - **Property 1: Authoring_Question round-trip**
     - **Validates: Requirements 1.6**
 
-  - [ ] 1.5 Implement the Manifest_Schema, hint narrowing and parser
+  - [x] 1.5 Implement the Manifest_Schema, hint narrowing and parser
     - Create `packages/core/src/runtime/manifest-schema.ts` with `HintEffectSchema`, rune cipher and séance board payload schemas, `payloadSchemaFor` (returns `null` for the other four types so they are rejected with `lock-type-not-supported`), `QuestionSpecSchema` with `superRefine`, slot, room (one slot per type) and `CryptManifestSchema` (unique `questionId`, 0 to 4 final-door slots, alternate type differs from primary)
     - Add `narrowHint`: rune cipher accepts only `reveal-first-letter` or `null`; séance board accepts only `remove-option` or `null`, with `optionId` in `optionIds` and not equal to `keyOptionId`. Move it to `manifest-hints.ts` if the file nears 300 lines
     - Add a `parseManifest` wrapper returning a typed `Result`, never throwing
     - Export only `CryptManifest` and its member types from `manifest-types.ts`; add no second manifest type
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10, 2.14, 2.15, 2.16, 2.17_
 
-  - [ ] 1.6 Update the fixture builder and `manifestArb` for rune hints
+  - [x] 1.6 Update the fixture builder and `manifestArb` for rune hints
     - Change `question-payloads.ts` in `packages/core/src/test-support/` to emit `{ kind: 'reveal-first-letter', firstLetter, length }` for rune cipher questions, derived from the generated `answer`
     - Update tests in other specs that assert a rune question has `hintEffect: null`
     - Add a test that `manifestCheck` accepts a manifest containing a `reveal-first-letter` hint (no change to `manifest-check.ts` is expected)
     - _Requirements: 2.18, 2.19_
 
-  - [ ] 1.7 Write unit tests for the Manifest_Schema
+  - [x] 1.7 Write unit tests for the Manifest_Schema
     - Add the compile-time two-way assignability check between `z.infer<typeof CryptManifestSchema>` and `CryptManifest`
     - Cover accept and reject examples for payload shapes, alternate type, final-door slot count and typed errors
     - Cover each hint rejection: rune cipher with `remove-option`; séance with `remove-option` naming an id not in `optionIds`; séance with `remove-option` naming `keyOptionId`; séance with `reveal-first-letter`; `reveal-first-letter` with a 2-character `firstLetter` or non-positive `length`
     - _Requirements: 2.1, 2.3, 2.4, 2.5, 2.8, 2.9, 2.10, 2.16, 2.17_
 
-  - [ ] 1.8 Write property test for manifest serialisation round-trip
+  - [x] 1.8 Write property test for manifest serialisation round-trip
     - Use `buildManifest` restricted to `rune-cipher` and `seance-board`, including `reveal-first-letter` hints
     - **Property 2: Manifest round-trip**
     - **Validates: Requirements 2.11, 2.19**
 
-  - [ ] 1.9 Write property tests for manifest structural rejections
+  - [x] 1.9 Write property tests for manifest structural rejections
     - **Property 3: Manifest_Schema rejects duplicate question IDs**
     - **Validates: Requirements 2.6**
     - **Property 4: Manifest_Schema rejects a second slot of the same Lock_Type in one room**
     - **Validates: Requirements 2.7**
 
-  - [ ] 1.10 Write property test for hint narrowing
+  - [x] 1.10 Write property test for hint narrowing
     - **Property 13: Manifest_Schema narrows hints per lock type**
     - **Validates: Requirements 2.4, 2.14, 2.15, 2.16, 2.17**
 
-  - [ ] 1.11 Implement `validateManifestForPublish`
+  - [x] 1.11 Implement `validateManifestForPublish`
     - Create `packages/core/src/runtime/publish-manifest.ts`: `parseManifest` then the existing `manifestCheck`, returning a typed `Result`, never publishing on either failure
     - _Requirements: 2.10, 2.12_
 
-  - [ ] 1.12 Write unit tests for `validateManifestForPublish`
+  - [x] 1.12 Write unit tests for `validateManifestForPublish`
     - Assert the ordering (schema, then `manifestCheck`) and that a failure in either blocks publishing
     - _Requirements: 2.12_
 
-- [ ] 2. Checkpoint - Ensure all tests pass
+- [x] 2. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 3. Code_Check framework and checks

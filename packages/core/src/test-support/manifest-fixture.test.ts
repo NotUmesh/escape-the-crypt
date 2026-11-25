@@ -88,13 +88,27 @@ describe('buildManifest', () => {
     expectUniqueIds(m);
   });
 
-  it('puts a hint effect on a question only when asked, and never on a rune cipher', () => {
+  it('puts a hint effect on a question only when asked', () => {
     const none = buildManifest({ hintEffects: false });
     expect(allQuestions(none).every((q) => q.hintEffect === null)).toBe(true);
     const all = buildManifest({ hintEffects: true, conceptsPerRoom: 6 });
-    for (const q of allQuestions(all)) {
-      expect(q.hintEffect === null).toBe(q.lockType === 'rune-cipher');
+    expect(allQuestions(all).every((q) => q.hintEffect !== null)).toBe(true);
+  });
+
+  it('gives rune ciphers a reveal-first-letter hint derived from the answer, and the check accepts it', () => {
+    const m = buildManifest({ hintEffects: true, conceptsPerRoom: 6, lockTypes: ['rune-cipher', 'seance-board'] });
+    const runes = allQuestions(m).filter((q) => q.lockType === 'rune-cipher');
+    expect(runes.length).toBeGreaterThan(0);
+    for (const q of runes) {
+      const answer = (q.payload as { answer: string }).answer;
+      const points = Array.from(answer);
+      expect(q.hintEffect).toEqual({
+        kind: 'reveal-first-letter',
+        firstLetter: points[0],
+        length: points.length,
+      });
     }
+    expect(manifestCheck(m).ok).toBe(true);
   });
 
   it('produces plain JSON', () => {

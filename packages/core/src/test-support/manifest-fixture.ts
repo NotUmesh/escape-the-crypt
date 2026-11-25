@@ -13,7 +13,7 @@ export interface BuildManifestOptions {
   readonly conceptsPerRoom?: number;
   /** Whether each concept has an Alternate. Default true. Ignored with a single lock type. */
   readonly alternates?: boolean | ((roomIndex: number, conceptIndex: number) => boolean);
-  /** Whether each question carries a hint effect. Default false. Rune ciphers never carry one. */
+  /** Whether each question carries a hint effect. Default false. Rune ciphers get reveal-first-letter. */
   readonly hintEffects?: boolean | ((role: QuestionRole, questionId: string) => boolean);
   /** Lock types to draw from. Default all six. */
   readonly lockTypes?: readonly LockType[];

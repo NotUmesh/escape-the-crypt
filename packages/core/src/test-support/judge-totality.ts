@@ -15,6 +15,11 @@ export const anyHintSpec: fc.Arbitrary<HintEffectSpec> = fc.oneof(
     pair: fc.tuple(id, id) as fc.Arbitrary<readonly [string, string]>,
   }),
   fc.record({ kind: fc.constant('reveal-digit' as const), position: fc.integer({ min: -2, max: 8 }) }),
+  fc.record({
+    kind: fc.constant('reveal-first-letter' as const),
+    firstLetter: id,
+    length: fc.integer({ min: -2, max: 40 }),
+  }),
 );
 
 /** null, undefined (cast through unknown, as a corrupt caller might pass), or any hint spec. */

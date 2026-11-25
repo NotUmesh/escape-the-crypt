@@ -54,7 +54,7 @@ describe('core imports', () => {
   it('passes the baseline repo', () => {
     expect(runAll(fakeRepo())).toEqual([]);
   });
-  for (const specifier of ['react', 'react-dom/client', 'pdfjs-dist', 'pdfjs-dist/legacy/build/pdf.mjs', 'zod', 'node:fs']) {
+  for (const specifier of ['react', 'react-dom/client', 'pdfjs-dist', 'pdfjs-dist/legacy/build/pdf.mjs', 'node:fs']) {
     it(`fails on an import of ${specifier}`, () => {
       const root = fakeRepo({ 'packages/core/src/bad.ts': `import x from '${specifier}';\n` });
       expect(checkCoreImports(root).map((v) => v.file)).toEqual(['packages/core/src/bad.ts']);
@@ -90,7 +90,7 @@ describe('core imports', () => {
 describe('core dependencies', () => {
   it('fails on a second runtime dependency', () => {
     const root = fakeRepo({
-      'packages/core/package.json': JSON.stringify({ dependencies: { '@noble/hashes': '2.4.0', zod: '3.0.0' } }),
+      'packages/core/package.json': JSON.stringify({ dependencies: { '@noble/hashes': '2.4.0', zod: '4.6.7', react: '19.0.0' } }),
     });
     expect(checkCoreDependencies(root)).toHaveLength(1);
   });
