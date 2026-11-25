@@ -131,7 +131,10 @@ function runPolicy(
   leaning = false,
 ): Coverage {
   const coverage: Coverage = { returnSlots: 0, ghostNotices: 0, replacedBySeal: 0, escaped: 0, atDoor: 0 };
-  const arbs = [...commonArbs, ...learnerArbs(policy), ...learnerArbs(policy), ...(leaning ? progressionArbs : [])];
+  // Learner commands are weighted so that a run reaches the later paths (return slots, replacements)
+  // in nearly every batch; at a weight of 2 the "all wrong" coverage guard missed in about 1 batch in 40.
+  const learner = learnerArbs(policy);
+  const arbs = [...commonArbs, ...learner, ...learner, ...learner, ...learner, ...(leaning ? progressionArbs : [])];
   const commands = fc.commands(arbs, { size: 'large', maxCommands: leaning ? 300 : 120 });
   let reached = 0;
   fc.assert(

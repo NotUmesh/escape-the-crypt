@@ -188,7 +188,7 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
     - **Property 12: Sample crypt build is deterministic**
     - **Validates: Requirements 27.8**
 
-- [~] 7. Checkpoint - Ensure all tests pass
+- [x] 7. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 8. Dataset acceptance
