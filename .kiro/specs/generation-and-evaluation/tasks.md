@@ -191,15 +191,15 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
 - [x] 7. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Dataset acceptance
-  - [~] 8.1 Write the Phase 1 acceptance test
+- [x] 8. Dataset acceptance
+  - [x] 8.1 Write the Phase 1 acceptance test
     - Create `phase1-acceptance.test.ts` that reads `eval/dev/questions/*.json`, `samples/questions/*.json` and `eval/adversarial/fixtures.json` at test time
     - Assert counts against named constants (56 questions: 26 rune cipher and 30 séance board; 10 `code:*` fixtures; 4 `review:*` fixtures), failing with a message that states expected and actual counts
     - Assert all 56 questions pass the blocking checks, each `code:*` fixture fails with exactly its expected Check_ID and no other blocking id, each `review:*` fixture passes, and the sample crypt passes the schema and `manifestCheck`
     - Do not edit `eval/adversarial/fixtures.json`
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.6, 9.7, 9.9_
 
-  - [~] 8.2 Write the boundary and no-holdout tests
+  - [x] 8.2 Write the boundary and no-holdout tests
     - Create `boundary.test.ts` that scans Phase 1 module sources for `fetch`, `http`, `net`, provider, cassette, budget-ledger and AI SDK imports
     - Assert no Phase 1 test or source file references `eval/holdout`
     - _Requirements: 9.5, 9.8, 27.7_

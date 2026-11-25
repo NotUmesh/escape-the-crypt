@@ -94,7 +94,7 @@ function contextFromNotes(text: string): EvidenceContext {
   return { chunks: new Map(chunks.map((c) => [c.id, c])), paragraphChunkIds };
 }
 
-/** Only eval/dev and eval/adversarial notes are read here, never eval/holdout. */
+/** Only eval/dev and eval/adversarial notes are read here, never the final test set. */
 function fixtureContext(f: Fixture): EvidenceContext {
   const dir = f.notesDir === 'adversarial/notes' ? 'eval/adversarial/notes' : 'eval/dev/notes';
   return contextFromNotes(readRepoFile(`${dir}/${f.notes}`));

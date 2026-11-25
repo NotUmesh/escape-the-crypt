@@ -583,6 +583,26 @@
         "executionId": "1ec4386f-d0be-4715-9878-39c39909f5f3",
         "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
         "timestamp": 1795597814432
+      },
+      {
+        "executionId": "5ed7d0ef-5477-40c1-b864-3cb605da8e97",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795598800617
+      },
+      {
+        "executionId": "5ed7d0ef-5477-40c1-b864-3cb605da8e97",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795600652202
+      },
+      {
+        "executionId": "a5cb7812-fa5c-4f69-8a63-a9fe83091d66",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795602559647
+      },
+      {
+        "executionId": "a5cb7812-fa5c-4f69-8a63-a9fe83091d66",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795602827460
       }
     ],
     "8.1 Write the Phase 1 acceptance test": [
@@ -590,6 +610,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590148277
+      },
+      {
+        "executionId": "5ed7d0ef-5477-40c1-b864-3cb605da8e97",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795600665918
+      },
+      {
+        "executionId": "5ed7d0ef-5477-40c1-b864-3cb605da8e97",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795600849439
       }
     ],
     "8.2 Write the boundary and no-holdout tests": [
@@ -597,6 +627,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590148348
+      },
+      {
+        "executionId": "5ed7d0ef-5477-40c1-b864-3cb605da8e97",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795600666168
+      },
+      {
+        "executionId": "5ed7d0ef-5477-40c1-b864-3cb605da8e97",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795600850171
       }
     ],
     "9.1 Reimplement `parseNotesRecord` with Zod": [
@@ -653,6 +693,13 @@
         "executionId": "613b1cd7-5df1-4205-81f4-c046afba11c7",
         "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
         "timestamp": 1795595556020
+      }
+    ],
+    "8. Dataset acceptance": [
+      {
+        "executionId": "5ed7d0ef-5477-40c1-b864-3cb605da8e97",
+        "chatSessionId": "sess_1bcd979a-29df-4e88-a3d1-f10161a9b067",
+        "timestamp": 1795600850209
       }
     ]
   }

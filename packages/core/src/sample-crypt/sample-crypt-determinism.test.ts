@@ -12,7 +12,7 @@ const here = url
   .replace(/\/[^/]*$/, '');
 const root = `${here}/../../../..`;
 
-// Only the public sample files are read, never eval/holdout.
+// Only the public sample files are read, never the final test set.
 const notesText = fs.readFileSync(`${root}/samples/human-heart.txt`, 'utf8');
 const questionsText = fs.readFileSync(`${root}/samples/questions/human-heart.json`, 'utf8');
 

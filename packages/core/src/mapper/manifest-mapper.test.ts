@@ -29,7 +29,7 @@ const here = url
   .replace(/\/[^/]*$/, '');
 const root = `${here}/../../../..`;
 
-// Only eval/dev and samples are read here, never eval/holdout.
+// Only eval/dev and samples are read here, never the final test set.
 interface QuestionFile {
   readonly notes: string;
   readonly questions: Record<string, unknown>[];
