@@ -37,7 +37,7 @@ export interface FinalDoorSlotSpec {
 export interface CryptManifest {
   readonly manifestId: string;
   readonly rooms: readonly RoomSpec[];
-  /** 2 to 4 entries (Req 20.1). */
+  /** 0 to 4 entries (Req 20.1). */
   readonly finalDoor: { readonly slots: readonly FinalDoorSlotSpec[] };
 }
 

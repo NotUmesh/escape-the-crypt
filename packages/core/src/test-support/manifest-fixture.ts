@@ -17,7 +17,7 @@ export interface BuildManifestOptions {
   readonly hintEffects?: boolean | ((role: QuestionRole, questionId: string) => boolean);
   /** Lock types to draw from. Default all six. */
   readonly lockTypes?: readonly LockType[];
-  /** 2 to 4 reserved final-door questions. Default 2. */
+  /** 0 to 4 reserved final-door questions. Default 2. */
   readonly finalDoorQuestions?: number;
   /** Without a seed the builder uses no randomness at all. */
   readonly seed?: number;
@@ -49,7 +49,7 @@ export function buildManifest(options: BuildManifestOptions = {}): CryptManifest
   if (types.length === 0) types.push(...LOCK_TYPES);
   const roomCount = clamp(options.rooms, 1, 5, 2);
   const conceptCount = Math.min(clamp(options.conceptsPerRoom, 1, 6, 3), types.length);
-  const finalCount = clamp(options.finalDoorQuestions, 2, 4, 2);
+  const finalCount = clamp(options.finalDoorQuestions, 0, 4, 2);
   const rng = options.seed === undefined ? null : makeRng(options.seed);
   const pickIndex = (length: number, fallback: number): number =>
     rng === null ? fallback % length : Math.floor(rng() * length);

@@ -110,7 +110,7 @@ const conceptsPerRoomArb: fc.Arbitrary<number> = fc.oneof(
 
 /**
  * Valid manifests over all six lock types: 1-5 rooms, Alternates present or absent per
- * concept, optional hint effects, 2-4 reserved final-door questions, plain JSON payloads
+ * concept, optional hint effects, 0-4 reserved final-door questions (sometimes 0), plain JSON payloads
  * and a unique questionId on every question. Built through `buildManifest`.
  */
 export const manifestArb: fc.Arbitrary<CryptManifest> = fc
@@ -119,7 +119,10 @@ export const manifestArb: fc.Arbitrary<CryptManifest> = fc
     conceptsPerRoom: conceptsPerRoomArb,
     alternateMask: fc.array(fc.boolean(), { minLength: 30, maxLength: 30 }),
     hintEffects: fc.boolean(),
-    finalDoorQuestions: fc.integer({ min: 2, max: 4 }),
+    finalDoorQuestions: fc.oneof(
+      { weight: 1, arbitrary: fc.constant(0) },
+      { weight: 4, arbitrary: fc.integer({ min: 1, max: 4 }) },
+    ),
     seed: fc.integer({ min: 0, max: 2 ** 31 - 1 }),
   })
   .map(({ alternateMask, ...rest }) =>

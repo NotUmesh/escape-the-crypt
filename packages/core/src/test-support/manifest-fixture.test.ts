@@ -57,10 +57,11 @@ describe('buildManifest', () => {
     }
   });
 
-  it('builds 2 to 4 full reserved final-door slots', () => {
-    for (const n of [1, 2, 3, 4, 9]) {
+  it('builds 0 to 4 full reserved final-door slots', () => {
+    for (const n of [0, 1, 2, 3, 4, 9]) {
       const m = buildManifest({ finalDoorQuestions: n });
-      expect(m.finalDoor.slots.length).toBe(Math.min(4, Math.max(2, n)));
+      expect(m.finalDoor.slots.length).toBe(Math.min(4, Math.max(0, n)));
+      expect(manifestCheck(m).ok).toBe(true);
       for (const s of m.finalDoor.slots) {
         expect(s.slotId).not.toBe('');
         expect(s.conceptId).not.toBe('');

@@ -45,14 +45,14 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 - **Lingering_Spirit**: A Concept that was answered wrong on return 2. It is reported as review due.
 - **GHOST_DELAY**: The named constant `3`. The number of other Judged_Answers that must pass before a Ghost or deferred skip becomes due.
 - **Cleared**: A room in which every Lock_Slot and every due Return_Slot is solved or settled.
-- **Final_Door**: The last stage. Its slots are the 2 to 4 final-door questions fixed in the Manifest, plus every outstanding Ghost and deferred skip.
+- **Final_Door**: The last stage. Its slots are the 0 to 4 final-door questions fixed in the Manifest, plus every outstanding Ghost and deferred skip.
 - **Escaped**: The run status after the Final_Door is open with all its slots solved or settled.
 - **Concept_Outcome**: The single reported result for a Concept: Challenged, Review due, Retried, Assisted or First-try correct.
 - **Autopsy_Label**: The learner-facing text for a Concept_Outcome, kept in `packages/core/src/copy.ts`.
 - **Draft_Answer**: Unsubmitted input such as typed letters or a planchette position. It exists only in interface state.
 - **Fixture_Builder**: A function in `packages/core/src/test-support/`, next to `arbitraries.ts`, that builds a valid Manifest for tests.
 - **Review_Due_Flag**: A flag on a Concept recording that the Concept needs another look. It is an input to the Concept_Outcome and does not itself decide the outcome. Requirement 22 alone decides each Concept_Outcome.
-- **Reserved_Final_Door_Question**: One of the 2 to 4 questions that the Manifest fixes for the Final_Door. Returns shown at the Final_Door are not Reserved_Final_Door_Questions.
+- **Reserved_Final_Door_Question**: One of the 0 to 4 questions that the Manifest fixes for the Final_Door. Returns shown at the Final_Door are not Reserved_Final_Door_Questions.
 
 ## Requirements
 
@@ -321,7 +321,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 
 #### Acceptance Criteria
 
-1. THE Runtime SHALL take the 2 to 4 final-door questions from the Manifest and add no final-door question that the Manifest does not contain.
+1. THE Runtime SHALL take the 0 to 4 final-door questions from the Manifest and add no final-door question that the Manifest does not contain.
 2. WHEN `FinalDoorEntered` is applied and the Final_Door is available, THE Runtime SHALL make every outstanding Ghost and deferred skip due, whatever the Judged_Answer count.
 3. IF `FinalDoorEntered` is applied while the Final_Door is not available, THEN THE Runtime SHALL return a Typed_Rejection with kind `final-door-unavailable`.
 4. WHEN a Reserved_Final_Door_Question is judged wrong, THE Runtime SHALL settle the slot, schedule no Return for it and leave the Concept_Outcome of its Concept unchanged.
@@ -332,6 +332,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 9. WHEN a Return at the Final_Door is judged wrong, THE Runtime SHALL apply Requirements 14 and 16 unchanged, so that a wrong return 1 spawns a return 2 that is due immediately under criterion 8.
 10. THE Runtime SHALL leave the Concept_Outcome of a Concept unchanged by the result of any Reserved_Final_Door_Question for that Concept, while a correct answer still lights one candle under Requirement 13.
 11. WHEN the run has Escaped, THE Runtime SHALL assign every Concept exactly one Concept_Outcome, including Concepts whose Returns were answered at the Final_Door.
+12. WHEN `FinalDoorEntered` leaves no open Final_Door slot, THE Runtime SHALL set the run status to Escaped and emit `escaped` on that event. This covers a Manifest with 0 Reserved_Final_Door_Questions and no outstanding Ghost or deferred skip.
 
 ### Requirement 21: Leaving and resuming
 
@@ -400,7 +401,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 1. THE Fixture_Builder SHALL reside in `packages/core/src/test-support/` next to `arbitraries.ts` and build a valid Manifest from a small set of options.
 2. THE Fixture_Builder SHALL accept the number of rooms (1 to 5), the number of Concepts per room (1 to 6) with a distinct primary LockType for each Concept within the same room, whether each Concept has an Alternate, the LockType of each question, an optional Hint_Effect for each primary question, Alternate and Reserved_Final_Door_Question (carried on the question, not on the slot), and an optional `lockTypes` list that defaults to all six LockTypes.
 3. THE Fixture_Builder SHALL build Alternates with a lock type different from the primary question.
-4. THE Fixture_Builder SHALL build a final-door set of 2 to 4 questions drawn from Concepts across rooms.
+4. THE Fixture_Builder SHALL build a final-door set of 0 to 4 questions drawn from Concepts across rooms, and the manifest arbitraries SHALL sometimes produce 0.
 5. THE Fixture_Builder SHALL produce the same Manifest for the same options and call no source of randomness unless a seed is supplied.
 6. THE Fixture_Builder SHALL build only fictional notes content and no real user content.
 7. THE Fixture_Builder SHALL build only Manifests for which the Manifest_Check returns ok.
@@ -455,6 +456,7 @@ Decisions D0 to D8 and the confirmed choices (one decimal place on the combinati
 8. THE Manifest_Check SHALL require every QuestionSpec, including every Alternate and every Reserved_Final_Door_Question, to carry a Question_Id.
 9. IF two QuestionSpecs in the Manifest carry the same Question_Id, THEN THE Manifest_Check SHALL return `{ ok: false, error: { kind: 'invalid-manifest', questionId } }` naming the first duplicated Question_Id found.
 10. IF a Manifest has both a repeated Station_Type in a room and a duplicated Question_Id, THEN THE Manifest_Check SHALL report the repeated Station_Type under criterion 3.
+11. IF a Manifest holds more than 4 Reserved_Final_Door_Questions, THEN THE Manifest_Check SHALL return `{ ok: false, error: { kind: 'invalid-manifest', reason: 'too-many-final-door-questions', count } }`.
 
 ### Requirement 29: Station type and current question type
 

@@ -5,7 +5,11 @@ export type InvalidManifestError =
   | { readonly kind: 'invalid-manifest'; readonly room: string; readonly lockType: string }
   | { readonly kind: 'invalid-manifest'; readonly questionId: string; readonly slotId?: string }
   | { readonly kind: 'invalid-manifest'; readonly lockType: string }
-  | { readonly kind: 'invalid-manifest'; readonly reason: 'malformed' };
+  | { readonly kind: 'invalid-manifest'; readonly reason: 'malformed' }
+  | { readonly kind: 'invalid-manifest'; readonly reason: 'too-many-final-door-questions'; readonly count: number };
+
+/** The Manifest holds 0 to 4 reserved final-door questions (Req 20.1). */
+export const MAX_RESERVED_FINAL_DOOR_QUESTIONS = 4;
 
 export type ManifestCheckResult =
   | { readonly ok: true }
@@ -143,6 +147,14 @@ export function manifestCheck(manifest: CryptManifest): ManifestCheckResult {
       return { ok: false, error: { kind: 'invalid-manifest', questionId: id } };
     }
     seenIds.add(id);
+  }
+
+  // Pass 4: at most MAX_RESERVED_FINAL_DOOR_QUESTIONS reserved final-door questions (Req 20.1).
+  if (reserved.length > MAX_RESERVED_FINAL_DOOR_QUESTIONS) {
+    return {
+      ok: false,
+      error: { kind: 'invalid-manifest', reason: 'too-many-final-door-questions', count: reserved.length },
+    };
   }
   return { ok: true };
 }

@@ -53,12 +53,12 @@ export function materialiseDoorReturns(state: State): State {
 
 /**
  * The one call site every Final_Door handler uses after it settles a slot: add the Return
- * slots that are due at once, then set Escaped when no slot is open (Req 20.5). `escaped` is
- * emitted once, because an escaped run rejects every later event.
+ * slots that are due at once, then set Escaped when no slot is open (Req 20.5, 20.12). A door
+ * with zero slots after entry (no reserved questions, no outstanding ghosts) escapes at once.
+ * `escaped` is emitted once, because an escaped run rejects every later event.
  */
 export function settleDoor(state: State): ClearingResult {
   const next = materialiseDoorReturns(state);
-  const slots = next.finalDoor.slots;
-  if (slots.length === 0 || slots.some((s) => s.status === 'open')) return { state: next, notices: [] };
+  if (next.finalDoor.slots.some((s) => s.status === 'open')) return { state: next, notices: [] };
   return { state: { ...next, status: 'escaped' }, notices: [escaped()] };
 }

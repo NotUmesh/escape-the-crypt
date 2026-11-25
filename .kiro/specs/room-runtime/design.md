@@ -250,7 +250,7 @@ Every Judge is pure, returns a `JudgeResult` and throws for no input (Req 11.9, 
 export interface CryptManifest {
   readonly manifestId: string;
   readonly rooms: readonly RoomSpec[];
-  readonly finalDoor: { readonly slots: readonly FinalDoorSlotSpec[] }; // 2-4 entries, Req 20.1
+  readonly finalDoor: { readonly slots: readonly FinalDoorSlotSpec[] }; // 0-4 entries, Req 20.1
 }
 
 export interface RoomSpec {
@@ -570,7 +570,7 @@ One `fc.Command<Model, State>` per `Event` kind (`RunStartedCommand`, `AnswerSub
 
 ### Manifest arbitrary
 
-`test-support/arbitraries.ts` adds `manifestArb`: 1-5 rooms, each with 1-6 `LockSlotSpec`s of **distinct** `stationType` values drawn from a shuffled slice of the six `LockType`s, an Alternate present or absent per concept at random (never sharing the primary's `LockType`), and a `finalDoor` of 2-4 full reserved slot specs (each with `slotId`, `conceptId` drawn across rooms, a complete `QuestionSpec` with `questionId`, `lockType`, `payload`, `evidenceRefs` and its own `hintEffect` or `null`). Every primary question, Alternate and reserved final-door question carries its own `hintEffect` (or `null`), chosen to suit that question's lock type, and every `questionId` is unique in the manifest (Req 25.13; generated from a running counter over primary, Alternate and reserved questions, or an equivalent unique-ID arbitrary, never drawn independently). `buildManifest` assigns IDs the same way (Req 25.12). All payloads and hint effects are plain JSON, with bound-threads pairs as tuple arrays. `buildManifest` in the Fixture_Builder produces the same shapes from its per-question hint options (Req 25.2), with fictional content only. A biased sub-generator produces 4-6-lock rooms in a configurable share of cases so in-room Returns become due before the room would otherwise clear (Req 25.11). Every generated manifest is filtered (or constructed to begin with) so `manifestCheck(manifest).ok === true` (Req 25.8).
+`test-support/arbitraries.ts` adds `manifestArb`: 1-5 rooms, each with 1-6 `LockSlotSpec`s of **distinct** `stationType` values drawn from a shuffled slice of the six `LockType`s, an Alternate present or absent per concept at random (never sharing the primary's `LockType`), and a `finalDoor` of 0-4 full reserved slot specs (sometimes 0, so a door with no reserved questions is exercised, Req 20.12) (each with `slotId`, `conceptId` drawn across rooms, a complete `QuestionSpec` with `questionId`, `lockType`, `payload`, `evidenceRefs` and its own `hintEffect` or `null`). Every primary question, Alternate and reserved final-door question carries its own `hintEffect` (or `null`), chosen to suit that question's lock type, and every `questionId` is unique in the manifest (Req 25.13; generated from a running counter over primary, Alternate and reserved questions, or an equivalent unique-ID arbitrary, never drawn independently). `buildManifest` assigns IDs the same way (Req 25.12). All payloads and hint effects are plain JSON, with bound-threads pairs as tuple arrays. `buildManifest` in the Fixture_Builder produces the same shapes from its per-question hint options (Req 25.2), with fictional content only. A biased sub-generator produces 4-6-lock rooms in a configurable share of cases so in-room Returns become due before the room would otherwise clear (Req 25.11). Every generated manifest is filtered (or constructed to begin with) so `manifestCheck(manifest).ok === true` (Req 25.8).
 
 ### Learner policies for termination (R1 / Req 20.7)
 
