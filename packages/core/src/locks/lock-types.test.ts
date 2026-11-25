@@ -33,7 +33,7 @@ describe('lock type IDs', () => {
     }
   });
 
-  it('lock file names (excluding tests and the registry) match the LockType IDs and vice versa', async () => {
+  it('lock file names (excluding tests, the registry and *-checks helpers) match the LockType IDs and vice versa', async () => {
     // packages/core compiles without Node types, so load Node modules dynamically.
     const fsSpecifier: string = 'node:fs';
     const urlSpecifier: string = 'node:url';
@@ -49,7 +49,7 @@ describe('lock type IDs', () => {
       .readdirSync(dir)
       .filter((f) => f.endsWith('.ts') && !f.endsWith('.test.ts'))
       .map((f) => f.slice(0, -'.ts'.length))
-      .filter((n) => n !== 'judge-registry')
+      .filter((n) => n !== 'judge-registry' && !n.endsWith('-checks'))
       .sort();
     expect(names).toEqual(EXPECTED);
   });

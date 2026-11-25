@@ -151,6 +151,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 5. THE rune cipher check SHALL apply the same normalisation that the rune judge in `packages/core/src/locks/rune-cipher.ts` applies, so that a check and the judge agree on whether an answer matches.
 6. IF a rune cipher question has a missing or empty answer, THEN THE Authoring_Schema SHALL reject it before any Code_Check runs.
 7. FOR ALL generated rune cipher candidates in the accepted set, every Quote SHALL resolve uniquely (G-P1).
+8. THE `answer-not-in-quote` Code_Check, and any other Code_Check that reads a Quote's text as evidence (including `alternate-off-concept`), SHALL evaluate only Quotes that resolved uniquely; IF no Quote of the question resolved, THEN THE Code_Check SHALL NOT run, because the Quote failure (`quote-not-found`, `quote-ambiguous`, `quote-too-short` or `unknown-paragraph/chunk`) already blocks the question and one root cause is reported once.
 
 ### Requirement 6: Séance board checks (P1)
 

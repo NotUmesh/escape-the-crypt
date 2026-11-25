@@ -172,6 +172,376 @@
         "chatSessionId": "sess_3dc2a9d9-4d23-4b88-8e31-3b0bab79ad98",
         "timestamp": 1795590098303
       }
+    ],
+    "3.1 Implement check types, registry and `CHECK_VERSION`": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147251
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590153357
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590231747
+      }
+    ],
+    "3.2 Implement shared evidence checks": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147284
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590238913
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590348455
+      }
+    ],
+    "3.3 Write unit tests for shared evidence checks, including `quote-too-long`": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147336
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590470230
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590891155
+      }
+    ],
+    "3.4 Implement rune cipher checks": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147366
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590238998
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590348520
+      },
+      {
+        "executionId": "30b1f2a1-49be-4a82-a203-4c05a9f8266d",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795591508529
+      },
+      {
+        "executionId": "30b1f2a1-49be-4a82-a203-4c05a9f8266d",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795591962892
+      }
+    ],
+    "3.5 Write unit tests for rune cipher checks": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147399
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590470785
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590891267
+      }
+    ],
+    "3.6 Write property test for rune normalisation agreement": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147437
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590893540
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795591316269
+      }
+    ],
+    "3.7 Implement séance board checks": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147487
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590239060
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590348610
+      }
+    ],
+    "3.8 Write unit tests for séance board checks": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147523
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590471365
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590891442
+      }
+    ],
+    "3.9 Implement alternate checks and Leak_Scan": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147557
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590239123
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590349231
+      }
+    ],
+    "3.10 Write unit tests for alternate checks and Leak_Scan": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147591
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590471917
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590892023
+      }
+    ],
+    "3.11 Write property test for Leak_Scan": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147634
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590894082
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795591316907
+      }
+    ],
+    "3.12 Implement `runChecks`": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147683
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590366369
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590465315
+      }
+    ],
+    "3.13 Write property tests for `runChecks`": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147719
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590894769
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795591317582
+      }
+    ],
+    "3.14 Write registry test": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147752
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590470151
+      },
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590892739
+      }
+    ],
+    "4. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147816
+      },
+      {
+        "executionId": "30b1f2a1-49be-4a82-a203-4c05a9f8266d",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795591965783
+      },
+      {
+        "executionId": "30b1f2a1-49be-4a82-a203-4c05a9f8266d",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795592158764
+      }
+    ],
+    "5.1 Implement `mapAuthoringQuestionToSpec`": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147876
+      }
+    ],
+    "5.2 Write unit tests for the Manifest_Mapper": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590147956
+      }
+    ],
+    "5.3 Write property tests for the Manifest_Mapper": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148002
+      }
+    ],
+    "6.1 Implement `buildHumanHeartSampleCrypt`": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148058
+      }
+    ],
+    "6.2 Write tests for the sample crypt": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148114
+      }
+    ],
+    "6.3 Write property test for sample crypt determinism": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148172
+      }
+    ],
+    "7. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148224
+      }
+    ],
+    "8.1 Write the Phase 1 acceptance test": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148277
+      }
+    ],
+    "8.2 Write the boundary and no-holdout tests": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148348
+      }
+    ],
+    "9.1 Reimplement `parseNotesRecord` with Zod": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148401
+      }
+    ],
+    "9.2 Write the differential migration test": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148445
+      }
+    ],
+    "9.3 Write property test for NotesRecord round-trip": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148484
+      }
+    ],
+    "9.4 Update the tech rule note": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148552
+      }
+    ],
+    "10. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795590148614
+      }
+    ],
+    "3. Code_Check framework and checks": [
+      {
+        "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795591317649
+      }
     ]
   }
 }
