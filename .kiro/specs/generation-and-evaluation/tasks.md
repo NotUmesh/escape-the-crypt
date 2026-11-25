@@ -150,20 +150,20 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
 - [x] 4. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Manifest_Mapper
-  - [~] 5.1 Implement `mapAuthoringQuestionToSpec`
+- [x] 5. Manifest_Mapper
+  - [x] 5.1 Implement `mapAuthoringQuestionToSpec`
     - Create `packages/core/src/mapper/manifest-mapper.ts` and a paragraph-to-chunk map builder using `chunkDocument` (first chunk wins for a paragraph number)
     - Resolve every paragraph to a chunk ID or return `paragraph-not-found`; re-run blocking checks and return `check-failed`; build rune and séance payloads, preserving option order; set `evidenceRefs` de-duplicated in order
     - Rune hint: always set `reveal-first-letter` with `firstLetter` and `length` computed from the answer (by code point), even when the authoring question has no hint; return `hint-mismatch` (naming the question, no `QuestionSpec`) when an authoring hint disagrees with the computed values
-    - Séance hint: the authoring format has no hint marker; always set `remove-option` for the first `contradicted` option in authoring order, decided in code, else `null`
+    - Séance hint: the authoring format has no hint marker; always set `remove-option` for the first `contradicted` option in authoring order, decided in code (an accepted question always has at least two contradicted options)
     - Return typed `MapperError`; never produce a partial `QuestionSpec`
     - _Requirements: 6.8, 8.1, 8.2, 8.3, 8.4, 8.5, 8.7, 8.8, 8.9_
 
-  - [~] 5.2 Write unit tests for the Manifest_Mapper
-    - One mapping example per Phase 1 lock type from `samples/questions/human-heart.json`; the `paragraph-not-found` and `hint-mismatch` errors; a rune question with no authoring hint still maps to `reveal-first-letter`; a séance question maps to `remove-option` for its first `contradicted` option, or `null` when none; each row of the hint table; the first-chunk-wins choice; a mapped manifest of accepted dev questions passes `manifestCheck`
+  - [x] 5.2 Write unit tests for the Manifest_Mapper
+    - One mapping example per Phase 1 lock type from `samples/questions/human-heart.json`; the `paragraph-not-found` and `hint-mismatch` errors; a rune question with no authoring hint still maps to `reveal-first-letter`; a séance question maps to `remove-option` for its first `contradicted` option (no `contradicted` option gives `check-failed`); each row of the hint table; the first-chunk-wins choice; a mapped manifest of accepted dev questions passes `manifestCheck`
     - _Requirements: 8.2, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9_
 
-  - [~] 5.3 Write property tests for the Manifest_Mapper
+  - [x] 5.3 Write property tests for the Manifest_Mapper
     - **Property 9: Manifest_Mapper preserves séance-board option order**
     - **Validates: Requirements 6.8**
     - **Property 14: Mapper hint rules**

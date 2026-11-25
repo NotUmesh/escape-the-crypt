@@ -195,7 +195,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 7. IF a paragraph number has no chunk ID, THEN THE Manifest_Mapper SHALL return a typed error and SHALL NOT produce a partial `QuestionSpec`.
 8. WHEN the Manifest_Mapper maps a rune cipher Authoring_Question, THE Manifest_Mapper SHALL always set `hintEffect` to `reveal-first-letter`, with `firstLetter` and `length` computed from the answer, even when the Authoring_Question has no hint.
 9. THE Authoring_Schema SHALL define no hint marker for séance board questions, and WHEN the Manifest_Mapper maps a séance board Authoring_Question that has at least one option labelled `contradicted`, THE Manifest_Mapper SHALL set `hintEffect` to `remove-option` for the first `contradicted` option in authoring order, decided in code.
-10. WHEN a séance board Authoring_Question has no option labelled `contradicted`, THE Manifest_Mapper SHALL set `hintEffect` to `null`.
+10. THE Manifest_Mapper SHALL rely on the fact that an accepted séance board question has exactly one `supported` option and 3 to 4 options, so it always has at least two `contradicted` options, and its `hintEffect` is therefore always `remove-option` on the first `contradicted` option in authoring order. IF a question with no `contradicted` option reaches the mapper, THEN THE Manifest_Mapper SHALL return a typed `check-failed` error and SHALL NOT produce a `QuestionSpec`.
 11. IF a rune cipher Authoring_Question carries a hint that disagrees with the hint computed from its answer, THEN THE Manifest_Mapper SHALL return a typed hint-mismatch error that names the question and SHALL NOT produce a `QuestionSpec`.
 
 ### Requirement 9: Phase 1 acceptance against data sets (P1)

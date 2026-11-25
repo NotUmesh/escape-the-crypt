@@ -25,7 +25,10 @@ export type CheckableQuestion = AuthoringQuestion | UnsupportedQuestion;
 /** Chunk lookup shared by every question of a job. */
 export interface EvidenceContext {
   readonly chunks: ReadonlyMap<string, Chunk>;
-  /** Authoring paragraph number -> code-assigned chunk ID (no heading-only chunks). */
+  /**
+   * Authoring paragraph number -> code-assigned chunk ID. Heading paragraphs ARE in the map, so
+   * numbering matches citation labels; a cited heading fails on quote length, not on lookup.
+   */
   readonly paragraphChunkIds: ReadonlyMap<number, string>;
 }
 

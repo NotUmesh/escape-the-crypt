@@ -260,8 +260,9 @@ export function checkQuote(
   chunkRef: { paragraphChunkId: string; quote: string },
   questionId: string,
 ): CheckFailure | null {
-  // unknown-paragraph/chunk first (Req 4.7) — includes heading-only chunks, since the
-  // Manifest_Mapper's paragraph->chunk map (component 4) never includes a heading-only chunk ID
+  // unknown-paragraph/chunk first (Req 4.7). Heading paragraphs ARE in the Manifest_Mapper's
+  // paragraph->chunk map (numbering matches citation labels and the gold set), so citing a short
+  // heading fails on `quote-too-short`, not here. See the P3 follow-up under component 8.
   if (!chunks.has(chunkRef.paragraphChunkId)) {
     return { checkId: 'unknown-paragraph/chunk', questionId };
   }
@@ -525,7 +526,7 @@ export type MapperError =
 
 export function mapAuthoringQuestionToSpec(
   question: AuthoringQuestion,
-  chunksByParagraph: ReadonlyMap<number, string>, // paragraph number -> chunk ID, built once per document
+  maps: DocumentChunkMaps, // { chunks, chunksByParagraph }, built once per document by buildDocumentChunkMaps
   questionId: string, // Req 8.3: caller assigns a manifest-unique ID; the authoring `id` is a hint, not guaranteed unique
 ): Result<QuestionSpec, MapperError> {
   // 1. Resolve every evidence.paragraph to a chunk ID via chunksByParagraph; Req 8.7 on any miss.
@@ -550,12 +551,16 @@ export function mapAuthoringQuestionToSpec(
 | `rune-cipher` | `first-letter-and-length`, agrees with the computed values | the same computed `reveal-first-letter` |
 | `rune-cipher` | `first-letter-and-length`, disagrees | typed `hint-mismatch` error, no `QuestionSpec` (Req 8.11) |
 | `seance-board` | none (the schema has no hint field) | `{ kind: 'remove-option', optionId }` for the first option with `label === 'contradicted'` in authoring order, if one exists |
-| `seance-board` | none | `null` when no option is `contradicted` (Req 8.10) |
+| `seance-board` | none | no `contradicted` option: typed `check-failed` (`not-exactly-one-supported`), no `QuestionSpec` (Req 8.10) |
 
 - Rune: `firstLetter` is the first character of the answer after trimming, and `length` is the answer's length in characters (counting by code point, via `Array.from`, so a non-BMP character is one). A rune question always gets this hint, whether or not the authoring question carries one (Req 8.8). When an authoring hint is present, its `firstLetter` and `length` are compared with the computed values and a mismatch returns `hint-mismatch`. An answer that trims to empty cannot reach this point (the schema rejects it, Req 5.6).
-- Séance: the option is chosen by code, never by the model (Req 8.9). The Code_Checks guarantee exactly one `supported` option, so the first `contradicted` option is never the key, and the Manifest_Schema rule in Req 2.15 holds by construction. A question with no `contradicted` option fails `not-exactly-one-supported` before mapping, or maps to `null` if a caller reaches the mapper with such a question (Req 8.10).
+- Séance: the option is chosen by code, never by the model (Req 8.9). The Code_Checks guarantee exactly one `supported` option among 3 to 4, so an accepted question always has at least two `contradicted` options, the hint is always `remove-option`, and the first `contradicted` option is never the key (Req 2.15 holds by construction). A question with no `contradicted` option fails `not-exactly-one-supported` before mapping; if a caller still reaches the mapper with one, it returns `check-failed` (Req 8.10). The manifest schema still accepts `null` for séance hints (Req 2.15) and is unchanged.
 - `MapperError` has the variant `{ kind: 'hint-mismatch'; questionId: string }`.
 - The hint output feeds Property 14 and the sample crypt (Req 27.9).
+
+**Heading paragraphs** (decision): heading paragraphs stay in the paragraph map so numbering matches citation labels and the gold set. Citing the title of `human-heart` (paragraph 1, "The human heart") fails with `quote-too-short` today (pinned in `manifest-mapper.test.ts`).
+
+**P3 follow-up (generation phase):** the chunker should flag heading-only chunks, so that Req 4.7's `unknown-paragraph/chunk` can be enforced for headings long enough to pass the length check, and so P3 can pass headings to the model as context.
 
 **Paragraph-to-chunk map** (Req 8.2): built once per document by chunking the notes text with the existing `chunkDocument({ sourceType: 'paste', text, originalText: text })` (Phase 1's sample has no PDF/edited-text distinction, so `text === originalText`) and reading each chunk's `location.paragraphNumber` (for `sourceType: 'paste'` chunks) into a `Map<number, string>`. Because the chunker can split one paragraph into multiple chunks for a long paragraph (`MAX_CHUNK_CHARS = 1200`) but `human-heart.txt`'s longest paragraph is well under that, each paragraph maps to exactly one chunk for this sample; a paragraph that chunked into multiple pieces would need the *first* chunk at that paragraph number (since `resolveQuote` only needs quotes to land inside the chunk that contains them) — this edge case doesn't arise in Phase 1's fixed sample input, so the map build only needs "last chunk wins for a given paragraph number" or "first chunk wins" to be documented, not exhaustively handled; the implementation keeps the *first* chunk seen for a paragraph number (`if (!map.has(n)) map.set(n, chunk.id)`), and a unit test pins this choice so a future multi-chunk paragraph in a bigger phase-5 fixture doesn't silently change behaviour.
 

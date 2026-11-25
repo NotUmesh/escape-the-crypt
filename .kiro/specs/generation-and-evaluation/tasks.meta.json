@@ -7,6 +7,10 @@
     "1.8 Write property test for manifest serialisation round-trip": {
       "status": "passed",
       "lastRunTimestamp": 1795589159631
+    },
+    "5.3 Write property tests for the Manifest_Mapper": {
+      "status": "passed",
+      "lastRunTimestamp": 1795593227067
     }
   },
   "executionHistory": {
@@ -436,6 +440,16 @@
         "executionId": "30b1f2a1-49be-4a82-a203-4c05a9f8266d",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795592158764
+      },
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795592665887
+      },
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795592797302
       }
     ],
     "5.1 Implement `mapAuthoringQuestionToSpec`": [
@@ -443,6 +457,26 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590147876
+      },
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795592805795
+      },
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795592928854
+      },
+      {
+        "executionId": "9a001dcf-cce7-455c-b2ad-ed0dad7d2c68",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795593787433
+      },
+      {
+        "executionId": "9a001dcf-cce7-455c-b2ad-ed0dad7d2c68",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795594366264
       }
     ],
     "5.2 Write unit tests for the Manifest_Mapper": [
@@ -450,6 +484,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590147956
+      },
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795592929576
+      },
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795593245070
       }
     ],
     "5.3 Write property tests for the Manifest_Mapper": [
@@ -457,6 +501,16 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795590148002
+      },
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795592930339
+      },
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795593245177
       }
     ],
     "6.1 Implement `buildHumanHeartSampleCrypt`": [
@@ -541,6 +595,13 @@
         "executionId": "15015be3-1cfa-42b9-b6f3-3f8efa35de5c",
         "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
         "timestamp": 1795591317649
+      }
+    ],
+    "5. Manifest_Mapper": [
+      {
+        "executionId": "3236e1c2-abda-4ef8-9cdc-55423483b5bb",
+        "chatSessionId": "sess_d99a0478-b759-41e7-a5c8-e480dc11297a",
+        "timestamp": 1795593245255
       }
     ]
   }
