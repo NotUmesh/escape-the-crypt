@@ -313,7 +313,7 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 
 #### Acceptance Criteria
 
-1. WHEN `State` holds `evidencePanelOpen` true for a slot, THE Room_Screen SHALL show the Evidence_Panel for that slot.
+1. WHEN `State` holds `evidencePanelOpen` true for a slot, THE Room_Screen SHALL show the Evidence_Panel for that slot. THE Room_Screen SHALL show it after every judged answer, including the answer that escapes the run, which leaves `evidencePanelOpen` true in the escaped `State`.
 2. THE Evidence_Panel SHALL show the result of the judged answer as text and an icon, so that colour is not the only signal. For a Lock_Slot the result comes from `judgedResult`. For a Return_Slot or a Final_Door_Slot, which have no `judgedResult`, the result text comes from the slot `status`: `solved` shows the correct result text, `settled` shows the wrong result text, and `challenged` shows no result text.
 3. THE Evidence_Panel SHALL show every cited excerpt of the question from `content.questions[questionId].excerpts` exactly once, as plain text, each with the Citation_Label of its chunk in the form "Paragraph N of the sample notes".
 4. WHERE the question is a séance board question, THE Evidence_Panel SHALL show the text of the option the learner chose and the text of the key option, both taken from `content.questions[questionId].options`, and SHALL show the excerpts in this order: the Option_Excerpt of the chosen option, then the Option_Excerpt of the key option, then every remaining excerpt in `content.questions[questionId].excerpts` order.
@@ -321,8 +321,8 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 6. WHEN the excerpt is resolved against its chunk, THE Evidence_Panel SHALL show the label "Source excerpt matched" under criterion 3 of Requirement 3.
 7. WHEN the judged answer is wrong (for a Return_Slot or a Final_Door_Slot, WHEN the slot `status` is `settled`), THE Evidence_Panel SHALL open with a kind sentence that begins the explanation, for example "Not this time. Here's what your notes say."
 8. THE Evidence_Panel SHALL show a "Continue" button.
-9. WHEN the learner activates the "Continue" button, THE Room_Binding SHALL dispatch `EvidenceContinued` for the slot and THE Room_Screen SHALL close the Evidence_Panel.
-10. WHEN the Evidence_Panel closes, THE Room_Screen SHALL return keyboard focus to the Hotspot_Button of the slot, or to the next control that the State makes available when the slot's lock is no longer shown.
+9. WHEN the learner activates the "Continue" button, THE Room_Binding SHALL dispatch `EvidenceContinued` for the slot and THE Room_Screen SHALL close the Evidence_Panel. WHERE the run has status "escaped", the "Continue" button SHALL only close the Evidence_Panel locally and SHALL dispatch no Event, because the runtime rejects every Event after the escape.
+10. WHEN the Evidence_Panel closes, THE Room_Screen SHALL return keyboard focus to the Hotspot_Button of the slot, or to the next control that the State makes available when the slot's lock is no longer shown. WHEN the Evidence_Panel of the escaping answer closes, THE Room_Screen SHALL move keyboard focus to the "Open the Autopsy" button of the escape view.
 11. THE Evidence_Panel SHALL offer no way to submit a second answer to the same question.
 12. WHEN the Evidence_Panel is open, THE Room_Screen SHALL move keyboard focus into it.
 13. WHERE the chosen option is the key option of a séance board question, THE Evidence_Panel SHALL show its Option_Excerpt once, first, followed by the remaining excerpts in `content.questions[questionId].excerpts` order.
@@ -363,7 +363,7 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 7. WHILE `State.atFinalDoor` is true, THE Question_Panel, the Evidence_Panel, the hint, skip and challenge controls and the ghost drawing SHALL work as they do in a room.
 8. IF a slot's Current_Question_Type is a lock type for which Room_Play has no Question_Panel, THEN THE Room_Screen SHALL show a message that this question type is not playable in this version and SHALL offer the "Skip" button for that slot, so that the escape stays possible.
 9. WHEN the Room_Binding exposes an `escaped` Outcome_Notice, THE Room_Screen SHALL show the open door with its Light_Pass and an escape message, and SHALL offer a button that opens the Autopsy.
-10. WHEN State has status "escaped", THE Room_Screen SHALL accept no further answer, hint, skip or challenge.
+10. WHEN State has status "escaped", THE Room_Screen SHALL accept no further answer, hint, skip or challenge. WHEN the escaping answer opened an Evidence_Panel, THE Room_Screen SHALL keep showing that Evidence_Panel with only its "Continue" button, and SHALL show the escape view of criterion 9 only after the learner dismisses it.
 11. FOR ALL sequences of learner actions on open slots in the Sample_Crypt that include answering wrong, skipping or challenging every question, THE Room_Play SHALL reach the status "escaped" after at most the number of prompts that the runtime bound in the room-runtime spec allows.
 
 ### Requirement 20: Autopsy

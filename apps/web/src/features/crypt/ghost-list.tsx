@@ -43,7 +43,7 @@ export function GhostList({ ghosts, anchorCount = 0, spiritCandleCount = 0 }: Gh
           <span className="ghost-list__flame" aria-hidden="true">
             {'\u2726'}
           </span>{' '}
-          {spiritCandleCount === 1 ? 'Spirit candle lit' : `Spirit candles lit: ${spiritCandleCount}`}
+          {ROOM_PLAY_LABELS.spiritCandlesLit(spiritCandleCount)}
         </p>
       ) : null}
     </div>

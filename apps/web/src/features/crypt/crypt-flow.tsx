@@ -60,6 +60,8 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
   const binding = useBinding();
   const { state, notices, phase, startError } = binding;
   const [autopsyRequested, setAutopsyRequested] = useState(false);
+  // View-only flag: true once the learner closed the Evidence_Panel of the escaping answer. Holds no game state.
+  const [escapeEvidenceDismissed, setEscapeEvidenceDismissed] = useState(false);
   const [messages, setMessages] = useState<readonly string[]>(NO_MESSAGES);
   const previous = useRef<State | null>(null);
 
@@ -68,6 +70,7 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
     (action: RoomAction): void => {
       if (action.type === 'playAgain') {
         setAutopsyRequested(false);
+        setEscapeEvidenceDismissed(false);
         // A new run is not a step from the old State, so nothing is announced for it.
         previous.current = null;
       }
@@ -96,11 +99,28 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
   } else if (phase !== 'running' || state === null) {
     view = <StartView dispatch={dispatch} />;
   } else if (state.status === 'escaped') {
-    view = autopsyRequested ? (
-      <AutopsyView state={state} assets={binding.assets} dispatch={dispatch} />
-    ) : (
-      <FinalDoor escaped onOpenAutopsy={() => setAutopsyRequested(true)} />
-    );
+    // The answer that escaped the run still shows its Evidence_Panel. Its Continue is local (no Event),
+    // because the runtime rejects every Event after the escape. Only then does the escape view appear.
+    const evidenceStillOpen =
+      !escapeEvidenceDismissed &&
+      binding.assets !== null &&
+      state.finalDoor.slots.some((s) => s.evidencePanelOpen);
+    if (autopsyRequested) {
+      view = <AutopsyView state={state} assets={binding.assets} dispatch={dispatch} />;
+    } else if (evidenceStillOpen) {
+      view = (
+        <FinalDoor
+          state={state}
+          dispatch={dispatch}
+          assets={binding.assets}
+          rejection={binding.rejection}
+          eventLog={binding.eventLog}
+          onEscapeEvidenceDismissed={() => setEscapeEvidenceDismissed(true)}
+        />
+      );
+    } else {
+      view = <FinalDoor escaped onOpenAutopsy={() => setAutopsyRequested(true)} />;
+    }
   } else if (state.status === 'in progress') {
     view = state.atFinalDoor ? (
       <FinalDoor

@@ -121,6 +121,8 @@ describe('Room-play copy', () => {
       ROOM_PLAY_LABELS.ghostName(2),
       ROOM_PLAY_LABELS.returnSlotName(true),
       ROOM_PLAY_LABELS.returnSlotName(false),
+      ROOM_PLAY_LABELS.spiritCandlesLit(1),
+      ROOM_PLAY_LABELS.spiritCandlesLit(3),
     ];
     for (const s of strings) {
       expect(s.length, s).toBeGreaterThan(0);

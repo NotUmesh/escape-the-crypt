@@ -35,8 +35,15 @@ describe('GhostList', () => {
 
   it('shows lit spirit candles as text with a hidden flame marker', () => {
     mount.render(createElement(GhostList, { ghosts: [], spiritCandleCount: 2 }));
+    expect(mount.container.textContent).toContain(ROOM_PLAY_LABELS.spiritCandlesLit(2));
     expect(mount.container.textContent).toContain('Spirit candles lit: 2');
     expect(mount.container.querySelector('.ghost-list__flame')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('uses the singular text for one spirit candle', () => {
+    mount.render(createElement(GhostList, { ghosts: [], spiritCandleCount: 1 }));
+    expect(mount.container.querySelector('.ghost-list__spirit')?.textContent).toContain(ROOM_PLAY_LABELS.spiritCandleLit);
+    expect(mount.container.textContent).not.toContain('Spirit candles lit');
   });
 
   it('declares pointer-events: none for the ghost layer', () => {

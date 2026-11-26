@@ -99,10 +99,15 @@ test('all answers wrong: ghosts appear, return at the final door, and the escape
     if (await escape.isVisible()) break;
     await openSeals.first().click();
     await answerWrong(page, keys);
-    // The last settled seal ends the run at once: the escape view replaces the door, with no Evidence_Panel.
-    await expect(escape.or(continueButton(page))).toBeVisible();
-    if (await escape.isVisible()) break;
+    // Every judged answer opens an Evidence_Panel, including the one that settles the last seal and ends the run.
+    await expect(continueButton(page)).toBeVisible();
+    await expect(page.locator('.evidence-panel__citation').first()).toBeVisible();
+    await expect(page.locator('.evidence-panel__excerpt blockquote').first()).not.toBeEmpty();
+    // The escape view waits for that panel: it is not shown while the panel is open.
+    await expect(escape).toHaveCount(0);
     await continueButton(page).click();
+    // Either the next open seal or, after the last panel, the escape view.
+    await expect(escape.or(openSeals.first())).toBeVisible();
   }
 
   // Escape view, then the Autopsy.

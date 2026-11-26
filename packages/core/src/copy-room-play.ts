@@ -129,6 +129,9 @@ export const ROOM_PLAY_LABELS = {
   evidenceExcerptsHeading: 'From your notes',
   challengedLabel: 'Challenged: excluded from score',
   ghostReturnsLater: 'This ghost returns later.',
+  spiritCandleLit: 'Spirit candle lit',
+  /** Text for the lit Spirit_Candles; the singular form is `spiritCandleLit`. */
+  spiritCandlesLit: (n: number): string => (n === 1 ? 'Spirit candle lit' : `Spirit candles lit: ${n}`),
   ghostName: (n: number): string => `Ghost ${n}: returns later`,
   returnSlotName: (isReview: boolean): string =>
     isReview ? 'Returning question: Review' : 'Returning question',

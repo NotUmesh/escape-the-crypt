@@ -300,7 +300,7 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Assert "Human-reviewed" and "Blind model review passed" appear nowhere during a run; every Citation_Label shown reads "Paragraph N of the sample notes"; no request goes to another origin
     - _Requirements: 25.7, 25.9, 25.14, 3.1, 3.2, 3.12, 2.3_
 
-- [ ] 13. Checkpoint - Plain playable loop complete
+- [x] 13. Checkpoint - Plain playable loop complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 14. Layered art, geometry, candles, light and motion

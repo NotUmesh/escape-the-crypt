@@ -31,6 +31,8 @@ export interface RoomPanelProps {
   readonly dispatch: (action: RoomAction) => void;
   readonly openerRef: RefObject<HTMLElement | null>;
   readonly onClose: () => void;
+  /** When true, Continue only calls `onClose` and dispatches nothing (the run has escaped and the runtime rejects Events). */
+  readonly continueLocally?: boolean;
 }
 
 /** The Question_Panel for an opened Lock_Slot, with the context the lock panels read. */
@@ -66,6 +68,7 @@ export function RoomPanel({
   dispatch,
   openerRef,
   onClose,
+  continueLocally = false,
 }: RoomPanelProps): ReactNode {
   const evidenceRef = useRef<HTMLElement>(null);
   const evidenceOpen = slot.evidencePanelOpen;
@@ -100,7 +103,7 @@ export function RoomPanel({
         keyOptionId={keyOptionIdFor(state, slot.currentQuestionId)}
         panelRef={evidenceRef}
         onContinue={() => {
-          dispatch({ type: 'continueEvidence', slotId: slot.slotId });
+          if (!continueLocally) dispatch({ type: 'continueEvidence', slotId: slot.slotId });
           onClose();
         }}
       />

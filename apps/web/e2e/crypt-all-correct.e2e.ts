@@ -19,12 +19,18 @@ test('all answers correct: every evidence panel, the final door and the Autopsy'
   for (const [index, doorSlot] of doorSlots.entries()) {
     await page.locator('.final-door__seal-button').first().click();
     await submitAnswer(page, correctAnswerFor(crypt, doorSlot.question));
-    // The last answer ends the run: the runtime escapes at once and the escape view replaces the door.
-    if (index === doorSlots.length - 1) break;
+    // Every answer shows its Evidence_Panel, including the last one, which escapes the run.
+    await expect(page.locator('.evidence-panel__citation').first()).toBeVisible();
+    await expect(page.locator('.evidence-panel__excerpt blockquote').first()).not.toBeEmpty();
+    if (index === doorSlots.length - 1) {
+      // The escape view waits until this panel is dismissed; its Continue only closes the panel.
+      await expect(page.getByTestId('escape-view')).toHaveCount(0);
+    }
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
   }
 
   // Escape view, then the Autopsy.
+  await expect(page.locator('.evidence-panel')).toHaveCount(0);
   await expect(page.getByTestId('escape-view')).toBeVisible();
   await page.getByRole('button', { name: ROOM_PLAY_LABELS.openAutopsy, exact: true }).click();
   await page.getByTestId('autopsy-view').waitFor();

@@ -56,10 +56,9 @@ test('autopsy', async ({ page }) => {
   await enterCrypt(page);
   await solveRoomOne(page);
   const doorSlots = crypt.manifest.finalDoor.slots;
-  for (const [index, doorSlot] of doorSlots.entries()) {
+  for (const doorSlot of doorSlots) {
     await page.locator('.final-door__seal-button').first().click();
     await submitAnswer(page, correctAnswerFor(crypt, doorSlot.question));
-    if (index === doorSlots.length - 1) break;
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
   }
   await expect(page.getByTestId('escape-view')).toBeVisible();

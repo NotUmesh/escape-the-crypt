@@ -49,9 +49,10 @@ test('a full run shows no review labels, only sample-notes citations, and stays 
     await page.locator('.final-door__seal-button').first().click();
     await expectNoForbiddenLabels(page);
     await submitAnswer(page, correctAnswerFor(crypt, doorSlot.question));
-    if (index === doorSlots.length - 1) break;
+    // The last answer also shows its Evidence_Panel before the escape view, so its citation is collected too.
     await collectEvidenceCitations();
     await expectNoForbiddenLabels(page);
+    if (index === doorSlots.length - 1) await expect(page.getByTestId('escape-view')).toHaveCount(0);
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
   }
 

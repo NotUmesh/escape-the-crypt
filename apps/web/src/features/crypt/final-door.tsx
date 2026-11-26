@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ESCAPE_COPY, FINAL_DOOR_STATUS_LABELS, ROOM_PLAY_LABELS, selectFinalDoor } from '@escape-the-crypt/core';
 import type { Event, State, Typed_Rejection } from '@escape-the-crypt/core';
@@ -23,6 +23,11 @@ export interface PlayingFinalDoorProps {
   readonly assets: RoomAssets | null;
   readonly rejection: Typed_Rejection | null;
   readonly eventLog: readonly Event[];
+  /**
+   * Called when the learner dismisses the Evidence_Panel of the answer that escaped the run.
+   * That Continue is local: it dispatches no Event, because the runtime rejects Events after the escape.
+   */
+  readonly onEscapeEvidenceDismissed?: () => void;
 }
 
 export type FinalDoorProps = EscapedFinalDoorProps | PlayingFinalDoorProps;
@@ -38,24 +43,43 @@ export function FinalDoor(props: FinalDoorProps): ReactNode {
 
 /** The escape view: the escape message and one button. No slots, panel or help controls. */
 function EscapedDoor({ onOpenAutopsy }: { readonly onOpenAutopsy: () => void }): ReactNode {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  // The view replaces the door or the dismissed Evidence_Panel, so focus would otherwise be lost.
+  useEffect(() => {
+    buttonRef.current?.focus();
+  }, []);
   return (
     <section className="final-door final-door--escaped" data-testid="escape-view">
       <p>{ESCAPE_COPY.message}</p>
-      <button type="button" className="final-door__button" onClick={onOpenAutopsy}>
+      <button ref={buttonRef} type="button" className="final-door__button" onClick={onOpenAutopsy}>
         {ROOM_PLAY_LABELS.openAutopsy}
       </button>
     </section>
   );
 }
 
-function PlayingDoor({ state, dispatch, assets, rejection, eventLog }: PlayingFinalDoorProps): ReactNode {
+function PlayingDoor({
+  state,
+  dispatch,
+  assets,
+  rejection,
+  eventLog,
+  onEscapeEvidenceDismissed,
+}: PlayingFinalDoorProps): ReactNode {
   const [openSlotId, setOpenSlotId] = useState<string | null>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   const door = selectFinalDoor(state);
   const playing = state.status === 'in progress';
 
+  const escaped = state.status === 'escaped';
+
   function close(): void {
     setOpenSlotId(null);
+    if (escaped) {
+      // The escape view takes over and moves focus to its own button.
+      onEscapeEvidenceDismissed?.();
+      return;
+    }
     const opener = openerRef.current;
     if (opener !== null && opener.isConnected) opener.focus();
     else document.querySelector<HTMLElement>('.final-door__seal-button')?.focus();
@@ -87,9 +111,10 @@ function PlayingDoor({ state, dispatch, assets, rejection, eventLog }: PlayingFi
     );
   }
 
-  const openSlot = state.finalDoor.slots.find(
-    (s) => s.slotId === openSlotId && (s.status === 'open' || s.evidencePanelOpen),
-  );
+  // After the escape no seal can be opened, so the slot to show is the one whose Evidence_Panel is still open.
+  const openSlot = escaped
+    ? state.finalDoor.slots.find((s) => s.evidencePanelOpen)
+    : state.finalDoor.slots.find((s) => s.slotId === openSlotId && (s.status === 'open' || s.evidencePanelOpen));
 
   return (
     <section className="final-door" data-testid="final-door">
@@ -143,6 +168,7 @@ function PlayingDoor({ state, dispatch, assets, rejection, eventLog }: PlayingFi
             dispatch={dispatch}
             openerRef={openerRef}
             onClose={close}
+            continueLocally={escaped}
           />
         )}
       </div>
