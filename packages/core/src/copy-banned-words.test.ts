@@ -17,6 +17,7 @@ import {
   FINAL_DOOR_BUTTON_TEXT,
   FINAL_DOOR_STATUS_LABELS,
   LOCK_OBJECT_NAMES,
+  ROOM_DISPLAY_NAMES,
   SLOT_STATUS_WORDS,
   ROOM_ANNOUNCEMENT_COPY,
   ROOM_PLAY_LABELS,
@@ -105,12 +106,15 @@ describe('Room-play copy', () => {
       ...collectStrings(ROOM_START_ERROR_COPY),
       ...collectStrings(ROOM_PLAY_LABELS),
       ...collectStrings(LOCK_OBJECT_NAMES),
+      ...collectStrings(ROOM_DISPLAY_NAMES),
       ...collectStrings(SLOT_STATUS_WORDS),
       SAMPLE_CRYPT_LINE,
       SAMPLE_CRYPT_LABEL,
       ENTER_CRYPT_LABEL,
       FINAL_DOOR_BUTTON_TEXT,
       CITATION_COPY.sampleParagraph(1),
+      ROOM_PLAY_LABELS.runeHint('a', 5),
+      ROOM_PLAY_LABELS.runeHint('Z', 1),
       ROOM_PLAY_LABELS.hintsLeft(0),
       ROOM_PLAY_LABELS.hintsLeft(1),
       ROOM_PLAY_LABELS.hintsLeft(3),
@@ -140,6 +144,9 @@ describe('Room-play copy', () => {
     expect(ROOM_PLAY_LABELS.openAutopsy).toBe('Open the Autopsy');
     expect(ROOM_PLAY_LABELS.playAgain).toBe('Play again');
     expect(ROOM_PLAY_LABELS.noHintsLeft).toBe('No hints left');
+    expect(ROOM_PLAY_LABELS.runeHint('t', 4)).toBe('Hint: the answer starts with "t" and has 4 letters.');
+    expect(ROOM_PLAY_LABELS.seanceGroupLabel).toBe('Choose one answer');
+    expect(ROOM_PLAY_LABELS.removedByHint).toBe('Removed by the hint');
     expect(ROOM_PLAY_LABELS.excerptMatched).toBe('Source excerpt matched');
     expect(ROOM_PLAY_LABELS.challengedLabel).toBe('Challenged: excluded from score');
     expect(ROOM_PLAY_LABELS.ghostReturnsLater).toBe('This ghost returns later.');

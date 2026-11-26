@@ -118,6 +118,10 @@ export const ROOM_PLAY_LABELS = {
   noPenalty: 'Skipping or challenging a question costs nothing. It is left out of your score.',
   emptyAnswer: 'Type an answer first.',
   chooseOption: 'Choose an answer first.',
+  runeHint: (firstLetter: string, length: number): string =>
+    `Hint: the answer starts with "${firstLetter}" and has ${length} letters.`,
+  seanceGroupLabel: 'Choose one answer',
+  removedByHint: 'Removed by the hint',
   wrongOpening: "Not this time. Here's what your notes say.",
   excerptMatched: 'Source excerpt matched',
   challengedLabel: 'Challenged: excluded from score',
@@ -131,12 +135,22 @@ export const ROOM_PLAY_LABELS = {
 /** Names of the lock objects, keyed by lock type (Requirement 10.3). */
 export const LOCK_OBJECT_NAMES = {
   'rune-cipher': { object: 'Rune tablet', kind: 'rune cipher' },
-  'seance-board': { object: 'Séance table', kind: 'séance board' },
-  'bone-ordering': { object: 'Bone shelf', kind: 'bone ordering' },
-  'bound-threads': { object: 'Thread frame', kind: 'bound threads' },
+  'seance-board': { object: 'Séance board', kind: 'séance board' },
+  'bone-ordering': { object: 'Ossuary shelf', kind: 'bone ordering' },
+  'bound-threads': { object: 'Pin frame', kind: 'bound threads' },
   'cursed-object': { object: 'Cursed casket', kind: 'cursed object' },
-  'combination-dial': { object: 'Combination safe', kind: 'combination dial' },
+  'combination-dial': { object: 'Safe', kind: 'combination dial' },
 } as const;
+
+/** Display names of the art rooms, by room order: 1st, 2nd, 3rd. */
+export const ROOM_DISPLAY_NAMES: readonly string[] = ['Burial chamber', 'Library of bones', 'Sunken chapel'];
+
+/** Name for the room at a zero-based order index; later rooms cycle through the art rooms. */
+export function roomDisplayName(orderIndex: number): string {
+  const names = ROOM_DISPLAY_NAMES;
+  const i = Number.isInteger(orderIndex) && orderIndex >= 0 ? orderIndex : 0;
+  return names[i % names.length] ?? 'Burial chamber';
+}
 
 /** Status in words for accessible names (Requirement 21.6). */
 export const SLOT_STATUS_WORDS: Readonly<Record<SlotStatus, string>> = {

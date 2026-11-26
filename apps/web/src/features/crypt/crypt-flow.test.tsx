@@ -227,3 +227,41 @@ describe('CryptErrorBoundary', () => {
     expect(mount.container.querySelector('[role="alert"]')).not.toBeNull();
   });
 });
+
+describe('CryptFlow question panel', () => {
+  const mount = useMount();
+
+  it('opens a rune lock, takes the correct text and shows the slot judged', async () => {
+    const file = JSON.parse(
+      readFileSync(join(SAMPLES, 'questions', 'human-heart.json'), 'utf8'),
+    ) as { questions: { id: string; answer?: string }[] };
+    mount.render(flow());
+    await clickButton(mount.container, ENTER_CRYPT_LABEL);
+
+    const room = binding.state?.rooms.find((r) => r.roomId === binding.state?.currentRoomId);
+    const slot = room?.lockSlots.find((s) => s.currentQuestionType === 'rune-cipher');
+    if (slot === undefined) throw new Error('no rune slot in the first room');
+    const answer = file.questions.find((q) => q.id === slot.currentQuestionId)?.answer;
+    if (answer === undefined) throw new Error('no answer in the sample file');
+
+    const opener = Array.from(mount.container.querySelectorAll<HTMLButtonElement>('.room-screen__lock-button')).find(
+      (b) => b.getAttribute('aria-label')?.startsWith('Rune tablet'),
+    );
+    if (opener === undefined) throw new Error('no rune tablet button');
+    await act(async () => opener.click());
+
+    const input = mount.container.querySelector<HTMLInputElement>('.rune-cipher-panel input[type="text"]');
+    if (input === null) throw new Error('no answer input');
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    await act(async () => {
+      setValue?.call(input, answer);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await clickButton(mount.container, ROOM_PLAY_LABELS.submitAnswer);
+
+    const after = binding.state?.rooms
+      .flatMap((r) => r.lockSlots)
+      .find((s) => s.slotId === slot.slotId);
+    expect(after?.judgedResult).toBe('correct');
+  });
+});

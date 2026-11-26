@@ -1,0 +1,86 @@
+import { useId, useState } from 'react';
+import type { ChangeEvent, KeyboardEvent, ReactNode } from 'react';
+import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
+import type { LockSlotState } from '@escape-the-crypt/core';
+import { useLockPanelContext } from './lock-panel-context';
+import type { LockPanelProps } from './lock-panel-registry';
+
+/** Reads "first letter" and "length" out of the hint, tolerating a missing or other hint. */
+function firstLetterHint(
+  hint: LockSlotState['appliedHint'],
+  questionId: string,
+): { readonly firstLetter: string; readonly length: number } | null {
+  if (hint === null || hint.questionId !== questionId) return null;
+  const effect = hint.effect;
+  if (effect === null || effect.kind !== 'reveal-first-letter') return null;
+  return { firstLetter: effect.firstLetter, length: effect.length };
+}
+
+/**
+ * Rune cipher: a typed answer (Requirement 14). The draft lives in this component only; the
+ * question panel remounts it with a new key when the slot's question changes. Text is rendered
+ * as plain React text.
+ */
+export function RuneCipherPanel({ slotId, questionId }: LockPanelProps): ReactNode {
+  const context = useLockPanelContext();
+  const [draft, setDraft] = useState('');
+  const [askForAnswer, setAskForAnswer] = useState(false);
+  const inputId = useId();
+  const messageId = useId();
+
+  if (context === null) return null;
+  const prompt = context.content.questions[questionId]?.prompt ?? '';
+  const rejected = context.rejection?.kind === 'invalid-submission' && context.rejection['slotId'] === slotId;
+  const showMessage = askForAnswer || rejected;
+  const hint = firstLetterHint(context.appliedHintFor(slotId), questionId);
+
+  function submit(): void {
+    if (context === null) return;
+    if (draft.trim() === '') {
+      setAskForAnswer(true);
+      return;
+    }
+    setAskForAnswer(false);
+    context.dispatch({ type: 'submitAnswer', slotId, submission: { text: draft } });
+  }
+
+  function onChange(event: ChangeEvent<HTMLInputElement>): void {
+    setDraft(event.target.value);
+    setAskForAnswer(false);
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    submit();
+  }
+
+  return (
+    <div className="rune-cipher-panel">
+      <p className="rune-cipher-panel__prompt">{prompt}</p>
+      {hint === null ? null : (
+        <p className="rune-cipher-panel__hint">
+          {ROOM_PLAY_LABELS.runeHint(hint.firstLetter, hint.length)}
+        </p>
+      )}
+      <label htmlFor={inputId}>Your answer</label>
+      <input
+        id={inputId}
+        type="text"
+        value={draft}
+        autoComplete="off"
+        aria-describedby={showMessage ? messageId : undefined}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+      />
+      <button type="button" onClick={submit}>
+        {ROOM_PLAY_LABELS.submitAnswer}
+      </button>
+      {showMessage ? (
+        <p id={messageId} role="alert" className="rune-cipher-panel__message">
+          {ROOM_PLAY_LABELS.emptyAnswer}
+        </p>
+      ) : null}
+    </div>
+  );
+}

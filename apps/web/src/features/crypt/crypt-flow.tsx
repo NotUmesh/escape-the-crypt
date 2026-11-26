@@ -9,6 +9,7 @@ import { announcementsFor } from './announcements';
 import { CryptErrorBoundary } from './crypt-error-boundary';
 import { AutopsyView, FinalDoor } from './crypt-stand-ins';
 import { LiveRegion } from './live-region';
+import { RoomPanel } from './room-panel';
 import { RoomScreen } from './room-screen';
 
 export interface CryptFlowProps {
@@ -103,7 +104,23 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
     view = state.atFinalDoor ? (
       <FinalDoor state={state} dispatch={dispatch} />
     ) : (
-      <RoomScreen state={state} dispatch={dispatch} />
+      <RoomScreen
+        state={state}
+        dispatch={dispatch}
+        renderPanel={(slot, controls) =>
+          binding.assets === null ? null : (
+            <RoomPanel
+              slot={slot}
+              state={state}
+              assets={binding.assets}
+              rejection={binding.rejection}
+              dispatch={dispatch}
+              openerRef={controls.openerRef}
+              onClose={controls.onClose}
+            />
+          )
+        }
+      />
     );
   } else {
     view = <StartView dispatch={dispatch} />;

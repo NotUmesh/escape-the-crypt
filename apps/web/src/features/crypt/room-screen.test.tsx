@@ -66,6 +66,14 @@ describe('RoomScreen', () => {
     expect(buttons.every((b) => b.tagName === 'BUTTON' && b.type === 'button')).toBe(true);
   });
 
+  it('headlines the room with its display name by order, never the roomId', () => {
+    setup(mount);
+    const heading = mount.container.querySelector('h2')?.textContent ?? '';
+    expect(binding.state?.currentRoomId).toBe('hh-room-1');
+    expect(heading).toBe('Burial chamber');
+    expect(heading).not.toContain('hh-room-1');
+  });
+
   it('shows the hint count and the sample-crypt label', () => {
     setup(mount);
     const text = mount.container.textContent ?? '';

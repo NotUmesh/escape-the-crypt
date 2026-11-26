@@ -74,6 +74,8 @@ export type { Outcome_Notice } from './runtime/notices';
 export type { Typed_Rejection, LockType } from './types';
 export {
   LOCK_OBJECT_NAMES,
+  ROOM_DISPLAY_NAMES,
+  roomDisplayName,
   SLOT_STATUS_WORDS,
   FINAL_DOOR_BUTTON_TEXT,
   FINAL_DOOR_STATUS_LABELS,

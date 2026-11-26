@@ -221,6 +221,11 @@
         "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
         "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
         "timestamp": 1795635714644
+      },
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795636105070
       }
     ],
     "4.2 Add `evidenceResult` in `evidence-text.ts`": [
@@ -276,6 +281,75 @@
         "executionId": "3964de41-70de-4fdd-bed2-9b1fb940a83a",
         "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
         "timestamp": 1795635463840
+      }
+    ],
+    "5.1 Build the `question-panel.tsx` shell": [
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795636127264
+      },
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795636488392
+      }
+    ],
+    "5.2 Build `rune-cipher-panel.tsx`": [
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795636510617
+      },
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795658969089
+      }
+    ],
+    "5.3 Build `seance-board-panel.tsx`": [
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795636510840
+      },
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795659173099
+      }
+    ],
+    "5.4 Wire the panels into the room screen": [
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795659285714
+      },
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795660588366
+      }
+    ],
+    "5. Rune and séance panels (keyboard operable, no drag)": [
+      {
+        "executionId": "6af9e80e-1774-4df2-a2d0-83135e1e7f3d",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795660588446
+      }
+    ],
+    "7.1 Add `evidence-text.ts` with `resolveExcerpt` and `orderExcerpts`": [
+      {
+        "executionId": "dcfece19-0cc6-4cee-be43-e39794a48c23",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795673642456
+      }
+    ],
+    "6.1 Add the Hint, Skip and Challenge controls to the Question_Panel": [
+      {
+        "executionId": "dcfece19-0cc6-4cee-be43-e39794a48c23",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795673642668
       }
     ]
   }

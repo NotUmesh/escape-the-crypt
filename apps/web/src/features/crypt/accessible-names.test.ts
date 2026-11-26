@@ -13,10 +13,10 @@ const LOCK_TABLE: ReadonlyArray<readonly [SlotStatus, string]> = [
 ];
 
 const SEAL_TABLE: ReadonlyArray<readonly [SlotStatus, string]> = [
-  ['open', 'Seal 2: not yet answered'],
-  ['solved', 'Seal 2: solved'],
-  ['settled', 'Seal 2: excluded from score'],
-  ['challenged', 'Seal 2: challenged: excluded from score'],
+  ['open', 'Seal 2, not yet answered'],
+  ['solved', 'Seal 2, solved'],
+  ['settled', 'Seal 2, excluded from score'],
+  ['challenged', 'Seal 2, challenged, excluded from score'],
 ];
 
 const RETURN_TABLE: ReadonlyArray<readonly [boolean, SlotStatus, string]> = [

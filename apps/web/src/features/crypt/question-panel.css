@@ -1,0 +1,50 @@
+.question-panel {
+  background: var(--stone-800);
+  color: var(--bone-50);
+  border: 1px solid var(--stone-300);
+  padding: 1rem;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.question-panel[hidden] {
+  display: none;
+}
+
+.question-panel__heading {
+  font-family: var(--font-title);
+  color: var(--bone-50);
+  margin: 0 0 0.75rem;
+}
+
+.question-panel__heading:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.question-panel :where(p, label, li, span) {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.question-panel :where(button, input) {
+  min-width: 44px;
+  min-height: 44px;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+}
+
+.question-panel :where(button, input, select, textarea):focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* Phone_Viewport: width divided by height below 0.75. */
+@media (max-aspect-ratio: 749/1000) {
+  .question-panel,
+  .question-panel :where(p, label, li, span, button, input) {
+    font-size: 1rem;
+  }
+}

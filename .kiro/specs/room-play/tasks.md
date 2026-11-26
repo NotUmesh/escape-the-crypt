@@ -106,7 +106,7 @@ Every task is required. Property tests sit next to the code they test and cite t
     - _Requirements: 4.2, 4.3, 17.4, 17.15_
 
 - [x] 4. Room screen with simple hotspot buttons (no layered art)
-  - [-] 4.1 Add `accessible-names.ts` with table-driven tests
+  - [x] 4.1 Add `accessible-names.ts` with table-driven tests
     - Pure functions for lock, ghost, Return_Slot, final door button and seal names, each stating status in words (for example "Rune tablet: rune cipher, unsolved")
     - Write `accessible-names.test.ts` over every `SlotStatus`
     - _Requirements: 10.3, 18.3, 18.7, 21.6_
@@ -141,8 +141,8 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Component tests for each route, the start-failed message, the flag being set and cleared, and announcements fed once per accepted dispatch
     - _Requirements: 2.2, 5.3, 19.9, 19.10, 20.1, 20.2, 20.9, 21.2, 21.3, 21.4, 21.5_
 
-- [ ] 5. Rune and séance panels (keyboard operable, no drag)
-  - [ ] 5.1 Build the `question-panel.tsx` shell
+- [x] 5. Rune and séance panels (keyboard operable, no drag)
+  - [x] 5.1 Build the `question-panel.tsx` shell
     - Panel with heading, focus moved into it on open, focus returned to the opening control on close, Escape closing with no Event while no judged answer waits for Continue, panel keyed by `slotId:currentQuestionId` so the draft resets on a question change
     - Choose the lock panel by Current_Question_Type
     - Accept a `side: 'left' | 'right'` prop (ignored by the plain loop, used for placement in task 14.11) so the room screen and the final door share this one shell with its Evidence_Panel and hint, skip and challenge controls
@@ -150,26 +150,26 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Component tests for focus in, focus back, Escape keeps the draft, and no Event on Escape
     - _Requirements: 10.7, 10.8, 13.5, 14.6, 15.5_
 
-  - [ ] 5.2 Build `rune-cipher-panel.tsx`
+  - [x] 5.2 Build `rune-cipher-panel.tsx`
     - Prompt as plain text, labelled text input, "Submit answer" button and Enter key; dispatch `AnswerSubmitted` with `{ text }`; empty after trim shows the ask-for-answer message with no Event; `invalid-submission` rejection shows the message, keeps the draft and keeps the slot open
     - Show the first letter and answer length while the Applied_Hint is `reveal-first-letter`
     - Component tests including keyboard-only submit
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 22.1, 22.2_
 
-  - [ ] 5.3 Build `seance-board-panel.tsx`
+  - [x] 5.3 Build `seance-board-panel.tsx`
     - Prompt as plain text; options as radio inputs in manifest `payload.optionIds` order inside a labelled group; arrow keys move between options; "Submit answer" dispatches `AnswerSubmitted` with `{ selectedOptionId }`; no choice shows the choose-an-option message with no Event
     - The panel keeps the draft choice locally and does not read or record the chosen option afterwards; the chosen option is later derived from the event log by `chosenOptionFor(eventLog, slotId)` selector over the binding's read-only `eventLog` (task 3.5)
     - Show a removed option with a text label and disable it while the Applied_Hint is `remove-option`
     - Component tests including option order from the payload and keyboard-only choice
     - _Requirements: 6.7, 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 22.1, 22.2_
 
-  - [ ] 5.4 Wire the panels into the room screen
+  - [x] 5.4 Wire the panels into the room screen
     - Show the Question_Panel for the opened slot using prompt, options and hint data from `RoomAssets.content` and State
     - Component test: open a rune lock, submit correct text, State shows the slot judged
     - _Requirements: 10.6, 14.1, 15.1, 21.7_
 
 - [ ] 6. Hint, Skip and Challenge
-  - [ ] 6.1 Add the Hint, Skip and Challenge controls to the Question_Panel
+  - [-] 6.1 Add the Hint, Skip and Challenge controls to the Question_Panel
     - "Hint" dispatches `HintUsed`; disabled with "No hints left" at 0 and while the question already has an Applied_Hint; show the remaining count next to it; "Skip" dispatches `Skipped` and closes the panel; "Challenge" dispatches `Challenged`; show the no-penalty line; send nothing to any server
     - Component tests for each control, disabled states and no network call
     - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.10, 16.11_
@@ -180,7 +180,7 @@ Every task is required. Property tests sit next to the code they test and cite t
     - _Requirements: 16.8, 16.9, 3.5_
 
 - [ ] 7. Evidence panel
-  - [ ] 7.1 Add `evidence-text.ts` with `resolveExcerpt` and `orderExcerpts`
+  - [-] 7.1 Add `evidence-text.ts` with `resolveExcerpt` and `orderExcerpts`
     - Extend `evidence-text.ts` (created in task 4.2 with `evidenceResult`) with `resolveExcerpt` and `orderExcerpts`
     - `resolveExcerpt(assets, excerpt, 'sample')` returns `{ quote, citationLabel, matched }` using `resolveQuote` and `citationLabel`; total for an unknown `chunkId`
     - `orderExcerpts(excerpts, chosenOptionId?, keyOptionId?)` works on indices so each excerpt appears once: chosen Option_Excerpt, key Option_Excerpt, then the rest in stored order
