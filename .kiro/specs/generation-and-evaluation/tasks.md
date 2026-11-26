@@ -2,9 +2,11 @@
 
 ## Overview
 
-This plan covers Phase 1 only. It delivers the Gate 1 sample crypt as early as possible, then proves it against the datasets, and migrates `parseNotesRecord` last. Everything is TypeScript in `packages/core`. No task adds provider, cassette, budget, network or AI SDK code. Phases 2 to 6 are not planned here.
+This plan covers Phase 1, Phase 2 and Phase 3. Phase 1 is complete and shipped (tasks 1–10, all checked); its tasks are kept unchanged below for history. Phase 2 (Provider interface, cassettes, the interim Budget_Ledger) and Phase 3 (the rune-cipher/séance-board pipeline, room assembly, publish, and the Worker's minimal job API) are now planned as tasks 11 onward. Phases 4 to 6 are still not planned here.
 
-Order: schemas (authoring, manifest, hint type change, fixture builder) → checks → Manifest_Mapper → sample crypt → dataset acceptance → `parseNotesRecord` Zod migration.
+Phase 1 order: schemas (authoring, manifest, hint type change, fixture builder) → checks → Manifest_Mapper → sample crypt → dataset acceptance → `parseNotesRecord` Zod migration.
+
+Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and mock ledger (test-support) → the narrowed boundary test → heading detection → the pipeline stages in pipeline order (prepare input → concept extraction → generation → blind review → room assembly/publish) → the cassette-driven end-to-end test → the Worker (OpenAI Provider, Interim_Ledger, job store, HTTP server, process entry point) → Worker integration tests.
 
 ## Tasks
 
@@ -227,11 +229,286 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
 - [x] 10. Final checkpoint - Ensure all tests pass
   - Run `pnpm test`, `pnpm lint` and `pnpm typecheck`. Ensure all pass, ask the user if questions arise.
 
+- [ ] 11. Provider interface, Prompt_Digest and narrowed boundary test
+  - [ ] 11.1 Implement the Provider interface and types
+    - Create `packages/core/src/provider/types.ts`: `ProviderStage`, `ProviderRequest`, `ProviderUsage`, `ProviderSuccess`, `ProviderErrorKind`, `ProviderFailure`, `ProviderResult`, `Provider`
+    - No field is OpenAI-specific; `jsonSchema` is a plain JSON Schema object
+    - _Requirements: 11.1, 11.2, 11.3, 11.7_
+
+  - [ ] 11.2 Implement the concurrency limiter
+    - Create `packages/core/src/pipeline/concurrency.ts` with `runWithConcurrency(tasks, limit)`, default limit 4, no timers
+    - _Requirements: 11.6_
+
+  - [ ] 11.3 Write unit tests for the Provider interface and concurrency limiter
+    - A fake `Provider` never throws across every failure path
+    - A cassette-backed provider run through `runWithConcurrency(..., 4)` never exceeds 4 simultaneous in-flight calls
+    - _Requirements: 11.3, 11.6_
+
+  - [ ] 11.4 Implement Prompt_Digest
+    - Create `packages/core/src/provider/prompt-digest.ts`: `promptDigest(request)` using `sha256`/`utf8ToBytes` from `digest.ts` over a canonical JSON string of `{ stage, promptVersion, modelId, messages, temperature, maxOutputTokens, jsonSchema }`, excluding `timeoutMs` and `retryLimit`
+    - _Requirements: 12.1, 12.3_
+
+  - [ ] 11.5 Write property test for Prompt_Digest
+    - **Property 18: Prompt_Digest is a canonical function of the semantic request**
+    - **Validates: Requirements 12.1, 12.3**
+
+  - [ ] 11.6 Write unit test pinning a known request to a known digest
+    - A regression anchor so a digest algorithm change is deliberate
+    - _Requirements: 12.1_
+
+  - [ ] 11.7 Narrow the Phase 1 boundary test
+    - In `packages/core/src/boundary.test.ts`, exempt paths under `core/src/provider/`, `core/src/cassette/`, `core/src/budget/` and `core/src/pipeline/` from the name-based `provider|providers|cassette|cassettes|budget-ledger|budget` ban, while keeping every other rule (no `fetch`/`http`/`net`/`ws`, no AI SDK specifier, no `eval/holdout` reference) applying to those folders too
+    - Keep the full original ban verbatim for `authoring/`, `checks/`, `locks/`, `mapper/`, `runtime/`, `sample-crypt/`
+    - Add an assertion that `packages/core` still imports no `openai`-shaped specifier anywhere, including inside the exempted folders
+    - _Requirements: 9.8, 27.7_
+
+  - [ ] 11.8 Implement `toModelJsonSchema`
+    - Create `packages/core/src/provider/model-json-schema.ts`: a pure `toModelJsonSchema(schema)` that wraps Zod 4's `z.toJSONSchema()` and returns the plain JSON Schema object used as `ProviderRequest.jsonSchema`
+    - No new dependency and no SDK import in Core; the worker passes the result through as `response_format: { type: 'json_schema', json_schema: { name, strict: true, schema } }`
+    - Model-facing schemas written later (concept extraction, generation, review) must be strict-compatible: every property required, `.nullable()` instead of `.optional()`, `additionalProperties: false` on every object (use `z.strictObject`)
+    - _Requirements: 11.1, 11.2_
+
+- [ ] 12. Cassette store and mock Budget_Ledger (test-support)
+  - [ ] 12.1 Implement the cassette store
+    - Create `packages/core/src/cassette/types.ts` (`CassetteEntry`, `CassetteFile`, `CassetteProviderErrorKind`) and `cassette/cassette-provider.ts` (`makeCassetteProvider`) that looks up `promptDigest(request)` and returns a typed `cassette-missing` failure on a miss
+    - Create `cassette/staleness.ts` with `isCassetteStale(file, request)`
+    - _Requirements: 12.2, 12.5_
+
+  - [ ] 12.2 Write unit tests for the cassette store
+    - Hit and miss behaviour; `isCassetteStale` true/false examples
+    - _Requirements: 12.2, 12.5_
+
+  - [ ] 12.3 Implement the Budget_Ledger interface and mock ledger
+    - Create `packages/core/src/budget/types.ts` (`BudgetReservation`, `BudgetErrorKind`, `BudgetResult`, `BudgetLedger`)
+    - Create `budget/mock-ledger.ts`: `makeMockLedger({ dailyCapUsd, refuseAfter? })` and `countingProvider(inner)` wrapper, none throwing
+    - _Requirements: 12.6, 12.9, 28.1_
+
+  - [ ] 12.4 Write unit tests for the mock ledger
+    - reserve/reconcile/release examples; `refuseAfter` fault injection; `ledger-unavailable` treated the same as `budget-exhausted` by a calling stage
+    - _Requirements: 12.6, 12.9_
+
+  - [ ] 12.5 Write property test for budget reservation vs. calls
+    - **Property 17: Provider calls never exceed budget reservations (G-P5)**
+    - **Validates: Requirements 12.6, 12.7, 12.8**
+
+  - [ ] 12.6 Implement `assertRecordedOnly`
+    - Create `packages/core/src/cassette/recorded-only.ts`: pure `assertRecordedOnly(entries)` returning a typed `synthetic-cassette-in-evaluation` error (with the offending digests) when any entry has `origin: 'synthetic'`, and `ok` otherwise; no throw
+    - This is the seam the P4 results writer must call before it writes to `eval/results/` or counts any metric
+    - _Requirements: 12.10, 21.3_
+
+  - [ ] 12.7 Write unit tests for `assertRecordedOnly`
+    - A run mixing synthetic and recorded entries is rejected with `synthetic-cassette-in-evaluation`; an all-recorded run passes
+    - _Requirements: 12.10_
+
+  - [ ] 12.8 Write a static test that nothing in P2/P3 writes to `eval/results/`
+    - Create `packages/core/src/cassette/no-eval-results-writes.test.ts`: scan every source and test file under `packages/core/src` and `apps/worker/src` (except the scan itself) and fail if any mentions `eval/results`; the allowlist is empty here and P4 extends it deliberately with its results-writer path
+    - The scan never reads `eval/holdout`
+    - _Requirements: 12.10, 21.3_
+
+- [ ] 13. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 14. Heading detection and prepare-input
+  - [ ] 14.1 Implement `isHeadingOnlyChunk`
+    - In `packages/core/src/chunker-split.ts`, export `isAllCapsHeading` with no behaviour change; the existing chunker tests and fixtures must stay green unchanged
+    - Create `packages/core/src/chunker-heading.ts`: pure `isHeadingOnlyChunk(chunk)` = the chunk text is a single line AND `isAllCapsHeading(chunk.text)`; no second heuristic and no new field on `Chunk`, `NotesRecord` or any fixture
+    - _Requirements: 13.1_
+
+  - [ ] 14.2 Write unit tests for `isHeadingOnlyChunk`
+    - True for an all-caps single line within 80 characters; false for mixed-case "The human heart" (human-heart paragraph 1, so it stays quotable and a quote from it still fails `quote-too-short`), a short non-heading sentence, a line with terminal punctuation, a multi-line chunk (including a short heading merged into the next block by `mergeShort`) and a normal paragraph
+    - _Requirements: 13.1_
+
+  - [ ] 14.3 Implement `prepareDocument`
+    - Create `packages/core/src/pipeline/prepare-input.ts`: `PreparedDocument` with `quotableChunksByOrdinal` (code-assigned ordinal over quotable chunks only, 1-based), `ordinalByChunkId`, `chunks`, `headingContext`
+    - Reject (typed) a chunk ID not present in `ordinalByChunkId`; translate a present one to its ordinal
+    - Do not change `buildDocumentChunkMaps` in `manifest-mapper.ts`
+    - _Requirements: 13.1, 13.3, 13.5_
+
+  - [ ] 14.4 Write unit tests for `prepareDocument`
+    - Build from a small synthetic notes string with an all-caps heading line: the heading is absent from `quotableChunksByOrdinal` and present in `headingContext`; build from `samples/human-heart.txt`: "The human heart" is not in `headingContext` and its text stays quotable
+    - _Requirements: 13.1, 13.3_
+
+  - [ ] 14.5 Write property test for chunk ID translation
+    - **Property 20: Prepared documents reject chunk IDs code did not assign**
+    - **Validates: Requirements 13.5**
+
+  - [ ] 14.6 Write the chunker agreement test
+    - Create `packages/core/src/chunker-heading-agreement.test.ts`: for every chunk of every notes file under `eval/dev/` and every `samples/*.txt`, run `chunkDocument`; assert `isHeadingOnlyChunk(chunk)` is true exactly when `candidateSpans` over that chunk's paragraph or unit text emitted the chunk's exact text as a single-line span satisfying `isAllCapsHeading`
+    - The test never reads `eval/holdout`
+    - _Requirements: 13.1_
+
+- [ ] 15. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 16. Pipeline: concept extraction
+  - [ ] 16.1 Implement `extractConcepts`
+    - Create `packages/core/src/pipeline/concept-extraction.ts`: one `Provider.complete` call per document, with the system prompt's data-delimiter line and the quotable-chunk list plus heading context in the user message
+    - Validate the response with `ConceptExtractionResponseSchema`; retry once with the Zod error on failure, else fail the document
+    - Make `ConceptExtractionResponseSchema` strict-compatible (every property required, `.nullable()` not `.optional()`, `z.strictObject`) and build `ProviderRequest.jsonSchema` with `toModelJsonSchema`
+    - Reject any concept citing a chunk ID not in `ordinalByChunkId`
+    - Drop quotes that `resolveQuote` cannot resolve uniquely; drop a concept with none left
+    - Reserve budget via `BudgetLedger.reserve` before the call; return typed `budget-exhausted` on refusal
+    - _Requirements: 13.2, 13.4, 13.5, 13.6, 13.7, 12.6_
+
+  - [ ] 16.2 Write unit tests for `extractConcepts`
+    - A cassette-driven call against `samples/human-heart.txt` returning known concepts; the data-delimiter line present in the built prompt; one call per document; the 6,000-word cap reused; a chunk-ID-not-assigned rejection example
+    - _Requirements: 13.1, 13.2, 13.3, 13.5, 13.6, 13.7_
+
+  - [ ] 16.3 Write property test for quote-dropping in concept extraction
+    - **Property 19: Concept extraction keeps only uniquely-resolving quotes**
+    - **Validates: Requirements 13.4**
+
+- [ ] 17. Pipeline: typed generation
+  - [ ] 17.1 Implement `generateForConcept`
+    - Create `packages/core/src/pipeline/generation.ts`: `GenerationResponseSchema` with rune cipher and séance board arms mirroring `AuthoringQuestionSchema`'s arms minus `id`/`conceptId`/`role`
+    - Make `GenerationResponseSchema` strict-compatible: any field the Authoring_Schema treats as optional (for example a rune hint) is `.nullable()` here and `null` values are dropped before the re-parse with `AuthoringQuestionSchema`; build `ProviderRequest.jsonSchema` with `toModelJsonSchema`
+    - One call per concept; `primary: null` short-circuits to `Ok(null)`; attach `id`/`conceptId`/`role` after a successful parse and re-parse with the real `AuthoringQuestionSchema`
+    - Defensively drop a proposed alternate that shares its primary's `lockType` (set to `null`, never replaced with a different type)
+    - On a schema failure, retry once with the Zod error, else set the concept's question aside as `schema-rejected`
+    - Reserve budget via `BudgetLedger.reserve` before each call
+    - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 14.10, 12.6_
+
+  - [ ] 17.2 Write unit test asserting generated questions always parse as AuthoringQuestion
+    - For both lock-type arms, attaching `id`/`conceptId`/`role` to a parsed `GenerationResponse` arm and re-parsing with `AuthoringQuestionSchema` always succeeds
+    - _Requirements: 14.1_
+
+  - [ ] 17.3 Write unit tests for `generateForConcept`
+    - `null` primary short-circuit; schema-failure-then-retry-then-set-aside; an alternate sharing its primary's Lock_Type dropped to `null`; the "generated only when" rule text present in the built prompt; no executable-expression field exists
+    - _Requirements: 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 14.10_
+
+- [ ] 18. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 19. Pipeline: blind review
+  - [ ] 19.1 Implement `blindReview`
+    - Create `packages/core/src/pipeline/blind-review.ts`: `ReviewResponseSchema` (strict-compatible: `optionLabels` is `.nullable()`, `null` for rune cipher, and `jsonSchema` comes from `toModelJsonSchema`); builds a request with temperature `0`, the question text, options/steps in manifest order, and the full text of every cited chunk from `doc.chunks`; never the key, a label or the explanation
+    - Run `runChecks` first and skip the reviewer call entirely for a question with a blocking failure
+    - Rejection rule: `answer` disagrees with the key, or any `optionLabels` entry is `unknown`
+    - Retry once on a schema failure, else reject on the second failure
+    - Reserve budget via `BudgetLedger.reserve` before the call
+    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.8, 15.10, 12.6_
+
+  - [ ] 19.2 Add the "Blind model review passed" and "Source excerpt matched" label usage
+    - Add `REVIEW_PASSED_LABEL = 'Blind model review passed'` beside the existing `excerptMatched` constant in `copy.ts` or `copy-room-play.ts`; assert it contains no banned phrase in `copy-banned-words.test.ts`
+    - _Requirements: 15.7, 15.9, 31.4_
+
+  - [ ] 19.3 Write unit tests for `blindReview`
+    - The rune and séance `review:*` adversarial fixtures via cassette, each asserted `rejected`; one `passed` example; the temperature-0 request assertion; the retry-then-reject-on-second-failure example; a blocking-Code_Check question never reaching the reviewer call
+    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.8, 24.1, 24.2_
+
+  - [ ] 19.4 Write the strict-compatibility test for model-facing schemas
+    - Create `packages/core/src/provider/model-json-schema.test.ts`: for each model-facing schema (concept extraction, generation, review), walk the `z.toJSONSchema()` output and assert every object has `additionalProperties: false` and a `required` array equal to all of its property keys, with no optional property anywhere
+    - _Requirements: 11.1, 11.2_
+
+- [ ] 20. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 21. Pipeline: room assembly, publish and orchestrator
+  - [ ] 21.1 Implement room assembly
+    - Create `packages/core/src/pipeline/room-assembly.ts`: build at most one lock slot per Lock_Type (rune cipher, séance board) from accepted primaries/alternates; the first accepted question per Lock_Type in extraction order takes the room slot, and every other accepted concept goes to `unplacedAccepted` (`{ conceptId, conceptTitle, question, content }`), validated with the same schemas and kept out of `manifest.rooms` and `manifest.finalDoor`
+    - Run `leakScanRoom` over tentative slots plus alternates; on failure, swap in a leak-free accepted alternate, else drop the concept; re-run until clean or no slots remain
+    - Final door is always `[]` in Phase 3
+    - Return a typed `empty-room` result when no slots remain; never publish that case
+    - _Requirements: 16.1, 16.2, 16.5, 16.6, 19.3, 19.5, 31.6_
+
+  - [ ] 21.2 Write unit tests for room assembly
+    - An end-to-end 2-slot assembly example; a leak-injected swap-then-drop-then-rescan example; an all-concepts-set-aside `empty-room` example; an empty-final-door manifest still accepted by `validateManifestForPublish`; an unplaced accepted concept appears in `unplacedAccepted` and not in `manifest.rooms` or `manifest.finalDoor`
+    - _Requirements: 16.1, 16.2, 16.5, 16.6, 31.6_
+
+  - [ ] 21.3 Write property test for pipeline-assembled room leak scanning
+    - **Property 16: Pipeline-assembled rooms have no cross-concept rune leak unless injected (G-P3, extended)**
+    - **Validates: Requirements 16.2, 24.4**
+
+  - [ ] 21.4 Implement `runRoomPipeline` and the run metadata
+    - Create `packages/core/src/pipeline/orchestrator.ts`: wires prepare-input, concept extraction, generation, Code_Checks, blind review and room assembly together with `runWithConcurrency`; maps accepted questions through `mapAuthoringQuestionToSpec` (unchanged) into `{ manifest, content }`; gates publish through `validateManifestForPublish` (unchanged)
+    - Build `PipelineRunMetadata`: provider, model ID, every call's Prompt_Digest, temperature, `CHECK_VERSION`, per-stage timings, token counts, cost, and the counts of candidates/schema-rejected/Code_Check rejections by Check_ID/review rejections/accepted/discarded; return `unplacedAccepted` beside `manifest` and `content`
+    - Never include notes text, prompt text, model responses or credentials in `PipelineRunMetadata` or in any thrown value (there are none; every path returns a typed `Result`)
+    - Export `runRoomPipeline`, `toModelJsonSchema`, `assertRecordedOnly`, the `Provider`/`BudgetLedger` types, and cassette/mock test-support types from `packages/core/src/index.ts`
+    - _Requirements: 16.3, 16.4, 21.3, 31.1, 31.2, 31.3, 31.5, 31.6, 25.1, 25.2, 25.3, 25.4, 25.8_
+
+  - [ ] 21.5 Write property test for pipeline quote resolution
+    - **Property 15: Pipeline-accepted questions resolve uniquely (G-P1, extended)**
+    - **Validates: Requirements 13.4, 24.3**
+
+  - [ ] 21.6 Author the synthetic end-to-end cassette fixture
+    - Create `packages/core/src/test-support/cassettes/human-heart-e2e.json` from `samples/human-heart.txt` and `samples/questions/human-heart.json` only, every entry marked `"origin": "synthetic"`
+    - Write a test asserting every entry's `digest` equals `promptDigest` recomputed from a request built the way the pipeline actually builds it for that stage
+    - _Requirements: none beyond the cassette mechanism itself (test-support for Requirement 12 and the end-to-end test below)_
+
+  - [ ] 21.7 Write the cassette-driven end-to-end pipeline test
+    - `runRoomPipeline` over `samples/human-heart.txt` with `makeCassetteProvider(humanHeartE2eCassettes)` and `makeMockLedger`; assert one published room with the expected rune/séance slot, non-empty `CryptContent`, a `PipelineRunMetadata` whose `promptDigests.length` equals the number of cassette hits and that carries no notes text, any extra accepted concept in `unplacedAccepted` and not in the manifest, and `assertRecordedOnly` over the cassette's entries returning `synthetic-cassette-in-evaluation` (this test must not write to `eval/results/`)
+    - _Requirements: 16.3, 21.3, 25.8, 31.6, 12.10_
+
+- [ ] 22. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 23. Worker: OpenAI Provider and Interim_Ledger
+  - [ ] 23.1 Set up `apps/worker` dependencies
+    - Add `openai` to `apps/worker/package.json`; no other new dependency (JSON Schema comes from Core's `toModelJsonSchema`, built on Zod 4's `z.toJSONSchema()`)
+    - _Requirements: 11.4_
+
+  - [ ] 23.2 Implement the OpenAI Provider
+    - Create `apps/worker/src/provider/openai-provider.ts`: `makeOpenAiProvider(config)` implementing Core's `Provider`; reads `OPENAI_API_KEY` once at construction; uses `response_format: { type: 'json_schema', json_schema: { name: <stage>, strict: true, schema: request.jsonSchema } }`, passing the Core-built schema through unchanged
+    - Wrap the SDK call in `try`/`catch`; map timeout/rate-limit/other errors to `ProviderErrorKind`; log only stage, model ID, elapsed ms and token counts, never the request or response body
+    - _Requirements: 11.1, 11.3, 11.4, 11.5, 11.7, 25.8_
+
+  - [ ] 23.3 Write unit tests for the OpenAI Provider
+    - Against a mocked SDK/`fetch` client (no real provider call): the `response_format` request shape; SDK-error-to-`ProviderErrorKind` mapping; nothing logged beyond stage/model/elapsed/tokens
+    - _Requirements: 11.3, 11.7, 25.8_
+
+  - [ ] 23.4 Implement the Interim_Ledger
+    - Create `apps/worker/src/budget/interim-ledger.ts`: `makeInterimLedger(config)` implementing `BudgetLedger`; in-memory daily cap from `DAILY_BUDGET_USD`; worst-case cost from input/output token estimates and prices; reconcile moves reserved to spent; release returns the reservation; UTC day rollover resets totals; missing/non-positive `DAILY_BUDGET_USD` makes Jobs refuse to start
+    - _Requirements: 28.1, 28.2, 28.3, 28.4, 28.5, 28.6, 28.7, 28.9_
+
+  - [ ] 23.5 Write unit tests for the Interim_Ledger
+    - Cap enforcement; reconcile/release arithmetic; day rollover; missing-env refusal
+    - _Requirements: 28.2, 28.3, 28.4, 28.5, 28.6, 28.7, 28.9_
+
+  - [ ] 23.6 Write the worker-local boundary test
+    - Create `apps/worker/src/boundary.test.ts` confirming `apps/worker` is the only package whose source imports an `openai`-shaped specifier, and that `packages/core` imports none
+    - _Requirements: 9.8, 27.7_
+
+- [ ] 24. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 25. Worker: job store, HTTP server and process entry point
+  - [ ] 25.1 Implement the Job_Store
+    - Create `apps/worker/src/jobs/job-store.ts`: `Job` (with `sessionHash`, the sha-256 of the token; the raw token is never stored), `Tombstone` (`{ jobId, sessionHash, idempotencyKeyHash, requestDigest, status: 'expired', expiredAt }`, no content), `JobStatus`, `JobFailureKind`, `JobStore` with `create` (new/replay/replay-expired/conflict, looked up by `(sessionHash, sha-256(idempotencyKey))` over live Jobs and unswept Tombstones; a different digest is a conflict for a Job or a Tombstone; a different session never matches), `get` (returns `null` identically for a missing ID, a wrong session and a swept tombstone), `setStatus`, `sweepExpired` (after 30 minutes deletes notes text, result and the raw idempotency key and writes the Tombstone with the key hash and request digest; after 24 hours deletes the Tombstone, which forgets the key)
+    - _Requirements: 29.3, 29.4, 29.5, 29.10, 29.11, 29.13, 29.15_
+
+  - [ ] 25.2 Write unit tests for the Job_Store
+    - Create/replay/conflict; `get` returning `null` identically for wrong session and missing ID; only the token hash is stored; expired + right session reads as `expired`; expired + wrong session reads the same as missing; the Tombstone holds no content; after the 24-hour Tombstone sweep the read is the same as missing
+    - Idempotency after expiry: a repeated create after the Job_TTL with the same session, key and digest returns the expired job (`{ jobId, status: 'expired' }`), with zero budget reservations and zero Provider calls (counted with the mock ledger and a counting provider); after the Tombstone sweep the same create starts a new job; the same key with a different digest after the Job_TTL gives a conflict; a different session with the same key starts its own job (keys are bound to the session); the Tombstone holds only the key hash, never the raw key
+    - _Requirements: 29.3, 29.4, 29.5, 29.10, 29.11, 29.13, 29.15_
+
+  - [ ] 25.3 Implement the HTTP server
+    - Create `apps/worker/src/http/server.ts`: `POST /jobs` (Zod-validated body, a required well-formed `X-Session-Token` header with a typed error for a missing or malformed one, idempotency key handling including `{ jobId, status: 'expired' }` for a replay-expired result before any reservation or Provider call, 202 response without awaiting the pipeline, background `runRoomPipeline` call wired to the real `Provider` and `Interim_Ledger`), `GET /jobs/:id` (session-bound by token hash; a wrong session answers exactly like a missing job; `{ status: 'expired' }` with the right session after the TTL), `GET /health` (no Job data), CORS restricted to `WEB_ORIGIN` that allows the `X-Session-Token` header and no credentials, `Cache-Control: private, no-store` on every Job-carrying response, no notes/prompt/response content logged
+    - _Requirements: 29.1, 29.2, 29.3, 29.6, 29.7, 29.8, 29.9, 29.10, 29.12, 29.13, 29.15, 25.8, 25.9_
+
+  - [ ] 25.4 Write unit tests for the HTTP server
+    - In-process request tests (no external network) covering the full `POST /jobs` → `GET /jobs/:id` happy path with the cassette provider and mock ledger; a missing or malformed `X-Session-Token` rejected with a typed error; a wrong session answered identically to a missing job (status, body, headers); `{ status: 'expired' }` with `Cache-Control: private, no-store` for the right session after the TTL; CORS allowing only `WEB_ORIGIN` and the `X-Session-Token` header with no `Access-Control-Allow-Credentials`; `Cache-Control: private, no-store` on Job-carrying responses; request-size/word-count rejection before any Provider call; the typed failure body for each `JobFailureKind`; a repeated `POST /jobs` after the TTL with the same session, key and digest answering `{ jobId, status: 'expired' }` with zero reservations and zero Provider calls
+    - _Requirements: 29.1, 29.2, 29.3, 29.6, 29.7, 29.8, 29.9, 29.10, 29.12, 29.13, 29.15_
+
+  - [ ] 25.5 Implement the process entry point
+    - Create/update `apps/worker/src/index.ts`: read `OPENAI_API_KEY`, `WEB_ORIGIN`, `DAILY_BUDGET_USD`, `JOB_TTL_MINUTES` (default 30), `PORT` (default 8787); construct the real `Provider`, `Interim_Ledger` and `JobStore`; start the HTTP server; start the sweep timer running at least once a minute (it deletes expired Jobs, writes Tombstones and deletes Tombstones after the fixed 24-hour Tombstone_TTL, which is a constant and not an environment variable)
+    - Exit non-zero on a missing `OPENAI_API_KEY` or `WEB_ORIGIN`; refuse to start Jobs (not the process) on a missing/invalid `DAILY_BUDGET_USD`
+    - _Requirements: 28.9, 29.10, 29.11, 29.12_
+
+  - [ ] 25.6 Write a smoke test for the process entry point
+    - Starting with all required env vars present succeeds and `GET /health` responds `ok`; starting without `DAILY_BUDGET_USD` still serves `/health` but `POST /jobs` returns `budget-exhausted`
+    - _Requirements: 28.9, 29.12_
+
+- [ ] 26. Final checkpoint - Ensure all tests pass
+  - Run `pnpm test`, `pnpm lint` and `pnpm typecheck` across `packages/core` and `apps/worker`. Ensure all pass, ask the user if questions arise.
+
 ## Notes
 
 - All tasks are required, including every unit test and property test. No task is optional.
-- Phase 1 only. Provider, cassette, budget, pipeline, evaluation, the other four lock types, conflict check, sufficiency, final-door reservation and release flags (P2 to P6) are out of scope.
+- Phase 1, Phase 2 and Phase 3 are now planned. Evaluation, the other four lock types, conflict check, sufficiency, final-door reservation and release flags (P4 to P6) remain out of scope.
 - No task reads or references `eval/holdout/`, and none edits `eval/adversarial/fixtures.json`.
+- No task adds a real provider, network or AI SDK import to `packages/core`; the OpenAI SDK is used only in `apps/worker`.
+- Room-play follow-up (not a task here): the web app creates and keeps the session ID (at least 128 bits from `crypto.getRandomValues`, in `sessionStorage`, sent as `X-Session-Token`, no cookies).
+- Requirement 30 is withdrawn (covered by G8 and Requirement 21.3), so no task references it.
 - Each task references specific requirements for traceability. Property tests validate universal correctness properties; unit tests cover fixed examples and fixtures.
 
 ## Task Dependency Graph
@@ -257,7 +534,39 @@ Order: schemas (authoring, manifest, hint type change, fixture builder) → chec
     { "id": 15, "tasks": ["8.1", "8.2"] },
     { "id": 16, "tasks": ["9.1"] },
     { "id": 17, "tasks": ["9.2", "9.3", "9.4"] },
-    { "id": 18, "tasks": ["10"] }
+    { "id": 18, "tasks": ["10"] },
+    { "id": 19, "tasks": ["11.1", "11.2"] },
+    { "id": 20, "tasks": ["11.3", "11.4", "11.7", "11.8"] },
+    { "id": 21, "tasks": ["11.5", "11.6"] },
+    { "id": 22, "tasks": ["12.1", "12.3"] },
+    { "id": 23, "tasks": ["12.2", "12.4", "12.6"] },
+    { "id": 24, "tasks": ["12.5", "12.7", "12.8"] },
+    { "id": 25, "tasks": ["13"] },
+    { "id": 26, "tasks": ["14.1"] },
+    { "id": 27, "tasks": ["14.2", "14.3", "14.6"] },
+    { "id": 28, "tasks": ["14.4", "14.5"] },
+    { "id": 29, "tasks": ["15"] },
+    { "id": 30, "tasks": ["16.1"] },
+    { "id": 31, "tasks": ["16.2", "16.3", "17.1"] },
+    { "id": 32, "tasks": ["17.2", "17.3"] },
+    { "id": 33, "tasks": ["18"] },
+    { "id": 34, "tasks": ["19.1"] },
+    { "id": 35, "tasks": ["19.2", "19.3", "19.4"] },
+    { "id": 36, "tasks": ["20"] },
+    { "id": 37, "tasks": ["21.1"] },
+    { "id": 38, "tasks": ["21.2", "21.3", "21.4"] },
+    { "id": 39, "tasks": ["21.5", "21.6"] },
+    { "id": 40, "tasks": ["21.7"] },
+    { "id": 41, "tasks": ["22"] },
+    { "id": 42, "tasks": ["23.1"] },
+    { "id": 43, "tasks": ["23.2", "23.4"] },
+    { "id": 44, "tasks": ["23.3", "23.5", "23.6"] },
+    { "id": 45, "tasks": ["24"] },
+    { "id": 46, "tasks": ["25.1"] },
+    { "id": 47, "tasks": ["25.2", "25.3"] },
+    { "id": 48, "tasks": ["25.4", "25.5"] },
+    { "id": 49, "tasks": ["25.6"] },
+    { "id": 50, "tasks": ["26"] }
   ]
 }
 ```

@@ -56,6 +56,15 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 - **Correct_Rejected**: a question rejected by the Pipeline that a human rater marks fine.
 - **Release_Status**: per Lock_Type, `released` or `samples-only`, driven by the last evaluation.
 - **Notes_Record_Parser**: the Core function `parseNotesRecord` in `packages/core/src/notes-record.ts`.
+- **Job**: one generation run on the Worker, from one anonymous session and one notes text, with a status and a result.
+- **Job_Store**: the Worker's in-memory store of Jobs and results, deleted after the Job_TTL.
+- **Job_TTL**: the stated time after which a finished Job's notes text and result are deleted. The value is 30 minutes after the Job reaches a terminal status.
+- **Tombstone**: the content-free record `{ jobId, sessionHash, idempotencyKeyHash, requestDigest, status: 'expired', expiredAt }` that the Worker keeps after the Job_TTL. The `idempotencyKeyHash` is the sha-256 of the idempotency key, and the record is bound to the session hash and the request digest.
+- **Tombstone_TTL**: the time after which a Tombstone is deleted. The value is 24 hours after `expiredAt`.
+- **Session_Token**: the anonymous random value (at least 128 bits, from `crypto.getRandomValues`) that the web app creates, keeps in `sessionStorage` and sends in the `X-Session-Token` request header, and that binds Job retrieval and cancellation to that browser.
+- **Interim_Ledger**: the Worker's in-memory Budget_Ledger with a daily hard cap, used until spec 6 provides the Postgres ledger.
+- **Crypt_Bundle**: the published output of the Pipeline: a `CryptManifest` plus its Crypt_Content.
+- **Heading_Chunk**: a Chunk whose text is a single line that satisfies the chunker's own heading rule (`isAllCapsHeading` in `chunker-split.ts`: at most 80 characters, no terminal punctuation, at least one letter, all caps), as classified by `isHeadingOnlyChunk`. It is passed to the model as context and is never quotable.
 
 ## Requirements
 
@@ -255,6 +264,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 7. WHEN a Provider call completes, THE Pipeline SHALL reconcile actual usage with the reservation.
 8. FOR ALL Pipeline runs with a mock Budget_Ledger, the number of Provider calls SHALL NOT exceed the number of reservations (G-P5).
 9. THE P2 tests SHALL use a mock Budget_Ledger, and the real Postgres ledger SHALL be left to spec 6.
+10. IF any result in an evaluation run derives from a Cassette with origin `synthetic`, THEN the evaluation SHALL NOT write that run to `eval/results/` and SHALL NOT count it in any metric.
 
 ### Requirement 13: Prepare input and concept extraction (P3)
 
@@ -262,7 +272,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 
 #### Acceptance Criteria
 
-1. WHEN the Pipeline prepares input, THE Pipeline SHALL pass heading-only chunks to the model as context and SHALL NOT offer them as quotable chunks.
+1. WHEN the Pipeline prepares input, THE Pipeline SHALL classify a chunk as heading-only when its text is a single line that satisfies the chunker's own heading rule (`isAllCapsHeading`), SHALL pass heading-only chunks to the model as context, and SHALL NOT offer them as quotable chunks.
 2. THE Concept_Extractor SHALL make one model call per document and SHALL return concepts with `conceptId`, `label`, `chunkIds` and Quotes.
 3. THE Pipeline SHALL delimit the notes as data in every prompt and SHALL state that text inside the notes block is study material and never instructions.
 4. WHEN the Concept_Extractor returns a concept, THE Quote_Resolver SHALL resolve each of its Quotes, and IF any Quote does not resolve, is ambiguous or is too short, THEN THE Pipeline SHALL drop that Quote, and SHALL drop the concept if no resolvable Quote remains.
@@ -376,7 +386,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 
 1. THE Evaluation_Skill SHALL be the only path to a real Provider call for evaluation.
 2. THE Evaluation_Skill SHALL reserve budget before each call and SHALL stop when the cap is reached.
-3. WHEN an evaluation run finishes, THE Evaluation_Skill SHALL write a result to `eval/results/<date>.json` with provider, model ID, Prompt_Digests, temperature, Check_Version, timings, token counts and cost.
+3. WHEN an evaluation run finishes, THE Evaluation_Skill SHALL write a result to `eval/results/<date>.json` with provider, model ID, Prompt_Digests, temperature, Check_Version, timings, token counts and cost, and SHALL NOT write a run that fails Requirement 12, criterion 10.
 4. THE result file SHALL NOT contain notes text, prompts, model responses beyond the question under test, or credentials.
 5. THE evaluation SHALL record the provider choice and its reason after the Dev_Set run.
 6. THE result file SHALL be parseable by a Zod schema, and FOR ALL valid result objects, serialising then parsing SHALL return an equal object (round-trip property).
@@ -468,3 +478,62 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 7. THE sample crypt code and tests SHALL import no Provider, Cassette, Budget_Ledger, network or AI SDK module, and SHALL make no model call.
 8. FOR ALL builds of the sample crypt from the same input files, THE Manifest_Mapper SHALL produce an equal manifest (determinism property).
 9. THE sample crypt SHALL carry the mapped hints of Requirement 8, criteria 8 to 10, so that every sample rune cipher question has `reveal-first-letter` and every sample séance board question with a `contradicted` option has `remove-option`.
+
+### Requirement 28: Interim Worker Budget_Ledger (P2)
+
+**User Story:** As the developer, I want a hard spending cap on real model calls before spec 6 exists, so that a bug or abuse cannot run up the bill.
+
+#### Acceptance Criteria
+
+1. THE Core SHALL define a Budget_Ledger interface with `reserve`, `reconcile` and `release` operations that return typed results and never throw.
+2. THE Worker SHALL provide an Interim_Ledger that implements the Budget_Ledger interface in memory, with a daily hard cap in USD read from the environment variable `DAILY_BUDGET_USD`.
+3. WHEN the Pipeline requests a reservation, THE Interim_Ledger SHALL compute the worst-case cost as input tokens times the input price plus the requested maximum output tokens times the output price, and SHALL grant the reservation only when the day's reserved and spent total plus that cost stays within the daily hard cap.
+4. IF a reservation would exceed the daily hard cap, THEN THE Interim_Ledger SHALL return a typed `budget-exhausted` result and the Pipeline SHALL NOT make the call.
+5. WHEN a Provider call completes, THE Pipeline SHALL reconcile the reservation with the actual token usage, and THE Interim_Ledger SHALL replace the reserved amount with the actual cost.
+6. IF a Provider call fails before any usage is reported, THEN THE Pipeline SHALL release the reservation, and THE Interim_Ledger SHALL return the reserved amount to the day's remaining budget.
+7. WHEN the UTC date changes, THE Interim_Ledger SHALL start a new daily total at zero.
+8. THE Worker documentation SHALL state that the Interim_Ledger resets when the Worker restarts, that this deviates from the transactional ledger in the security rule, and that a monthly spending limit on the provider account is the backstop until spec 6.
+9. IF the environment variable `DAILY_BUDGET_USD` is missing or is not a positive number, THEN THE Worker SHALL refuse to start Jobs and SHALL return a typed `budget-exhausted` result.
+
+### Requirement 29: Worker job API contract (P3)
+
+**User Story:** As a learner, I want to start a generation job from my notes and fetch the result privately, so that nobody else can read my crypt.
+
+#### Acceptance Criteria
+
+1. WHEN a client sends `POST /jobs` with a valid body, THE Worker SHALL create a Job, start the Pipeline in the background and respond with the Job identifier and status without waiting for the Pipeline to finish.
+2. WHEN a client sends `GET /jobs/:id` with the Session_Token that created the Job, THE Worker SHALL respond with the Job status, and with the Crypt_Bundle once the Job has completed.
+3. IF a client sends a Job request with a missing or malformed `X-Session-Token` header, THEN THE Worker SHALL reject the request with a typed error, and IF a client sends `GET /jobs/:id` or a cancellation with a well-formed Session_Token that differs from the one that created the Job, THEN THE Worker SHALL respond identically to the response for a Job that does not exist.
+4. WHEN a client sends `POST /jobs` with an idempotency key that the same session already used with the same request digest, THE Worker SHALL return the existing Job and SHALL NOT start new work.
+5. IF a client sends `POST /jobs` with an idempotency key that the same session already used with a different request digest, THEN THE Worker SHALL respond with a typed conflict error and SHALL NOT start new work.
+6. IF the request body is larger than the configured byte limit, or the notes text is above the 6,000-word cap, THEN THE Worker SHALL reject the request with a typed error before any model call.
+7. THE Worker SHALL validate the `POST /jobs` body with Zod, and SHALL accept only notes text and a requested run length.
+8. THE Worker SHALL answer cross-origin requests only for the origin in the environment variable `WEB_ORIGIN`, SHALL allow the `X-Session-Token` request header, and SHALL NOT allow credentials.
+9. WHEN a Job fails, THE Worker SHALL report one of the typed learner-visible failures `budget-exhausted`, `not-enough-material`, `generation-failed`, `cancelled` or `expired`, with a plain-language message and without any notes text, prompt or model output.
+10. WHEN the Job_TTL has passed since a Job reached a terminal status, THE Worker SHALL delete the Job's notes text and result and keep a Tombstone, and a later `GET /jobs/:id` with the Session_Token that created the Job SHALL respond with `{ status: 'expired' }` and `Cache-Control: private, no-store`.
+11. THE Worker SHALL delete expired Jobs and Tombstones by a periodic sweep that runs at least once every minute, and WHEN the Tombstone_TTL has passed, THE Worker SHALL delete the Tombstone, after which `GET /jobs/:id` SHALL respond identically to the response for a Job that does not exist.
+12. WHEN the Worker starts, THE Worker SHALL respond to `GET /health` with a status that carries no Job data.
+13. THE Worker SHALL store only a hash of the Session_Token with each Job and Tombstone, and a Tombstone SHALL hold no notes text, result or prompt.
+14. THE Worker SHALL meet the privacy rules of Requirement 25 (no content in logs, `Cache-Control: private, no-store`, session binding), and this requirement adds no further privacy rule.
+15. WHEN a client sends `POST /jobs` with a session, an idempotency key and a request digest that match a Tombstone that has not been swept, THE Worker SHALL return `{ jobId, status: 'expired' }` for the existing Job, and SHALL NOT start new work, make a budget reservation or make a Provider call; and WHEN the Tombstone has been swept, THE Worker SHALL treat the idempotency key as unused and start a new Job as normal. Criterion 29.5 applies to a matching Tombstone with a different request digest, and a different session never matches the Tombstone.
+
+### Requirement 30: Withdrawn (P3)
+
+**User Story:** Withdrawn, so that the numbering of Requirements 28, 29 and 31 stays stable.
+
+#### Acceptance Criteria
+
+1. Withdrawn: covered by G8 and Requirement 21.3.
+
+### Requirement 31: Crypt_Bundle (P3)
+
+**User Story:** As a learner, I want the finished crypt to carry its question text and source excerpts, so that every lock shows its evidence.
+
+#### Acceptance Criteria
+
+1. WHEN the Pipeline publishes a room, THE Pipeline SHALL produce a Crypt_Bundle that holds the `CryptManifest` and the Crypt_Content for every question in it, built from the Manifest_Mapper output.
+2. THE Pipeline SHALL pass the manifest through `validateManifestForPublish` and the Crypt_Content through its Zod schema before it returns a Crypt_Bundle.
+3. THE Crypt_Content SHALL hold no answer key or option label.
+4. THE Core SHALL expose the label "Blind model review passed" as one constant in Core copy, and the label SHALL NOT contain any phrase on the banned-language list.
+5. WHEN the learner edited extracted PDF text, THE Crypt_Bundle citations SHALL use the label of Requirement 4, criterion 11.
+6. WHEN a concept has an accepted question that does not receive a room slot, THE Crypt_Bundle SHALL keep that concept, its `QuestionSpec` and its Crypt_Content entry in `unplacedAccepted`, validated with the same schemas, and THE Crypt_Bundle SHALL NOT include it in the manifest rooms or final door, SHALL NOT make it playable, and SHALL NOT count it as published.
