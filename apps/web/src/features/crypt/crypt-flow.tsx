@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ENTER_CRYPT_LABEL, ROOM_START_ERROR_COPY, SAMPLE_CRYPT_LINE } from '@escape-the-crypt/core';
+import { ENTER_CRYPT_LABEL, ROOM_START_ERROR_COPY, SAMPLE_CRYPT_LABEL, SAMPLE_CRYPT_LINE } from '@escape-the-crypt/core';
 import type { RoomStartErrorKind, State } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
 import { useRoomBinding } from '../../state/room-binding';
 import type { RoomBinding, StartError } from '../../state/room-binding';
 import { announcementsFor } from './announcements';
 import { CryptErrorBoundary } from './crypt-error-boundary';
-import { AutopsyView, FinalDoor } from './crypt-stand-ins';
+import { AutopsyView } from './autopsy-view';
+import { FinalDoor } from './final-door';
 import { LiveRegion } from './live-region';
 import { RoomPanel } from './room-panel';
 import { RoomScreen } from './room-screen';
@@ -96,17 +97,24 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
     view = <StartView dispatch={dispatch} />;
   } else if (state.status === 'escaped') {
     view = autopsyRequested ? (
-      <AutopsyView state={state} dispatch={dispatch} />
+      <AutopsyView state={state} assets={binding.assets} dispatch={dispatch} />
     ) : (
-      <FinalDoor state={state} dispatch={dispatch} escaped onOpenAutopsy={() => setAutopsyRequested(true)} />
+      <FinalDoor escaped onOpenAutopsy={() => setAutopsyRequested(true)} />
     );
   } else if (state.status === 'in progress') {
     view = state.atFinalDoor ? (
-      <FinalDoor state={state} dispatch={dispatch} />
+      <FinalDoor
+        state={state}
+        dispatch={dispatch}
+        assets={binding.assets}
+        rejection={binding.rejection}
+        eventLog={binding.eventLog}
+      />
     ) : (
       <RoomScreen
         state={state}
         dispatch={dispatch}
+        notices={notices}
         renderPanel={(slot, controls) =>
           binding.assets === null ? null : (
             <RoomPanel
@@ -114,6 +122,7 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
               state={state}
               assets={binding.assets}
               rejection={binding.rejection}
+              eventLog={binding.eventLog}
               dispatch={dispatch}
               openerRef={controls.openerRef}
               onClose={controls.onClose}
@@ -126,8 +135,12 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
     view = <StartView dispatch={dispatch} />;
   }
 
+  // The room screen draws its own label; every other screen of a run gets it here (Requirement 1.6).
+  const showLabel = phase === 'running' && state !== null && (state.status === 'escaped' || state.atFinalDoor);
+
   return (
     <>
+      {showLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
       {view}
       <LiveRegion messages={messages} />
     </>

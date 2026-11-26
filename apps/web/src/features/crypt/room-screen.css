@@ -26,13 +26,24 @@
   padding: 0;
 }
 
+.room-screen__returns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
 .room-screen__lock {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.room-screen__lock-button {
+.room-screen__lock-button,
+.room-screen__return-button,
+.room-screen__door-button {
   min-width: 44px;
   min-height: 44px;
   padding: 0.5rem 1rem;
@@ -45,13 +56,37 @@
   cursor: pointer;
 }
 
-.room-screen__lock-button[data-status='solved'] {
+.room-screen__lock-button[data-status='solved'],
+.room-screen__return-button[data-status='solved'] {
   border-color: var(--candle-400);
 }
 
-.room-screen__lock-button:focus-visible {
+.room-screen__lock-button:focus-visible,
+.room-screen__return-button:focus-visible,
+.room-screen__door-button:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+}
+
+.ghost-list {
+  pointer-events: none;
+  font-family: var(--font-body);
+  color: var(--spectre-300);
+}
+
+.ghost-list__ghosts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ghost-list__spirit {
+  margin: 0;
+  color: var(--bone-50);
+}
+
+.ghost-list__flame {
+  color: var(--candle-400);
 }
 
 /* Question, option, excerpt and explanation text. */
@@ -69,6 +104,7 @@
 /* Phone_Viewport: width divided by height below 0.75. */
 @media (max-aspect-ratio: 749/1000) {
   .room-screen__lock-button,
+  .room-screen__return-button,
   .room-screen__panel-slot,
   .room-screen__panel-slot :where(p, label, li, blockquote, span) {
     font-size: 1rem;

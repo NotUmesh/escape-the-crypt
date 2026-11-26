@@ -1,0 +1,36 @@
+.final-door {
+  color: var(--bone-50);
+  font-family: var(--font-body);
+}
+
+.final-door__seals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.final-door__seal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.final-door__seal-label {
+  color: var(--stone-300);
+}
+
+.final-door__button,
+.final-door__seal-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.final-door__button:focus-visible,
+.final-door__seal-button:focus-visible {
+  outline: 2px solid var(--spectre-300);
+  outline-offset: 2px;
+}

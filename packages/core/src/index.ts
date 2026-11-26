@@ -55,6 +55,7 @@ export {
   ANNOUNCEMENT_COPY,
   INGEST_UI_COPY,
   BANNED_COPY_PHRASES,
+  AUTOPSY_LABELS,
   renderError,
   errorMessage,
 } from './copy';
@@ -69,7 +70,7 @@ export type {
 } from './sample-crypt/human-heart';
 export { buildHumanHeartSampleCrypt, isHumanReviewed, SAMPLE_CONCEPT_TITLES } from './sample-crypt/human-heart';
 export type { CryptManifest, RunSettings } from './runtime/manifest-types';
-export type { State, LockSlotState, ReturnSlotState, FinalDoorSlotState, SlotStatus } from './runtime/state-types';
+export type { State, LockSlotState, ReturnSlotState, FinalDoorSlotState, SlotStatus, ConceptOutcome, ConceptRecord } from './runtime/state-types';
 export type { Outcome_Notice } from './runtime/notices';
 export type { Typed_Rejection, LockType } from './types';
 export {
@@ -90,6 +91,9 @@ export {
 export type { RoomStartErrorKind } from './copy-room-play';
 export { initial } from './runtime/initial';
 export { apply } from './runtime/apply';
+export { selectFinalDoor, selectAutopsy } from './runtime/selectors';
+export type { AutopsyCounts } from './runtime/selectors';
 export type { CryptContent } from './mapper/crypt-content';
+export type { AutopsyEntry } from './runtime/autopsy-selector';
 export { NOTES_SCHEMA_VERSION, makeNotesRecord, parseNotesRecord } from './notes-record';
 export { z } from './zod';

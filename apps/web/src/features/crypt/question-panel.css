@@ -41,9 +41,75 @@
   outline-offset: var(--focus-offset);
 }
 
+.question-controls {
+  margin-top: 1rem;
+  border-top: 1px solid var(--stone-300);
+  padding-top: 0.75rem;
+}
+
+.question-controls__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.question-controls__note {
+  margin: 0.5rem 0 0;
+  color: var(--stone-300);
+}
+
+.evidence-panel {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--parchment-100);
+  color: var(--ink-900);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.evidence-panel:focus-visible,
+.evidence-panel button:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.evidence-panel__result {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.evidence-panel__excerpts {
+  list-style: none;
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
+.evidence-panel blockquote {
+  margin: 0.5rem 0 0;
+  font-style: italic;
+}
+
+.evidence-panel :where(p) {
+  margin: 0.25rem 0;
+}
+
+.evidence-panel button {
+  min-width: 44px;
+  min-height: 44px;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+}
+
 /* Phone_Viewport: width divided by height below 0.75. */
 @media (max-aspect-ratio: 749/1000) {
   .question-panel,
+  .evidence-panel,
+  .evidence-panel button,
   .question-panel :where(p, label, li, span, button, input) {
     font-size: 1rem;
   }

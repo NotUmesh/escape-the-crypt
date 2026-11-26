@@ -3,7 +3,12 @@ import { join } from 'node:path';
 import { act, createElement } from 'react';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { buildHumanHeartSampleCrypt, ROOM_PLAY_LABELS, SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
+import {
+  buildHumanHeartSampleCrypt,
+  FINAL_DOOR_BUTTON_TEXT,
+  ROOM_PLAY_LABELS,
+  SAMPLE_CRYPT_LABEL,
+} from '@escape-the-crypt/core';
 import type { HumanHeartQuestionsFile, SampleCryptResult } from '@escape-the-crypt/core';
 import { useRoomBinding } from '../../state/room-binding';
 import type { RoomBinding } from '../../state/room-binding';
@@ -64,6 +69,23 @@ describe('RoomScreen', () => {
     expect(buttons.length).toBeGreaterThan(0);
     expect(buttons.map((b) => b.getAttribute('aria-label'))).toEqual(expected);
     expect(buttons.every((b) => b.tagName === 'BUTTON' && b.type === 'button')).toBe(true);
+  });
+
+  it('offers the final door button only once the door is available, and it dispatches enterFinalDoor', () => {
+    setup(mount);
+    const doorButton = (): HTMLButtonElement | null =>
+      mount.container.querySelector<HTMLButtonElement>('.room-screen__door-button');
+    expect(doorButton()).toBeNull();
+    const room = binding.state?.rooms.find((r) => r.roomId === binding.state?.currentRoomId);
+    for (const slot of room?.lockSlots ?? []) {
+      act(() => binding.dispatch({ type: 'openLock', slotId: slot.slotId }));
+      act(() => binding.dispatch({ type: 'skip', slotId: slot.slotId }));
+    }
+    expect(binding.state?.finalDoor.available).toBe(true);
+    expect(doorButton()?.getAttribute('aria-label')).toBe(FINAL_DOOR_BUTTON_TEXT);
+    act(() => doorButton()?.click());
+    expect(dispatched).toContainEqual({ type: 'enterFinalDoor' });
+    expect(binding.state?.atFinalDoor).toBe(true);
   });
 
   it('headlines the room with its display name by order, never the roomId', () => {

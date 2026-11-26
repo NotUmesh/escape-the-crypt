@@ -4,6 +4,9 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { apply, buildHumanHeartSampleCrypt, initial } from '@escape-the-crypt/core';
 import type { CryptManifest, Event, HumanHeartQuestionsFile, State } from '@escape-the-crypt/core';
+import { selectFinalDoor } from '../../../../packages/core/src/runtime/selectors';
+import { submissionFor } from '../../../../packages/core/src/test-support/question-answers';
+import { openTargets, questionFor } from '../../../../packages/core/src/test-support/runtime-model-support';
 import type { EventRoomAction } from './room-actions';
 import { stepBinding } from './room-binding-model';
 import type { BindingModel } from './room-binding-model';
@@ -138,4 +141,69 @@ describe('stepBinding', () => {
       { numRuns: 100 },
     );
   });
+});
+
+// Feature: room-play, escape under four fixed policies, driven through stepBinding
+// (the loop of core's test-support/escape-driver.ts, with stepBinding in place of apply).
+// **Validates: Requirements 19.10, 19.11, 18.4, 18.5**
+type Policy = 'all wrong' | 'all skip' | 'all challenge' | 'rotate';
+
+function actionFor(model: BindingModel, policy: Policy, prompts: number, slot: string, questionId: string): EventRoomAction {
+  const choice = policy === 'all wrong' ? 0 : policy === 'all skip' ? 1 : policy === 'all challenge' ? 2 : prompts % 3;
+  if (choice === 1) return { type: 'skip', slotId: slot };
+  if (choice === 2) return { type: 'challenge', slotId: slot };
+  return { type: 'submitAnswer', slotId: slot, submission: submissionFor(questionFor(model.manifest, questionId), false) };
+}
+
+function playPolicy(policy: Policy): { model: BindingModel; prompts: number; budget: number } {
+  let model = startedModel();
+  const concepts = MANIFEST.rooms.reduce((n, r) => n + r.lockSlots.length, 0);
+  // Room-runtime Requirement 20.7: (total Concepts x 4) + Reserved_Final_Door_Questions.
+  const budget = concepts * 4 + MANIFEST.finalDoor.slots.length;
+  let prompts = 0;
+  while (model.state.status !== 'escaped') {
+    const target = openTargets(model.state)[0];
+    if (target !== undefined) {
+      if (prompts >= budget) break;
+      model = stepBinding(model, actionFor(model, policy, prompts, target.slotId, target.questionId));
+      expect(model.rejection).toBeNull();
+      prompts += 1;
+    } else if (selectFinalDoor(model.state).available && !model.state.atFinalDoor) {
+      model = stepBinding(model, { type: 'enterFinalDoor' });
+      expect(model.rejection).toBeNull();
+    } else {
+      break;
+    }
+  }
+  return { model, prompts, budget };
+}
+
+describe('escape through stepBinding', () => {
+  for (const policy of ['all wrong', 'all skip', 'all challenge', 'rotate'] as const) {
+    it(`${policy}: reaches escaped within the prompt bound and refuses every later action`, () => {
+      const { model, prompts, budget } = playPolicy(policy);
+      expect(model.state.status).toBe('escaped');
+      expect(prompts).toBeLessThanOrEqual(budget);
+
+      const ids = [slotId, ...MANIFEST.finalDoor.slots.map((s) => s.slotId), 'no-such-slot'];
+      const after: EventRoomAction[] = [
+        { type: 'enterRoom', roomId: MANIFEST.rooms[0]?.roomId ?? '' },
+        { type: 'enterFinalDoor' },
+        ...ids.flatMap((id): EventRoomAction[] => [
+          { type: 'openLock', slotId: id },
+          { type: 'useHint', slotId: id },
+          { type: 'submitAnswer', slotId: id, submission: { text: 'x' } },
+          { type: 'skip', slotId: id },
+          { type: 'challenge', slotId: id },
+          { type: 'continueEvidence', slotId: id },
+        ]),
+      ];
+      for (const action of after) {
+        const next = stepBinding(model, action);
+        expect(next.rejection, action.type).not.toBeNull();
+        expect(next.state).toBe(model.state);
+        expect(next.eventLog).toBe(model.eventLog);
+      }
+    });
+  }
 });

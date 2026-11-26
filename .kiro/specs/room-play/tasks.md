@@ -168,19 +168,19 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Component test: open a rune lock, submit correct text, State shows the slot judged
     - _Requirements: 10.6, 14.1, 15.1, 21.7_
 
-- [ ] 6. Hint, Skip and Challenge
-  - [-] 6.1 Add the Hint, Skip and Challenge controls to the Question_Panel
+- [x] 6. Hint, Skip and Challenge
+  - [x] 6.1 Add the Hint, Skip and Challenge controls to the Question_Panel
     - "Hint" dispatches `HintUsed`; disabled with "No hints left" at 0 and while the question already has an Applied_Hint; show the remaining count next to it; "Skip" dispatches `Skipped` and closes the panel; "Challenge" dispatches `Challenged`; show the no-penalty line; send nothing to any server
     - Component tests for each control, disabled states and no network call
     - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.10, 16.11_
 
-  - [ ] 6.2 Handle `sealCracked` in the panel and room screen
+  - [x] 6.2 Handle `sealCracked` in the panel and room screen
     - On `sealCracked` for an `open` slot show the Alternate question, clear the draft and move focus to the panel heading; for a `challenged` slot close the panel and show "Challenged: excluded from score" on that lock
     - Component tests for both outcomes using fixture notices
     - _Requirements: 16.8, 16.9, 3.5_
 
-- [ ] 7. Evidence panel
-  - [-] 7.1 Add `evidence-text.ts` with `resolveExcerpt` and `orderExcerpts`
+- [x] 7. Evidence panel
+  - [x] 7.1 Add `evidence-text.ts` with `resolveExcerpt` and `orderExcerpts`
     - Extend `evidence-text.ts` (created in task 4.2 with `evidenceResult`) with `resolveExcerpt` and `orderExcerpts`
     - `resolveExcerpt(assets, excerpt, 'sample')` returns `{ quote, citationLabel, matched }` using `resolveQuote` and `citationLabel`; total for an unknown `chunkId`
     - `orderExcerpts(excerpts, chosenOptionId?, keyOptionId?)` works on indices so each excerpt appears once: chosen Option_Excerpt, key Option_Excerpt, then the rest in stored order
@@ -190,35 +190,35 @@ Every task is required. Property tests sit next to the code they test and cite t
     - **Validates: Requirements 17.3, 17.4, 17.13, 17.14, 17.16**
     - _Requirements: 3.3, 3.4, 3.9, 6.9, 17.15_
 
-  - [ ] 7.2 Build `evidence-panel.tsx`
+  - [x] 7.2 Build `evidence-panel.tsx`
     - Show the result as text and an icon, the chosen and key option texts for séance questions (chosen option ID from `chosenOptionFor(eventLog, slotId)` over the binding's read-only `eventLog`, because State records only `judgedResult`; key from the manifest payload; both option texts looked up in `Crypt_Content` `options`; no chosen option shown when the selector returns `undefined`), every ordered excerpt once with its Citation_Label and "Source excerpt matched" only when matched, the explanation, a kind opening sentence for wrong answers, and a "Continue" button; offer no second submission
     - Result text and icon: call `evidenceResult(slot)` from task 4.2 for a Lock_Slot, a Return_Slot and a Final_Door slot alike; show the result text and icon only when it is not `null`, and open with the kind "Not this time" sentence only when it returns `wrong`; a challenged Return_Slot or Final_Door slot shows neither (the "Challenged: excluded from score" label only)
     - Component tests for the result text per slot kind: Lock_Slot `judgedResult` correct and wrong; Return_Slot and Final_Door slot `solved` (correct text), `settled` (wrong text and kind sentence) and `challenged` (no result text)
     - Component tests: matched and unmatched excerpt labels, wrong-answer opening, option texts (chosen option taken from a fixture event log through `chosenOptionFor`), excerpt order chosen first, no answer controls, no Citation_Label ending in "of your notes"
     - _Requirements: 3.3, 3.4, 3.12, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7, 17.8, 17.11, 17.15, 21.7, 22.1_
 
-  - [ ] 7.3 Wire the Evidence_Panel into the room screen
+  - [x] 7.3 Wire the Evidence_Panel into the room screen
     - Show it when State has `evidencePanelOpen` for a slot; move focus into it; "Continue" dispatches `EvidenceContinued`, closes it and returns focus to the slot's button or to the next available control
     - Component tests for focus in, Continue dispatch and focus return
     - _Requirements: 17.1, 17.9, 17.10, 17.12_
 
-- [ ] 8. Checkpoint - Playable loop through evidence
+- [x] 8. Checkpoint - Playable loop through evidence
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Return slots, ghosts, final door and escape
-  - [ ] 9.1 Add ghost assignment and the simple ghost list
+- [x] 9. Return slots, ghosts, final door and escape
+  - [x] 9.1 Add ghost assignment and the simple ghost list
     - Pure `assignGhostAnchors(ghosts, anchorCount)` using `index modulo anchorCount` with a table-driven test
     - Render each pending ghost as text with its return number and, when not yet due, "This ghost returns later."; ghosts use `pointer-events: none`
     - Show lit Spirit_Candles as a small text and flame marker
     - Component tests
     - _Requirements: 18.1, 18.2, 18.3, 18.6, 18.9, 18.10_
 
-  - [ ] 9.2 Add Return_Slot controls
+  - [x] 9.2 Add Return_Slot controls
     - Separate buttons for due Return_Slots with names that state a returning question and "Review" when `label` is "review"; they open the Question_Panel and leave lock controls unchanged
     - Component tests
     - _Requirements: 18.7, 18.8_
 
-  - [ ] 9.3 Build `final-door.tsx` and `unplayable-panel.tsx`
+  - [x] 9.3 Build `final-door.tsx` and `unplayable-panel.tsx`
     - Create `final-door.tsx`, reading only `selectFinalDoor(state)`, `State.atFinalDoor` and `State.status` and adding no game rule: closed door with no control while `selectFinalDoor(state).available` is false; one native button to open it when available (name from `doorButtonName()` in `accessible-names.ts`, text from `copy.ts`) dispatching `FinalDoorEntered`
     - At the final door draw one seal per `State.finalDoor.slots` entry, in slot order (a plain list in this plain-loop task; task 14.10 positions them with `sealPoints`), each with a visible text label from `FINAL_DOOR_STATUS_LABELS`, drawn broken when solved, settled or challenged, with an accessible name stating the status in words
     - A native control per open slot opens its Question_Panel through the shared `question-panel.tsx` (passing `side="right"`), so the Evidence_Panel, hint, skip and challenge controls and ghost drawing are the same as in a room, with no second copy
@@ -226,25 +226,25 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Component tests for each state: closed door, enter button and dispatch, seals per status with labels, slot control opening the shared panel with `side="right"`, and the unplayable fallback
     - _Requirements: 19.1, 19.2, 19.3, 19.4, 19.5, 19.6, 19.7, 19.8, 21.6_
 
-  - [ ] 9.4 Add the escape view with the Autopsy button
+  - [x] 9.4 Add the escape view with the Autopsy button
     - In `final-door.tsx` add the `escaped` mode (`<FinalDoor escaped>`): show the escape message from `ESCAPE_COPY.message` and one "Open the Autopsy" button; render no slot button, no Question_Panel and no hint, skip or challenge control, so none can be sent once State is `escaped` (the runtime also rejects them)
     - The button sets the local "Autopsy requested" flag held in `crypt-flow.tsx` (task 4.5); the flag is cleared when `playAgain` is dispatched, so a new run starts in room 1 with no Autopsy showing
     - Replace the escape-view stand-in of task 4.5; art for the open door and `light-door.webp` arrives in task 14.10
     - Component tests: the escape view shows the message and the button and no controls; activating the button shows the Autopsy; `playAgain` clears the flag and returns to room 1
     - _Requirements: 19.9, 19.10, 20.1, 20.9_
 
-  - [ ] 9.5 Write the termination policy test
+  - [x] 9.5 Write the termination policy test
     - Extend `room-binding-model.test.ts`: drive `stepBinding` from the run-start model with four fixed policies — answer every open slot wrong, skip every open slot, challenge every open slot, and rotate wrong, skip and challenge — re-reading the open slots after each step and entering the final door when `selectFinalDoor(state).available` is true
     - Reuse the loop in `packages/core/src/test-support/escape-driver.ts`; each policy reaches `status === 'escaped'` within the prompt bound that the room-runtime spec states, and every action dispatched after `escaped` is rejected and leaves `State` and the `eventLog` unchanged
     - _Requirements: 19.10, 19.11, 18.4, 18.5_
 
-- [ ] 10. Autopsy with Final door section
-  - [ ] 10.1 Add `autopsy-titles.ts` with `withConceptTitles`
+- [x] 10. Autopsy with Final door section
+  - [x] 10.1 Add `autopsy-titles.ts` with `withConceptTitles`
     - Create `apps/web/src/features/crypt/autopsy-titles.ts` with the type `AutopsyEntryView` (`AutopsyEntry` plus `title`) and the pure `withConceptTitles(entries, content)`: each entry becomes `{ ...entry, title: content.concepts[entry.conceptId].title }`, keeping entry order; a missing title falls back to the `conceptId` so the entry still shows; the runtime's `AutopsyEntry` and `autopsy-selector.ts` stay unchanged
     - Write `autopsy-titles.test.ts`: every entry gets its `content.concepts` title; order is kept; a missing title falls back to the conceptId; a title containing markup characters is returned as the same plain string
     - _Requirements: 20.3, 20.10, 22.1_
 
-  - [ ] 10.2 Build `autopsy-view.tsx` for concepts and counts
+  - [x] 10.2 Build `autopsy-view.tsx` for concepts and counts
     - Built from `selectAutopsy(state)`: entries passed through `withConceptTitles(view.entries, content)`, one per `State.concepts`, each shown as the concept title (plain React text) and the label from `AUTOPSY_LABELS`; the five outcome counts read from `view.counts`; shown only when State is `escaped`
     - Draw each outcome as an icon and its text label side by side: small inline SVG components in this file, one per `ConceptOutcome`, with `aria-hidden="true"` because the text carries the meaning; a concept whose outcome is `challenged` shows the "excluded from the score" statement
     - Excerpt link per entry: on activation read `assets.firstQuestionByConcept[entry.conceptId]`, take `content.questions[questionId].excerpts[0]` and call `resolveExcerpt(assets, excerpt, 'sample')`, showing the quote with its "Paragraph N of the sample notes" label; it reads no manifest and runs no search at click time
@@ -253,50 +253,50 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Component tests: one entry per concept with its title and `AUTOPSY_LABELS` label, five counts, icons present and `aria-hidden`, the excerpt link shows the first excerpt of the first question of that concept with a sample label, challenged statement, Play again dispatches `playAgain`, no Banned_Phrases
     - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.5, 20.6, 20.7, 20.8, 20.9, 20.10, 22.1_
 
-  - [ ] 10.3 Add the Final_Door_Section
+  - [x] 10.3 Add the Final_Door_Section
     - List each `State.finalDoor.slots` question with its prompt from `content.questions[slot.currentQuestionId].prompt` and a status label from `FINAL_DOOR_STATUS_LABELS` as text and an icon (inline SVG, one per `SlotStatus`, `aria-hidden="true"`); state "excluded from the score" for `settled` and `challenged`; `open` stays handled for totality although an escaped run cannot hold it
     - Component tests across every status, prompts as plain text, and icon plus label for each
     - _Requirements: 20.10, 20.11, 20.12, 20.13, 22.1_
 
-- [ ] 11. Sample labels and "Enter the crypt" entry
-  - [ ] 11.1 Add the "Enter the crypt" step after the notes preview
+- [x] 11. Sample labels and "Enter the crypt" entry
+  - [x] 11.1 Add the "Enter the crypt" step after the notes preview
     - In `apps/web/src/app.tsx` show the "Enter the crypt" button after notes are confirmed, with the sample-crypt line from `copy.ts` beside it; activating it starts the run and shows room 1; confirmed notes stay unchanged and unused by the run; a reload returns to the notes preview with no run
     - Component tests for the button, the line, the start and the reload behaviour
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 4.10_
 
-  - [ ] 11.2 Add the honest-label checks
+  - [x] 11.2 Add the honest-label checks
     - Show the visible sample-crypt label during the run; add a component test that renders every screen (start, room, panels, evidence, final door, Autopsy) and asserts no "Human-reviewed", no "Blind model review passed", no Banned_Phrases and no Citation_Label ending in "of your notes"
     - The static source checks (`dangerouslySetInnerHTML`, colour literals, fonts, text sizes) live in task 11.3
     - _Requirements: 1.6, 3.1, 3.2, 3.6, 3.12_
 
-  - [ ] 11.3 Add the typography and tokens source test
+  - [x] 11.3 Add the typography and tokens source test
     - Write `apps/web/src/features/crypt/crypt-css.test.ts`: read every CSS and TSX source under `apps/web/src/features/crypt/` (found by glob, so files added in group 14 are covered) and fail on a hex or `rgb(` colour literal outside `tokens.css`, an `@import` or `url(http` reference or any other origin, any `dangerouslySetInnerHTML`, a `font-family` other than the `--font-body` and `--font-title` tokens, `--font-title` on a question, option, excerpt or explanation selector, and a `font-size` below `1.125rem` on the question-text selectors (below `1rem` inside the phone media query)
     - Include one positive case: the shipped `room-screen.css` and panel CSS pass
     - Re-run in the group 15 and 17 checkpoints, since group 14 adds CSS files
     - _Requirements: 22.2, 22.3, 22.4_
 
-- [ ] 12. Playwright play-through, keyboard path and axe
-  - [ ] 12.1 Add the e2e helpers
+- [x] 12. Playwright play-through, keyboard path and axe
+  - [x] 12.1 Add the e2e helpers
     - Create `apps/web/e2e/` helpers that build the Sample_Crypt manifest and read correct answers from it (no AI provider), enter the crypt from the notes preview, and answer a slot by lock type
     - _Requirements: 25.10_
 
-  - [ ] 12.2 Playwright: all answers correct
+  - [x] 12.2 Playwright: all answers correct
     - Play from "Enter the crypt" through every Evidence_Panel and the final door to the Autopsy; assert the two concept entries carry labels from `AUTOPSY_LABELS` and the Final_Door_Section lists every door question with a final status
     - _Requirements: 25.1_
 
-  - [ ] 12.3 Playwright: all answers wrong
+  - [x] 12.3 Playwright: all answers wrong
     - Answer every question wrong; assert ghosts appear and return at the final door, the final door is reached and the escape happens
     - _Requirements: 25.2, 19.11_
 
-  - [ ] 12.4 Playwright: keyboard-only path and focus
+  - [x] 12.4 Playwright: keyboard-only path and focus
     - Play with the keyboard only, including a hint, a skip and a challenge; assert focus moves into each panel and returns to the opening control
     - _Requirements: 25.3, 25.4, 10.7, 10.8, 17.10, 17.12_
 
-  - [ ] 12.5 Playwright: axe on four screens
+  - [x] 12.5 Playwright: axe on four screens
     - Run axe on the Room_Screen with the Question_Panel open, with the Evidence_Panel open, at the final door and on the Autopsy; expect no violations
     - _Requirements: 25.5_
 
-  - [ ] 12.6 Playwright: labels, citations and network
+  - [x] 12.6 Playwright: labels, citations and network
     - Assert "Human-reviewed" and "Blind model review passed" appear nowhere during a run; every Citation_Label shown reads "Paragraph N of the sample notes"; no request goes to another origin
     - _Requirements: 25.7, 25.9, 25.14, 3.1, 3.2, 3.12, 2.3_
 

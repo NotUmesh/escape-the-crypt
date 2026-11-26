@@ -343,6 +343,11 @@
         "executionId": "dcfece19-0cc6-4cee-be43-e39794a48c23",
         "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
         "timestamp": 1795673642456
+      },
+      {
+        "executionId": "cad1bfed-5701-4a42-b8bc-6daccc60cb3b",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795676210373
       }
     ],
     "6.1 Add the Hint, Skip and Challenge controls to the Question_Panel": [
@@ -350,6 +355,310 @@
         "executionId": "dcfece19-0cc6-4cee-be43-e39794a48c23",
         "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
         "timestamp": 1795673642668
+      },
+      {
+        "executionId": "cad1bfed-5701-4a42-b8bc-6daccc60cb3b",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795675606924
+      },
+      {
+        "executionId": "cad1bfed-5701-4a42-b8bc-6daccc60cb3b",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795676210290
+      }
+    ],
+    "7.2 Build `evidence-panel.tsx`": [
+      {
+        "executionId": "cad1bfed-5701-4a42-b8bc-6daccc60cb3b",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795676317702
+      },
+      {
+        "executionId": "cad1bfed-5701-4a42-b8bc-6daccc60cb3b",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795676982760
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795679737014
+      }
+    ],
+    "6.2 Handle `sealCracked` in the panel and room screen": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795678692882
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795679639902
+      }
+    ],
+    "6. Hint, Skip and Challenge": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795679639986
+      }
+    ],
+    "7.3 Wire the Evidence_Panel into the room screen": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795679786115
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795680417507
+      }
+    ],
+    "7. Evidence panel": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795680417591
+      }
+    ],
+    "8. Checkpoint - Playable loop through evidence": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795680462276
+      }
+    ],
+    "9.1 Add ghost assignment and the simple ghost list": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795680500305
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795681546246
+      }
+    ],
+    "9.5 Write the termination policy test": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795680535293
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795681546156
+      }
+    ],
+    "10.1 Add `autopsy-titles.ts` with `withConceptTitles`": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795680535868
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795681546378
+      }
+    ],
+    "9.2 Add Return_Slot controls": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795681631322
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795682845278
+      }
+    ],
+    "9.3 Build `final-door.tsx` and `unplayable-panel.tsx`": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795682880892
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795683475075
+      }
+    ],
+    "9.4 Add the escape view with the Autopsy button": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795683509850
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795683875461
+      }
+    ],
+    "9. Return slots, ghosts, final door and escape": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795683875541
+      }
+    ],
+    "10.2 Build `autopsy-view.tsx` for concepts and counts": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795683932086
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795685571632
+      }
+    ],
+    "10.3 Add the Final_Door_Section": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795685612460
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795686771527
+      }
+    ],
+    "10. Autopsy with Final door section": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795686771577
+      }
+    ],
+    "11.1 Add the \"Enter the crypt\" step after the notes preview": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795686811620
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795687900203
+      }
+    ],
+    "11.2 Add the honest-label checks": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795687934004
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795689408282
+      }
+    ],
+    "11.3 Add the typography and tokens source test": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795687934235
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795689408381
+      }
+    ],
+    "11. Sample labels and \"Enter the crypt\" entry": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795689408429
+      }
+    ],
+    "12.1 Add the e2e helpers": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795689440277
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795690424327
+      }
+    ],
+    "12.2 Playwright: all answers correct": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795690464840
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795692215874
+      }
+    ],
+    "12.3 Playwright: all answers wrong": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795692215962
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795692718625
+      }
+    ],
+    "12.4 Playwright: keyboard-only path and focus": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795692719502
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795693516133
+      }
+    ],
+    "12.5 Playwright: axe on four screens": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795693516195
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795693828265
+      }
+    ],
+    "12.6 Playwright: labels, citations and network": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795693829016
+      },
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795694078317
+      }
+    ],
+    "12. Playwright play-through, keyboard path and axe": [
+      {
+        "executionId": "3665cff8-2e74-44c7-8621-abb2b9ed489a",
+        "chatSessionId": "sess_9384da98-6b01-4156-ab39-65060edf1b4d",
+        "timestamp": 1795694078359
       }
     ]
   }

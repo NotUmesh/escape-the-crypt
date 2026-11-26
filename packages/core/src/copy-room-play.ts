@@ -124,12 +124,24 @@ export const ROOM_PLAY_LABELS = {
   removedByHint: 'Removed by the hint',
   wrongOpening: "Not this time. Here's what your notes say.",
   excerptMatched: 'Source excerpt matched',
+  evidenceChosenOption: 'Your answer',
+  evidenceKeyOption: 'The answer your notes support',
+  evidenceExcerptsHeading: 'From your notes',
   challengedLabel: 'Challenged: excluded from score',
   ghostReturnsLater: 'This ghost returns later.',
   ghostName: (n: number): string => `Ghost ${n}: returns later`,
   returnSlotName: (isReview: boolean): string =>
     isReview ? 'Returning question: Review' : 'Returning question',
   unplayableType: "This kind of question can't be played in this version. You can skip it.",
+  autopsyHeading: 'The Autopsy',
+  autopsyCountsHeading: 'Outcomes',
+  autopsyConceptsHeading: 'Concepts',
+  autopsyChallengedStatement: 'Challenged: excluded from the score.',
+  autopsyFinalDoorHeading: 'The final door',
+  autopsyExcludedStatement: 'Excluded from the score.',
+  showExcerpt: 'Show source excerpt',
+  hideExcerpt: 'Hide source excerpt',
+  excerptUnavailable: 'No source excerpt is available for this concept.',
 } as const;
 
 /** Names of the lock objects, keyed by lock type (Requirement 10.3). */
