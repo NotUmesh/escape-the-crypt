@@ -81,6 +81,7 @@ export {
   FINAL_DOOR_BUTTON_TEXT,
   FINAL_DOOR_STATUS_LABELS,
   ROOM_PLAY_LABELS,
+  REVIEW_PASSED_LABEL,
   ROOM_ANNOUNCEMENT_COPY,
   SAMPLE_CRYPT_LABEL,
   SAMPLE_CRYPT_LINE,
@@ -97,3 +98,48 @@ export type { CryptContent } from './mapper/crypt-content';
 export type { AutopsyEntry } from './runtime/autopsy-selector';
 export { NOTES_SCHEMA_VERSION, makeNotesRecord, parseNotesRecord } from './notes-record';
 export { z } from './zod';
+export { runRoomPipeline } from './pipeline/orchestrator';
+export type {
+  PipelineOptions,
+  PipelineResult,
+  PipelineJobError,
+  PipelineJobFailure,
+  UnplacedAccepted,
+} from './pipeline/orchestrator';
+export type { PipelineStageError } from './pipeline/stage-error';
+export type {
+  PipelineRunMetadata,
+  PipelineRunCounts,
+  TimedStage,
+} from './pipeline/run-metadata';
+export type { RecordedCall } from './pipeline/recording-provider';
+export { toModelJsonSchema } from './provider/model-json-schema';
+export type { ModelJsonSchema, ModelJsonSchemaError } from './provider/model-json-schema';
+export type {
+  Provider,
+  ProviderRequest,
+  ProviderResult,
+  ProviderSuccess,
+  ProviderFailure,
+  ProviderStage,
+  ProviderUsage,
+  ProviderErrorKind,
+} from './provider/types';
+export type {
+  BudgetLedger,
+  BudgetReservation,
+  BudgetResult,
+  BudgetErrorKind,
+} from './budget/types';
+export { makeMockLedger, countingProvider } from './budget/mock-ledger';
+export type { MockLedger, MockLedgerOptions, CountingProvider } from './budget/mock-ledger';
+export { makeCassetteProvider, isCassetteMissing } from './cassette/cassette-provider';
+export { parseCassetteFile } from './cassette/types';
+export type {
+  CassetteFile,
+  CassetteEntry,
+  CassetteOrigin,
+  CassetteParseError,
+} from './cassette/types';
+export { assertRecordedOnly } from './cassette/recorded-only';
+export type { SyntheticCassetteInEvaluationError } from './cassette/recorded-only';

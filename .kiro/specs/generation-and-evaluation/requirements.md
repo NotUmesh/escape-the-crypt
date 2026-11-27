@@ -313,6 +313,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 8. IF the Blind_Reviewer response fails its Zod schema, THEN THE Pipeline SHALL retry once and, on a second failure, SHALL reject the question.
 9. WHEN the Pipeline accepts a question, THE Pipeline SHALL describe the evidence as "Source excerpt matched".
 10. THE Blind_Reviewer and the Generator SHALL use separate prompts, and the Blind_Reviewer SHALL NOT see Generator output beyond the question itself.
+11. IF the Blind_Reviewer labels its chosen séance board option other than `supported`, or labels any other option other than `contradicted`, THEN THE Pipeline SHALL reject the question.
 
 ### Requirement 16: Room assembly and publish (P3)
 

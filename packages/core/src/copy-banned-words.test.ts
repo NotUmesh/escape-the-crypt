@@ -21,6 +21,7 @@ import {
   SLOT_STATUS_WORDS,
   ROOM_ANNOUNCEMENT_COPY,
   ROOM_PLAY_LABELS,
+  REVIEW_PASSED_LABEL,
   ROOM_START_ERROR_COPY,
   SAMPLE_CRYPT_LABEL,
   SAMPLE_CRYPT_LINE,
@@ -150,6 +151,10 @@ describe('Room-play copy', () => {
     expect(ROOM_PLAY_LABELS.seanceGroupLabel).toBe('Choose one answer');
     expect(ROOM_PLAY_LABELS.removedByHint).toBe('Removed by the hint');
     expect(ROOM_PLAY_LABELS.excerptMatched).toBe('Source excerpt matched');
+    expect(REVIEW_PASSED_LABEL).toBe('Blind model review passed');
+    expect(ROOM_PLAY_LABELS.reviewPassed).toBe(REVIEW_PASSED_LABEL);
+    expect(findBanned(REVIEW_PASSED_LABEL)).toEqual([]);
+    expect(findBanned(ROOM_PLAY_LABELS.excerptMatched)).toEqual([]);
     expect(ROOM_PLAY_LABELS.challengedLabel).toBe('Challenged: excluded from score');
     expect(ROOM_PLAY_LABELS.ghostReturnsLater).toBe('This ghost returns later.');
     expect(ROOM_PLAY_LABELS.wrongOpening).toBe("Not this time. Here's what your notes say.");

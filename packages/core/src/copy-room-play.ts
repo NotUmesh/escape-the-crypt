@@ -105,6 +105,9 @@ export const ESCAPE_COPY = {
 /** Text for the button that opens the final door. `doorButtonName()` uses it. */
 export const FINAL_DOOR_BUTTON_TEXT = 'Open the final door';
 
+/** Label shown when a question passed the blind model review (Requirement 15.7). */
+export const REVIEW_PASSED_LABEL = 'Blind model review passed';
+
 export const ROOM_PLAY_LABELS = {
   openAutopsy: 'Open the Autopsy',
   playAgain: 'Play again',
@@ -124,6 +127,7 @@ export const ROOM_PLAY_LABELS = {
   removedByHint: 'Removed by the hint',
   wrongOpening: "Not this time. Here's what your notes say.",
   excerptMatched: 'Source excerpt matched',
+  reviewPassed: REVIEW_PASSED_LABEL,
   evidenceChosenOption: 'Your answer',
   evidenceKeyOption: 'The answer your notes support',
   evidenceExcerptsHeading: 'From your notes',
@@ -145,6 +149,7 @@ export const ROOM_PLAY_LABELS = {
   showExcerpt: 'Show source excerpt',
   hideExcerpt: 'Hide source excerpt',
   excerptUnavailable: 'No source excerpt is available for this concept.',
+  lanternToggle: 'Lantern mode',
 } as const;
 
 /** Names of the lock objects, keyed by lock type (Requirement 10.3). */

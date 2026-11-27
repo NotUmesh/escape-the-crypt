@@ -19,6 +19,26 @@
     "9.3 Write property test for NotesRecord round-trip": {
       "status": "passed",
       "lastRunTimestamp": 1795603714033
+    },
+    "11.5 Write property test for Prompt_Digest": {
+      "status": "passed",
+      "lastRunTimestamp": 1795730768171
+    },
+    "12.5 Write property test for budget reservation vs. calls": {
+      "status": "passed",
+      "lastRunTimestamp": 1795731301989
+    },
+    "14.5 Write property test for chunk ID translation": {
+      "status": "passed",
+      "lastRunTimestamp": 1795732181130
+    },
+    "16.3 Write property test for quote-dropping in concept extraction": {
+      "status": "passed",
+      "lastRunTimestamp": 1795732684562
+    },
+    "21.5 Write property test for pipeline quote resolution": {
+      "status": "passed",
+      "lastRunTimestamp": 1795738274404
     }
   },
   "executionHistory": {
@@ -761,6 +781,583 @@
         "executionId": "622f24bd-180e-4ba4-a8f6-137d83455936",
         "chatSessionId": "sess_81de1993-5c66-44f7-8e0c-4b997671ca2a",
         "timestamp": 1795604258506
+      }
+    ],
+    "11.1 Implement the Provider interface and types": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795729733796
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795729814039
+      }
+    ],
+    "11.2 Implement the concurrency limiter": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795729814910
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795729911318
+      }
+    ],
+    "11.3 Write unit tests for the Provider interface and concurrency limiter": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795729919847
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730017218
+      }
+    ],
+    "11.4 Implement Prompt_Digest": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730017662
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730192312
+      }
+    ],
+    "11.7 Narrow the Phase 1 boundary test": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730204375
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730478210
+      }
+    ],
+    "11.8 Implement `toModelJsonSchema`": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730483605
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730679199
+      }
+    ],
+    "11.5 Write property test for Prompt_Digest": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730685870
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730815533
+      }
+    ],
+    "11.6 Write unit test pinning a known request to a known digest": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730686808
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730816637
+      }
+    ],
+    "11. Provider interface, Prompt_Digest and narrowed boundary test": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730816677
+      }
+    ],
+    "12.1 Implement the cassette store": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730822748
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730965759
+      }
+    ],
+    "12.3 Implement the Budget_Ledger interface and mock ledger": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730823900
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730966273
+      }
+    ],
+    "12.2 Write unit tests for the cassette store": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730973505
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731170719
+      }
+    ],
+    "12.4 Write unit tests for the mock ledger": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730975182
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731100076
+      }
+    ],
+    "12.6 Implement `assertRecordedOnly`": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795730975626
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731100200
+      }
+    ],
+    "12.5 Write property test for budget reservation vs. calls": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731178296
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731324543
+      }
+    ],
+    "12.7 Write unit tests for `assertRecordedOnly`": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731179621
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731324460
+      }
+    ],
+    "12.8 Write a static test that nothing in P2/P3 writes to `eval/results/`": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731180154
+      },
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731426768
+      }
+    ],
+    "12. Cassette store and mock Budget_Ledger (test-support)": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731426839
+      }
+    ],
+    "13. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "cbc5b0ea-adc8-476d-87f8-61d7bab97351",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731427231
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731825700
+      }
+    ],
+    "14.1 Implement `isHeadingOnlyChunk`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731832999
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731978864
+      }
+    ],
+    "14.2 Write unit tests for `isHeadingOnlyChunk`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731985256
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732103156
+      }
+    ],
+    "14.3 Implement `prepareDocument`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731986420
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732103660
+      }
+    ],
+    "14.6 Write the chunker agreement test": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795731987669
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732104885
+      }
+    ],
+    "14.4 Write unit tests for `prepareDocument`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732110901
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732237689
+      }
+    ],
+    "14.5 Write property test for chunk ID translation": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732111558
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732237788
+      }
+    ],
+    "14. Heading detection and prepare-input": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732237864
+      }
+    ],
+    "15. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732243304
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732357299
+      }
+    ],
+    "16.1 Implement `extractConcepts`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732358608
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732516414
+      }
+    ],
+    "16.2 Write unit tests for `extractConcepts`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732522902
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732878943
+      }
+    ],
+    "16.3 Write property test for quote-dropping in concept extraction": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732524316
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732880428
+      }
+    ],
+    "17.1 Implement `generateForConcept`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732524608
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732880610
+      }
+    ],
+    "16. Pipeline: concept extraction": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732880515
+      }
+    ],
+    "17.2 Write unit test asserting generated questions always parse as AuthoringQuestion": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732887080
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795733087634
+      }
+    ],
+    "17.3 Write unit tests for `generateForConcept`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795732887663
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795733088231
+      }
+    ],
+    "17. Pipeline: typed generation": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795733088287
+      }
+    ],
+    "18. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795733093713
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795733462955
+      }
+    ],
+    "19.1 Implement `blindReview`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795733467955
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736620217
+      }
+    ],
+    "19.2 Add the \"Blind model review passed\" and \"Source excerpt matched\" label usage": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736627371
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736945919
+      }
+    ],
+    "19.3 Write unit tests for `blindReview`": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736628692
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736947384
+      }
+    ],
+    "19.4 Write the strict-compatibility test for model-facing schemas": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736630019
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736947748
+      }
+    ],
+    "19. Pipeline: blind review": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736947788
+      }
+    ],
+    "20. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795736953997
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795737189911
+      }
+    ],
+    "21.1 Implement room assembly": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795737197734
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795737341467
+      }
+    ],
+    "21.2 Write unit tests for room assembly": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795737346595
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795737971624
+      }
+    ],
+    "21.3 Write property test for pipeline-assembled room leak scanning": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795737348097
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738052106
+      }
+    ],
+    "21.4 Implement `runRoomPipeline` and the run metadata": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795737349579
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795737820955
+      }
+    ],
+    "21.5 Write property test for pipeline quote resolution": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738060011
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738386801
+      }
+    ],
+    "21.6 Author the synthetic end-to-end cassette fixture": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738061465
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738387240
+      }
+    ],
+    "21.7 Write the cassette-driven end-to-end pipeline test": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738393202
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738515293
+      }
+    ],
+    "21. Pipeline: room assembly, publish and orchestrator": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738515348
+      }
+    ],
+    "22. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738515732
+      },
+      {
+        "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738742225
       }
     ]
   }

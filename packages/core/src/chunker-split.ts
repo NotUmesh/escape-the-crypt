@@ -29,7 +29,7 @@ export function trimSpan(source: string, start: number, end: number): Span {
   return { start: s, end: e };
 }
 
-function isAllCapsHeading(line: string): boolean {
+export function isAllCapsHeading(line: string): boolean {
   const trimmed = line.trim();
   return (
     trimmed.length > 0 &&

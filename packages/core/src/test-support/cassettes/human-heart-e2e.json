@@ -1,0 +1,329 @@
+{
+  "checkVersion": "2026-11-25.1",
+  "entries": [
+    {
+      "digest": "578fcb38ab1e1b194234f9b5938d2aa1b80dce6c0afcccbb72fcc786782d163b",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Heart valves",
+              "chunkIds": [
+                "chk_62a99254e222_5"
+              ],
+              "quotes": [
+                "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+              ]
+            },
+            {
+              "label": "Heart chambers",
+              "chunkIds": [
+                "chk_62a99254e222_3",
+                "chk_62a99254e222_4"
+              ],
+              "quotes": [
+                "The right atrium receives oxygen-poor blood returning from the body.",
+                "The left ventricle pumps oxygen-rich blood out to the rest of the body."
+              ]
+            },
+            {
+              "label": "Heartbeat origin",
+              "chunkIds": [
+                "chk_62a99254e222_8"
+              ],
+              "quotes": [
+                "Each heartbeat starts with an electrical signal from the sinoatrial node"
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "1f377dcf04e9dc11b00bfac8eb61d25ce6fc471e36003e2646660ce61844582e",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state this plainly.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, the valves between the atria and ventricles are called the ______ valves.",
+            "answer": "atrioventricular",
+            "aliases": [
+              "AV"
+            ],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_5",
+                "quote": "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+              }
+            ],
+            "explanation": "Your notes call them the atrioventricular (AV) valves: the tricuspid on the right and the mitral on the left.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "a",
+              "length": 16
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which atrioventricular valve is on the left side of the heart?",
+            "options": [
+              {
+                "id": "a",
+                "text": "The tricuspid valve",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_62a99254e222_5",
+                  "quote": "the tricuspid valve on the right and the mitral valve on the left"
+                }
+              },
+              {
+                "id": "b",
+                "text": "The mitral valve",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_62a99254e222_5",
+                  "quote": "the tricuspid valve on the right and the mitral valve on the left"
+                }
+              },
+              {
+                "id": "c",
+                "text": "The aortic valve",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_62a99254e222_5",
+                  "quote": "The pulmonary valve and the aortic valve sit where blood leaves the ventricles."
+                }
+              }
+            ],
+            "answer": "b",
+            "explanation": "The mitral valve is the AV valve on the left; the aortic valve is where blood leaves a ventricle."
+          }
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "f47206384c19a3fd5a6cc9e0acd00e094f5a8f8ff9a704bc7e77ff74b0843ee7",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state this plainly.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which chamber pumps oxygen-rich blood to the body?",
+            "options": [
+              {
+                "id": "a",
+                "text": "Right atrium",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_62a99254e222_3",
+                  "quote": "The right atrium receives oxygen-poor blood returning from the body."
+                }
+              },
+              {
+                "id": "b",
+                "text": "Left ventricle",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_62a99254e222_4",
+                  "quote": "The left ventricle pumps oxygen-rich blood out to the rest of the body."
+                }
+              },
+              {
+                "id": "c",
+                "text": "Right ventricle",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_62a99254e222_3",
+                  "quote": "The right ventricle pumps that blood to the lungs"
+                }
+              },
+              {
+                "id": "d",
+                "text": "Left atrium",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_62a99254e222_4",
+                  "quote": "The left atrium receives oxygen-rich blood from the lungs."
+                }
+              }
+            ],
+            "answer": "b",
+            "explanation": "The left ventricle pumps oxygen-rich blood to the body; the other chambers receive blood or pump it to the lungs."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, the chamber with the thickest muscular wall, because it pumps blood the farthest, is the ______.",
+            "answer": "left ventricle",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_4",
+                "quote": "Because it pumps blood the farthest, the left ventricle has the thickest muscular wall"
+              }
+            ],
+            "explanation": "Paragraph 5 links the left ventricle's thick wall to pumping blood to the whole body.",
+            "hint": null
+          }
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "a425eb6545261276d6fb79035e5531f5091a47ed4d39bbaa170a1e0ab1558960",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state this plainly.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, each heartbeat starts with an electrical signal from the ______, the heart's natural pacemaker.",
+            "answer": "sinoatrial node",
+            "aliases": [
+              "SA node"
+            ],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_8",
+                "quote": "Each heartbeat starts with an electrical signal from the sinoatrial node"
+              }
+            ],
+            "explanation": "Paragraph 9 names the sinoatrial node.",
+            "hint": null
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "92e70534ea94b8767382fb907e6625fb66575983ad972584b5456fea7f48c53c",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "atrioventricular",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "e8ce019a0b14de31f3d2c5b883c983eccbfda1310c09d9c0e617eea20812a1f5",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "b",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "b",
+              "label": "supported"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "5dbde7dcf3cf914e3e6e550942ab3e752ae009833cf2c582216bd28707935c4f",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "b",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "b",
+              "label": "supported"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "d",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "c8cf21f77bb1811fa945cdc2790e38c95c7cc3a639ad567e8debd753258a4797",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "left ventricle",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "5a8534778ad442921577554c5f7da46e612754487fd253374a2530e210246b80",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "sinoatrial node",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    }
+  ]
+}

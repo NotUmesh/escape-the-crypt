@@ -39,12 +39,28 @@ const rel = (f: string): string => f.slice(here.length + 1);
 const HOLDOUT_PATH = ['eval', 'holdout'].join('/');
 const HOLDOUT_PATH_WIN = ['eval', 'holdout'].join('\\');
 
-const FORBIDDEN_SPECIFIER_PARTS = [
+const NETWORK_SPECIFIERS = [
   /^(node:)?(http|https|http2|net|tls|dgram|dns)(\/|$)/,
   /^(undici|node-fetch|axios|got|ws|cross-fetch)$/,
-  /^(openai|ai|@anthropic-ai\/.*|@ai-sdk\/.*|@google\/generative-ai|@aws-sdk\/client-bedrock.*)$/,
-  /(^|[/.-])(provider|providers|cassette|cassettes|budget-ledger|budget)([/.-]|$)/i,
 ];
+const AI_SDK_SPECIFIER = /^(openai|ai|@anthropic-ai\/.*|@ai-sdk\/.*|@google\/generative-ai|@aws-sdk\/client-bedrock.*)$/;
+// The name-based ban. Phase 2 folders and the index.ts seam are exempt from this one rule only.
+const NAME_BAN = /(^|[/.-])(provider|providers|cassette|cassettes|budget-ledger|budget)([/.-]|$)/i;
+const FORBIDDEN_SPECIFIER_PARTS = [...NETWORK_SPECIFIERS, AI_SDK_SPECIFIER, NAME_BAN];
+
+// Folders (relative to core/src) whose files may use provider/cassette/budget names (Phase 2).
+const EXEMPT_FOLDERS = ['provider', 'cassette', 'budget', 'pipeline'] as const;
+// Folders that keep the full original ban verbatim (Phase 1).
+const BANNED_FOLDERS = ['authoring', 'checks', 'locks', 'mapper', 'runtime', 'sample-crypt'] as const;
+const inFolder = (f: string, folder: string): boolean => rel(f).startsWith(`${folder}/`);
+const isExemptFile = (f: string): boolean => EXEMPT_FOLDERS.some((d) => inFolder(f, d));
+// index.ts is the export seam (design): it may re-export from the Phase 2 folders, relative paths only.
+const isIndexSeamImport = (f: string, spec: string): boolean =>
+  rel(f) === 'index.ts' && EXEMPT_FOLDERS.some((d) => spec.startsWith(`./${d}/`) || spec === `./${d}`);
+const violatesNameBan = (f: string, spec: string): boolean =>
+  NAME_BAN.test(spec) && !isExemptFile(f) && !isIndexSeamImport(f, spec);
+const violatesAnyRule = (f: string, spec: string): boolean =>
+  NETWORK_SPECIFIERS.some((re) => re.test(spec)) || AI_SDK_SPECIFIER.test(spec) || violatesNameBan(f, spec);
 const FORBIDDEN_GLOBALS = [/\bfetch\s*\(/, /\bXMLHttpRequest\b/, /\bWebSocket\b/, /\bEventSource\b/];
 
 function importSpecifiers(text: string): string[] {
@@ -70,7 +86,7 @@ describe('Phase 1 dependency boundary (Req 9.8, 27.7)', () => {
     const offenders: string[] = [];
     for (const f of sourceFiles) {
       for (const spec of importSpecifiers(fs.readFileSync(f, 'utf8'))) {
-        if (FORBIDDEN_SPECIFIER_PARTS.some((re) => re.test(spec))) offenders.push(`${rel(f)}: ${spec}`);
+        if (violatesAnyRule(f, spec)) offenders.push(`${rel(f)}: ${spec}`);
       }
     }
     expect(offenders).toEqual([]);
@@ -81,6 +97,52 @@ describe('Phase 1 dependency boundary (Req 9.8, 27.7)', () => {
     for (const f of sourceFiles) {
       const text = fs.readFileSync(f, 'utf8');
       for (const re of FORBIDDEN_GLOBALS) if (re.test(text)) offenders.push(`${rel(f)}: ${re.source}`);
+    }
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe('Phase 2 exemption narrowing (Req 9.8, 27.7)', () => {
+  it('the exemption list does not silently grow', () => {
+    expect([...EXEMPT_FOLDERS]).toEqual(['provider', 'cassette', 'budget', 'pipeline']);
+    expect(FORBIDDEN_SPECIFIER_PARTS).toHaveLength(4);
+  });
+
+  it('the scan finds files in at least one exempted folder', () => {
+    expect(sourceFiles.filter(isExemptFile).length).toBeGreaterThan(0);
+  });
+
+  it('Phase 1 folders keep the full ban and are not exempt', () => {
+    for (const d of BANNED_FOLDERS) {
+      const sample = `${here}/${d}/x.ts`;
+      expect(isExemptFile(sample)).toBe(false);
+      expect(violatesNameBan(sample, '../provider/types')).toBe(true);
+      expect(violatesNameBan(sample, '../cassette/store')).toBe(true);
+      expect(violatesNameBan(sample, '../budget/ledger')).toBe(true);
+    }
+  });
+
+  it('only index.ts at the top level may import from the exempt folders', () => {
+    expect(violatesNameBan(`${here}/index.ts`, './provider/types')).toBe(false);
+    expect(violatesNameBan(`${here}/index.ts`, './pipeline/run')).toBe(false);
+    expect(violatesNameBan(`${here}/chunker.ts`, './provider/types')).toBe(true);
+    expect(violatesNameBan(`${here}/index.ts`, '../other/provider')).toBe(true);
+  });
+
+  it('exempt folders still obey the network, AI SDK and holdout rules', () => {
+    const sample = `${here}/provider/x.ts`;
+    expect(violatesAnyRule(sample, 'node:http')).toBe(true);
+    expect(violatesAnyRule(sample, ['open', 'ai'].join(''))).toBe(true);
+    expect(violatesAnyRule(sample, '@ai-sdk/core')).toBe(true);
+    expect(violatesAnyRule(sample, './types')).toBe(false);
+  });
+
+  it('no file in packages/core, exempt folders included, imports an AI SDK specifier', () => {
+    const offenders: string[] = [];
+    for (const f of allFiles) {
+      for (const spec of importSpecifiers(fs.readFileSync(f, 'utf8'))) {
+        if (AI_SDK_SPECIFIER.test(spec)) offenders.push(`${rel(f)}: ${spec}`);
+      }
     }
     expect(offenders).toEqual([]);
   });

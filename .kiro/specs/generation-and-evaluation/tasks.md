@@ -229,119 +229,119 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
 - [x] 10. Final checkpoint - Ensure all tests pass
   - Run `pnpm test`, `pnpm lint` and `pnpm typecheck`. Ensure all pass, ask the user if questions arise.
 
-- [ ] 11. Provider interface, Prompt_Digest and narrowed boundary test
-  - [ ] 11.1 Implement the Provider interface and types
+- [x] 11. Provider interface, Prompt_Digest and narrowed boundary test
+  - [x] 11.1 Implement the Provider interface and types
     - Create `packages/core/src/provider/types.ts`: `ProviderStage`, `ProviderRequest`, `ProviderUsage`, `ProviderSuccess`, `ProviderErrorKind`, `ProviderFailure`, `ProviderResult`, `Provider`
     - No field is OpenAI-specific; `jsonSchema` is a plain JSON Schema object
     - _Requirements: 11.1, 11.2, 11.3, 11.7_
 
-  - [ ] 11.2 Implement the concurrency limiter
+  - [x] 11.2 Implement the concurrency limiter
     - Create `packages/core/src/pipeline/concurrency.ts` with `runWithConcurrency(tasks, limit)`, default limit 4, no timers
     - _Requirements: 11.6_
 
-  - [ ] 11.3 Write unit tests for the Provider interface and concurrency limiter
+  - [x] 11.3 Write unit tests for the Provider interface and concurrency limiter
     - A fake `Provider` never throws across every failure path
     - A cassette-backed provider run through `runWithConcurrency(..., 4)` never exceeds 4 simultaneous in-flight calls
     - _Requirements: 11.3, 11.6_
 
-  - [ ] 11.4 Implement Prompt_Digest
-    - Create `packages/core/src/provider/prompt-digest.ts`: `promptDigest(request)` using `sha256`/`utf8ToBytes` from `digest.ts` over a canonical JSON string of `{ stage, promptVersion, modelId, messages, temperature, maxOutputTokens, jsonSchema }`, excluding `timeoutMs` and `retryLimit`
+  - [x] 11.4 Implement Prompt_Digest
+    - Create `packages/core/src/provider/prompt-digest.ts`: `promptDigest(request)` using `sha256`/`utf8ToBytes` from `digest.ts` over a canonical JSON string of `{ stage, promptVersion, modelId, system, messages, temperature, maxOutputTokens, jsonSchema }`, excluding `timeoutMs` and `retryLimit`
     - _Requirements: 12.1, 12.3_
 
-  - [ ] 11.5 Write property test for Prompt_Digest
+  - [x] 11.5 Write property test for Prompt_Digest
     - **Property 18: Prompt_Digest is a canonical function of the semantic request**
     - **Validates: Requirements 12.1, 12.3**
 
-  - [ ] 11.6 Write unit test pinning a known request to a known digest
+  - [x] 11.6 Write unit test pinning a known request to a known digest
     - A regression anchor so a digest algorithm change is deliberate
     - _Requirements: 12.1_
 
-  - [ ] 11.7 Narrow the Phase 1 boundary test
+  - [x] 11.7 Narrow the Phase 1 boundary test
     - In `packages/core/src/boundary.test.ts`, exempt paths under `core/src/provider/`, `core/src/cassette/`, `core/src/budget/` and `core/src/pipeline/` from the name-based `provider|providers|cassette|cassettes|budget-ledger|budget` ban, while keeping every other rule (no `fetch`/`http`/`net`/`ws`, no AI SDK specifier, no `eval/holdout` reference) applying to those folders too
     - Keep the full original ban verbatim for `authoring/`, `checks/`, `locks/`, `mapper/`, `runtime/`, `sample-crypt/`
     - Add an assertion that `packages/core` still imports no `openai`-shaped specifier anywhere, including inside the exempted folders
     - _Requirements: 9.8, 27.7_
 
-  - [ ] 11.8 Implement `toModelJsonSchema`
+  - [x] 11.8 Implement `toModelJsonSchema`
     - Create `packages/core/src/provider/model-json-schema.ts`: a pure `toModelJsonSchema(schema)` that wraps Zod 4's `z.toJSONSchema()` and returns the plain JSON Schema object used as `ProviderRequest.jsonSchema`
     - No new dependency and no SDK import in Core; the worker passes the result through as `response_format: { type: 'json_schema', json_schema: { name, strict: true, schema } }`
     - Model-facing schemas written later (concept extraction, generation, review) must be strict-compatible: every property required, `.nullable()` instead of `.optional()`, `additionalProperties: false` on every object (use `z.strictObject`)
     - _Requirements: 11.1, 11.2_
 
-- [ ] 12. Cassette store and mock Budget_Ledger (test-support)
-  - [ ] 12.1 Implement the cassette store
+- [x] 12. Cassette store and mock Budget_Ledger (test-support)
+  - [x] 12.1 Implement the cassette store
     - Create `packages/core/src/cassette/types.ts` (`CassetteEntry`, `CassetteFile`, `CassetteProviderErrorKind`) and `cassette/cassette-provider.ts` (`makeCassetteProvider`) that looks up `promptDigest(request)` and returns a typed `cassette-missing` failure on a miss
     - Create `cassette/staleness.ts` with `isCassetteStale(file, request)`
     - _Requirements: 12.2, 12.5_
 
-  - [ ] 12.2 Write unit tests for the cassette store
+  - [x] 12.2 Write unit tests for the cassette store
     - Hit and miss behaviour; `isCassetteStale` true/false examples
     - _Requirements: 12.2, 12.5_
 
-  - [ ] 12.3 Implement the Budget_Ledger interface and mock ledger
+  - [x] 12.3 Implement the Budget_Ledger interface and mock ledger
     - Create `packages/core/src/budget/types.ts` (`BudgetReservation`, `BudgetErrorKind`, `BudgetResult`, `BudgetLedger`)
     - Create `budget/mock-ledger.ts`: `makeMockLedger({ dailyCapUsd, refuseAfter? })` and `countingProvider(inner)` wrapper, none throwing
     - _Requirements: 12.6, 12.9, 28.1_
 
-  - [ ] 12.4 Write unit tests for the mock ledger
+  - [x] 12.4 Write unit tests for the mock ledger
     - reserve/reconcile/release examples; `refuseAfter` fault injection; `ledger-unavailable` treated the same as `budget-exhausted` by a calling stage
     - _Requirements: 12.6, 12.9_
 
-  - [ ] 12.5 Write property test for budget reservation vs. calls
+  - [x] 12.5 Write property test for budget reservation vs. calls
     - **Property 17: Provider calls never exceed budget reservations (G-P5)**
     - **Validates: Requirements 12.6, 12.7, 12.8**
 
-  - [ ] 12.6 Implement `assertRecordedOnly`
+  - [x] 12.6 Implement `assertRecordedOnly`
     - Create `packages/core/src/cassette/recorded-only.ts`: pure `assertRecordedOnly(entries)` returning a typed `synthetic-cassette-in-evaluation` error (with the offending digests) when any entry has `origin: 'synthetic'`, and `ok` otherwise; no throw
     - This is the seam the P4 results writer must call before it writes to `eval/results/` or counts any metric
     - _Requirements: 12.10, 21.3_
 
-  - [ ] 12.7 Write unit tests for `assertRecordedOnly`
+  - [x] 12.7 Write unit tests for `assertRecordedOnly`
     - A run mixing synthetic and recorded entries is rejected with `synthetic-cassette-in-evaluation`; an all-recorded run passes
     - _Requirements: 12.10_
 
-  - [ ] 12.8 Write a static test that nothing in P2/P3 writes to `eval/results/`
+  - [x] 12.8 Write a static test that nothing in P2/P3 writes to `eval/results/`
     - Create `packages/core/src/cassette/no-eval-results-writes.test.ts`: scan every source and test file under `packages/core/src` and `apps/worker/src` (except the scan itself) and fail if any mentions `eval/results`; the allowlist is empty here and P4 extends it deliberately with its results-writer path
     - The scan never reads `eval/holdout`
     - _Requirements: 12.10, 21.3_
 
-- [ ] 13. Checkpoint - Ensure all tests pass
+- [x] 13. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Heading detection and prepare-input
-  - [ ] 14.1 Implement `isHeadingOnlyChunk`
+- [x] 14. Heading detection and prepare-input
+  - [x] 14.1 Implement `isHeadingOnlyChunk`
     - In `packages/core/src/chunker-split.ts`, export `isAllCapsHeading` with no behaviour change; the existing chunker tests and fixtures must stay green unchanged
     - Create `packages/core/src/chunker-heading.ts`: pure `isHeadingOnlyChunk(chunk)` = the chunk text is a single line AND `isAllCapsHeading(chunk.text)`; no second heuristic and no new field on `Chunk`, `NotesRecord` or any fixture
     - _Requirements: 13.1_
 
-  - [ ] 14.2 Write unit tests for `isHeadingOnlyChunk`
+  - [x] 14.2 Write unit tests for `isHeadingOnlyChunk`
     - True for an all-caps single line within 80 characters; false for mixed-case "The human heart" (human-heart paragraph 1, so it stays quotable and a quote from it still fails `quote-too-short`), a short non-heading sentence, a line with terminal punctuation, a multi-line chunk (including a short heading merged into the next block by `mergeShort`) and a normal paragraph
     - _Requirements: 13.1_
 
-  - [ ] 14.3 Implement `prepareDocument`
+  - [x] 14.3 Implement `prepareDocument`
     - Create `packages/core/src/pipeline/prepare-input.ts`: `PreparedDocument` with `quotableChunksByOrdinal` (code-assigned ordinal over quotable chunks only, 1-based), `ordinalByChunkId`, `chunks`, `headingContext`
     - Reject (typed) a chunk ID not present in `ordinalByChunkId`; translate a present one to its ordinal
     - Do not change `buildDocumentChunkMaps` in `manifest-mapper.ts`
     - _Requirements: 13.1, 13.3, 13.5_
 
-  - [ ] 14.4 Write unit tests for `prepareDocument`
+  - [x] 14.4 Write unit tests for `prepareDocument`
     - Build from a small synthetic notes string with an all-caps heading line: the heading is absent from `quotableChunksByOrdinal` and present in `headingContext`; build from `samples/human-heart.txt`: "The human heart" is not in `headingContext` and its text stays quotable
     - _Requirements: 13.1, 13.3_
 
-  - [ ] 14.5 Write property test for chunk ID translation
+  - [x] 14.5 Write property test for chunk ID translation
     - **Property 20: Prepared documents reject chunk IDs code did not assign**
     - **Validates: Requirements 13.5**
 
-  - [ ] 14.6 Write the chunker agreement test
+  - [x] 14.6 Write the chunker agreement test
     - Create `packages/core/src/chunker-heading-agreement.test.ts`: for every chunk of every notes file under `eval/dev/` and every `samples/*.txt`, run `chunkDocument`; assert `isHeadingOnlyChunk(chunk)` is true exactly when `candidateSpans` over that chunk's paragraph or unit text emitted the chunk's exact text as a single-line span satisfying `isAllCapsHeading`
     - The test never reads `eval/holdout`
     - _Requirements: 13.1_
 
-- [ ] 15. Checkpoint - Ensure all tests pass
+- [x] 15. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. Pipeline: concept extraction
-  - [ ] 16.1 Implement `extractConcepts`
+- [x] 16. Pipeline: concept extraction
+  - [x] 16.1 Implement `extractConcepts`
     - Create `packages/core/src/pipeline/concept-extraction.ts`: one `Provider.complete` call per document, with the system prompt's data-delimiter line and the quotable-chunk list plus heading context in the user message
     - Validate the response with `ConceptExtractionResponseSchema`; retry once with the Zod error on failure, else fail the document
     - Make `ConceptExtractionResponseSchema` strict-compatible (every property required, `.nullable()` not `.optional()`, `z.strictObject`) and build `ProviderRequest.jsonSchema` with `toModelJsonSchema`
@@ -350,16 +350,16 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
     - Reserve budget via `BudgetLedger.reserve` before the call; return typed `budget-exhausted` on refusal
     - _Requirements: 13.2, 13.4, 13.5, 13.6, 13.7, 12.6_
 
-  - [ ] 16.2 Write unit tests for `extractConcepts`
+  - [x] 16.2 Write unit tests for `extractConcepts`
     - A cassette-driven call against `samples/human-heart.txt` returning known concepts; the data-delimiter line present in the built prompt; one call per document; the 6,000-word cap reused; a chunk-ID-not-assigned rejection example
     - _Requirements: 13.1, 13.2, 13.3, 13.5, 13.6, 13.7_
 
-  - [ ] 16.3 Write property test for quote-dropping in concept extraction
+  - [x] 16.3 Write property test for quote-dropping in concept extraction
     - **Property 19: Concept extraction keeps only uniquely-resolving quotes**
     - **Validates: Requirements 13.4**
 
-- [ ] 17. Pipeline: typed generation
-  - [ ] 17.1 Implement `generateForConcept`
+- [x] 17. Pipeline: typed generation
+  - [x] 17.1 Implement `generateForConcept`
     - Create `packages/core/src/pipeline/generation.ts`: `GenerationResponseSchema` with rune cipher and séance board arms mirroring `AuthoringQuestionSchema`'s arms minus `id`/`conceptId`/`role`
     - Make `GenerationResponseSchema` strict-compatible: any field the Authoring_Schema treats as optional (for example a rune hint) is `.nullable()` here and `null` values are dropped before the re-parse with `AuthoringQuestionSchema`; build `ProviderRequest.jsonSchema` with `toModelJsonSchema`
     - One call per concept; `primary: null` short-circuits to `Ok(null)`; attach `id`/`conceptId`/`role` after a successful parse and re-parse with the real `AuthoringQuestionSchema`
@@ -368,78 +368,78 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
     - Reserve budget via `BudgetLedger.reserve` before each call
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 14.10, 12.6_
 
-  - [ ] 17.2 Write unit test asserting generated questions always parse as AuthoringQuestion
+  - [x] 17.2 Write unit test asserting generated questions always parse as AuthoringQuestion
     - For both lock-type arms, attaching `id`/`conceptId`/`role` to a parsed `GenerationResponse` arm and re-parsing with `AuthoringQuestionSchema` always succeeds
     - _Requirements: 14.1_
 
-  - [ ] 17.3 Write unit tests for `generateForConcept`
+  - [x] 17.3 Write unit tests for `generateForConcept`
     - `null` primary short-circuit; schema-failure-then-retry-then-set-aside; an alternate sharing its primary's Lock_Type dropped to `null`; the "generated only when" rule text present in the built prompt; no executable-expression field exists
     - _Requirements: 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 14.10_
 
-- [ ] 18. Checkpoint - Ensure all tests pass
+- [x] 18. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 19. Pipeline: blind review
-  - [ ] 19.1 Implement `blindReview`
+- [x] 19. Pipeline: blind review
+  - [x] 19.1 Implement `blindReview`
     - Create `packages/core/src/pipeline/blind-review.ts`: `ReviewResponseSchema` (strict-compatible: `optionLabels` is `.nullable()`, `null` for rune cipher, and `jsonSchema` comes from `toModelJsonSchema`); builds a request with temperature `0`, the question text, options/steps in manifest order, and the full text of every cited chunk from `doc.chunks`; never the key, a label or the explanation
     - Run `runChecks` first and skip the reviewer call entirely for a question with a blocking failure
     - Rejection rule: `answer` disagrees with the key, or any `optionLabels` entry is `unknown`
     - Retry once on a schema failure, else reject on the second failure
     - Reserve budget via `BudgetLedger.reserve` before the call
-    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.8, 15.10, 12.6_
+    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.8, 15.10, 15.11, 12.6_
 
-  - [ ] 19.2 Add the "Blind model review passed" and "Source excerpt matched" label usage
+  - [x] 19.2 Add the "Blind model review passed" and "Source excerpt matched" label usage
     - Add `REVIEW_PASSED_LABEL = 'Blind model review passed'` beside the existing `excerptMatched` constant in `copy.ts` or `copy-room-play.ts`; assert it contains no banned phrase in `copy-banned-words.test.ts`
     - _Requirements: 15.7, 15.9, 31.4_
 
-  - [ ] 19.3 Write unit tests for `blindReview`
-    - The rune and séance `review:*` adversarial fixtures via cassette, each asserted `rejected`; one `passed` example; the temperature-0 request assertion; the retry-then-reject-on-second-failure example; a blocking-Code_Check question never reaching the reviewer call
-    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.8, 24.1, 24.2_
+  - [x] 19.3 Write unit tests for `blindReview`
+    - The rune and séance `review:*` adversarial fixtures via cassette, each asserted `rejected`; one `passed` example; the temperature-0 request assertion; the retry-then-reject-on-second-failure example; label-mismatch and incomplete-labels examples; a blocking-Code_Check question never reaching the reviewer call
+    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.8, 15.11, 24.1, 24.2_
 
-  - [ ] 19.4 Write the strict-compatibility test for model-facing schemas
+  - [x] 19.4 Write the strict-compatibility test for model-facing schemas
     - Create `packages/core/src/provider/model-json-schema.test.ts`: for each model-facing schema (concept extraction, generation, review), walk the `z.toJSONSchema()` output and assert every object has `additionalProperties: false` and a `required` array equal to all of its property keys, with no optional property anywhere
     - _Requirements: 11.1, 11.2_
 
-- [ ] 20. Checkpoint - Ensure all tests pass
+- [x] 20. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 21. Pipeline: room assembly, publish and orchestrator
-  - [ ] 21.1 Implement room assembly
+- [x] 21. Pipeline: room assembly, publish and orchestrator
+  - [x] 21.1 Implement room assembly
     - Create `packages/core/src/pipeline/room-assembly.ts`: build at most one lock slot per Lock_Type (rune cipher, séance board) from accepted primaries/alternates; the first accepted question per Lock_Type in extraction order takes the room slot, and every other accepted concept goes to `unplacedAccepted` (`{ conceptId, conceptTitle, question, content }`), validated with the same schemas and kept out of `manifest.rooms` and `manifest.finalDoor`
     - Run `leakScanRoom` over tentative slots plus alternates; on failure, swap in a leak-free accepted alternate, else drop the concept; re-run until clean or no slots remain
     - Final door is always `[]` in Phase 3
     - Return a typed `empty-room` result when no slots remain; never publish that case
     - _Requirements: 16.1, 16.2, 16.5, 16.6, 19.3, 19.5, 31.6_
 
-  - [ ] 21.2 Write unit tests for room assembly
+  - [x] 21.2 Write unit tests for room assembly
     - An end-to-end 2-slot assembly example; a leak-injected swap-then-drop-then-rescan example; an all-concepts-set-aside `empty-room` example; an empty-final-door manifest still accepted by `validateManifestForPublish`; an unplaced accepted concept appears in `unplacedAccepted` and not in `manifest.rooms` or `manifest.finalDoor`
     - _Requirements: 16.1, 16.2, 16.5, 16.6, 31.6_
 
-  - [ ] 21.3 Write property test for pipeline-assembled room leak scanning
+  - [x] 21.3 Write property test for pipeline-assembled room leak scanning
     - **Property 16: Pipeline-assembled rooms have no cross-concept rune leak unless injected (G-P3, extended)**
     - **Validates: Requirements 16.2, 24.4**
 
-  - [ ] 21.4 Implement `runRoomPipeline` and the run metadata
+  - [x] 21.4 Implement `runRoomPipeline` and the run metadata
     - Create `packages/core/src/pipeline/orchestrator.ts`: wires prepare-input, concept extraction, generation, Code_Checks, blind review and room assembly together with `runWithConcurrency`; maps accepted questions through `mapAuthoringQuestionToSpec` (unchanged) into `{ manifest, content }`; gates publish through `validateManifestForPublish` (unchanged)
     - Build `PipelineRunMetadata`: provider, model ID, every call's Prompt_Digest, temperature, `CHECK_VERSION`, per-stage timings, token counts, cost, and the counts of candidates/schema-rejected/Code_Check rejections by Check_ID/review rejections/accepted/discarded; return `unplacedAccepted` beside `manifest` and `content`
     - Never include notes text, prompt text, model responses or credentials in `PipelineRunMetadata` or in any thrown value (there are none; every path returns a typed `Result`)
     - Export `runRoomPipeline`, `toModelJsonSchema`, `assertRecordedOnly`, the `Provider`/`BudgetLedger` types, and cassette/mock test-support types from `packages/core/src/index.ts`
     - _Requirements: 16.3, 16.4, 21.3, 31.1, 31.2, 31.3, 31.5, 31.6, 25.1, 25.2, 25.3, 25.4, 25.8_
 
-  - [ ] 21.5 Write property test for pipeline quote resolution
+  - [x] 21.5 Write property test for pipeline quote resolution
     - **Property 15: Pipeline-accepted questions resolve uniquely (G-P1, extended)**
     - **Validates: Requirements 13.4, 24.3**
 
-  - [ ] 21.6 Author the synthetic end-to-end cassette fixture
+  - [x] 21.6 Author the synthetic end-to-end cassette fixture
     - Create `packages/core/src/test-support/cassettes/human-heart-e2e.json` from `samples/human-heart.txt` and `samples/questions/human-heart.json` only, every entry marked `"origin": "synthetic"`
     - Write a test asserting every entry's `digest` equals `promptDigest` recomputed from a request built the way the pipeline actually builds it for that stage
     - _Requirements: none beyond the cassette mechanism itself (test-support for Requirement 12 and the end-to-end test below)_
 
-  - [ ] 21.7 Write the cassette-driven end-to-end pipeline test
+  - [x] 21.7 Write the cassette-driven end-to-end pipeline test
     - `runRoomPipeline` over `samples/human-heart.txt` with `makeCassetteProvider(humanHeartE2eCassettes)` and `makeMockLedger`; assert one published room with the expected rune/séance slot, non-empty `CryptContent`, a `PipelineRunMetadata` whose `promptDigests.length` equals the number of cassette hits and that carries no notes text, any extra accepted concept in `unplacedAccepted` and not in the manifest, and `assertRecordedOnly` over the cassette's entries returning `synthetic-cassette-in-evaluation` (this test must not write to `eval/results/`)
     - _Requirements: 16.3, 21.3, 25.8, 31.6, 12.10_
 
-- [ ] 22. Checkpoint - Ensure all tests pass
+- [x] 22. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 23. Worker: OpenAI Provider and Interim_Ledger
