@@ -9,7 +9,14 @@ export interface FlatRule {
   readonly media: MotionMedia;
   readonly keyframes: string | null;
 }
-const AMBIENT_LOOPS: ReadonlySet<string> = new Set(['flame-flicker', 'ghost-drift', 'atmosphere-drift']);
+/** Slow loops that set a mood and carry no outcome. Each must still stop under reduced motion. */
+const AMBIENT_LOOPS: ReadonlySet<string> = new Set([
+  'flame-flicker',
+  'ghost-drift',
+  'atmosphere-drift',
+  'dig-mist-drift',
+  'dig-speck-fall',
+]);
 const ANIMATABLE: ReadonlySet<string> = new Set([
   'opacity',
   'transform',
