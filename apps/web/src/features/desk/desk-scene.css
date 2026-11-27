@@ -73,6 +73,11 @@
   .desk-scene .flame__body {
     animation: none;
   }
+  /* The camera is already on the book: the push ends where it would have. */
+  .desk-scene[data-push='true'] .desk-scene__stage {
+    animation: none;
+    transform: scale(1.08);
+  }
 }
 
 /* The shared solid panel. Text on the pre-crypt screens always sits on one of these. */
