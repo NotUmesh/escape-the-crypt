@@ -12,10 +12,10 @@ First draft for review. Each section lists the evidence that already exists in t
 | --- | --- | --- |
 | Specs | `.kiro/specs/` (6 folders), `docs/briefs/` | Strong |
 | Steering | `.kiro/steering/` (8 files, all three inclusion modes) | Strong |
-| Hooks | `.kiro/hooks/` (1 hook) | Thin: one hook |
+| Hooks | `.kiro/hooks/` (4 hooks, 3 with tests in `scripts/hooks/`) | Strong; the three new ones need one captured run each |
 | Property-based testing | fast-check across `packages/core`, `apps/web`, `apps/worker`; build-log entry on Property 12 | Strong |
-| Custom agents | none in the repo | TODO (capture) |
-| MCP | none in the repo | TODO (capture) |
+| Custom agents | `.kiro/agents/crypt-keeper.md`, `.kiro/agents/design-critic.md` | Written; each needs one captured run on real output |
+| MCP | `.kiro/settings/mcp.json` (Playwright server, pinned) | Configured and started once against a local page; needs a captured run in Kiro |
 | Powers | none in the repo; `packages/core` is built to be packageable | TODO (capture) |
 | Skills | `.kiro/skills/evaluation/SKILL.md` and the files it produced | Strong |
 | Surfaces | git history only | TODO (capture) |
@@ -90,21 +90,41 @@ First committed in `392b7ed` "Add steering docs". It was edited as the build wen
 
 ## 3. Hooks
 
-**What it was used for.** One hook runs the core tests when a file in `packages/core/src` is saved. CI stays the release gate; the hook is fast feedback.
+**What they are used for.** Four hooks give fast feedback on save. CI stays the release gate. None of the three newest runs a whole package: each runs the one or two test files, or the one check, that belongs to the file just saved.
 
-| Item | Path or commit |
+| Hook | File | Fires on | Runs | Tested by |
+| --- | --- | --- | --- | --- |
+| Run core tests on save (the first hook) | `.kiro/hooks/run-core-tests-on-save.json`, script `.kiro/hooks/run-core-tests.mjs` | a save under `packages/core/src` | `runtime/` or `locks/` saves run those two folders; any other core save runs the full core suite | no test (see "Overlap" below) |
+| Run related core tests on save | `.kiro/hooks/related-core-tests-on-save.json`, script `scripts/hooks/related-tests.ts` | a `.ts` or `.tsx` save under `packages/core/src` | the tests named after the file, the tests that import it, or the tests named after the module that imports it, capped at 12 files | `scripts/hooks/related-tests.test.ts` |
+| Check tasks.md format on edit | `.kiro/hooks/check-tasks-format-on-edit.json`, script `scripts/hooks/check-tasks-format.ts` | any `.kiro/specs/*/tasks.md` | the format check on that one file (checkbox syntax, numbering, parent and sub-task consistency, requirement lines, garbled characters) | `scripts/hooks/tasks-format.test.ts` |
+| Run the wording test on copy edit | `.kiro/hooks/banned-words-on-copy-edit.json`, script `scripts/hooks/banned-words-tests.ts` | a `copy*.ts` or `*-copy.ts` file in core or web, or its test | `packages/core/src/copy-banned-words.test.ts` for core copy; the test named after the file for web copy; a message when a web copy file has no test | `scripts/hooks/banned-words-tests.test.ts` |
+
+All four use `PostFileSave` and a `command` action, and the three new ones were made with Kiro's `createHook` tool. `scripts/hooks/hook-definitions.test.ts` reads every file in `.kiro/hooks/` and checks the trigger, that each matcher accepts and rejects the right paths (in both slash styles), that each command names a script that exists, and that the three new hooks never call `pnpm`, `vitest` or `--run`. These tests run under `pnpm test` (the `scripts` project).
+
+**How the related-tests hook stays small.** It reads the files under `packages/core/src` once, builds the import map, and picks the first set that is not empty and fits under 12 test files: named, then importing, then reaching through one module, then named after the importing modules. A test in `scripts/hooks/related-tests.test.ts` plans every real non-test file in `packages/core/src` and asserts none gets more than 12. Run by hand on 2026-11-27 (this machine, one run each):
+
+| Saved file | What the hook did |
 | --- | --- |
-| Hook definition (`PostFileSave`, matcher `packages[/\\]core[/\\]src[/\\]`) | `.kiro/hooks/run-core-tests-on-save.json` |
-| Script | `.kiro/hooks/run-core-tests.mjs` |
-| Added | `5f6b32e` "Add core tests hook on save (task 8)" |
-| Changed | `702dccc`: a save under `runtime/` or `locks/` runs only those folders; other core saves run the full core suite; saves outside core are skipped |
-| Build-log entries | "First Kiro hook: run core tests on save (spec ingestion-and-evidence, task 8)"; the "Hook change" bullet in the room-runtime entry |
+| `packages/core/src/runtime/apply.ts` | 30 test files reach it, over the cap, so it ran the 2 named after it: 2 files, 26 tests, 0.687 s wall time |
+| `packages/core/src/chunker-rebalance.ts` | 19 test files reach it and none is named after it, so it ran the 10 named after the modules that import it (`chunker*.test.ts`) |
+| `packages/core/src/types.ts` | 132 test files reach it, so it ran nothing and said so |
 
-The build log notes that the hook was created with Kiro's `createHook` tool, that the script reads its stdin defensively, and that it writes no logs or content under `.kiro/`.
+The wording hook on `packages/core/src/copy.ts` ran 1 test file, 9 tests, 0.491 s wall time. On `apps/web/src/features/share/share-card-copy.ts` it ran 1 file, 5 tests (vitest reported 857 ms).
+
+**What the tasks hook found on its first run.** `node scripts/hooks/check-tasks-format.ts --all` reports 22 lines with garbled characters in `.kiro/specs/generation-and-evaluation/tasks.md` (UTF-8 text saved as Windows-1252, for example "â€“" where an en dash was meant). The other five task lists pass. TODO (capture): fix those lines (in the file's owner's session, since it is a spec the pipeline work edits) and keep a screenshot of the hook's output before and after.
+
+**Overlap.** The first hook also fires on every core save, and its fallback runs the whole core suite (22.65 s on 2026-11-27: 143 files, 1,145 tests passed, run with `--maxWorkers=50%`). The related-tests hook is the quicker replacement. TODO (decision): retire the first hook, or cut its full-suite fallback, so a core save does not run both.
+
+**Requirements for the new hooks.** Node 22.18 or newer (the scripts are TypeScript run by `node` directly, like `scripts/check-structure.ts`), and Kiro must be restarted or the session reopened so it picks up new hook files.
+
+**Capture recipes (TODO (capture): one screenshot each, saved in `docs/captures/`).**
+1. Related tests: in Kiro, open `packages/core/src/chunker-rebalance.ts`, add a blank line, save, then undo and save again. Capture the hook's output. By hand: `node scripts/hooks/related-tests.ts --file packages/core/src/chunker-rebalance.ts`.
+2. Tasks format: open `.kiro/specs/room-play/tasks.md` and save it (clean result), then open `.kiro/specs/generation-and-evaluation/tasks.md` and save it (the garbled lines). By hand: `node scripts/hooks/check-tasks-format.ts --all`.
+3. Wording: open `packages/core/src/copy.ts` and save it unchanged (green). Then, on a scratch branch, add the word "mastered" inside any string and save: the test should fail. Discard the change with `git checkout -- packages/core/src/copy.ts`.
 
 **Gaps.**
-- Only one hook exists. TODO: decide whether to add one more before submission (for example a prompt hook that reminds the agent of the banned-wording list, or a save hook for the web package). Do not describe hooks that are not in the repo.
-- TODO (capture): a screenshot or recording of the hook firing on save, and one time it caught a failure.
+- TODO (capture): the three screenshots above, and one real moment where a hook caught something you did not expect.
+- The hooks panel in Kiro: TODO (capture) a screenshot of the four hooks listed.
 
 ---
 
@@ -139,19 +159,71 @@ The build log notes that the hook was created with Kiro's `createHook` tool, tha
 
 ## 5. Custom agents
 
-Nothing in the repo yet: `.kiro/` has no agents folder, and no commit mentions one.
+**What they are used for.** Two read-only reviewers, one for the evidence rules and one for the design rules. Each is a Markdown agent file in `.kiro/agents/` (front matter for the configuration, the body is the system prompt).
 
-- TODO (capture): decide whether a custom agent is worth adding before submission. A natural candidate is a "reviewer" that checks new copy and new questions against `evidence-and-honesty.md`. If one is added, commit it and describe only what it did.
-- If none is added, leave this section out of the submission rather than inventing one.
+| Agent | File | Reads | Can do | Cannot do |
+| --- | --- | --- | --- | --- |
+| crypt-keeper | `.kiro/agents/crypt-keeper.md` | the steering files `evidence-and-honesty.md`, `product.md`, `tone.md`; whatever file you name | read files, search | write, shell, web, sub-agents, MCP (`tools: ["read"]`, `excludedTools`, `includeMcpJson: false`, and deny rules for file writes, shell, web) |
+| design-critic | `.kiro/agents/design-critic.md` | `design-system.md`, `accessibility.md`, `tone.md`, `evidence-and-honesty.md`; source files; the live page | read files, search, and the Playwright browser tools (`tools: ["read", "@playwright"]`) | write files, shell, web, sub-agents |
+
+**crypt-keeper** reviews a generated crypt or an evaluation result against the evidence rules: the quote resolves exactly once in the notes (and is neither too short nor too long), the answer is supported, nothing leaks the answer, choice questions are framed "According to your notes" with options that are supported or contradicted, the copy is honest, and nothing claims a review label it does not have. It uses the check IDs from `packages/core/src/checks/registry.ts`. Given an `eval/results` file it checks structure only, because those files hold no question text. It reports in a fixed format, says what it could not check, and never edits a file or grants "Human-reviewed".
+
+**design-critic** reviews one screen. In source mode it reads the components and the CSS and computes contrast from the design tokens. In live mode it drives the page through the Playwright MCP server (section 6): it resizes to 1280x800 and 390x844, tabs through the controls and writes down the focus order, reads computed colours and sizes, checks 44 px targets, tries reduced motion, and saves screenshots into `docs/captures/`. It reports blockers, should-fixes and nits with the steering rule behind each.
+
+**How to use each once and capture it.** In Kiro, choose the agent from the picker at the bottom of the chat input (Kiro CLI: `kiro-cli --agent crypt-keeper`). Then paste a prompt below.
+
+| Run | Prompt | What a sound report contains (so you can tell it is not made up) |
+| --- | --- | --- |
+| crypt-keeper on a sample | `Review samples/questions/https.json against samples/https.txt.` | 9 questions: 3 séance board, 2 bound threads, 2 combination dial, 1 bone ordering, 1 cursed object. A one-off script run while drafting found all 6 question-level `evidence` quotes in the notes exactly once; the agent should agree, and should also check the quotes that sit inside options, steps and pairs. The file's `status` says it is a draft, so the report must not call it reviewed. |
+| crypt-keeper on a result file | `Review eval/results/2026-11-27.json.` | `checkVersion` is `2026-11-27.1` while the code is at `2026-11-27.2`; 11 of 12 notes assembled 2 locks and `dev-12-pdf-feedback-and-motivation.txt` assembled 1; `duplicateAnswers` is 0 for every note; spend $0.330291 of the $1.20 cap; rejections by Check_ID. |
+| design-critic on the notes screen | Start `pnpm dev`, then: `Review the notes screen at http://localhost:5173/ingest in live mode, desktop and phone, then read apps/web/src/features/ingest/ for the source rules.` | A Tab sequence for the screen, measured contrast for the main text pairs, 44 px checks on the buttons, a reduced-motion check, screenshots saved under `docs/captures/design-critic-ingest-*.png`. |
+
+TODO (capture): one screenshot of each agent's report, and your own note on one finding you agreed with and one you did not. After the front-of-house integration lands, run design-critic again on the desk hub and the notes book; that is the before and after.
+
+**Gaps.** TODO (capture): the first real runs. Until they exist, say only that the agents are written and read-only, not what they found.
 
 ---
 
 ## 6. MCP
 
-Nothing in the repo yet: there is no `.kiro/settings/mcp.json` and no commit that adds one.
+**What it is used for.** The Playwright MCP server lets a Kiro agent drive a real browser: open the app, read the page as an accessibility tree, press keys, take screenshots. It is used to play the sample crypt for the demo evidence and to feed the design-critic agent.
 
-- One related fact, with a boundary: `docs/art/asset-contract.md` says the Blender scenes and renders were made by the author, set up with Claude through a Blender MCP server. That is the art track, not Kiro. Do not present it as Kiro MCP use unless that is true.
-- TODO (capture): if an MCP server is used in Kiro before submission, commit its config (without secrets) and describe the task it served.
+**The config.** `.kiro/settings/mcp.json`, a workspace file Kiro merges with the user config:
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| `command`, `args` | `npx -y @playwright/mcp@0.0.86 …` | Pinned to one version, so the tool list does not change under you |
+| `--browser chromium` | | The browser the server uses (it installs as "chrome-for-testing") |
+| `--isolated` | | The profile stays in memory; nothing is saved to disk |
+| `--viewport-size 1280x800` | | Desktop size for captures; resize for the phone layout |
+| `--output-dir docs/captures` | | Screenshots without a file name land here |
+| `--allowed-origins` | `http://localhost:5173;http://localhost:4173;https://escape-the-crypt.pages.dev` | Dev server, preview build, live app. The Playwright MCP docs say this is not a security boundary, so it is housekeeping, not protection |
+| `disabledTools` | `browser_run_code_unsafe` | Arbitrary code execution is off |
+| `autoApprove` | `browser_snapshot`, `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`, `browser_wait_for`, `browser_click`, `browser_hover`, `browser_type`, `browser_press_key`, `browser_resize`, `browser_emulate_media` | Reading and interacting with the page. `browser_navigate` and `browser_evaluate` still ask each time |
+
+No secrets are in the file. The server was not run headless in the config, so you can watch the browser; add `--headless` to hide it.
+
+**What was checked while writing this.** On 2026-11-27 the pinned server was started with these arguments (plus `--headless`) and driven over stdio against a local test page. It reported 25 tools, and `browser_navigate`, `browser_snapshot` and `browser_take_screenshot` worked; a navigation to `https://example.com/` was blocked by the origin list (`ERR_BLOCKED_BY_CLIENT`). That run did not go through Kiro itself. TODO (capture): the same check in Kiro's MCP panel, as a screenshot of the server connected.
+
+**One-time setup.**
+1. In Kiro, make sure MCP support is on (settings, search "MCP"). Saving `mcp.json` reconnects the servers.
+2. Install the browser the server uses: `npx @playwright/mcp@0.0.86 install-browser chrome-for-testing`. Without it, every browser tool returns a "browser is not installed" error that names this command.
+3. Start the app in a terminal: `pnpm dev` (the dev server listens on `http://localhost:5173` unless that port is taken; if it prints another port, add it to `--allowed-origins`).
+
+**Play the sample crypt through MCP and take screenshots.** In a Kiro chat, with the default agent or design-critic, paste:
+
+> Use the Playwright tools to play the sample crypt on http://localhost:5173/ingest. Paste a short paragraph of notes, press "Confirm notes", then "Enter the crypt". In the first room, open each lock in turn, answer from the sample notes in samples/human-heart.txt as a learner would, and deliberately answer one question wrong so a ghost appears. Read the evidence panel after each answer. Take a screenshot of the room before the first answer (docs/captures/mcp-sample-crypt-room.png), of an evidence panel (docs/captures/mcp-sample-crypt-evidence.png), and of the Autopsy at the end (docs/captures/mcp-sample-crypt-autopsy.png). Report what each screenshot shows and any control you could not reach by keyboard.
+
+Notes for the run:
+- The first approval prompt is for `browser_navigate`. Approve it for the session.
+- Lock buttons have accessible names such as "Coffin lock: rune cipher, unsolved" (accessibility steering), so the agent can find them in a snapshot. Answers are typed into the panel's input or chosen from its options.
+- The live app at https://escape-the-crypt.pages.dev can be used instead of the dev server. Do not paste personal notes into it through a browser tool.
+- After the front-of-house integration lands, the entry becomes the desk hub: start from `/`, choose "Enter the crypt: The human heart". TODO: update this prompt then.
+- The server also writes `page-*.yml` snapshots into `docs/captures/`. They are git-ignored; only the screenshots you name are kept.
+
+**Gaps.**
+- TODO (capture): the three screenshots above, plus a screenshot of the MCP server connected in Kiro.
+- TODO (capture): one sentence on what the MCP run showed that a unit test could not (a focus order, a contrast problem, a layout break).
 
 ---
 
@@ -190,7 +262,7 @@ What the skill enforces (from `SKILL.md`): dev set only; the API key stays in th
 | Notes in the run (`notes[]`) | 12, all `ok` | 12, all `ok` |
 | Live calls / replayed calls (summed from `notes[]`) | 264 / 0 | 185 / 57 |
 
-The current `CHECK_VERSION` is `2026-11-27.2` (`packages/core/src/checks/registry.ts`), so these results predate the latest check changes. TODO: re-record on the final configuration before reporting any number from them.
+The current `CHECK_VERSION` is `2026-11-27.2` (`packages/core/src/checks/registry.ts`), so these results predate the latest check changes and need re-recording. One paid re-record is planned after phase 5, through this skill, before any number from these files is reported.
 
 **Story: the single-lock room.** Commit `38e0c61` is titled "Fix single-lock rooms (promote alternates, hint recompute, leak refill); duplicate-answer check; …". What the repo shows:
 - In `eval/results/2026-11-27.json`, 11 of the 12 dev notes assembled a room with 2 locks; `dev-12-pdf-feedback-and-motivation.txt` assembled 1. In `eval/results/2026-11-27-2.json`, all 12 notes assembled 2 locks, and every note reports `duplicateAnswers: 0`.
@@ -215,7 +287,11 @@ The repo shows work done in the Kiro IDE (spec folders, hooks created with `crea
 ## Submission checklist for this document
 
 - [ ] Re-run the counting commands on the final commit and update every figure.
-- [ ] Fill each TODO (capture), or delete the sentence it sits under.
-- [ ] Add the missing build-log entries (first entry blank fields, PDF line breaks, specs 3, 4, room-play, evaluation skill).
-- [ ] Remove sections 5 to 7 from the submission unless something real is added to the repo.
+- [ ] Fill each TODO (capture), or delete the sentence it sits under. Screenshots go in `docs/captures/` (see its README for the planned names).
+- [ ] Hooks: one captured run for each of the three new hooks; decide about the first hook's full-suite fallback; fix the garbled characters the tasks hook found.
+- [ ] Agents: one captured report from each of crypt-keeper and design-critic, on real output.
+- [ ] MCP: the server connected in Kiro, and the sample-crypt run with its screenshots.
+- [ ] Add the missing build-log entries (first entry blank fields, PDF line breaks, specs 3, 4, room-play, evaluation skill, the three hooks, the two agents, the MCP server).
+- [ ] Powers: either package something real or say plainly that none was built (section 7).
+- [ ] After the paid re-record, update section 8 with the new run files.
 - [ ] Link this file from the README.

@@ -171,3 +171,5 @@ eval/holdout/
 # playwright
 playwright-report/
 test-results/
+# page snapshots saved by the Playwright MCP server (screenshots in docs/captures are kept)
+docs/captures/*.yml

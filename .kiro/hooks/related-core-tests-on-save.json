@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Run related core tests on save",
+      "trigger": "PostFileSave",
+      "description": "On saving a file under packages/core/src, runs only the tests that belong to that file: tests named after it, tests that import it, or tests named after the module that imports it. Capped at 12 test files; never runs the full suite.",
+      "matcher": "packages[/\\\\]core[/\\\\]src[/\\\\].*\\.tsx?$",
+      "action": {
+        "type": "command",
+        "command": "node scripts/hooks/related-tests.ts",
+        "timeout": 60
+      }
+    }
+  ]
+}

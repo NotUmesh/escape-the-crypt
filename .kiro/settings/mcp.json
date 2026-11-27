@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.86",
+        "--browser",
+        "chromium",
+        "--isolated",
+        "--viewport-size",
+        "1280x800",
+        "--output-dir",
+        "docs/captures",
+        "--allowed-origins",
+        "http://localhost:5173;http://localhost:4173;https://escape-the-crypt.pages.dev"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "browser_snapshot",
+        "browser_take_screenshot",
+        "browser_console_messages",
+        "browser_network_requests",
+        "browser_wait_for",
+        "browser_click",
+        "browser_hover",
+        "browser_type",
+        "browser_press_key",
+        "browser_resize",
+        "browser_emulate_media"
+      ],
+      "disabledTools": ["browser_run_code_unsafe"]
+    }
+  }
+}

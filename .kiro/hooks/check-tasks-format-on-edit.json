@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Check tasks.md format on edit",
+      "trigger": "PostFileSave",
+      "description": "On editing any .kiro/specs/*/tasks.md, checks the task list format (checkbox syntax, numbering, parent and sub-task order, requirement lines, garbled characters). Reads one file; takes well under a second.",
+      "matcher": "\\.kiro[/\\\\]specs[/\\\\][^/\\\\]+[/\\\\]tasks\\.md$",
+      "action": {
+        "type": "command",
+        "command": "node scripts/hooks/check-tasks-format.ts",
+        "timeout": 30
+      }
+    }
+  ]
+}

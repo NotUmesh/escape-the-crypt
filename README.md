@@ -41,7 +41,7 @@ You need Node 22 (the repo requires `>=22 <23`) and pnpm 12.23.0 (pinned in `pac
 
 ```sh
 corepack enable
-git clone <repo-url>        # TODO: add the public repository URL
+git clone https://github.com/NotUmesh/escape-the-crypt.git
 cd escape-the-crypt
 pnpm install --frozen-lockfile
 pnpm dev                    # the web app, with the bundled sample crypt
@@ -70,9 +70,8 @@ VITE_WORKER_URL=http://localhost:8787 pnpm dev
 | `PORT` | no | Defaults to 8787. |
 | `JOB_TTL_MINUTES` | no | How long a finished job is kept. Defaults to 30. |
 
-**Web build variable:** `VITE_WORKER_URL` is the worker's `https://` origin (plain `http://` only for `localhost` or `127.0.0.1`). Without it the "Generate from my notes" button is hidden.
+`.env.example` lists the same names. **Web build variable:** `VITE_WORKER_URL` is the worker's `https://` origin (plain `http://` only for `localhost` or `127.0.0.1`). Without it the "Generate from my notes" button is hidden.
 
-<!-- TODO: .env.example still lists AI_PROVIDER, AI_API_KEY, AI_MODEL, DATABASE_URL, WORKER_SECRET and JUDGE_ACCESS_CODE_HASH, which apps/worker/src/config.ts does not read. Bring it in line with the table above (or the code) before submission. -->
 
 ## Tests
 
@@ -109,7 +108,7 @@ scripts/         structure checks (file size, naming, imports, build contents)
 
 ## Measured quality
 
-Not measured yet. These cells are filled only from runs on the held-out set, after the configuration is frozen, and each links to its `eval/results/` file. Numbers from the dev set are tuning aids and are not reported as quality.
+Not measured yet. These cells are filled only from runs on the held-out set, after the configuration is frozen, and each links to its `eval/results/` file. Numbers from the dev set are tuning aids and are not reported as quality. The two recorded dev runs in `eval/results/` predate the current checks (Check_Version `2026-11-27.1`; the code is now `2026-11-27.2`) and need re-recording; one paid re-record is planned after phase 5.
 
 | Measure | Set | Configuration (model, Check_Version, prompt versions) | Result | Source file |
 | --- | --- | --- | --- | --- |
@@ -128,7 +127,7 @@ Not measured yet. These cells are filled only from runs on the held-out set, aft
 - **Generated crypts are small today.** A generated crypt is one room with up to two lock types (rune cipher and séance board). The other four lock types (bone ordering, bound threads, cursed object, combination dial) are in the engine and being added to generation; the sample crypts show what the full set looks like. TODO: update this line when multi-room and the other lock types reach generation.
 - **Questions can be wrong.** Code checks and the blind review reduce errors; they do not remove them. That is why every question shows its source and can be challenged.
 - **No claims about learning.** The app does not claim to improve results, mastery or exam performance.
-- **AI provider and what is sent.** Generation uses OpenAI through the worker, with the model named by `OPENAI_MODEL`. Only the text of the notes you confirm is sent (up to 6,000 words), plus the worker's own prompts. Your PDF file and its name never leave your device. The worker keeps job text and results only while the job runs and for 30 minutes after it ends by default, then keeps a content-free record for 24 hours. Its logs hold counts, timings and error types, never notes or model output. The provider's own data-keeping terms also apply. TODO: state how long the provider keeps API data under the account used for the live app, and link its terms.
+- **AI provider and what is sent.** Generation uses OpenAI through the worker, with the model named by `OPENAI_MODEL`. Only the text of the notes you confirm is sent (up to 6,000 words), plus the worker's own prompts. Your PDF file and its name never leave your device. The worker keeps job text and results only while the job runs and for 30 minutes after it ends by default, then keeps a content-free record for 24 hours. Its logs hold counts, timings and error types, never notes or model output. Under OpenAI's default API terms, data sent to the API is not used to train OpenAI's models, and OpenAI may keep it for up to 30 days for abuse monitoring. See [OpenAI's API data controls page](https://developers.openai.com/api/docs/guides/your-data) for the details, which can change.
 - **The worker's budget cap is in memory.** It resets if the worker restarts. The backstop is a monthly limit on the provider project. A database-backed ledger is planned.
 - **Samples are drafts.** The sample question files are marked draft until the author has read every question, so none shows the "Human-reviewed" label yet. TODO: update after review.
 - **Not in this version:** accounts, leaderboards, teacher mode, multiplayer, OCR, diagram labelling, server-side storage of private uploads.

@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Run the wording test on copy edit",
+      "trigger": "PostFileSave",
+      "description": "On editing a copy file (copy*.ts or *-copy.ts in core or web), runs the banned-wording test for that file: copy-banned-words.test.ts for core copy, the test named after the file for web copy. One test file; never a whole package.",
+      "matcher": "(packages[/\\\\]core|apps[/\\\\]web)[/\\\\]src[/\\\\](.*[/\\\\])?(copy[^/\\\\]*|[^/\\\\]*-copy)(\\.test)?\\.ts$",
+      "action": {
+        "type": "command",
+        "command": "node scripts/hooks/banned-words-tests.ts",
+        "timeout": 60
+      }
+    }
+  ]
+}
