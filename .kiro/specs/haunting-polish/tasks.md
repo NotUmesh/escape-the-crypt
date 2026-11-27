@@ -17,7 +17,7 @@ Rules for every task:
 
 ## Tasks
 
-- [ ] 1. Preflight and scope fence
+- [x] 1. Preflight and scope fence
   - [x] 1.1 Pull, read and report (read-only)
     - Run `git pull --rebase`. On a conflict, stop and report.
     - Report whether the Frozen_Files changed since this spec was written (`git log -3 --stat` over those paths).
@@ -25,7 +25,7 @@ Rules for every task:
     - Run the baseline: `vitest run src/features/crypt/art-motion.test.tsx src/features/crypt/lantern-motion.test.tsx src/features/crypt/crypt-css.test.ts src/features/crypt/ghost-list.test.tsx` in `apps/web`. Record the result in the build log.
     - Report to the user anything that no longer matches the design (Risks section).
     - _Requirements: 1.2, 1.4, 16.12_
-  - [ ] 1.2 Add `scope-fence.test.ts`
+  - [x] 1.2 Add `scope-fence.test.ts`
     - One constant list of allowed path patterns and one of Frozen_Files, both taken from Requirement 1 and the glossary.
     - Read `git diff --name-only $(git merge-base HEAD origin/main)` (or the previous commit when no remote exists) and fail on any changed path outside the allowed list or inside the Frozen_Files.
     - Add a self-test with a fake path list: a Frozen_File fails, an allowed CSS passes, `room-screen.tsx` fails, a new `quill-mark.tsx` passes.
@@ -47,7 +47,7 @@ Rules for every task:
     - Negative control: read the maximum darkness and vignette opacities from `atmosphere-layer.css`, composite `--bone-50` under both over `--stone-950`, and assert the ratio is below 4.5, with a message that says why the text paints above the overlay.
     - _Requirements: 2.4, 2.5, 2.10_
 
-- [ ] 3. Candle, ghost rises and ghost laid to rest (CSS)
+- [x] 3. Candle, ghost rises and ghost laid to rest (CSS)
   - [x] 3.1 Candle bloom in `flame.css`
     - Extend `flame-flare` with a drop-shadow bloom that rises and settles inside the existing 500 ms. One luminance change, no repeat. Keep the `reduce` block that sets `animation: none` and keep the static drop-shadow.
     - _Requirements: 3.1, 3.2, 3.5, 3.6, 3.7_
@@ -55,83 +55,83 @@ Rules for every task:
     - `ghost-rise`: opacity 0 to 1 and a 16 px upward move, 800 ms ease-out, the label with the ghost. `ghost-fade`: opacity 1 to 0 with a 6 px sink, 700 ms ease-in, `forwards`. Keep the drift loop off under `reduce`, and keep `.ghost-art--leaving` instant-hidden under `reduce`.
     - No scale-up, no flash, no shake.
     - _Requirements: 4.1, 4.4, 4.6, 5.1, 5.4, 5.6_
-  - [ ] 3.3 Add `crypt-motion-css.test.ts`
+  - [x] 3.3 Add `crypt-motion-css.test.ts`
     - Reuse `parseRules` from `crypt-css.test.ts`. Implement the five checks of the design's "Static CSS audit" over every Crypt_Style, with the ambient allowlist (`flame-flicker`, `ghost-drift`, `atmosphere-drift`).
     - Include detection tests with small CSS strings so a missing `reduce` rule, a duration above 1000 ms and an infinite moment each fail.
     - **Property 7: Every motion has a still equivalent**
     - **Validates: Requirements 10.1, 10.2, 10.4, 10.5, 10.9, 10.10**
     - _Requirements: 10.1, 10.2, 10.4, 10.5, 10.9, 10.10_
-  - [ ] 3.4 Add `haunting-stage-motion.test.tsx`
+  - [x] 3.4 Add `haunting-stage-motion.test.tsx`
     - Render `ArtStage` the way `art-motion.test.tsx` does, with `matchMedia` mocked for reduced motion on and off. Assert: with no notice, the lit flame, light pass and ghost have no animation class (Static_Equivalent); with a `candleLit`, `ghostSpawned` or `ghostLaidToRest` notice they carry `flame--ignite`, `ghost-art--rise` or `ghost-art--leaving`; under reduced motion `data-parallax="off"` and the same classes are present, because CSS (task 3.3 and the Playwright tests) switches them off.
     - Assert the text equivalent: each state shows its name through `ghostName`, `lockName` or the live region text from `announcementsFor`, with the ghost return number in the DOM.
     - _Requirements: 3.3, 3.4, 4.2, 4.3, 4.7, 5.3, 10.8, 16.2_
 
-- [ ] 4. Moment_Selector (new file, unmounted)
-  - [ ] 4.1 Add `motion-moments.ts` and `motion-moments.test.ts`
+- [x] 4. Moment_Selector (new file, unmounted)
+  - [x] 4.1 Add `motion-moments.ts` and `motion-moments.test.ts`
     - Export `MotionMoment`, `selectMotionMoments(previous, next, notices)` and `announcementKeyFor(moment)` as in the design. Pure, read-only inputs, no reducer or Event import.
     - Unit tests with fixed notice lists: one test per moment kind, a notice the State does not agree with (dropped), an empty list, `previous === null`, `sealCracked`, `roomCleared` and `escaped` (no moment), two `ghostLaidToRest` in one dispatch (both returned, in order).
     - _Requirements: 5.6, 6.1, 6.2, 6.3, 6.5, 6.6, 6.12_
-  - [ ] 4.2 Write the selector properties (`motion-moments.properties.test.ts`)
+  - [x] 4.2 Write the selector properties (`motion-moments-properties.test.ts`)
     - Build runs by folding events through `initial` and `apply` on the shared manifest fixture builder in `packages/core/src/test-support/`, the way `runtime-ghosts-properties.test.ts` does. Add coverage counters so the test fails when no run reaches a ghost, a laid-to-rest or a lit candle.
-    - [ ] 4.2.1 Property 1: Moments pair with text
+    - [x] 4.2.1 Property 1: Moments pair with text
       - **Property 1: Moments pair with text**
       - **Validates: Requirements 6.7, 3.3, 4.3, 5.2**
-    - [ ] 4.2.2 Property 2: Order and unrelated notices
+    - [x] 4.2.2 Property 2: Order and unrelated notices
       - **Property 2: Order and unrelated notices**
       - **Validates: Requirements 6.8, 6.2**
-    - [ ] 4.2.3 Property 3: Rest follows rise
+    - [x] 4.2.3 Property 3: Rest follows rise
       - **Property 3: Rest follows rise**
       - **Validates: Requirements 6.9, 5.1**
-    - [ ] 4.2.4 Property 4: Quiet restore and quiet rejection
+    - [x] 4.2.4 Property 4: Quiet restore and quiet rejection
       - **Property 4: Quiet restore and quiet rejection**
       - **Validates: Requirements 6.5, 6.6, 3.4, 4.7**
-    - [ ] 4.2.5 Property 5: Selection agrees with State
+    - [x] 4.2.5 Property 5: Selection agrees with State
       - **Property 5: Selection agrees with State**
       - **Validates: Requirements 6.3**
-    - [ ] 4.2.6 Property 6: No write
+    - [x] 4.2.6 Property 6: No write
       - **Property 6: No write**
       - **Validates: Requirements 6.10, 6.11, 3.8**
-  - [ ] 4.3 Add `motion-moments.boundary.test.ts`
+  - [x] 4.3 Add `motion-moments-boundary.test.ts`
     - Read the source of every new non-test file in this spec and fail when it imports or names `apply`, `initial`, `dispatch`, an Event creator, `localStorage` or `fetch`.
     - Render each new Motion_Component with a State and notices, deep-compare State and Event_Log before and after, including after the animation end event.
     - _Requirements: 3.8, 6.10, 6.11_
 
-- [ ] 5. Autopsy parchment
-  - [ ] 5.1 Append the Autopsy_Parchment section to `final-door.css`
+- [x] 5. Autopsy parchment
+  - [x] 5.1 Append the Autopsy_Parchment section to `final-door.css`
     - Pull first. Add the labelled section from the design: parchment page, ink text, title font on headings, 44 px buttons with `--ink-900` and `--parchment-100`, `--focus-ring-on-light`, `currentColor` icons, the fade under `no-preference` and the `:focus-within` stop. No `--candle-400` or `--ember-600` on the parchment. The file stays under 300 lines.
     - Run `crypt-css.test.ts`, `autopsy-view.test.tsx`, `final-door.test.tsx`, `final-door-section.test.tsx`.
     - _Requirements: 7.1, 7.3, 7.4, 7.6, 7.7, 7.8, 7.9, 7.10_
-  - [ ] 5.2 Add `autopsy-parchment.test.tsx`
+  - [x] 5.2 Add `autopsy-parchment.test.tsx`
     - Token contrast: `--ink-900` on `--parchment-100` (text), `--parchment-100` on `--ink-900` (buttons), `--ink-900` focus ring on `--parchment-100` (3:1 non-text).
     - Static CSS: the fade sits only under `no-preference`; `.autopsy-view:focus-within` sets `animation: none`; every `.autopsy-view button` has a 44 px floor; no `--candle-400` or `--ember-600` in an `.autopsy-view` rule.
     - Render `AutopsyView` as `autopsy-view.test.tsx` does: the heading, the five counts, every entry and the Play again button are in the DOM in the same order as before; no `[data-testid="atmosphere"]` with Lantern_Mode on or off.
     - _Requirements: 7.2, 7.3, 7.5, 7.8, 7.11, 9.2, 16.2, 16.3_
 
-- [ ] 6. Quill_Mark (new file, unmounted)
-  - [ ] 6.1 Add `quill-mark.tsx` and `quill-mark.css`
+- [x] 6. Quill_Mark (new file, unmounted)
+  - [x] 6.1 Add `quill-mark.tsx` and `quill-mark.css`
     - Inline SVG, tokens only, `aria-hidden="true"`, no focusable child, `pointer-events: none`, `pathLength="1"` stroke. Animations only under `no-preference`: stroke 900 ms, quill move 900 ms, both finite and `forwards`. It draws no text and reads no learner content.
     - Read `usePrefersReducedMotion` only to set `data-reduced-motion`; the CSS media query does the switching.
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.6, 8.7, 10.7_
-  - [ ] 6.2 Add `quill-mark.test.tsx`
+  - [x] 6.2 Add `quill-mark.test.tsx`
     - Assert `aria-hidden`, no `tabindex` or focusable element, no text node, the finished stroke in the DOM at first render, the static CSS rules (`no-preference` only, at most 1000 ms, finite), and that the component follows a change of the reduced-motion preference while mounted.
     - Assert the file is imported by no existing module (it stays unmounted until Open_Decision 2).
     - _Requirements: 8.2, 8.5, 8.6, 8.7, 8.8, 10.7_
 
-- [ ] 7. Lantern, reduced-motion audit and copy
-  - [ ] 7.1 Add `lantern-screens.test.tsx`
+- [x] 7. Lantern, reduced-motion audit and copy
+  - [x] 7.1 Add `lantern-screens.test.tsx`
     - For the room Stage, the final door Stage, the escape view and the Autopsy, with Lantern_Mode on and off: the overlay is absent when on; when off, every Text_Panel and Stage_Text sits above the overlay (by the CSS order test and by DOM order); switching the mode updates the Stage in the same render; `localStorage` holds only the `escape-the-crypt:lantern` key.
     - A Lantern_Mode run of the sample crypt through the existing flow helpers reaches the Autopsy with every Static_Equivalent and live-region text unchanged.
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.7_
-  - [ ] 7.2 Add the report-only audit `outside-crypt-motion-audit.test.ts`
+  - [x] 7.2 Add the report-only audit `outside-crypt-motion-audit.test.ts`
     - Parse every CSS file under `features/desk`, `features/dig`, `features/descent` and `features/start` with the audit of task 3.3 and read, without importing them, whether each screen's source calls `useLantern`. The test edits nothing and passes.
     - Print each finding as `file: selector: reason`. Copy the findings into the build log under "Haunting polish: Open_Decision 4 findings". Known today: `descent.css` fade without a `reduce` rule; the descent clip in Lantern_Mode when reduced motion is off; the desk, dig and descent screens have no mist or grain of their own.
     - _Requirements: 9.6, 10.6, 15.1_
-  - [ ] 7.3 Add `haunting-copy.test.ts`
+  - [x] 7.3 Add `haunting-copy.test.ts`
     - Scan every file this spec adds (read the list from `scope-fence.test.ts`) for the Banned_Phrases, for "learning gains", "mastery", "exam-ready" and "100% accurate".
     - Assert the new files add no string that is shown to a learner (no JSX text node in `quill-mark.tsx`).
     - _Requirements: 11.1, 11.3, 11.4, 11.6_
 
-- [ ] 8. Checkpoint A: Vitest, typecheck, lint
+- [x] 8. Checkpoint A: Vitest, typecheck, lint
   - Run `pnpm --filter @escape-the-crypt/web typecheck`, `pnpm lint`, and `vitest run --maxWorkers=50%` in `apps/web`. Do not run Playwright here.
   - Record the real results in the build log, including any failure. Fix failures that this spec caused; report any other failure and stop.
   - _Requirements: 16.12, 17.2_

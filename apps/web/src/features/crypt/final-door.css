@@ -100,3 +100,72 @@
   padding: 0.5rem;
   background: var(--stone-950);
 }
+
+/* Autopsy_Parchment: parchment page, ink text. Tokens only; nothing here sits over the art. */
+.autopsy-view {
+  background: var(--parchment-100);
+  color: var(--ink-900);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  max-width: 48rem;
+  margin: 1rem auto;
+  padding: 1.5rem;
+  border: 1px solid var(--ink-900);
+}
+.autopsy-view h2,
+.autopsy-view h3,
+.autopsy-view h4 {
+  font-family: var(--font-title);
+  color: var(--ink-900);
+  margin: 0 0 0.5rem;
+}
+.autopsy-view ul,
+.autopsy-view ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.autopsy-entry {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--ink-900);
+}
+.autopsy-view button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  background: var(--ink-900);
+  color: var(--parchment-100);
+  border: 1px solid var(--ink-900);
+}
+.autopsy-view button:focus-visible {
+  outline: var(--focus-ring-on-light);
+  outline-offset: var(--focus-offset);
+}
+.autopsy-icon {
+  color: inherit;
+}
+.autopsy-entry__excerpt {
+  margin-top: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--ink-900);
+}
+/* The page fades in once, and stops the moment focus is inside it. */
+@media (prefers-reduced-motion: no-preference) {
+  .autopsy-view {
+    animation: autopsy-open 600ms ease-out backwards;
+  }
+  .autopsy-view:focus-within {
+    animation: none;
+  }
+}
+@keyframes autopsy-open {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

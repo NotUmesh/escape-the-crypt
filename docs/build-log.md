@@ -132,3 +132,10 @@ Heuristic implemented (`locks/cursed-object-checks.ts`): over uniquely resolved 
 | web e2e (--workers=2) | 175 | 0 | 1 | |
 
 Cassette and constants: e2e-pipeline, e2e-cassette-digest, bone-ordering-e2e, bound-threads-e2e, cursed-object-e2e and human-heart tests all pass (6 files, 36 tests). CHECK_VERSION is 2026-11-27.4. DEFAULT_ALLOWED_LOCK_TYPES and ALLOWED_LOCK_TYPES are both ['rune-cipher', 'seance-board'].
+
+Haunting polish: Open_Decision 4 findings (report-only audit, `outside-crypt-motion-audit.test.ts`):
+- desk/desk-scene.css: `.desk-scene[data-push='true'] .desk-scene__stage` animation has no reduced-motion rule.
+- dig/dig.css: `.cavern__mist` (90 s) and `.cavern__speck` (9 s) loop forever. They read as ambient loops, so they probably need to join the named allowlist, but each needs a `reduce` rule first. Not yet checked.
+- descent/descent.css: `.descent--fade` animation has no reduced-motion rule.
+- descent and start: no screen source reads `useLantern`.
+Runtime note from the selector properties: a Skipped lock queues a ghost without a `ghostSpawned` notice, so that ghost never rises on screen and has no announcement. A later correct return answer still sends `ghostLaidToRest`. Not changed here (runtime is outside this spec).
