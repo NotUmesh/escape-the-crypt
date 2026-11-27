@@ -9,7 +9,7 @@ export async function readNotesStore(page: Page): Promise<{ records: StoredRecor
   return page.evaluate(
     () =>
       new Promise<{ records: StoredRecord[]; binary: string[] }>((resolve, reject) => {
-        const open = indexedDB.open('escape-the-crypt', 1);
+        const open = indexedDB.open('escape-the-crypt');
         open.onerror = () => reject(new Error('open failed'));
         open.onsuccess = () => {
           const all = open.result.transaction('notes').objectStore('notes').getAll();

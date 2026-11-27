@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { ENTER_CRYPT_LABEL, GENERATION_COPY, ROOM_START_ERROR_COPY, SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
 import type { RoomStartErrorKind, State } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
-import { useRoomBinding } from '../../state/room-binding';
+import { usePersistedRoomBinding } from '../../state/persisted-room';
 import type { BuildCrypt, BuiltCrypt, RoomBinding, StartError } from '../../state/room-binding';
 import { buildSampleCrypt } from '../../state/sample-crypt-source';
 import { isGenerating } from '../generate/generation-flow';
@@ -18,6 +18,7 @@ import { LanternProvider } from './lantern-context';
 import { LiveRegion } from './live-region';
 import { RoomPanel } from './room-panel';
 import { RoomScreen } from './room-screen';
+import { SaveBanner } from '../start/save-banner';
 import { StartView } from './start-view';
 import type { SceneLoader } from './use-scene';
 
@@ -28,6 +29,8 @@ export interface CryptFlowProps {
   readonly useBinding?: (buildCrypt: BuildCrypt) => RoomBinding;
   /** The confirmed notes text for Generate from my notes. Without it the button is hidden. */
   readonly notesText?: string;
+  /** Digest of the confirmed notes record, saved with the generated crypt so a restore can find the notes. */
+  readonly notesDigest?: string;
   readonly generate?: GenerateSeams;
   /** Reads a message through the host's polite live region. Called with '' to clear it. */
   readonly onAnnounce?: (message: string) => void;
@@ -59,7 +62,7 @@ function StartFailed({
   );
 }
 
-function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl, notesText, generate, onAnnounce }: CryptFlowProps): ReactNode {
+function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce }: CryptFlowProps): ReactNode {
   // Which crypt startRun builds: the generated one once it is ready, else the sample.
   const playRef = useRef<BuiltCrypt | null>(null);
   const buildCrypt = useCallback<BuildCrypt>(
@@ -140,7 +143,7 @@ function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl, notesText,
         canGenerate
           ? {
               state: generationState,
-              onGenerate: () => generation.start(notesText),
+              onGenerate: () => generation.start(notesText, notesDigest),
               onCancel: generation.cancel,
               onPlaySample: startSample,
             }
@@ -224,6 +227,7 @@ function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl, notesText,
   return (
     <>
       {showLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
+      {phase === 'running' && state !== null ? <SaveBanner saveFailed={binding.saveFailed === true} /> : null}
       {view}
       {isGenerating(generationState) ? null : <LiveRegion messages={messages} />}
     </>

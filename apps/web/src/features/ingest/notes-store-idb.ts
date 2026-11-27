@@ -2,35 +2,19 @@ import { parseNotesRecord } from '@escape-the-crypt/core';
 import type { NotesRecord, Result } from '@escape-the-crypt/core';
 import type { NotesStore, StorageUnavailable } from './notes-store';
 
-export const DB_NAME = 'escape-the-crypt';
-export const DB_VERSION = 1;
-export const NOTES_STORE_NAME = 'notes';
+import { NOTES_STORE_NAME, openDb } from '../../state/storage/db';
+
+// Kept here so existing imports of these names keep working.
+export { DB_NAME, NOTES_STORE_NAME } from '../../state/storage/db';
 
 const UNAVAILABLE: Result<never, StorageUnavailable> = {
   ok: false,
   error: { kind: 'storage-unavailable' },
 };
 
-function openDatabase(factory: IDBFactory): Promise<IDBDatabase | null> {
-  return new Promise((resolve) => {
-    let request: IDBOpenDBRequest;
-    try {
-      request = factory.open(DB_NAME, DB_VERSION);
-    } catch {
-      resolve(null);
-      return;
-    }
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      // Version 1 creates the store. A later version only adds stores and leaves this one alone.
-      if (!db.objectStoreNames.contains(NOTES_STORE_NAME)) {
-        db.createObjectStore(NOTES_STORE_NAME, { keyPath: 'documentDigest' });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => resolve(null);
-    request.onblocked = () => resolve(null);
-  });
+async function openDatabase(factory: IDBFactory): Promise<IDBDatabase | null> {
+  const opened = await openDb(factory);
+  return opened.ok ? opened.value : null;
 }
 
 /**

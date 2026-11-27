@@ -1,0 +1,766 @@
+{
+  "pbtResults": {
+    "1.2 Write property test for the notes upgrade and the upgrade unit test": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762235509
+    },
+    "1.7 Write property test for the crypt round trip": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762423417
+    },
+    "1.8 Write property test for invalid crypts": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762432057
+    },
+    "1.9 Write property test S4 for the manifest conflict check": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762504212
+    },
+    "1.10 Write property test for corrupted stored crypts": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762567290
+    },
+    "1.12 Write property test for run creation": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762624785
+    },
+    "1.13 Write property test for status changes": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762628745
+    },
+    "1.14 Write property test for the append-only log": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762692642
+    },
+    "1.15 Write property test for crypt deletion": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762724801
+    },
+    "1.16 Write property test S2 for event-row immutability": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762829046
+    },
+    "1.20 Write property test for rebuilt citation chunks": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762922060
+    },
+    "1.19 Write property test for untrusted stored records and the gap and rejection unit tests": {
+      "status": "passed",
+      "lastRunTimestamp": 1795762930283
+    },
+    "1.18 Write property test S1 for the restore round trip": {
+      "status": "passed",
+      "lastRunTimestamp": 1795763221478
+    },
+    "1.21 Write property test that storage functions never throw": {
+      "status": "passed",
+      "lastRunTimestamp": 1795763330891
+    },
+    "3.5 Write property test for concurrent accepts": {
+      "status": "failed",
+      "failingExample": "Counterexample: [[[{\"kind\":0,\"slot\":0},{\"kind\":0,\"slot\":0}]]] (startRun, then two openLock actions on hh-slot-1 dispatched in one act). In-memory eventLog has 6 events; IndexedDB holds only the first 4 (the two LockOpened events are never written).",
+      "lastRunTimestamp": 1795764106440
+    },
+    "3.6 Write property test for escape and start-again status": {
+      "status": "passed",
+      "lastRunTimestamp": 1795764125885
+    },
+    "3.7 Write property test S3 for crash consistency": {
+      "status": "passed",
+      "lastRunTimestamp": 1795764141472
+    }
+  },
+  "executionHistory": {
+    "1.1 Create the storage foundation": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041452
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762051802
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762188650
+      }
+    ],
+    "1.2 Write property test for the notes upgrade and the upgrade unit test": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041492
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762194069
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762261302
+      }
+    ],
+    "1.3 Create the run-settings schema and record codecs": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041525
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762194295
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762261343
+      }
+    ],
+    "1.4 Add the `isEvent` re-export to core and bind the seam": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041567
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762267185
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762344284
+      }
+    ],
+    "1.5 Write the record round-trip property test": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041592
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762349426
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762516579
+      }
+    ],
+    "1.6 Implement the crypt repository": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041618
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762267225
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762344366
+      }
+    ],
+    "1.7 Write property test for the crypt round trip": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041645
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762349630
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762517859
+      }
+    ],
+    "1.8 Write property test for invalid crypts": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041670
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762349884
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762516398
+      }
+    ],
+    "1.9 Write property test S4 for the manifest conflict check": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041704
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762350694
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762517192
+      }
+    ],
+    "1.10 Write property test for corrupted stored crypts": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041739
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762527499
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762575155
+      }
+    ],
+    "1.11 Implement the run repository": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041768
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762351164
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762516343
+      }
+    ],
+    "1.12 Write property test for run creation": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041791
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762580376
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762741212
+      }
+    ],
+    "1.13 Write property test for status changes": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041817
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762580428
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762740551
+      }
+    ],
+    "1.14 Write property test for the append-only log": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041839
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762580470
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762740508
+      }
+    ],
+    "1.15 Write property test for crypt deletion": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041864
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762581167
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762740866
+      }
+    ],
+    "1.16 Write property test S2 for event-row immutability": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041889
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762749944
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762838319
+      }
+    ],
+    "1.17 Implement restore": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041913
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762581649
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762740461
+      }
+    ],
+    "1.18 Write property test S1 for the restore round trip": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041938
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762841760
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763357528
+      }
+    ],
+    "1.19 Write property test for untrusted stored records and the gap and rejection unit tests": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041963
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762842567
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763357704
+      }
+    ],
+    "1.20 Write property test for rebuilt citation chunks": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762041988
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762843457
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763357459
+      }
+    ],
+    "1.21 Write property test that storage functions never throw": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042021
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762843943
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763358399
+      }
+    ],
+    "2. Checkpoint - Phase 1 complete": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042065
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763361909
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763532137
+      }
+    ],
+    "3.1 Implement the write queue": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042093
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763538400
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763586479
+      }
+    ],
+    "3.2 Wire persistence into the binding": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042119
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763591960
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764027183
+      }
+    ],
+    "3.3 Create the save banner": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042145
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763592618
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764027256
+      }
+    ],
+    "3.4 Write property test and unit test for write-before-animate": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042172
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764033120
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764157715
+      }
+    ],
+    "3.5 Write property test for concurrent accepts": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042200
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764033918
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764676162
+      }
+    ],
+    "3.6 Write property test for escape and start-again status": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042228
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764034716
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764157957
+      }
+    ],
+    "3.7 Write property test S3 for crash consistency": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042253
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764035525
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764157465
+      }
+    ],
+    "3.8 Write property test S6 for failures that keep play going": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042278
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764036036
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764157768
+      }
+    ],
+    "3.9 Write the axe check for the save banner": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042310
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764163321
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764676244
+      }
+    ],
+    "4. Checkpoint - Phase 2 complete": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042360
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764679566
+      },
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764892259
+      }
+    ],
+    "5.1 Implement the run lock": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042385
+      }
+    ],
+    "5.2 Gate writes on the lock": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042412
+      }
+    ],
+    "5.3 Create the read-only screen": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042441
+      }
+    ],
+    "5.4 Write property test for lock-gated writes": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042471
+      }
+    ],
+    "5.5 Write the lock unit tests": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042500
+      }
+    ],
+    "5.6 Write the axe check for the read-only screen": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042526
+      }
+    ],
+    "6. Checkpoint - Phase 3 complete": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042551
+      }
+    ],
+    "7.1 Create the resume entry and wire the start screen": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042601
+      }
+    ],
+    "7.2 Write property test for the resumable run lookup": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042632
+      }
+    ],
+    "7.3 Write the Playwright reload test": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042665
+      }
+    ],
+    "7.4 Write the Playwright resume-entry test": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042690
+      }
+    ],
+    "7.5 Write the axe check for the resume entry": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042718
+      }
+    ],
+    "8. Checkpoint - Resume entry complete": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042744
+      }
+    ],
+    "9.1 Implement the export builder": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042771
+      }
+    ],
+    "9.2 Add the export control": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042806
+      }
+    ],
+    "9.3 Write property test for export": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042843
+      }
+    ],
+    "9.4 Write the export unit tests": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042869
+      }
+    ],
+    "9.5 Write the copy property test": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042898
+      }
+    ],
+    "10. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795762042941
+      }
+    ],
+    "1. Phase 1: database version 2, stores, repositories and restore": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795763358459
+      }
+    ],
+    "3. Phase 2: write-before-animate, save banner and failure handling": [
+      {
+        "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795764676282
+      }
+    ]
+  }
+}

@@ -93,6 +93,7 @@ export {
 export type { RoomStartErrorKind, GenerationFailureKind } from './copy-room-play';
 export { initial } from './runtime/initial';
 export { apply } from './runtime/apply';
+export { isEvent } from './runtime/event-guard';
 export { selectFinalDoor, selectAutopsy } from './runtime/selectors';
 export type { AutopsyCounts } from './runtime/selectors';
 export type { CryptContent } from './mapper/crypt-content';

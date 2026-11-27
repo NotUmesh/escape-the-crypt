@@ -17,7 +17,11 @@ import type { CryptSource, RoomAssets } from './room-assets';
 import { buildSampleCrypt } from './sample-crypt-source';
 
 /** A crypt ready to play. `source` is 'sample' when absent; a generated crypt says 'notes'. */
-export type BuiltCrypt = SampleCryptResult & { readonly source?: CryptSource };
+export type BuiltCrypt = SampleCryptResult & {
+  readonly source?: CryptSource;
+  /** Digest of the notes a generated crypt was made from; saved so a restore can rebuild citations. */
+  readonly documentDigest?: string;
+};
 export type BuildCrypt = () => Result<BuiltCrypt, SampleCryptError>;
 export type StartError = SampleCryptError | Typed_Rejection;
 
@@ -37,6 +41,15 @@ export interface RoomBindingState {
 
 export interface RoomBinding extends RoomBindingState {
   readonly dispatch: (action: RoomAction) => void;
+  /**
+   * The notices of the latest accepted Event, as `useRoomBinding` produces them. The persisted
+   * hook holds them back and passes them on as `notices` once the append has settled.
+   */
+  readonly heldNotices?: readonly Outcome_Notice[];
+  /** Set by the persisted hook: true while an accepted Event is not stored. */
+  readonly saveFailed?: boolean;
+  /** Set by the persisted hook: re-attempts the oldest unsaved Event. */
+  readonly retrySave?: () => void;
 }
 
 /** What the reducer holds: the public view's source plus the built crypt kept for `playAgain`. */
@@ -130,6 +143,7 @@ export function useRoomBinding(buildCrypt: BuildCrypt = buildSampleCrypt): RoomB
     eventLog: store.model?.eventLog ?? NO_EVENTS,
     assets: store.assets,
     notices: store.model?.notices ?? NO_NOTICES,
+    heldNotices: store.model?.notices ?? NO_NOTICES,
     rejection: store.model?.rejection ?? null,
     startError: store.startError,
     dispatch,

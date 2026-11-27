@@ -32,12 +32,16 @@ export interface IngestScreenProps {
  */
 export function IngestScreen({ store: notesStore, createClient, useBinding, generate }: IngestScreenProps): React.JSX.Element {
   const [notesText, setNotesText] = useState<string | null>(null);
+  const [notesDigest, setNotesDigest] = useState<string | undefined>(undefined);
   // Generation progress is read through the notes step's one polite live region.
   const [announcement, setAnnouncement] = useState('');
   return (
     <>
-      <IngestFlow store={notesStore} createClient={createClient} announcement={announcement} onConfirmed={(chunks) => setNotesText(notesTextFromChunks(chunks))} />
-      {notesText !== null ? <CryptFlow useBinding={useBinding} notesText={notesText} generate={generate} onAnnounce={setAnnouncement} /> : null}
+      <IngestFlow store={notesStore} createClient={createClient} announcement={announcement} onConfirmed={(chunks) => {
+        setNotesText(notesTextFromChunks(chunks));
+        setNotesDigest(chunks[0]?.documentDigest);
+      }} />
+      {notesText !== null ? <CryptFlow useBinding={useBinding} notesText={notesText} notesDigest={notesDigest} generate={generate} onAnnounce={setAnnouncement} /> : null}
     </>
   );
 }

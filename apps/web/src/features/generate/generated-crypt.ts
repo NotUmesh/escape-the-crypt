@@ -6,6 +6,9 @@ export function notesTextFromChunks(chunks: readonly Chunk[]): string {
   return chunks.map((chunk) => chunk.text).join('\n\n');
 }
 
+/** A playable crypt from notes. documentDigest is the digest of the confirmed notes record, kept so a restore finds the notes. */
+export type GeneratedCrypt = SampleCryptResult & { readonly source: 'notes'; readonly documentDigest?: string };
+
 export type GeneratedCryptError = { readonly kind: 'excerpt-chunk-unknown' };
 
 /**
@@ -16,7 +19,8 @@ export type GeneratedCryptError = { readonly kind: 'excerpt-chunk-unknown' };
 export function buildGeneratedCrypt(
   bundle: CryptBundle,
   notesText: string,
-): Result<SampleCryptResult & { readonly source: 'notes' }, GeneratedCryptError> {
+  documentDigest?: string,
+): Result<GeneratedCrypt, GeneratedCryptError> {
   const chunks = new Map<string, Chunk>();
   for (const chunk of chunkDocument({ sourceType: 'paste', text: notesText, originalText: notesText })) {
     chunks.set(chunk.id, chunk);
@@ -28,6 +32,12 @@ export function buildGeneratedCrypt(
   }
   return {
     ok: true,
-    value: { manifest: bundle.manifest, content: bundle.content, chunks, source: 'notes' },
+    value: {
+      manifest: bundle.manifest,
+      content: bundle.content,
+      chunks,
+      source: 'notes',
+      ...(documentDigest === undefined || documentDigest === '' ? {} : { documentDigest }),
+    },
   };
 }

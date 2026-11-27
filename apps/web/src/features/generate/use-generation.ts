@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
-import type { SampleCryptResult } from '@escape-the-crypt/core';
 import { countPollError, generationReducer, INITIAL_GENERATION } from './generation-flow';
 import type { GenerationState } from './generation-flow';
 import { buildGeneratedCrypt } from './generated-crypt';
+import type { GeneratedCrypt } from './generated-crypt';
 import type { WorkerClient } from './worker-client';
 
 export const POLL_INTERVAL_MS = 2000;
@@ -23,11 +23,11 @@ export interface GenerationOptions {
 export interface Generation {
   readonly state: GenerationState;
   /** Starts a job for this notes text. Ignored while one is running. */
-  readonly start: (notesText: string) => void;
+  readonly start: (notesText: string, documentDigest?: string) => void;
   /** Stops polling, drops the job ID and asks the worker to stop the job (once, fire-and-forget). */
   readonly cancel: () => void;
   /** The playable crypt of a `ready` state, with the chunks of the text that was sent. */
-  readonly crypt: () => (SampleCryptResult & { readonly source: 'notes' }) | null;
+  readonly crypt: () => GeneratedCrypt | null;
 }
 
 function randomKey(): string {
@@ -94,7 +94,7 @@ export function useGeneration(options: GenerationOptions): Generation {
   );
 
   const drive = useCallback(
-    async (run: number, notesText: string, key: string): Promise<void> => {
+    async (run: number, notesText: string, key: string, documentDigest?: string): Promise<void> => {
       const { client, intervalMs = POLL_INTERVAL_MS, maxPolls = MAX_POLLS, startRetries = START_RETRIES } =
         optionsRef.current;
       const alive = (): boolean => liveRun.current === run;
@@ -143,7 +143,7 @@ export function useGeneration(options: GenerationOptions): Generation {
         pollErrors = 0;
         const job = result.value;
         if (job.kind === 'completed') {
-          const crypt = buildGeneratedCrypt(job.bundle, notesText);
+          const crypt = buildGeneratedCrypt(job.bundle, notesText, documentDigest);
           if (!crypt.ok) {
             finish({ type: 'bundleRejected' });
             return;
@@ -162,14 +162,14 @@ export function useGeneration(options: GenerationOptions): Generation {
   );
 
   const start = useCallback(
-    (notesText: string): void => {
+    (notesText: string, documentDigest?: string): void => {
       if (liveRun.current !== null) return;
       const key = (optionsRef.current.newKey ?? randomKey)();
       runCounter.current += 1;
       liveRun.current = runCounter.current;
       built.current = null;
       send({ type: 'press', key });
-      void drive(runCounter.current, notesText, key);
+      void drive(runCounter.current, notesText, key, documentDigest);
     },
     [drive],
   );

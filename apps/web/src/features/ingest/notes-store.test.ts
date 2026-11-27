@@ -3,6 +3,7 @@ import { IDBFactory, IDBObjectStore } from 'fake-indexeddb';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ERROR_COPY, chunkDocument, errorMessage, makeNotesRecord } from '@escape-the-crypt/core';
 import type { Chunk, NotesRecord } from '@escape-the-crypt/core';
+import { DB_VERSION } from '../../state/storage/db';
 import { DB_NAME, NOTES_STORE_NAME, createIdbStore } from './notes-store-idb';
 import { createMemoryStore } from './notes-store-memory';
 import { createSessionStore } from './notes-store';
@@ -25,7 +26,7 @@ const chunkSet: fc.Arbitrary<Chunk[]> = fc
 /** Counts records in the real `notes` object store of a (fake) IndexedDB. */
 function countRecords(factory: IDBFactory): Promise<number> {
   return new Promise((resolve, reject) => {
-    const open = factory.open(DB_NAME, 1);
+    const open = factory.open(DB_NAME, DB_VERSION);
     open.onerror = () => reject(new Error('open failed'));
     open.onsuccess = () => {
       const request = open.result.transaction(NOTES_STORE_NAME).objectStore(NOTES_STORE_NAME).count();
