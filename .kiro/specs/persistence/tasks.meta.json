@@ -613,6 +613,16 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795764892259
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767188364
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767455169
       }
     ],
     "5.1 Implement the run lock": [
@@ -620,6 +630,16 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795762042385
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767455414
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767518536
       }
     ],
     "5.2 Gate writes on the lock": [
@@ -627,6 +647,16 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795762042412
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767526093
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767758453
       }
     ],
     "5.3 Create the read-only screen": [
@@ -634,6 +664,16 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795762042441
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767526139
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767891689
       }
     ],
     "5.4 Write property test for lock-gated writes": [
@@ -641,6 +681,16 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795762042471
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767896244
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795768153722
       }
     ],
     "5.5 Write the lock unit tests": [
@@ -648,6 +698,16 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795762042500
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767897036
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795768153827
       }
     ],
     "5.6 Write the axe check for the read-only screen": [
@@ -655,6 +715,16 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795762042526
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795767897384
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795768154061
       }
     ],
     "6. Checkpoint - Phase 3 complete": [
@@ -662,6 +732,16 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795762042551
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795768157468
+      },
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795768345610
       }
     ],
     "7.1 Create the resume entry and wire the start screen": [
@@ -760,6 +840,13 @@
         "executionId": "0724a1dc-1fb6-4a26-86b2-ffb664f2bce7",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795764676282
+      }
+    ],
+    "5. Phase 3: Web Locks single-tab ownership": [
+      {
+        "executionId": "cb5e6587-af2a-4a32-b467-12b16586fef3",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795768154121
       }
     ]
   }

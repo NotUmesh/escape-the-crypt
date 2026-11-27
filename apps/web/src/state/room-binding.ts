@@ -15,6 +15,8 @@ import type { BindingModel } from './room-binding-model';
 import { buildFirstQuestionByConcept } from './room-assets';
 import type { CryptSource, RoomAssets } from './room-assets';
 import { buildSampleCrypt } from './sample-crypt-source';
+import type { RunLockState } from './storage/run-lock';
+import type { RestoredRun } from './storage/restore-run';
 
 /** A crypt ready to play. `source` is 'sample' when absent; a generated crypt says 'notes'. */
 export type BuiltCrypt = SampleCryptResult & {
@@ -50,6 +52,14 @@ export interface RoomBinding extends RoomBindingState {
   readonly saveFailed?: boolean;
   /** Set by the persisted hook: re-attempts the oldest unsaved Event. */
   readonly retrySave?: () => void;
+  /** Set by the persisted hook: id of the current run, once one has started. */
+  readonly runId?: string;
+  /** Set by the persisted hook: the run lock state (Req 9). cquiring until the first grant or refusal. */
+  readonly lockState?: RunLockState;
+  /** Set by the persisted hook: takes the run over and restores it from the database (Req 9.3). */
+  readonly takeOver?: () => Promise<void>;
+  /** Replaces the in-memory run with a restored one. */
+  readonly restore?: (restored: RestoredRun) => void;
 }
 
 /** What the reducer holds: the public view's source plus the built crypt kept for `playAgain`. */
@@ -64,7 +74,8 @@ interface Store {
 type StoreAction =
   | EventRoomAction
   | { readonly type: 'startRun'; readonly built: Result<BuiltCrypt, SampleCryptError> }
-  | { readonly type: 'playAgain' };
+  | { readonly type: 'playAgain' }
+  | { readonly type: 'restore'; readonly restored: RestoredRun };
 
 const INITIAL_STORE: Store = { phase: 'not-started', model: null, crypt: null, assets: null, startError: null };
 
@@ -120,6 +131,17 @@ export function bindingReducer(store: Store, action: StoreAction): Store {
       return action.built.ok ? startFrom(action.built.value, null) : failed(action.built.error);
     case 'playAgain':
       return store.crypt === null ? store : startFrom(store.crypt, store.assets);
+    case 'restore': {
+      const { model, assets, crypt } = action.restored;
+      const built: BuiltCrypt = {
+        manifest: model.manifest,
+        content: crypt.content,
+        chunks: assets.chunks,
+        source: assets.source,
+        ...(crypt.documentDigest === undefined ? {} : { documentDigest: crypt.documentDigest }),
+      };
+      return { phase: 'running', model, crypt: built, assets, startError: null };
+    }
     default:
       if (store.model === null) return store;
       return { ...store, model: stepBinding(store.model, action) };
@@ -137,7 +159,9 @@ export function useRoomBinding(buildCrypt: BuildCrypt = buildSampleCrypt): RoomB
     },
     [buildCrypt],
   );
+  const restore = useCallback((restored: RestoredRun): void => send({ type: 'restore', restored }), []);
   return {
+    restore,
     phase: store.phase,
     state: store.model?.state ?? null,
     eventLog: store.model?.eventLog ?? NO_EVENTS,

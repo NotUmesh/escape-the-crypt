@@ -211,8 +211,8 @@ Test names use hyphens. Storage tests run on `fake-indexeddb` with a fresh `IDBF
 - [x] 4. Checkpoint - Phase 2 complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Phase 3: Web Locks single-tab ownership
-  - [~] 5.1 Implement the run lock
+- [x] 5. Phase 3: Web Locks single-tab ownership
+  - [x] 5.1 Implement the run lock
     - Create `state/storage/run-lock.ts` with `acquireRunLock(deps, runId)` returning `state`, `takeOver`, `release` and `subscribe`
     - With `navigator.locks`: `request('run:<runId>', { ifAvailable: true }, cb)`; a `null` grant means `waiting`; a granted lock stays held until `release()` or tab close
     - `takeOver()` requests with `steal: true`; a stolen lock sets `lost`
@@ -220,33 +220,33 @@ Test names use hyphens. Storage tests run on `fake-indexeddb` with a fresh `IDBF
     - Without both: state `single-tab`
     - _Requirements: 9.1, 9.3, 9.4, 9.5, 9.6, 9.7_
 
-  - [~] 5.2 Gate writes on the lock
+  - [x] 5.2 Gate writes on the lock
     - In `persisted-room.ts`, request the lock before the first append and enable writes only while the state is `held` or `single-tab`
     - When the state becomes `lost` or `waiting`, stop the writer and write nothing; an in-flight transaction is allowed to finish
     - On `takeOver`, restore the run from the database
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-  - [~] 5.3 Create the read-only screen
+  - [x] 5.3 Create the read-only screen
     - Create `features/start/read-only-screen.tsx` with the text "This crypt is open in another tab" and a "Take over here" button that receives focus on mount
     - Show the crypt at the last stored event, built by restoring from the database, with no click handlers on lock objects
     - _Requirements: 9.2, 9.3, 9.8, 9.9_
 
-  - [~] 5.4 Write property test for lock-gated writes
+  - [x] 5.4 Write property test for lock-gated writes
     - **Property 18: Writes happen only while the run lock is held or unneeded**
     - **Validates: Requirements 9.1, 9.2, 9.4**
     - Use a fixed documented set of interleavings for lock grant, loss and steal
     - _Requirements: 9.1, 9.2, 9.4_
 
-  - [~] 5.5 Write the lock unit tests
+  - [x] 5.5 Write the lock unit tests
     - With a stubbed `navigator.locks` two-tab model: the second tab shows the Read_Only_Screen and "Take over here" restores the run
     - Cover the BroadcastChannel fallback, the single-tab path, and acquisition by a waiting tab after the holder releases
     - _Requirements: 9.2, 9.3, 9.5, 9.6, 9.7, 12.10_
 
-  - [~] 5.6 Write the axe check for the read-only screen
+  - [x] 5.6 Write the axe check for the read-only screen
     - Expect no violations; assert focus lands on "Take over here"
     - _Requirements: 9.8, 12.13_
 
-- [~] 6. Checkpoint - Phase 3 complete
+- [x] 6. Checkpoint - Phase 3 complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Resume entry point and reload tests

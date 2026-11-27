@@ -39,3 +39,36 @@ body {
 .save-banner p {
   margin: 0;
 }
+
+.read-only-screen {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--stone-800);
+  color: var(--bone-50);
+  border: 1px solid var(--spectre-300);
+}
+.read-only-screen h2 {
+  font-family: var(--font-title);
+}
+.read-only-screen p {
+  margin: 0 0 0.75rem;
+}
+.read-only-screen__take-over {
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0 0 1rem;
+}
+.read-only-screen button:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.read-only-screen__room {
+  margin: 0 0 0.5rem;
+}
+.read-only-screen__locks {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+}
+.read-only-screen__lock {
+  margin: 0 0 0.25rem;
+}

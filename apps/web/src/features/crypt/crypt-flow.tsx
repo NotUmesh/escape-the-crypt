@@ -18,7 +18,10 @@ import { LanternProvider } from './lantern-context';
 import { LiveRegion } from './live-region';
 import { RoomPanel } from './room-panel';
 import { RoomScreen } from './room-screen';
+import { ReadOnlyScreenContainer } from '../start/read-only-screen';
 import { SaveBanner } from '../start/save-banner';
+import { createIdbStore } from '../ingest/notes-store-idb';
+import type { RestoreDeps } from '../../state/storage/restore-run';
 import { StartView } from './start-view';
 import type { SceneLoader } from './use-scene';
 
@@ -34,6 +37,8 @@ export interface CryptFlowProps {
   readonly generate?: GenerateSeams;
   /** Reads a message through the host's polite live region. Called with '' to clear it. */
   readonly onAnnounce?: (message: string) => void;
+  /** What the read-only screen restores from. Defaults to the browser's IndexedDB. */
+  readonly restoreDeps?: RestoreDeps;
 }
 
 const NO_MESSAGES: readonly string[] = [];
@@ -62,7 +67,7 @@ function StartFailed({
   );
 }
 
-function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce }: CryptFlowProps): ReactNode {
+function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps }: CryptFlowProps): ReactNode {
   // Which crypt startRun builds: the generated one once it is ready, else the sample.
   const playRef = useRef<BuiltCrypt | null>(null);
   const buildCrypt = useCallback<BuildCrypt>(
@@ -113,6 +118,16 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     const next = announcementsFor(before, state, notices);
     if (next.length > 0) setMessages(next);
   }, [state, notices]);
+
+  const deps = useMemo<RestoreDeps>(() => {
+    if (restoreDeps !== undefined) return restoreDeps;
+    const factory = typeof indexedDB === 'undefined' ? undefined : indexedDB;
+    return { factory, notesStore: createIdbStore(factory) };
+  }, [restoreDeps]);
+  const takeOver = binding.takeOver;
+  const onTakeOver = useCallback((): void => {
+    void takeOver?.();
+  }, [takeOver]);
 
   const startSample = useCallback((): void => {
     playRef.current = null;
@@ -223,6 +238,13 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     state !== null &&
     binding.assets?.source !== 'notes' &&
     (state.status === 'escaped' || state.atFinalDoor);
+
+  // Another tab owns the run: show it read-only. cquiring (first grant pending) shows the normal screen.
+  // This return comes after every hook above.
+  const lockState = binding.lockState;
+  if ((lockState === 'waiting' || lockState === 'lost') && binding.runId !== undefined) {
+    return <ReadOnlyScreenContainer deps={deps} runId={binding.runId} onTakeOver={onTakeOver} />;
+  }
 
   return (
     <>
