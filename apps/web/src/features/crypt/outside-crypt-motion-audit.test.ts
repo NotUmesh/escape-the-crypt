@@ -28,9 +28,13 @@ describe('motion outside the crypt feature (report only)', () => {
           findings.push(`${css.slice(SRC.length + 1)}: ${finding}`);
         }
       }
+      // Lantern_Mode controls the overlay only (motion follows reduced motion), so a screen needs
+      // `useLantern` only when its styles draw atmosphere of their own.
+      const sheets = filesUnder(dir, (n) => n.endsWith('.css')).map((f) => readFileSync(f, 'utf8'));
+      const drawsAtmosphere = sheets.some((css) => /mist|grain|vignette|atmosphere/.test(css));
       const sources = filesUnder(dir, (n) => /\.tsx?$/.test(n) && !/\.test\.tsx?$/.test(n));
       const readsLantern = sources.some((f) => /useLantern\b/.test(readFileSync(f, 'utf8')));
-      if (sources.length > 0 && !readsLantern) findings.push(`${screen}: no screen source reads useLantern`);
+      if (drawsAtmosphere && !readsLantern) findings.push(`${screen}: draws atmosphere but no screen source reads useLantern`);
     }
     console.info(`Haunting polish audit, ${findings.length} finding(s):\n${findings.join('\n')}`);
     expect(Array.isArray(findings)).toBe(true);
