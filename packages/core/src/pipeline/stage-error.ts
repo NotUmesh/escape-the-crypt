@@ -16,4 +16,6 @@ export type PipelineStageError =
   /** The model proposed a primary lock type the caller did not allow (Req 14.9). */
   | { readonly kind: 'lock-type-not-allowed' }
   /** The model-facing JSON schema could not be built. A code defect, not a model failure. */
-  | { readonly kind: 'schema-not-representable'; readonly stage: ProviderStage };
+  | { readonly kind: 'schema-not-representable'; readonly stage: ProviderStage }
+  /** The caller's signal was aborted before a reservation or call could start. */
+  | { readonly kind: 'cancelled' };

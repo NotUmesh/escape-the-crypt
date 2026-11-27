@@ -5,10 +5,17 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/index.js",
+    "start": "node dist/index.js"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "esbuild": "0.28.2",
     "vitest": "^4.1.12"
+  },
+  "dependencies": {
+    "@escape-the-crypt/core": "workspace:*",
+    "openai": "7.64.0"
   }
 }

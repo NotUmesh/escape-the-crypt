@@ -39,6 +39,10 @@
     "21.5 Write property test for pipeline quote resolution": {
       "status": "passed",
       "lastRunTimestamp": 1795738274404
+    },
+    "27.2 Write core tests for cancellation": {
+      "status": "passed",
+      "lastRunTimestamp": 1795752209628
     }
   },
   "executionHistory": {
@@ -1358,6 +1362,284 @@
         "executionId": "ed852f9d-f8fc-4b27-8462-926ed851bf58",
         "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
         "timestamp": 1795738742225
+      }
+    ],
+    "23.1 Set up `apps/worker` dependencies": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738879621
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738986555
+      }
+    ],
+    "23.2 Implement the OpenAI Provider": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738992067
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739089301
+      }
+    ],
+    "23.4 Implement the Interim_Ledger": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795738993903
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739089625
+      }
+    ],
+    "23.3 Write unit tests for the OpenAI Provider": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739095649
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739194624
+      }
+    ],
+    "23.5 Write unit tests for the Interim_Ledger": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739097345
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739195130
+      }
+    ],
+    "23.6 Write the worker-local boundary test": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739097515
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739195728
+      }
+    ],
+    "23. Worker: OpenAI Provider and Interim_Ledger": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739195765
+      }
+    ],
+    "24. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739202911
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739359524
+      }
+    ],
+    "25.1 Implement the Job_Store": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795739369087
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749230325
+      }
+    ],
+    "25.2 Write unit tests for the Job_Store": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749237852
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749459443
+      }
+    ],
+    "25.3 Implement the HTTP server": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749239694
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749459532
+      }
+    ],
+    "25.4 Write unit tests for the HTTP server": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749466776
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749820299
+      }
+    ],
+    "25.5 Implement the process entry point": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749467602
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749707161
+      }
+    ],
+    "25.6 Write a smoke test for the process entry point": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749707971
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749820666
+      }
+    ],
+    "25. Worker: job store, HTTP server and process entry point": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749820739
+      }
+    ],
+    "26. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749825880
+      },
+      {
+        "executionId": "fc9c6abb-bbee-4be8-9889-7eae56c61438",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795749950958
+      }
+    ],
+    "27.1 Add `signal` support to `runRoomPipeline` and the `cancelled` error": [
+      {
+        "executionId": "e1fabdd4-b4fc-44c1-a35b-c855907dd2f8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795750293485
+      },
+      {
+        "executionId": "e1fabdd4-b4fc-44c1-a35b-c855907dd2f8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795750651721
+      }
+    ],
+    "27.2 Write core tests for cancellation": [
+      {
+        "executionId": "e1fabdd4-b4fc-44c1-a35b-c855907dd2f8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795750658983
+      },
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752280998
+      }
+    ],
+    "27.3 Implement cancellation in the Job_Store": [
+      {
+        "executionId": "e1fabdd4-b4fc-44c1-a35b-c855907dd2f8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795750659914
+      },
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795751888943
+      },
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752281555
+      }
+    ],
+    "27.4 Write unit tests for the Job_Store cancellation": [
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752287521
+      },
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752390418
+      }
+    ],
+    "27.5 Implement the `DELETE /jobs/:id` route": [
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752288203
+      },
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752391078
+      }
+    ],
+    "27.6 Write HTTP tests for cancellation": [
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752396650
+      },
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752612197
+      }
+    ],
+    "27.7 Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752618891
+      },
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752726741
+      }
+    ],
+    "27. Worker: job cancellation (DELETE /jobs/:id)": [
+      {
+        "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
+        "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
+        "timestamp": 1795752726792
       }
     ]
   }

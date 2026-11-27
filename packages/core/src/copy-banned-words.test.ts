@@ -16,6 +16,7 @@ import {
   ESCAPE_COPY,
   FINAL_DOOR_BUTTON_TEXT,
   FINAL_DOOR_STATUS_LABELS,
+  GENERATION_COPY,
   LOCK_OBJECT_NAMES,
   ROOM_DISPLAY_NAMES,
   SLOT_STATUS_WORDS,
@@ -124,6 +125,7 @@ describe('Room-play copy', () => {
       ROOM_PLAY_LABELS.returnSlotName(false),
       ROOM_PLAY_LABELS.spiritCandlesLit(1),
       ROOM_PLAY_LABELS.spiritCandlesLit(3),
+      ...collectStrings(GENERATION_COPY),
     ];
     for (const s of strings) {
       expect(s.length, s).toBeGreaterThan(0);
@@ -132,6 +134,11 @@ describe('Room-play copy', () => {
     for (const e of Object.values(ROOM_START_ERROR_COPY)) {
       expect(e.what.length).toBeGreaterThan(0);
       expect(e.next.length).toBeGreaterThan(0);
+    }
+    for (const e of Object.values(GENERATION_COPY.failures)) {
+      expect(e.what.length).toBeGreaterThan(0);
+      expect(e.next.length).toBeGreaterThan(0);
+      expect(e.next).toContain('sample crypt');
     }
   });
 

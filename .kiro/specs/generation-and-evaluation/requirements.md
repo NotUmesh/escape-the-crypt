@@ -327,6 +327,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 4. THE Pipeline SHALL mark a room playable with a `RoomPublished` event, and SHALL leave streaming a new room into a running game as an open point.
 5. THE Pipeline SHALL, for Gate 1, generate the complete one-room crypt before the run starts.
 6. IF a room has no accepted questions, THEN THE Pipeline SHALL NOT publish that room.
+7. WHEN the Pipeline's cancellation signal is set, THE Pipeline SHALL start no new budget reservation or Provider call, SHALL let calls already in flight reconcile, and SHALL return a typed `cancelled` result without publishing.
 
 ### Requirement 17: Sufficiency (P6)
 
@@ -495,6 +496,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 7. WHEN the UTC date changes, THE Interim_Ledger SHALL start a new daily total at zero.
 8. THE Worker documentation SHALL state that the Interim_Ledger resets when the Worker restarts, that this deviates from the transactional ledger in the security rule, and that a monthly spending limit on the provider account is the backstop until spec 6.
 9. IF the environment variable `DAILY_BUDGET_USD` is missing or is not a positive number, THEN THE Worker SHALL refuse to start Jobs and SHALL return a typed `budget-exhausted` result.
+10. THE Worker SHALL read the model ID from the environment variable `OPENAI_MODEL` and the per-million-token input and output prices from `PRICE_INPUT_USD_PER_MTOK` and `PRICE_OUTPUT_USD_PER_MTOK`, with no built-in defaults. IF `OPENAI_MODEL` is missing, THEN THE Worker SHALL exit with a non-zero status at startup. IF either price is missing or is not a positive number, THEN THE Worker SHALL refuse to start Jobs and SHALL return a typed `budget-exhausted` result, as in criterion 9.
 
 ### Requirement 29: Worker job API contract (P3)
 
@@ -517,6 +519,17 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 13. THE Worker SHALL store only a hash of the Session_Token with each Job and Tombstone, and a Tombstone SHALL hold no notes text, result or prompt.
 14. THE Worker SHALL meet the privacy rules of Requirement 25 (no content in logs, `Cache-Control: private, no-store`, session binding), and this requirement adds no further privacy rule.
 15. WHEN a client sends `POST /jobs` with a session, an idempotency key and a request digest that match a Tombstone that has not been swept, THE Worker SHALL return `{ jobId, status: 'expired' }` for the existing Job, and SHALL NOT start new work, make a budget reservation or make a Provider call; and WHEN the Tombstone has been swept, THE Worker SHALL treat the idempotency key as unused and start a new Job as normal. Criterion 29.5 applies to a matching Tombstone with a different request digest, and a different session never matches the Tombstone.
+16. IF a Job is still queued or running 10 minutes after it was created, THEN THE Worker SHALL fail it with `generation-failed`.
+17. IF a session already has a queued or running Job, or the Worker already holds 20 live Jobs, THEN THE Worker SHALL refuse a new `POST /jobs` with a typed error before any budget reservation or Provider call, except that an idempotent replay of an existing request SHALL still be answered.
+18. WHEN a client sends `DELETE /jobs/:id` with the Session_Token that created a queued or running Job, THE Worker SHALL stop starting new Provider calls for that Job, SHALL let calls already in flight finish and reconcile with the Budget_Ledger, SHALL respond `202` with `{ jobId, status: 'cancelling' }`, and SHALL mark the Job `cancelled` with the failure kind `cancelled` when the Pipeline returns.
+19. IF a client sends `DELETE /jobs/:id` for a missing Job, a Job of another session or a deleted Tombstone, THEN THE Worker SHALL respond exactly as `GET /jobs/:id` does for a missing Job (same status, body and headers).
+20. WHEN a client sends `DELETE /jobs/:id` with the creating Session_Token for a Job that is already terminal, THE Worker SHALL respond `200` with `{ jobId, status }` for its current status and SHALL NOT change the Job or its result; WHEN the Job is already `cancelling`, THE Worker SHALL respond `202` with `{ jobId, status: 'cancelling' }` again; and WHEN the Job is an unswept Tombstone, THE Worker SHALL respond `200` with `{ jobId, status: 'expired' }`.
+21. IF the Pipeline of a Job with a cancellation request returns a manifest, THEN THE Worker SHALL discard it, SHALL end the Job as `cancelled`, and SHALL NOT store or return the Crypt_Bundle.
+22. WHILE a Job has the status `cancelling`, THE Worker SHALL count that Job as active for the per-session limit of criterion 17.
+23. IF a Job is still `cancelling` 10 minutes after it was created, THEN THE Worker SHALL end it as `cancelled` with the failure kind `cancelled`, and its terminal time SHALL start then.
+24. THE Worker SHALL list `DELETE` among the methods in `Access-Control-Allow-Methods`, with every other CORS rule of criterion 8 unchanged.
+25. IF a client sends `DELETE /jobs/:id` with a missing or malformed `X-Session-Token`, THEN THE Worker SHALL respond with the same typed `400` as `GET /jobs/:id`, and THE Worker SHALL send `Cache-Control: private, no-store` on every `DELETE /jobs/:id` response.
+26. WHEN the Worker handles `DELETE /jobs/:id`, THE Worker SHALL log a `job-cancel-requested` event and the final status, and SHALL log no Job identifier, Session_Token or notes content.
 
 ### Requirement 30: Withdrawn (P3)
 

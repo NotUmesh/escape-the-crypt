@@ -88,18 +88,22 @@ export {
   ENTER_CRYPT_LABEL,
   ROOM_START_ERROR_COPY,
   ESCAPE_COPY,
+  GENERATION_COPY,
 } from './copy-room-play';
-export type { RoomStartErrorKind } from './copy-room-play';
+export type { RoomStartErrorKind, GenerationFailureKind } from './copy-room-play';
 export { initial } from './runtime/initial';
 export { apply } from './runtime/apply';
 export { selectFinalDoor, selectAutopsy } from './runtime/selectors';
 export type { AutopsyCounts } from './runtime/selectors';
 export type { CryptContent } from './mapper/crypt-content';
+export { parseCryptBundle } from './mapper/crypt-bundle-parse';
+export type { CryptBundle, CryptBundleError } from './mapper/crypt-bundle-parse';
 export type { AutopsyEntry } from './runtime/autopsy-selector';
 export { NOTES_SCHEMA_VERSION, makeNotesRecord, parseNotesRecord } from './notes-record';
 export { z } from './zod';
 export { runRoomPipeline } from './pipeline/orchestrator';
 export type {
+  AbortSignalLike,
   PipelineOptions,
   PipelineResult,
   PipelineJobError,

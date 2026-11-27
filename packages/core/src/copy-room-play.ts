@@ -179,3 +179,32 @@ export const SLOT_STATUS_WORDS: Readonly<Record<SlotStatus, string>> = {
   settled: 'settled, excluded from score',
   challenged: 'challenged, excluded from score',
 };
+
+/** Learner-visible failures of a generation job (generation-and-evaluation Requirement 29.9). */
+export type GenerationFailureKind = 'expired' | 'budget-exhausted' | 'not-enough-material' | 'generation-failed';
+/** Copy for building a crypt from the learner's own notes. */
+export const GENERATION_COPY = {
+  generateButton: 'Generate from my notes',
+  progress: 'Building your crypt from your notes. This can take a minute or two.',
+  cancel: 'Cancel',
+  cancelled: 'Stopped. Your notes are still here.',
+  sampleOffer: 'Play the sample crypt instead',
+  failures: {
+    expired: {
+      what: 'This crypt was cleared away before it could be opened.',
+      next: 'Generate it again from your notes, or play the sample crypt.',
+    },
+    'budget-exhausted': {
+      what: "We can't build new crypts right now. Today's generation budget is used up.",
+      next: 'Try again tomorrow, or play the sample crypt.',
+    },
+    'not-enough-material': {
+      what: "Your notes don't hold enough to build questions from.",
+      next: 'Add more notes and try again, or play the sample crypt.',
+    },
+    'generation-failed': {
+      what: "Something went wrong while building your crypt, so we set it aside.",
+      next: 'Try again, or play the sample crypt.',
+    },
+  } satisfies Readonly<Record<GenerationFailureKind, ErrorCopy>>,
+} as const;

@@ -38,6 +38,11 @@ export interface ConceptExtractionOptions {
   /** Worst-case cost of one call, reserved before each attempt. */
   readonly worstCaseUsd: number;
   readonly costOf: (usage: ProviderUsage) => number;
+  /**
+   * Cancellation hook. Checked before every attempt, so a retry never starts after a stop. When it
+   * returns true the stage reserves nothing, calls nothing and returns `cancelled`.
+   */
+  readonly shouldStop?: () => boolean;
 }
 
 const STAGE = 'concept-extraction' as const;
@@ -123,6 +128,7 @@ export async function extractConcepts(
 
   let content = userMessage;
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (options.shouldStop?.() === true) return { ok: false, error: { kind: 'cancelled' } };
     const called = await callWithBudget(
       ledger,
       provider,

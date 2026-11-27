@@ -35,7 +35,9 @@ export type ReviewRejection =
   | { readonly kind: 'budget-exhausted' }
   | { readonly kind: 'provider-failed'; readonly retryable: boolean }
   /** A code defect: the model-facing JSON schema could not be built. */
-  | { readonly kind: 'schema-not-representable' };
+  | { readonly kind: 'schema-not-representable' }
+  /** The run was cancelled before this attempt; no reservation was made and no call started. */
+  | { readonly kind: 'cancelled' };
 
 export type ReviewVerdict =
   | { readonly verdict: 'passed' }
@@ -138,6 +140,7 @@ export async function blindReview(
 
   let content = userMessage;
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (options.shouldStop?.() === true) return reject({ kind: 'cancelled' });
     const called = await callWithBudget(
       ledger,
       provider,

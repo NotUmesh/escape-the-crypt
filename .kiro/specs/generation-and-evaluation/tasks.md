@@ -442,64 +442,102 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
 - [x] 22. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 23. Worker: OpenAI Provider and Interim_Ledger
-  - [ ] 23.1 Set up `apps/worker` dependencies
+- [x] 23. Worker: OpenAI Provider and Interim_Ledger
+  - [x] 23.1 Set up `apps/worker` dependencies
     - Add `openai` to `apps/worker/package.json`; no other new dependency (JSON Schema comes from Core's `toModelJsonSchema`, built on Zod 4's `z.toJSONSchema()`)
     - _Requirements: 11.4_
 
-  - [ ] 23.2 Implement the OpenAI Provider
+  - [x] 23.2 Implement the OpenAI Provider
     - Create `apps/worker/src/provider/openai-provider.ts`: `makeOpenAiProvider(config)` implementing Core's `Provider`; reads `OPENAI_API_KEY` once at construction; uses `response_format: { type: 'json_schema', json_schema: { name: <stage>, strict: true, schema: request.jsonSchema } }`, passing the Core-built schema through unchanged
     - Wrap the SDK call in `try`/`catch`; map timeout/rate-limit/other errors to `ProviderErrorKind`; log only stage, model ID, elapsed ms and token counts, never the request or response body
     - _Requirements: 11.1, 11.3, 11.4, 11.5, 11.7, 25.8_
 
-  - [ ] 23.3 Write unit tests for the OpenAI Provider
+  - [x] 23.3 Write unit tests for the OpenAI Provider
     - Against a mocked SDK/`fetch` client (no real provider call): the `response_format` request shape; SDK-error-to-`ProviderErrorKind` mapping; nothing logged beyond stage/model/elapsed/tokens
     - _Requirements: 11.3, 11.7, 25.8_
 
-  - [ ] 23.4 Implement the Interim_Ledger
+  - [x] 23.4 Implement the Interim_Ledger
     - Create `apps/worker/src/budget/interim-ledger.ts`: `makeInterimLedger(config)` implementing `BudgetLedger`; in-memory daily cap from `DAILY_BUDGET_USD`; worst-case cost from input/output token estimates and prices; reconcile moves reserved to spent; release returns the reservation; UTC day rollover resets totals; missing/non-positive `DAILY_BUDGET_USD` makes Jobs refuse to start
     - _Requirements: 28.1, 28.2, 28.3, 28.4, 28.5, 28.6, 28.7, 28.9_
 
-  - [ ] 23.5 Write unit tests for the Interim_Ledger
+  - [x] 23.5 Write unit tests for the Interim_Ledger
     - Cap enforcement; reconcile/release arithmetic; day rollover; missing-env refusal
     - _Requirements: 28.2, 28.3, 28.4, 28.5, 28.6, 28.7, 28.9_
 
-  - [ ] 23.6 Write the worker-local boundary test
+  - [x] 23.6 Write the worker-local boundary test
     - Create `apps/worker/src/boundary.test.ts` confirming `apps/worker` is the only package whose source imports an `openai`-shaped specifier, and that `packages/core` imports none
     - _Requirements: 9.8, 27.7_
 
-- [ ] 24. Checkpoint - Ensure all tests pass
+- [x] 24. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 25. Worker: job store, HTTP server and process entry point
-  - [ ] 25.1 Implement the Job_Store
+- [x] 25. Worker: job store, HTTP server and process entry point
+  - [x] 25.1 Implement the Job_Store
     - Create `apps/worker/src/jobs/job-store.ts`: `Job` (with `sessionHash`, the sha-256 of the token; the raw token is never stored), `Tombstone` (`{ jobId, sessionHash, idempotencyKeyHash, requestDigest, status: 'expired', expiredAt }`, no content), `JobStatus`, `JobFailureKind`, `JobStore` with `create` (new/replay/replay-expired/conflict, looked up by `(sessionHash, sha-256(idempotencyKey))` over live Jobs and unswept Tombstones; a different digest is a conflict for a Job or a Tombstone; a different session never matches), `get` (returns `null` identically for a missing ID, a wrong session and a swept tombstone), `setStatus`, `sweepExpired` (after 30 minutes deletes notes text, result and the raw idempotency key and writes the Tombstone with the key hash and request digest; after 24 hours deletes the Tombstone, which forgets the key)
-    - _Requirements: 29.3, 29.4, 29.5, 29.10, 29.11, 29.13, 29.15_
+    - Add `MAX_RUN_MS` (10 minutes): `sweepExpired` fails a job still queued or running that long after `createdAt` with `generation-failed`, starting its terminal time then. Add `MAX_ACTIVE_JOBS_PER_SESSION = 1` and `MAX_LIVE_JOBS = 20` (non-tombstoned jobs of any status): after the replay, replay-expired and conflict checks, `create` returns `{ kind: 'session-busy' }` or `{ kind: 'capacity' }`. The store makes no reservation and no Provider call, so the HTTP layer (25.3) must call `create` first
+    - _Requirements: 29.3, 29.4, 29.5, 29.10, 29.11, 29.13, 29.15, 29.16, 29.17_
 
-  - [ ] 25.2 Write unit tests for the Job_Store
+  - [x] 25.2 Write unit tests for the Job_Store
     - Create/replay/conflict; `get` returning `null` identically for wrong session and missing ID; only the token hash is stored; expired + right session reads as `expired`; expired + wrong session reads the same as missing; the Tombstone holds no content; after the 24-hour Tombstone sweep the read is the same as missing
     - Idempotency after expiry: a repeated create after the Job_TTL with the same session, key and digest returns the expired job (`{ jobId, status: 'expired' }`), with zero budget reservations and zero Provider calls (counted with the mock ledger and a counting provider); after the Tombstone sweep the same create starts a new job; the same key with a different digest after the Job_TTL gives a conflict; a different session with the same key starts its own job (keys are bound to the session); the Tombstone holds only the key hash, never the raw key
-    - _Requirements: 29.3, 29.4, 29.5, 29.10, 29.11, 29.13, 29.15_
+    - Max run time fails a stuck job (and a late pipeline result does not overwrite it); session-busy; capacity; replay still answered when busy
+    - _Requirements: 29.3, 29.4, 29.5, 29.10, 29.11, 29.13, 29.15, 29.16, 29.17_
 
-  - [ ] 25.3 Implement the HTTP server
+  - [x] 25.3 Implement the HTTP server
     - Create `apps/worker/src/http/server.ts`: `POST /jobs` (Zod-validated body, a required well-formed `X-Session-Token` header with a typed error for a missing or malformed one, idempotency key handling including `{ jobId, status: 'expired' }` for a replay-expired result before any reservation or Provider call, 202 response without awaiting the pipeline, background `runRoomPipeline` call wired to the real `Provider` and `Interim_Ledger`), `GET /jobs/:id` (session-bound by token hash; a wrong session answers exactly like a missing job; `{ status: 'expired' }` with the right session after the TTL), `GET /health` (no Job data), CORS restricted to `WEB_ORIGIN` that allows the `X-Session-Token` header and no credentials, `Cache-Control: private, no-store` on every Job-carrying response, no notes/prompt/response content logged
-    - _Requirements: 29.1, 29.2, 29.3, 29.6, 29.7, 29.8, 29.9, 29.10, 29.12, 29.13, 29.15, 25.8, 25.9_
+    - Call `create` before any reservation or Provider call, and answer `session-busy` and `capacity` with `429` and a typed body
+    - _Requirements: 29.1, 29.2, 29.3, 29.6, 29.7, 29.8, 29.9, 29.10, 29.12, 29.13, 29.15, 29.17, 25.8, 25.9_
 
-  - [ ] 25.4 Write unit tests for the HTTP server
+  - [x] 25.4 Write unit tests for the HTTP server
     - In-process request tests (no external network) covering the full `POST /jobs` → `GET /jobs/:id` happy path with the cassette provider and mock ledger; a missing or malformed `X-Session-Token` rejected with a typed error; a wrong session answered identically to a missing job (status, body, headers); `{ status: 'expired' }` with `Cache-Control: private, no-store` for the right session after the TTL; CORS allowing only `WEB_ORIGIN` and the `X-Session-Token` header with no `Access-Control-Allow-Credentials`; `Cache-Control: private, no-store` on Job-carrying responses; request-size/word-count rejection before any Provider call; the typed failure body for each `JobFailureKind`; a repeated `POST /jobs` after the TTL with the same session, key and digest answering `{ jobId, status: 'expired' }` with zero reservations and zero Provider calls
-    - _Requirements: 29.1, 29.2, 29.3, 29.6, 29.7, 29.8, 29.9, 29.10, 29.12, 29.13, 29.15_
+    - 429 for session-busy and capacity, with zero reservations and zero provider calls
+    - _Requirements: 29.1, 29.2, 29.3, 29.6, 29.7, 29.8, 29.9, 29.10, 29.12, 29.13, 29.15, 29.17_
 
-  - [ ] 25.5 Implement the process entry point
-    - Create/update `apps/worker/src/index.ts`: read `OPENAI_API_KEY`, `WEB_ORIGIN`, `DAILY_BUDGET_USD`, `JOB_TTL_MINUTES` (default 30), `PORT` (default 8787); construct the real `Provider`, `Interim_Ledger` and `JobStore`; start the HTTP server; start the sweep timer running at least once a minute (it deletes expired Jobs, writes Tombstones and deletes Tombstones after the fixed 24-hour Tombstone_TTL, which is a constant and not an environment variable)
-    - Exit non-zero on a missing `OPENAI_API_KEY` or `WEB_ORIGIN`; refuse to start Jobs (not the process) on a missing/invalid `DAILY_BUDGET_USD`
-    - _Requirements: 28.9, 29.10, 29.11, 29.12_
+  - [x] 25.5 Implement the process entry point
+    - Create/update `apps/worker/src/index.ts`: read `OPENAI_API_KEY`, `WEB_ORIGIN`, `OPENAI_MODEL`, `PRICE_INPUT_USD_PER_MTOK`, `PRICE_OUTPUT_USD_PER_MTOK`, `DAILY_BUDGET_USD`, `JOB_TTL_MINUTES` (default 30), `PORT` (default 8787); construct the real `Provider`, `Interim_Ledger` and `JobStore`; start the HTTP server; start the sweep timer running at least once a minute (it deletes expired Jobs, writes Tombstones and deletes Tombstones after the fixed 24-hour Tombstone_TTL, which is a constant and not an environment variable)
+    - Exit non-zero on a missing `OPENAI_API_KEY`, `WEB_ORIGIN` or `OPENAI_MODEL`; refuse to start Jobs (not the process) on a missing/invalid `DAILY_BUDGET_USD` or price
+    - _Requirements: 28.9, 28.10, 29.10, 29.11, 29.12_
 
-  - [ ] 25.6 Write a smoke test for the process entry point
+  - [x] 25.6 Write a smoke test for the process entry point
     - Starting with all required env vars present succeeds and `GET /health` responds `ok`; starting without `DAILY_BUDGET_USD` still serves `/health` but `POST /jobs` returns `budget-exhausted`
     - _Requirements: 28.9, 29.12_
 
-- [ ] 26. Final checkpoint - Ensure all tests pass
+- [x] 26. Final checkpoint - Ensure all tests pass
   - Run `pnpm test`, `pnpm lint` and `pnpm typecheck` across `packages/core` and `apps/worker`. Ensure all pass, ask the user if questions arise.
+
+- [x] 27. Worker: job cancellation (DELETE /jobs/:id)
+  - [x] 27.1 Add `signal` support to `runRoomPipeline` and the `cancelled` error
+    - In `packages/core/src/pipeline/orchestrator.ts`, add `signal?: AbortSignalLike` to `PipelineOptions`, where `AbortSignalLike` is a minimal structural type `{ readonly aborted: boolean }` declared in core (core's `lib` is `ES2022` with `types: []`, so it does not name the `AbortSignal` global; a real `AbortSignal` satisfies the type). Treat `signal.aborted` like `halt` before every reservation and Provider call, including extraction if it has not started. Never pass the signal to the Provider: calls in flight finish and `callWithBudget` reconciles or releases them
+    - Add the `cancelled` kind (with metadata) to `PipelineJobError`; when the run ends after an abort, return it instead of a manifest and publish nothing. Add no exception path. Export the new type from `packages/core/src/index.ts`
+    - _Requirements: 16.7, 12.6, 12.7_
+
+  - [x] 27.2 Write core tests for cancellation
+    - Example tests: abort before the run (zero reservations, zero calls, `cancelled`); abort while extraction is in flight (the call reconciles, no generation call starts); abort during generation and review (no new calls, in-flight calls counted); an unaborted signal leaves results unchanged
+    - **Property 21: Cancellation never starts a call after abort and leaves no reservation outstanding.** Use a deferred scripted Provider and the mock ledger, abort at an arbitrary point, and assert: calls started after the abort equal 0; every reservation is reconciled or released; the result is `cancelled` and never a published manifest; nothing throws
+    - **Validates: Requirements 16.7, 12.6, 12.7**
+
+  - [x] 27.3 Implement cancellation in the Job_Store
+    - In `apps/worker/src/jobs/job-store.ts`, add `cancelling` to `JobStatus`; add `requestCancel(jobId, sessionHash)` returning `not-found` (identical for missing, wrong session and swept), `expired` (unswept Tombstone, right session), `terminal` (with the current status, unchanged), or `cancelling` (for a queued, running or already `cancelling` Job, which marks the Job cancel-requested)
+    - Count `cancelling` as active for `session-busy` and `MAX_LIVE_JOBS`. `sweepExpired` ends a Job stuck in `cancelling` after `MAX_RUN_MS` as `cancelled` with failure kind `cancelled`. A pipeline result that arrives for a cancel-requested Job is discarded: the Job ends `cancelled`, the bundle is never stored, and the Job_TTL clock starts then. `setStatus` still keeps the first terminal outcome
+    - _Requirements: 29.18, 29.19, 29.20, 29.21, 29.22, 29.23_
+
+  - [x] 27.4 Write unit tests for the Job_Store cancellation
+    - `requestCancel` on queued, running, `cancelling`, each terminal status and an unswept Tombstone; identical `not-found` for a wrong session and a missing ID; session-busy while `cancelling`; the `MAX_RUN_MS` sweep ends a `cancelling` Job as `cancelled`; a late success is discarded and no bundle is stored; the first terminal outcome is kept
+    - _Requirements: 29.18, 29.19, 29.20, 29.21, 29.22, 29.23_
+
+  - [x] 27.5 Implement the `DELETE /jobs/:id` route
+    - In `apps/worker/src/http/routes-jobs.ts`, add `DELETE /jobs/:id` using `requestCancel`: `202 { jobId, status: 'cancelling' }` for a queued, running or `cancelling` Job, `200 { jobId, status }` for a terminal Job, `200 { jobId, status: 'expired' }` for a Tombstone, the identical `404` used by `GET` for missing, wrong-session and swept, and the same `400` as `GET` for a missing or malformed `X-Session-Token`. Send `Cache-Control: private, no-store` on every response. Log `job-cancel-requested` and the final status, with no Job ID, token or content
+    - In `apps/worker/src/http/job-runner.ts`, create one `AbortController` per Job, pass its `signal` to `runRoomPipeline`, abort it when the cancel is requested, and map a `cancelled` pipeline result and a discarded late success to a terminal `cancelled` Job through `mapFailure`
+    - In `apps/worker/src/http/cors.ts`, change `ALLOWED_METHODS` to `GET, POST, DELETE, OPTIONS`
+    - _Requirements: 29.18, 29.19, 29.20, 29.21, 29.24, 29.25, 29.26, 29.3, 29.9_
+
+  - [x] 27.6 Write HTTP tests for cancellation
+    - In-process on loopback: cancel while a deferred Provider call is in flight (the in-flight call reconciles, no further calls start, a final `GET` returns `cancelled` with failure kind `cancelled`, and the ledger's outstanding amount is 0)
+    - The session is still busy while `cancelling` (a new `POST /jobs` gets the `session-busy` `429`, then succeeds after the Job ends); an identical `404` for a wrong session and a missing Job (status, body and headers except `Date`); the `400` for a bad token; the terminal and expired idempotent responses and a second `DELETE` on a `cancelling` Job; the preflight lists `DELETE`; `Cache-Control: private, no-store` on every response; captured logs carry no IDs, tokens or content
+    - _Requirements: 29.18, 29.19, 29.20, 29.21, 29.22, 29.24, 29.25, 29.26_
+
+  - [x] 27.7 Checkpoint - Ensure all tests pass
+    - Run `pnpm test`, `pnpm lint` (including the structure check) and `pnpm typecheck` for `packages/core` and `apps/worker` only, not `apps/web`, and run the worker build (`pnpm --filter ./apps/worker build`). Ensure all pass, ask the user if questions arise.
 
 ## Notes
 
@@ -508,6 +546,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
 - No task reads or references `eval/holdout/`, and none edits `eval/adversarial/fixtures.json`.
 - No task adds a real provider, network or AI SDK import to `packages/core`; the OpenAI SDK is used only in `apps/worker`.
 - Room-play follow-up (not a task here): the web app creates and keeps the session ID (at least 128 bits from `crypto.getRandomValues`, in `sessionStorage`, sent as `X-Session-Token`, no cookies).
+- Room-play follow-up (not a task here): the web app can call `DELETE /jobs/:id` when the learner leaves the generate screen; `connect-src` is unchanged.
 - Requirement 30 is withdrawn (covered by G8 and Requirement 21.3), so no task references it.
 - Each task references specific requirements for traceability. Property tests validate universal correctness properties; unit tests cover fixed examples and fixtures.
 
@@ -566,7 +605,12 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
     { "id": 47, "tasks": ["25.2", "25.3"] },
     { "id": 48, "tasks": ["25.4", "25.5"] },
     { "id": 49, "tasks": ["25.6"] },
-    { "id": 50, "tasks": ["26"] }
+    { "id": 50, "tasks": ["26"] },
+    { "id": 51, "tasks": ["27.1"] },
+    { "id": 52, "tasks": ["27.2", "27.3"] },
+    { "id": 53, "tasks": ["27.4", "27.5"] },
+    { "id": 54, "tasks": ["27.6"] },
+    { "id": 55, "tasks": ["27.7"] }
   ]
 }
 ```

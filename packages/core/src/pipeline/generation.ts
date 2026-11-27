@@ -74,6 +74,7 @@ export async function generateForConcept(
 
   let content = userMessage;
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (options.shouldStop?.() === true) return { ok: false, error: { kind: 'cancelled' } };
     const called = await callWithBudget(
       ledger,
       provider,

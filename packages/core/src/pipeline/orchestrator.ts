@@ -33,6 +33,14 @@ import type { PipelineStageError } from './stage-error';
 
 export type { UnplacedAccepted } from './room-assembly';
 
+/**
+ * Minimal structural view of an AbortSignal. Core's lib has no DOM or Node types, so it cannot
+ * name the global; a real AbortSignal satisfies this.
+ */
+export interface AbortSignalLike {
+  readonly aborted: boolean;
+}
+
 /** Everything the run needs, injected: no globals, no timers, no I/O. */
 export interface PipelineOptions extends GenerationOptions {
   readonly provider: Provider;
@@ -43,6 +51,11 @@ export interface PipelineOptions extends GenerationOptions {
   readonly concurrency?: number;
   /** Millisecond clock for timings. Default: a clock that always reads 0. */
   readonly now?: () => number;
+  /**
+   * Cancellation. Once borted is true no new reservation or provider call starts, and the run
+   * ends as cancelled. Calls already in flight are not aborted and are never given this signal.
+   */
+  readonly signal?: AbortSignalLike;
 }
 
 export interface PipelineResult {
@@ -86,7 +99,9 @@ function manifestIdOf(doc: PreparedDocument): string {
  * `runWithConcurrency`; results keep extraction order, so assembly does not depend on completion
  * order. A budget stop (or a code defect in a model-facing schema) ends the job: calls not yet
  * started are skipped and nothing is published. Any other per-question failure sets only that
- * question aside. Never throws; failures are `PipelineJobFailure` values.
+ * question aside. An abort (options.signal) works like a stop that nothing can outrank: it is
+ * checked before every call, at every exit and once before assembly, and the run then returns
+ * cancelled, even if a budget stop also happened. Never throws; failures are `PipelineJobFailure` values.
  */
 export async function runRoomPipeline(
   notesText: string,
@@ -125,11 +140,21 @@ export async function runRoomPipeline(
     if (halt.error === null) halt.error = error;
   };
 
+  const aborted = (): boolean => options.signal?.aborted === true;
+  const cancelled = (): Result<PipelineResult, PipelineJobFailure> => fail({ kind: 'cancelled' });
+  // Handed to every stage, which checks it before each attempt (retries included).
+  const stageOptions: PipelineOptions = {
+    ...options,
+    shouldStop: () => aborted() || options.shouldStop?.() === true,
+  };
+
   const doc = await timed('prepare', () => prepareDocument(notesText));
 
+  if (aborted()) return cancelled();
   const extracted = await timed('concept-extraction', () =>
-    extractConcepts(recorder.provider, options.ledger, doc, options),
+    extractConcepts(recorder.provider, options.ledger, doc, stageOptions),
   );
+  if (aborted()) return cancelled();
   if (!extracted.ok) return fail(extracted.error);
   const concepts: readonly ExtractedConcept[] = extracted.value;
   counts.concepts = concepts.length;
@@ -138,11 +163,13 @@ export async function runRoomPipeline(
   const generated = await timed('generation', () =>
     runWithConcurrency(
       concepts.map((concept) => async (): Promise<Slot<Result<GeneratedConceptQuestions | null, PipelineStageError>>> => {
-        if (halt.error !== null) return SKIPPED;
-        const result = await generateForConcept(recorder.provider, options.ledger, concept, doc, options);
+        if (halt.error !== null || aborted()) return SKIPPED;
+        const result = await generateForConcept(recorder.provider, options.ledger, concept, doc, stageOptions);
         if (
           !result.ok &&
-          (result.error.kind === 'budget-exhausted' || result.error.kind === 'schema-not-representable')
+          (result.error.kind === 'budget-exhausted' ||
+            result.error.kind === 'schema-not-representable' ||
+            result.error.kind === 'cancelled')
         ) {
           stopOn(result.error);
         }
@@ -151,6 +178,7 @@ export async function runRoomPipeline(
       limit,
     ),
   );
+  if (aborted()) return cancelled();
   if (halt.error !== null) return fail(halt.error);
 
   const candidates: Candidate[] = [];
@@ -195,9 +223,10 @@ export async function runRoomPipeline(
   const reviewed = await timed('review', () =>
     runWithConcurrency(
       survivors.map((c) => async (): Promise<Slot<ReviewVerdict>> => {
-        if (halt.error !== null) return SKIPPED;
-        const verdict = await blindReview(recorder.provider, options.ledger, c.question, doc, options);
+        if (halt.error !== null || aborted()) return SKIPPED;
+        const verdict = await blindReview(recorder.provider, options.ledger, c.question, doc, stageOptions);
         if (verdict.verdict === 'rejected') {
+          if (verdict.reason.kind === 'cancelled') stopOn({ kind: 'cancelled' });
           if (verdict.reason.kind === 'budget-exhausted') stopOn({ kind: 'budget-exhausted' });
           if (verdict.reason.kind === 'schema-not-representable') {
             stopOn({ kind: 'schema-not-representable', stage: 'review' });
@@ -224,12 +253,16 @@ export async function runRoomPipeline(
     // A budget/defect stop is not a judgement on the question.
     if (verdict?.verdict === 'rejected') {
       const kind = verdict.reason.kind;
-      if (kind === 'budget-exhausted' || kind === 'schema-not-representable') return;
+      if (kind === 'budget-exhausted' || kind === 'schema-not-representable' || kind === 'cancelled') {
+        return;
+      }
       if (kind === 'schema-rejected') counts.schemaRejected += 1;
     }
     counts.reviewRejections += 1;
     counts.discarded += 1;
   });
+  // One check before assembly: an abort after the last call still ends as cancelled.
+  if (aborted()) return cancelled();
   if (halt.error !== null) return fail(halt.error);
 
   const assemblyConcepts: AssemblyConcept[] = concepts.map((concept, i) => ({
