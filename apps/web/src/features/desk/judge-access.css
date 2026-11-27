@@ -1,0 +1,39 @@
+/* The judge access disclosure: small, closed by default, on the actions panel's own surface. */
+.judge-access {
+  color: var(--bone-50);
+}
+.judge-access__summary {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--stone-300);
+  text-decoration: underline;
+}
+.judge-access__summary:focus-visible,
+.judge-access__input:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.judge-access__body {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 28rem;
+  padding-top: 0.5rem;
+}
+.judge-access__input {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  background: var(--stone-950);
+  color: var(--bone-50);
+  border: 1px solid var(--stone-300);
+  border-radius: 4px;
+  font: inherit;
+}
+/* A refused code is marked by a thicker border, and the failure message beside it says why. */
+.judge-access__input[aria-invalid='true'] {
+  border-width: 3px;
+  border-color: var(--spectre-300);
+}

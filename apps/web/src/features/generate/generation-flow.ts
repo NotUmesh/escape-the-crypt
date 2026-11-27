@@ -15,7 +15,7 @@ export type GenerationEvent =
   | { readonly type: 'press'; readonly key: string }
   | { readonly type: 'started'; readonly jobId: string }
   /** Network, timeout, not-found, rejected and invalid-response all read as generation-failed. */
-  | { readonly type: 'startFailed' }
+  | { readonly type: 'startFailed'; readonly kind?: GenerationFailureKind }
   | { readonly type: 'polled'; readonly job: JobState }
   | { readonly type: 'pollFailed' }
   | { readonly type: 'capReached' }
@@ -72,7 +72,7 @@ export function generationReducer(state: GenerationState, event: GenerationEvent
     case 'started':
       return state.status === 'starting' ? { status: 'polling', key: state.key, jobId: event.jobId } : state;
     case 'startFailed':
-      return state.status === 'starting' ? failed('generation-failed') : state;
+      return state.status === 'starting' ? failed(event.kind ?? 'generation-failed') : state;
     case 'polled':
       return state.status === 'polling' ? afterPoll(state, event.job) : state;
     case 'pollFailed':

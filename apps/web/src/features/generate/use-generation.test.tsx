@@ -210,4 +210,21 @@ describe('useGeneration', () => {
       expect(worker.polls).toHaveLength(3);
       expect(current.state).toEqual({ status: 'failed', kind: 'generation-failed' });
     });
-  });});
+  });
+  it('fails with the judge message when the worker refuses the code, and does not retry', async () => {
+    let starts = 0;
+    const client: WorkerClient = {
+      startJob: () => {
+        starts += 1;
+        return Promise.resolve({ ok: false, error: { kind: 'judge-denied' } });
+      },
+      getJob: () => Promise.resolve({ ok: false, error: { kind: 'network' } }),
+      cancelJob: () => undefined,
+    };
+    mount.render(<Probe client={client} />);
+    await act(async () => current.start(SAMPLE_NOTES_TEXT));
+    await tick(10_000);
+    expect(current.state).toEqual({ status: 'failed', kind: 'judge-access-denied' });
+    expect(starts).toBe(1);
+  });
+});

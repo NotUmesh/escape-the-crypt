@@ -25,6 +25,8 @@ export type WorkerError =
   | { readonly kind: 'timeout' }
   | { readonly kind: 'not-found' }
   | { readonly kind: 'rejected'; readonly status: number }
+  /** The judge route refused the access code (403), or is not there (404, which looks the same from outside). */
+  | { readonly kind: 'judge-denied' }
   | {
       readonly kind: 'invalid-response';
       readonly reason: InvalidResponseReason;
@@ -53,6 +55,12 @@ export interface WorkerClientOptions {
   readonly fetchImpl: typeof fetch;
   readonly sessionToken: string;
   readonly timeoutMs: number;
+  /**
+   * Reads the judge access code when a job starts. A non-empty code sends `POST /judge/jobs` with
+   * the code in the `X-Judge-Token` header; an empty one sends the public `POST /jobs`. A getter,
+   * so the code is never copied into the client and is gone with the tab.
+   */
+  readonly judgeCode?: () => string;
 }
 
 function invalid(reason: InvalidResponseReason, bundleErrorKind?: string): WorkerError {
@@ -90,7 +98,7 @@ function toJobState(body: JobStatusResponse): WorkerResult<JobState> {
   }
 }/** A client for the generation worker. Never throws; never logs; no cookies are sent. */
 export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
-  const { origin, fetchImpl, sessionToken, timeoutMs } = options;
+  const { origin, fetchImpl, sessionToken, timeoutMs, judgeCode } = options;
 
   async function request<T>(
     path: string,
@@ -133,14 +141,17 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
 
   return {
     startJob(notesText, idempotencyKey, runLength = 'short') {
-      return request(
-        '/jobs',
+      const code = judgeCode?.().trim() ?? '';
+      const judge = code !== '';
+      return request<StartedJob>(
+        judge ? '/judge/jobs' : '/jobs',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-Session-Token': sessionToken,
             'Idempotency-Key': idempotencyKey,
+            ...(judge ? { 'X-Judge-Token': code } : {}),
           },
           body: JSON.stringify({ notesText, runLength }),
         },
@@ -149,7 +160,12 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
           if (!parsed.success) return fail(invalid('schema'));
           return { ok: true, value: { jobId: parsed.data.jobId, status: parsed.data.status } };
         },
-      );
+      ).then((result) => {
+        if (!judge || result.ok) return result;
+        const { error } = result;
+        const refused = (error.kind === 'rejected' && error.status === 403) || error.kind === 'not-found';
+        return refused ? fail<StartedJob>({ kind: 'judge-denied' }) : result;
+      });
     },
     getJob(jobId) {
       return request(

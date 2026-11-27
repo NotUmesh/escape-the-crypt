@@ -54,11 +54,13 @@ export interface CryptFlowProps {
    * exists only while a run is playing, because the host's announcer covers the screens before it.
    */
   readonly renderStart?: RenderStart;
+  /** Reads the judge access code the host holds in memory. Used only when a job starts. */
+  readonly judgeCode?: () => string;
 }
 
 const NO_MESSAGES: readonly string[] = [];
 
-function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps, renderStart }: CryptFlowProps): ReactNode {
+function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps, renderStart, judgeCode }: CryptFlowProps): ReactNode {
   // Which crypt startRun builds: the generated one once it is ready, else the sample.
   const playRef = useRef<BuiltCrypt | null>(null);
   // The sample's settings are read when the run starts, so the latest difficulty choice applies.
@@ -70,7 +72,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   }, []);
   const binding = useBinding(buildCrypt);
   const origin = resolveOrigin(generate);
-  const client = useMemo(() => resolveClient(generate, origin), [generate, origin]);
+  const client = useMemo(() => resolveClient(generate, origin, judgeCode), [generate, origin, judgeCode]);
   const generation = useGeneration({
     client,
     intervalMs: generate?.intervalMs,

@@ -123,7 +123,12 @@ export function useGeneration(options: GenerationOptions): Generation {
           await sleep(intervalMs);
           if (!alive()) return;
         } else {
-          finish({ type: 'startFailed' });
+          // A refused judge code is its own message, and is not retried.
+          finish(
+            started.error.kind === 'judge-denied'
+              ? { type: 'startFailed', kind: 'judge-access-denied' }
+              : { type: 'startFailed' },
+          );
           return;
         }
       }

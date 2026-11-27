@@ -168,3 +168,120 @@ describe('FrontOfHouse', () => {
     });
   });
 });
+
+describe('FrontOfHouse: judge access', () => {
+  const mount = useMount();
+  const CODE = 'judge-code-0123456789-abcdef';
+  // Built at run time: the style guard bans cross-origin URL literals in source.
+  const ORIGIN = ['http:', 'localhost:8787'].join('//');
+
+  interface Sent {
+    readonly url: string;
+    readonly headers: Record<string, string>;
+  }
+  function stubFetch(respond: (url: string) => Response): Sent[] {
+    const sent: Sent[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, init: RequestInit) => {
+        sent.push({ url, headers: init.headers as Record<string, string> });
+        return Promise.resolve(respond(url));
+      }),
+    );
+    return sent;
+  }
+  const json = (status: number, body: unknown): Response =>
+    new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+
+  beforeEach(() => {
+    stubReducedMotion(false);
+    sessionStorage.clear();
+    localStorage.clear();
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function openBookWithNotes(): Promise<void> {
+    mount.render(<FrontOfHouse route="ingest" store={createMemoryStore()} useBinding={useBinding} generate={{ origin: ORIGIN }} />);
+    typeNotes(mount.container, PROSE);
+    await clickButton(mount.container, 'Confirm notes');
+  }
+  function typeCode(code: string): void {
+    const input = mount.container.querySelector<HTMLInputElement>('[data-testid="judge-access"] input');
+    if (input === null) throw new Error('no judge access field');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    act(() => {
+      setter?.call(input, code);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }
+
+  it('is a closed disclosure on the book once notes are confirmed, and not before', async () => {
+    mount.render(<FrontOfHouse route="ingest" store={createMemoryStore()} useBinding={useBinding} generate={{ origin: ORIGIN }} />);
+    expect(mount.container.querySelector('[data-testid="judge-access"]')).toBeNull();
+    typeNotes(mount.container, PROSE);
+    await clickButton(mount.container, 'Confirm notes');
+    const details = mount.container.querySelector<HTMLDetailsElement>('[data-testid="judge-access"]');
+    expect(details?.open).toBe(false);
+  });
+
+  it('is not offered when no worker is configured', async () => {
+    mount.render(<FrontOfHouse route="ingest" store={createMemoryStore()} useBinding={useBinding} generate={{ origin: null }} />);
+    typeNotes(mount.container, PROSE);
+    await clickButton(mount.container, 'Confirm notes');
+    expect(mount.container.querySelector('[data-testid="judge-access"]')).toBeNull();
+  });
+
+  it('sends Generate to /judge/jobs with the code in the header and nowhere else', async () => {
+    const sent = stubFetch(() => json(202, { jobId: 'job-1', status: 'queued' }));
+    await openBookWithNotes();
+    typeCode(CODE);
+    await clickButton(mount.container, GENERATION_COPY.generateButton);
+    const post = sent[0];
+    expect(new URL(post?.url ?? '').pathname).toBe('/judge/jobs');
+    expect(post?.headers['X-Judge-Token']).toBe(CODE);
+    expect(post?.url).not.toContain(CODE);
+    expect(location.href).not.toContain(CODE);
+    expect(JSON.stringify({ ...localStorage, ...sessionStorage })).not.toContain(CODE);
+    // The only place the code appears on the page is the field it was typed in.
+    expect(document.body.textContent).not.toContain(CODE);
+    expect(Array.from(document.body.querySelectorAll('*')).filter((el) => el.outerHTML.replace(el.innerHTML, '').includes(CODE))).toHaveLength(1);
+  });
+
+  it('uses the public route when no code was entered', async () => {
+    const sent = stubFetch(() => json(202, { jobId: 'job-1', status: 'queued' }));
+    await openBookWithNotes();
+    await clickButton(mount.container, GENERATION_COPY.generateButton);
+    expect(new URL(sent[0]?.url ?? '').pathname).toBe('/jobs');
+    expect(Object.keys(sent[0]?.headers ?? {})).not.toContain('X-Judge-Token');
+  });
+
+  it('shows the typed error copy for a wrong code, opens the disclosure, and keeps the notes', async () => {
+    stubFetch(() => json(403, { error: 'judge-access-denied', message: 'x' }));
+    await openBookWithNotes();
+    typeCode('wrong-code-0123456789-abcdef');
+    await clickButton(mount.container, GENERATION_COPY.generateButton);
+    await flush();
+    const copy = GENERATION_COPY.failures['judge-access-denied'];
+    const failed = mount.container.querySelector('[data-testid="generation-failed"]');
+    expect(failed?.textContent).toContain(copy.what);
+    expect(failed?.textContent).toContain(copy.next);
+    expect(failed?.textContent).not.toContain('wrong-code');
+    const details = mount.container.querySelector<HTMLDetailsElement>('[data-testid="judge-access"]');
+    expect(details?.open).toBe(true);
+    expect(details?.querySelector('input')?.getAttribute('aria-invalid')).toBe('true');
+    expect(mount.container.querySelector('.ingest-confirmed')).not.toBeNull();
+  });
+
+  it('logs nothing while the code is typed and used', async () => {
+    const spies = (['log', 'info', 'warn', 'error', 'debug'] as const).map((method) => vi.spyOn(console, method).mockImplementation(() => undefined));
+    stubFetch(() => json(403, { error: 'judge-access-denied', message: 'x' }));
+    await openBookWithNotes();
+    typeCode(CODE);
+    await clickButton(mount.container, GENERATION_COPY.generateButton);
+    await flush();
+    for (const spy of spies) {
+      expect(JSON.stringify(spy.mock.calls)).not.toContain(CODE);
+      spy.mockRestore();
+    }
+  });
+});

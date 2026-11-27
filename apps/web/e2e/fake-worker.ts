@@ -37,7 +37,7 @@ export interface FakeWorker {
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token, Idempotency-Key',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token, Idempotency-Key, X-Judge-Token',
   'Access-Control-Max-Age': '600',
 };
 
@@ -56,7 +56,11 @@ function completedBody(notesText: string): string {
  * Answers the worker origin with page.route. `POST /jobs` gives 202; each `GET /jobs/:id` takes
  * the next step (the last step repeats). No real worker or AI provider is involved.
  */
-export async function installFakeWorker(page: Page, steps: readonly FakeStep[]): Promise<FakeWorker> {
+export async function installFakeWorker(
+  page: Page,
+  steps: readonly FakeStep[],
+  options: { readonly judgeCode?: string } = {},
+): Promise<FakeWorker> {
   const seen: SeenRequest[] = [];
   let preflightCount = 0;
   let postedNotes = '';
@@ -72,7 +76,18 @@ export async function installFakeWorker(page: Page, steps: readonly FakeStep[]):
     }
     seen.push({ method: request.method(), url: request.url(), headers: request.headers(), body: request.postData() });
     const path = new URL(request.url()).pathname;
-    if (request.method() === 'POST' && path === '/jobs') {
+    if (request.method() === 'POST' && path === '/judge/jobs') {
+      // Like the worker: no route without a configured code, a refusal for a wrong one.
+      if (options.judgeCode === undefined) {
+        await json(route, 404, NOT_FOUND);
+        return;
+      }
+      if (request.headers()['x-judge-token'] !== options.judgeCode) {
+        await json(route, 403, JSON.stringify({ error: 'judge-access-denied', message: 'That judge access code is not right.' }));
+        return;
+      }
+    }
+    if (request.method() === 'POST' && (path === '/jobs' || path === '/judge/jobs')) {
       const parsed: unknown = JSON.parse(request.postData() ?? '{}');
       postedNotes =
         typeof parsed === 'object' && parsed !== null && 'notesText' in parsed && typeof parsed.notesText === 'string'

@@ -10,6 +10,7 @@ import type { IngestFlowProps } from '../ingest/ingest-flow';
 import type { NotesStore } from '../ingest/notes-store';
 import { ResumeEntry } from '../start/resume-entry';
 import { BookExport } from './book-export';
+import { JudgeAccess } from './judge-access';
 import { BringNotesScreen } from './bring-notes-screen';
 import { DeskHub } from './desk-hub';
 import { playableSamples } from './sample-list';
@@ -41,6 +42,9 @@ export interface FrontOfHouseStartProps {
   /** The one live region's message and its setter. */
   readonly message: string;
   readonly announce: (message: string) => void;
+  /** The judge access code, held in memory by the host, and its setter. */
+  readonly judgeCode: string;
+  readonly onJudgeCode: (code: string) => void;
 }
 
 /**
@@ -61,6 +65,8 @@ export function FrontOfHouseStart({
   onNotesGone,
   message,
   announce,
+  judgeCode,
+  onJudgeCode,
 }: FrontOfHouseStartProps): ReactNode {
   const screen = screenFor({ route, generation: context.generation.status, phase: 'not-started', descending: false });
   const loader = useMemo(() => interimShelfLoader(context.deps.factory), [context.deps.factory]);
@@ -107,6 +113,15 @@ export function FrontOfHouseStart({
               onChange={context.choice.onChange}
               availability={context.choice.availability}
             />
+          }
+          judgeAccess={
+            context.canGenerate ? (
+              <JudgeAccess
+                code={judgeCode}
+                onChange={onJudgeCode}
+                denied={context.generation.status === 'failed' && context.generation.kind === 'judge-access-denied'}
+              />
+            ) : undefined
           }
           actions={
             <StartActions

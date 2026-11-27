@@ -1,6 +1,7 @@
 import type { SampleCryptError } from './sample-crypt/human-heart';
 import type { SlotStatus } from './runtime/state-types';
 import type { ErrorCopy } from './copy';
+import { JUDGE_ACCESS_DENIED_COPY } from './copy-judge';
 
 /** Strings for playing a crypt. Re-exported from `copy.ts`. Every string here is covered by the banned-words test. */
 
@@ -189,7 +190,12 @@ export const SLOT_STATUS_WORDS: Readonly<Record<SlotStatus, string>> = {
 };
 
 /** Learner-visible failures of a generation job (generation-and-evaluation Requirement 29.9). */
-export type GenerationFailureKind = 'expired' | 'budget-exhausted' | 'not-enough-material' | 'generation-failed';
+export type GenerationFailureKind =
+  | 'expired'
+  | 'budget-exhausted'
+  | 'not-enough-material'
+  | 'generation-failed'
+  | 'judge-access-denied';
 /** Copy for building a crypt from the learner's own notes. */
 /** The length and difficulty choice before a crypt is made. Difficulty never changes the questions. */
 export const RUN_SETUP_COPY = {
@@ -234,6 +240,7 @@ export const GENERATION_COPY = {
       what: "Something went wrong while building your crypt, so we set it aside.",
       next: 'Try again, or play the sample crypt.',
     },
+    'judge-access-denied': JUDGE_ACCESS_DENIED_COPY,
   } satisfies Readonly<Record<GenerationFailureKind, ErrorCopy>>,
 } as const;
 

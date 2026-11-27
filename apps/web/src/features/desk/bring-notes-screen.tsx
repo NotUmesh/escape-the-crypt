@@ -15,6 +15,8 @@ export interface BringNotesScreenProps {
   readonly actions?: ReactNode;
   /** Defaults to the (empty) `SettingsSlot`. */
   readonly settingsSlot?: ReactNode;
+  /** The "Judge access" disclosure. Shown with the actions, only when generating is possible. */
+  readonly judgeAccess?: ReactNode;
   readonly backHref: string;
   /** True while the dig covers this screen: the book stays mounted so the notes survive a cancel. */
   readonly hidden?: boolean;
@@ -31,6 +33,7 @@ export function BringNotesScreen({
   confirmed,
   actions,
   settingsSlot = <SettingsSlot />,
+  judgeAccess,
   backHref,
   hidden = false,
   viewport,
@@ -57,6 +60,7 @@ export function BringNotesScreen({
               </div>
               <div className="bring__actions fh-panel" data-testid="bring-actions">
                 {actions}
+                {judgeAccess}
               </div>
             </>
           ) : null}

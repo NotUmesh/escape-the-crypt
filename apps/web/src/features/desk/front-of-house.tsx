@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Chunk } from '@escape-the-crypt/core';
 import { CryptFlow } from '../crypt/crypt-flow';
@@ -38,6 +38,11 @@ interface Notes {
 export function FrontOfHouse({ route, store, baseUrl = '/', createClient, useBinding, generate }: FrontOfHouseProps): ReactNode {
   const [notes, setNotes] = useState<Notes | null>(null);
   const { message, announce } = useShellAnnouncer();
+  // The judge access code lives here and nowhere else: not in storage, not in a URL, not in a log.
+  const [judgeCode, setJudgeCode] = useState('');
+  const judgeCodeRef = useRef(judgeCode);
+  judgeCodeRef.current = judgeCode;
+  const readJudgeCode = useCallback((): string => judgeCodeRef.current, []);
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   const onConfirmed = useCallback((chunks: readonly Chunk[]): void => {
     const text = notesTextFromChunks(chunks);
@@ -57,6 +62,8 @@ export function FrontOfHouse({ route, store, baseUrl = '/', createClient, useBin
       onNotesGone={onNotesGone}
       message={message}
       announce={announce}
+      judgeCode={judgeCode}
+      onJudgeCode={setJudgeCode}
     />
   );
   return (
@@ -66,6 +73,7 @@ export function FrontOfHouse({ route, store, baseUrl = '/', createClient, useBin
       notesDigest={notes?.digest}
       generate={generate}
       onAnnounce={announce}
+      judgeCode={readJudgeCode}
       renderStart={renderStart}
     />
   );

@@ -26,7 +26,12 @@ export function resolveOrigin(seams: GenerateSeams | undefined): string | null {
   return seams?.origin !== undefined ? seams.origin : workerOrigin();
 }
 
-export function resolveClient(seams: GenerateSeams | undefined, origin: string | null): WorkerClient {
+/** `judgeCode` reads the judge access code the learner typed. It lives in memory in the host and goes nowhere else. */
+export function resolveClient(
+  seams: GenerateSeams | undefined,
+  origin: string | null,
+  judgeCode?: () => string,
+): WorkerClient {
   if (seams?.client !== undefined) return seams.client;
   if (origin === null) return INERT_CLIENT;
   return createWorkerClient({
@@ -34,5 +39,6 @@ export function resolveClient(seams: GenerateSeams | undefined, origin: string |
     fetchImpl: (input, init) => globalThis.fetch(input, init),
     sessionToken: readOrCreateSessionToken(),
     timeoutMs: REQUEST_TIMEOUT_MS,
+    ...(judgeCode === undefined ? {} : { judgeCode }),
   });
 }
