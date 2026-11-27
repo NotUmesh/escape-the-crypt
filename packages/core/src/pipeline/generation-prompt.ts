@@ -37,6 +37,12 @@ const LOCK_RULES: Readonly<Partial<Record<LockType, string>>> = {
     '- Exactly one option is supported; answer is that option\'s id. Never write an option that is merely "not mentioned".',
     '- Each quote is one sentence or one clause of 4 to 25 words. A quote of 26 words or more, or of 3 words or fewer, is rejected: quote only the part that carries the fact, with capital letters exactly as in the notes.',
   ].join('\n'),
+  'bone-ordering': [
+    'bone-ordering (put 3 to 5 steps in order): use only when the notes state an explicit sequence: numbering, or first/next/then/finally-style wording.',
+    '- steps lists the 3 to 5 items in the correct order, copied or lightly paraphrased from the notes, never reordered by you after you decide the order.',
+    '- Never use this type for a cycle or a process the notes describe as having no fixed starting point.',
+    '- At least one quote must contain the words that show the order (e.g. "first", "then", "finally", or a number).',
+  ].join('\n'),
 };
 
 export function buildGenerationSystemPrompt(allowed: readonly LockType[]): string {

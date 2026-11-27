@@ -12,7 +12,11 @@ import {
   buildGenerationUserMessage,
   buildRetryNote,
 } from './generation-prompt';
-import { GenerationResponseSchema, toAuthoringQuestion } from './generation-schema';
+import {
+  buildGenerationResponseSchema,
+  FullGenerationResponseSchema,
+  toAuthoringQuestion,
+} from './generation-schema';
 import type { PreparedDocument } from './prepare-input';
 import type { PipelineStageError } from './stage-error';
 
@@ -52,7 +56,7 @@ export async function generateForConcept(
   const allowed = options.allowedLockTypes ?? DEFAULT_ALLOWED_LOCK_TYPES;
   if (allowed.length === 0) return { ok: true, value: null };
 
-  const schema = toModelJsonSchema(GenerationResponseSchema);
+  const schema = toModelJsonSchema(buildGenerationResponseSchema(allowed));
   if (!schema.ok) {
     return { ok: false, error: { kind: 'schema-not-representable', stage: STAGE } };
   }
@@ -87,7 +91,7 @@ export async function generateForConcept(
       const { retryable } = called.error.failure.error;
       return { ok: false, error: { kind: 'provider-failed', stage: STAGE, retryable } };
     }
-    const parsed = GenerationResponseSchema.safeParse(called.response.json);
+    const parsed = FullGenerationResponseSchema.safeParse(called.response.json);
     if (!parsed.success) {
       // Retry note carries Zod paths and messages only; the raw output is not echoed.
       content = `${userMessage}\n\n${buildRetryNote(parsed.error)}`;

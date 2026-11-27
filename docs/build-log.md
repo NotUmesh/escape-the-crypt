@@ -59,3 +59,35 @@
   - Tests: Property 2 was flaky because random runs rarely got far enough.
   - Tests: model runs ran below 100 iterations, with no proof they reached ghosts (coverage counters added).
   - Process: a test helper left out of a commit broke CI typecheck.
+
+## Phase 5 baseline (task 28.2, before any Phase 5 change)
+
+Vitest ran with `--maxWorkers=50%`. No Playwright suite was run.
+
+| Check | Package | Result |
+| --- | --- | --- |
+| typecheck (`tsc --noEmit`) | packages/core | pass, no errors |
+| typecheck (`tsc --noEmit`) | apps/worker | pass, no errors |
+| vitest | packages/core | 136 files passed; 1084 tests passed, 0 failed, 0 skipped |
+| vitest | apps/worker | 18 files passed; 226 tests passed, 0 failed, 0 skipped |
+| cassette e2e (`e2e-pipeline.test.ts`, `e2e-cassette-digest.test.ts`) | packages/core | 2 files passed; 4 tests passed, 0 failed, 0 skipped |
+| `pnpm lint` (eslint + structure check) | root | pass, "Structure checks passed." |
+
+No failures at baseline.
+
+## Checkpoint 30 (after Phase 5 task 29)
+
+Vitest ran with `--maxWorkers=50%`; Playwright with `--workers=2` (port 4173 was free).
+Two failures from task 29 files were fixed first: `bone-ordering-e2e-fixtures.ts` moved from `test-support/` to `pipeline/` (it imports the provider and mentioned the results folder, which `boundary.test.ts` and `no-eval-results-writes.test.ts` forbid there), and the Check_ID and CHECK_VERSION tests moved from `registry.test.ts` (318 lines) into `registry-ids.test.ts`.
+
+| Check | Package | Result |
+| --- | --- | --- |
+| typecheck (`tsc --noEmit`) | packages/core | pass, no errors |
+| typecheck (`tsc --noEmit`) | apps/worker | pass, no errors |
+| typecheck (`tsc --noEmit`) | apps/web | pass, no errors |
+| `pnpm lint` (eslint + structure check) | root | pass, "Structure checks passed." |
+| vitest | packages/core | 143 files passed; 1145 tests passed, 0 failed, 0 skipped |
+| vitest | apps/worker | 19 files passed; 228 tests passed, 0 failed, 0 skipped |
+| vitest | apps/web | 111 files passed; 925 tests passed, 0 failed, 0 skipped |
+| worker build (`pnpm --filter ./apps/worker build`) | apps/worker | pass, `dist/index.js` 1.8mb |
+| Playwright e2e (`--workers=2`) | apps/web | 172 passed, 0 failed, 1 skipped |

@@ -55,11 +55,29 @@ const SeanceBoardAuthoringSchema = z.strictObject({
   note: z.string().optional(),
 });
 
+const BoneOrderingAuthoringSchema = z.strictObject({
+  id: z.string().min(1),
+  conceptId: z.string().min(1),
+  role: z.enum(['primary', 'alternate']),
+  lockType: z.literal('bone-ordering'),
+  prompt: z.string().min(1),
+  // The answer order itself. The count is re-checked by the step-count Code_Check.
+  steps: z.array(z.string().min(1)).min(3).max(5),
+  evidence: z.array(EvidenceRefSchema).min(1),
+  explanation: z.string(),
+  // boneId names an item ID assigned by the Manifest_Mapper, not a step's text.
+  hint: z.strictObject({ kind: z.literal('lock-first-bone'), boneId: z.string().min(1) }).optional(),
+  note: z.string().optional(),
+});
+
+// P5 appends the remaining lock types (bound threads, cursed object, combination dial) here.
 export const AuthoringQuestionSchema = z.discriminatedUnion('lockType', [
   RuneCipherAuthoringSchema,
   SeanceBoardAuthoringSchema,
+  BoneOrderingAuthoringSchema,
 ]);
 
 export type AuthoringQuestion = z.infer<typeof AuthoringQuestionSchema>;
 export type RuneCipherAuthoringQuestion = z.infer<typeof RuneCipherAuthoringSchema>;
 export type SeanceBoardAuthoringQuestion = z.infer<typeof SeanceBoardAuthoringSchema>;
+export type BoneOrderingAuthoringQuestion = z.infer<typeof BoneOrderingAuthoringSchema>;

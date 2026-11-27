@@ -67,8 +67,35 @@ describe('parseAuthoringQuestion', () => {
     }
   });
 
+  it('parses every real bone-ordering dev and sample question, and rejects bad shapes', async () => {
+    const bones = (await realQuestions()).filter(({ q }) => q.lockType === 'bone-ordering');
+    expect(bones.length).toBeGreaterThan(0);
+    for (const { file, q } of bones) {
+      expect(parseAuthoringQuestion(q).ok, `${file} ${String(q.id)}`).toBe(true);
+    }
+    const base = bones[0]!.q;
+    const path = (v: unknown) => {
+      const r = parseAuthoringQuestion(v);
+      return r.ok ? null : r.error.path;
+    };
+    expect(path({ ...base, steps: ['a', 'b'] })).toBe('steps');
+    expect(path({ ...base, steps: ['a', 'b', 'c', 'd', 'e', 'f'] })).toBe('steps');
+    expect(path({ ...base, steps: ['a', '', 'c'] })).toBe('steps.1');
+    expect(path({ ...base, offset: 1 })).toBe('offset');
+    expect(path({ ...base, hint: { kind: 'lock-first-bone', boneId: 'x' } })).toBeNull();
+  });
+
+  it('parses every real rune cipher and séance board question (again, by directory)', async () => {
+    const relevant = (await realQuestions()).filter(({ q }) => q.lockType === 'rune-cipher' || q.lockType === 'seance-board');
+    for (const { file, q } of relevant) {
+      const r = parseAuthoringQuestion(q);
+      expect(r.ok, `${file} ${String(q.id)}`).toBe(true);
+    }
+  });
+
   it('rejects other lock types and unknown lock types without throwing', () => {
-    expect(parseAuthoringQuestion({ ...rune, lockType: 'bone-ordering' }).ok).toBe(false);
+    expect(parseAuthoringQuestion({ ...rune, lockType: 'bone-ordering' }).ok).toBe(false); // rune fields on a bone arm
+    expect(parseAuthoringQuestion({ ...rune, lockType: 'bound-threads' }).ok).toBe(false);
     const r = parseAuthoringQuestion({ ...rune, lockType: 'nope' });
     expect(r).toEqual({ ok: false, error: { kind: 'invalid-authoring-question', path: 'lockType' } });
   });

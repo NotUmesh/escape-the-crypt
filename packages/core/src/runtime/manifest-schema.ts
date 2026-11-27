@@ -35,15 +35,36 @@ export const SeanceBoardPayloadSchema = z
     message: 'keyOptionId must be one of optionIds',
   });
 
+/** Mirrors `BoneOrderingQuestion` in `locks/bone-ordering.ts`; `keyOrder` is a permutation of `itemIds`. */
+export const BoneOrderingPayloadSchema = z
+  .strictObject({
+    itemIds: z.array(z.string().min(1)).min(3).max(5),
+    keyOrder: z.array(z.string().min(1)).min(3).max(5),
+  })
+  .refine(
+    (v) =>
+      new Set(v.itemIds).size === v.itemIds.length &&
+      v.keyOrder.length === v.itemIds.length &&
+      new Set(v.keyOrder).size === v.keyOrder.length &&
+      v.keyOrder.every((id) => v.itemIds.includes(id)),
+    { message: 'keyOrder must be a permutation of itemIds' },
+  );
+
 /** Returns `null` for lock types with no payload schema yet; the manifest rejects them. */
 export function payloadSchemaFor(
   lockType: LockType,
-): typeof RuneCipherPayloadSchema | typeof SeanceBoardPayloadSchema | null {
+):
+  | typeof RuneCipherPayloadSchema
+  | typeof SeanceBoardPayloadSchema
+  | typeof BoneOrderingPayloadSchema
+  | null {
   switch (lockType) {
     case 'rune-cipher':
       return RuneCipherPayloadSchema;
     case 'seance-board':
       return SeanceBoardPayloadSchema;
+    case 'bone-ordering':
+      return BoneOrderingPayloadSchema;
     default:
       return null;
   }

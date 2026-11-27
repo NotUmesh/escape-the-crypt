@@ -100,7 +100,7 @@ describe('parseManifest: fixture manifests and shapes', () => {
   });
 
   it('rejects lock types that have no payload schema, naming the type', () => {
-    const m = buildManifest({ rooms: 1, conceptsPerRoom: 1, lockTypes: ['bone-ordering', 'rune-cipher'], finalDoorQuestions: 0 });
+    const m = buildManifest({ rooms: 1, conceptsPerRoom: 1, lockTypes: ['bound-threads', 'rune-cipher'], finalDoorQuestions: 0 });
     const r = parseManifest(m);
     expect(r.ok).toBe(false);
     expect(issues(m)).toContain('lock-type-not-supported');

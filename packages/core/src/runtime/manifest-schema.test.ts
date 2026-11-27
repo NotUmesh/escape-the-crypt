@@ -35,9 +35,10 @@ describe('parseManifest', () => {
     expect(r.ok).toBe(true);
   });
 
-  it('rejects the four lock types without a payload schema', () => {
-    const q = { ...rune('q1'), lockType: 'bone-ordering' };
-    const r = parseManifest(manifest(q, null, 'bone-ordering'));
+  it('rejects the three lock types without a payload schema', () => {
+    // bone-ordering gained its payload schema in task 29.5; bound-threads is still unsupported.
+    const q = { ...rune('q1'), lockType: 'bound-threads' };
+    const r = parseManifest(manifest(q, null, 'bound-threads'));
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error.issues[0]?.message).toContain('lock-type-not-supported');
   });

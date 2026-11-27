@@ -8,6 +8,7 @@ import { chunkDocument } from '../chunker';
 import { CHECK_REGISTRY } from '../checks/registry';
 import { runChecks } from '../checks/run-checks';
 import type { CheckId } from '../checks/types';
+import { mapBoneOrderingPayload } from '../locks/bone-ordering';
 import type { QuestionSpec } from '../runtime/manifest-types';
 import type { Chunk, HintEffectSpec, Result } from '../types';
 import { buildContentEntry, everyOptionHasEvidence } from './build-content';
@@ -66,9 +67,13 @@ const BLOCKING_IDS: ReadonlySet<CheckId> = new Set(
 );
 
 function evidenceParagraphs(question: AuthoringQuestion): readonly number[] {
-  return question.lockType === 'rune-cipher'
-    ? question.evidence.map((e) => e.paragraph)
-    : question.options.map((o) => o.evidence.paragraph);
+  switch (question.lockType) {
+    case 'seance-board':
+      return question.options.map((o) => o.evidence.paragraph);
+    case 'rune-cipher':
+    case 'bone-ordering':
+      return question.evidence.map((e) => e.paragraph);
+  }
 }
 
 function runeHint(
@@ -141,7 +146,7 @@ function mapValidated(
   if (!specResult.ok) return specResult;
   const spec = specResult.value;
 
-  const entry = buildContentEntry(question, maps);
+  const entry = buildContentEntry(question, maps, questionId);
   const parsed = parseCryptContentEntry(questionId, entry);
   if (!parsed.ok) {
     return { ok: false, error: { kind: 'content-schema-invalid', questionId, conceptId } };
@@ -203,6 +208,15 @@ function mapSpec(
     };
   }
 
+  if (question.lockType === 'bone-ordering') {
+    // An authored hint boneId cannot name a generated item ID, so the hint is always pinned
+    // to keyOrder[0] by the mapper.
+    const { payload, hintEffect } = mapBoneOrderingPayload(questionId, question.steps);
+    return {
+      ok: true,
+      value: { questionId, lockType: 'bone-ordering', payload, evidenceRefs, hintEffect },
+    };
+  }
   const hintEffect = seanceHint(question);
   if (hintEffect === undefined) {
     return { ok: false, error: { kind: 'check-failed', questionId, checkId: 'not-exactly-one-supported' } };

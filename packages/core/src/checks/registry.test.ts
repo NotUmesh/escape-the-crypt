@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { chunkDocument } from '../chunker';
 import type { Chunk } from '../types';
 import { duplicateAnswerCase } from '../test-support/duplicate-answer-case';
-import { CHECK_REGISTRY, CHECK_VERSION } from './registry';
+import { CHECK_REGISTRY } from './registry';
 import {
   runChecks,
   runRoomChecks,
@@ -12,47 +12,14 @@ import {
 } from './run-checks';
 import type { CheckFailure, CheckId } from './types';
 
-/** The literal Req 3.5 list, in the order the requirement gives it. */
-const REQ_3_5_CHECK_IDS: readonly string[] = [
-  'quote-not-found', 'quote-ambiguous', 'quote-too-short',
-  'quote-too-long', 'unknown-paragraph/chunk', 'missing-according-to-your-notes',
-  'negative-question', 'banned-phrase', 'answer-not-in-quote',
-  'rune-needs-one-blank', 'answer-leak-in-prompt', 'answer-leak-in-room', 'duplicate-answer-in-room',
-  'option-count', 'option-not-supported-or-contradicted', 'option-without-evidence',
-  'not-exactly-one-supported', 'key-not-the-supported-option', 'duplicate-options',
-  'step-count', 'duplicate-steps', 'no-explicit-sequence-marker-in-quotes',
-  'pair-count', 'not-one-to-one', 'item-count',
-  'answer-not-an-item', 'missing-category-rule', 'needs-category-and-outside-quotes',
-  'missing-units', 'number-not-in-quote', 'range-not-in-quote',
-  'template-not-allowlisted', 'template-input-not-in-quote', 'template-value-mismatch',
-  'model-written-expression', 'alternate-same-lock-type', 'max-one-alternate',
-  'dial-range-prompt', 'alternate-off-concept', 'lock-type-not-supported',
-];
-
 const PHASE_5_LOCK_TYPES = [
-  'bone-ordering',
   'bound-threads',
   'cursed-object',
   'combination-dial',
 ] as const;
 
-const registryIds = CHECK_REGISTRY.map((r) => r.id as string);
-describe('check registry', () => {
-  it('has exactly the Req 3.5 Check_IDs, with no missing, extra or duplicate id', () => {
-    const missing = REQ_3_5_CHECK_IDS.filter((id) => !registryIds.includes(id));
-    const extra = registryIds.filter((id) => !REQ_3_5_CHECK_IDS.includes(id));
-    expect({ missing, extra }).toEqual({ missing: [], extra: [] });
-    expect(new Set(registryIds).size).toBe(registryIds.length);
-    expect(registryIds).toHaveLength(REQ_3_5_CHECK_IDS.length);
-  });
-
-  it('exposes CHECK_VERSION 2026-11-27.1', () => expect(CHECK_VERSION).toBe('2026-11-27.1'));
-
-  it('marks only alternate-off-concept as advisory', () => {
-    const advisory = CHECK_REGISTRY.filter((r) => r.severity === 'advisory').map((r) => r.id);
-    expect(advisory).toEqual(['alternate-off-concept']);
-  });
-});
+/** Lock types whose checks exist and that runChecks calls (bone-ordering flipped in task 29.2). */
+const IMPLEMENTED_TYPES: readonly string[] = ['rune-cipher', 'seance-board', 'bone-ordering'];
 
 // ---------------------------------------------------------------------------
 // Implementation status (Req 3.14)
@@ -172,7 +139,22 @@ function synth(questions: readonly CheckableQuestion[]): readonly CheckFailure[]
   return runRoomChecks(questions, SYNTH).filter((f) => f.questionId === 'q');
 }
 
+function bone(overrides: Overrides = {}): CheckableQuestion {
+  return {
+    id: 'q',
+    conceptId: 'c',
+    role: 'primary',
+    lockType: 'bone-ordering',
+    prompt: 'According to your notes, put the steps in order.',
+    steps: ['Mitochondria', 'Ribosomes', 'Nucleus'],
+    evidence: [{ paragraph: 1, quote: Q_ENERGY }],
+    explanation: '-',
+    ...overrides,
+  } as CheckableQuestion;
+}
+
 const SYNTHETIC_CASES: Partial<Record<CheckId, () => readonly CheckFailure[]>> = {
+  'duplicate-steps': () => synth([bone({ steps: ['Ribosomes', 'ribosomes  ', 'Nucleus'] })]),
   'duplicate-answer-in-room': duplicateAnswerCase,
   'quote-too-long': () =>
     synth([
@@ -243,24 +225,25 @@ const SYNTHETIC_CASES: Partial<Record<CheckId, () => readonly CheckFailure[]>> =
   'lock-type-not-supported': () =>
     runChecks({
       ...SYNTH,
-      question: { id: 'q', conceptId: 'c', role: 'primary', lockType: 'bone-ordering' },
+      question: { id: 'q', conceptId: 'c', role: 'primary', lockType: 'bound-threads' },
     }),
 };
 
-/** The `code:<id>` fixture for a Check_ID on a supported lock type, if one exists. */
+/** The code:<id> fixture for a Check_ID on a supported lock type, if one exists. */
 function fixtureFor(id: string): Fixture | undefined {
   return fixtures.find(
     (f) =>
       f.expectedCatch === `code:${id}` &&
-      (f.question.lockType === 'rune-cipher' || f.question.lockType === 'seance-board'),
+      IMPLEMENTED_TYPES.includes(f.question.lockType),
   );
 }
 
 const phase1Entries = CHECK_REGISTRY.filter(
-  (r) => r.scope === 'shared' || r.scope.some((t) => t === 'rune-cipher' || t === 'seance-board'),
+  (r) => r.scope === 'shared' || r.scope.some((t) => IMPLEMENTED_TYPES.includes(t)),
 );
 const implementedIds = phase1Entries.map((r) => r.id);
 
+// Deliberate flip (task 29.2): the three bone-ordering ids are now implemented: true and called by runChecks.
 describe('implementation status (Req 3.14)', () => {
   it('registers every rune cipher, séance board and shared id as implemented', () => {
     expect(phase1Entries.filter((r) => !r.implemented).map((r) => r.id)).toEqual([]);

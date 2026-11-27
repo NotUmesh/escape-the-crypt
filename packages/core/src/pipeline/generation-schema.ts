@@ -1,6 +1,7 @@
 import { AuthoringQuestionSchema, type AuthoringQuestion } from '../authoring/schema';
-import type { Result } from '../types';
+import type { LockType, Result } from '../types';
 import { z } from '../zod';
+import { DEFAULT_ALLOWED_LOCK_TYPES } from './generation-prompt';
 import { translateChunkId, type PreparedDocument } from './prepare-input';
 import type { PipelineStageError } from './stage-error';
 
@@ -50,22 +51,70 @@ export const SeanceBoardGeneratedSchema = z.strictObject({
   explanation: z.string(),
 });
 
-const GeneratedQuestionSchema = z.union([
-  RuneCipherGeneratedSchema,
-  SeanceBoardGeneratedSchema,
-  z.null(),
-]);
-
-export const GenerationResponseSchema = z.strictObject({
-  /** One line on why the primary type fits (G3). Read by nothing; asking for it first makes the model commit to a reason. */
-  justification: z.string(),
-  primary: GeneratedQuestionSchema,
-  alternate: GeneratedQuestionSchema,
+// No hint field: boneId names an item ID the Manifest_Mapper assigns, which the model cannot know.
+export const BoneOrderingGeneratedSchema = z.strictObject({
+  lockType: z.literal('bone-ordering'),
+  prompt: z.string().min(1),
+  steps: z.array(z.string().min(1)).min(3).max(5),
+  evidence: z.array(GeneratedEvidenceSchema).min(1),
+  explanation: z.string(),
 });
 
-export type GenerationResponse = z.infer<typeof GenerationResponseSchema>;
-export type GeneratedQuestion = NonNullable<GenerationResponse['primary']>;
+type GeneratedArm =
+  | z.infer<typeof RuneCipherGeneratedSchema>
+  | z.infer<typeof SeanceBoardGeneratedSchema>
+  | z.infer<typeof BoneOrderingGeneratedSchema>;
 
+export type GeneratedQuestion = GeneratedArm;
+
+export interface GenerationResponse {
+  justification: string;
+  primary: GeneratedQuestion | null;
+  alternate: GeneratedQuestion | null;
+}
+
+// Fixed order, so the schema for a given allowed list is deterministic (and the two-type default
+// is identical to the schema before bone-ordering existed).
+const ARMS: ReadonlyArray<readonly [LockType, z.ZodType<GeneratedArm>]> = [
+  ['rune-cipher', RuneCipherGeneratedSchema],
+  ['seance-board', SeanceBoardGeneratedSchema],
+  ['bone-ordering', BoneOrderingGeneratedSchema],
+];
+
+/**
+ * The response schema offering the model only the arms for `allowed`. One arm is used directly
+ * (a union needs two); primary and alternate stay nullable. Types without an arm are ignored.
+ */
+export function buildGenerationResponseSchema(
+  allowed: readonly LockType[],
+): z.ZodType<GenerationResponse> {
+  const arms = ARMS.filter(([type]) => allowed.includes(type)).map(([, arm]) => arm);
+  const nullable: z.ZodType<GeneratedQuestion | null> =
+    arms.length === 0
+      ? z.null()
+      : arms.length === 1
+        ? z.union([arms[0] as z.ZodType<GeneratedArm>, z.null()])
+        : z.union([...arms, z.null()]);
+  return z.strictObject({
+    /** One line on why the primary type fits (G3). Read by nothing; asking for it first makes the model commit to a reason. */
+    justification: z.string(),
+    primary: nullable,
+    alternate: nullable,
+  });
+}
+
+/** The default two-type schema (rune cipher and s�ance board). */
+export const GenerationResponseSchema = buildGenerationResponseSchema(DEFAULT_ALLOWED_LOCK_TYPES);
+
+/**
+ * Every arm. Responses are parsed with this, so a well-formed question of a type the caller did
+ * not allow is handled by the allowed-type filter rather than rejected as malformed.
+ */
+export const FullGenerationResponseSchema = buildGenerationResponseSchema([
+  'rune-cipher',
+  'seance-board',
+  'bone-ordering',
+]);
 export interface QuestionIdentity {
   readonly id: string;
   readonly conceptId: string;
@@ -116,6 +165,10 @@ export function toAuthoringQuestion(
     const { hint, ...rest } = generated;
     void hint;
     candidate = { ...rest, ...identity, evidence: evidence.value };
+  } else if (generated.lockType === 'bone-ordering') {
+    const evidence = collect(generated.evidence, (e) => evidenceOf(doc, e));
+    if (!evidence.ok) return evidence;
+    candidate = { ...generated, ...identity, evidence: evidence.value };
   } else {
     const options = collect(generated.options, (o) => {
       const ev = evidenceOf(doc, o.evidence);

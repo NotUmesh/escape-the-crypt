@@ -6,7 +6,8 @@ import {
   runeMitochondria,
   seanceWithKey,
 } from '../test-support/duplicate-answer-case';
-import { answerKey, answerKeysOfAuthoring, duplicateAnswerScan } from './duplicate-answers';
+import { mapBoneOrderingPayload } from '../locks/bone-ordering';
+import { answerKey, answerKeysOf, answerKeysOfAuthoring, duplicateAnswerScan } from './duplicate-answers';
 import { runRoomChecks } from './run-checks';
 
 const ids = (failures: readonly { checkId: string; questionId: string }[]) =>
@@ -72,5 +73,15 @@ describe('duplicate-answer-in-room', () => {
       }),
       { numRuns: 20 },
     );
+  });
+});
+
+describe('bone-ordering answer keys', () => {
+  // A bone-ordering answer is a structure; two equal orders across concepts are not a learner-facing duplicate.
+  it('contributes no duplicate-answer key', () => {
+    const { payload, hintEffect } = mapBoneOrderingPayload('q', ['a', 'b', 'c']);
+    const spec = { questionId: 'q', lockType: 'bone-ordering' as const, payload, evidenceRefs: ['c1'], hintEffect };
+    expect(answerKeysOf(spec, undefined)).toEqual([]);
+    expect(answerKeysOfAuthoring({ lockType: 'bone-ordering' })).toEqual([]);
   });
 });

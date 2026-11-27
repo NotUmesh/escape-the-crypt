@@ -187,7 +187,9 @@ function paragraphToOrdinal(doc: PreparedDocument): Map<number, number> {
 }
 
 /** The rune and séance `review:*` adversarial fixtures, re-keyed to pipeline ordinals. */
-export function loadReviewFixtures(): readonly ReviewFixture[] {
+export function loadReviewFixtures(
+  lockTypes: readonly string[] = ['rune-cipher', 'seance-board'],
+): readonly ReviewFixture[] {
   const raw = JSON.parse(
     fs.readFileSync(`${repoRoot}/eval/adversarial/fixtures.json`, 'utf8'),
   ) as { fixtures: RawFixture[] };
@@ -195,10 +197,15 @@ export function loadReviewFixtures(): readonly ReviewFixture[] {
     .filter(
       (f) =>
         f.expectedCatch.startsWith('review:') &&
-        (f.question.lockType === 'rune-cipher' || f.question.lockType === 'seance-board'),
+        lockTypes.includes(f.question.lockType),
     )
     .map((f) => {
-      const dir = f.notesDir === 'adversarial/notes' ? 'eval/adversarial/notes' : 'eval/dev/notes';
+      const dir =
+        f.notesDir === 'adversarial/notes'
+          ? 'eval/adversarial/notes'
+          : f.notesDir === 'samples'
+            ? 'samples'
+            : 'eval/dev/notes';
       const doc = prepareDocument(fs.readFileSync(`${repoRoot}/${dir}/${f.notes}`, 'utf8'));
       const map = paragraphToOrdinal(doc);
       const translated: { from: number; to: number }[] = [];

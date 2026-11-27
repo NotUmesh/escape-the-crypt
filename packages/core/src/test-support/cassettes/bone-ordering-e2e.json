@@ -1,0 +1,140 @@
+{
+  "checkVersion": "2026-11-27.2",
+  "entries": [
+    {
+      "digest": "578fcb38ab1e1b194234f9b5938d2aa1b80dce6c0afcccbb72fcc786782d163b",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Path of blood through the right side",
+              "chunkIds": [
+                "chk_62a99254e222_6"
+              ],
+              "quotes": [
+                "Blood moves through the right side of the heart in a fixed order."
+              ]
+            },
+            {
+              "label": "Heart valves",
+              "chunkIds": [
+                "chk_62a99254e222_5"
+              ],
+              "quotes": [
+                "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "6135bdbaf47de8c0a25e1c6bbcc328175d835d7b7cc4a5c259782e4c08c008ab",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state an explicit sequence.",
+          "primary": {
+            "lockType": "bone-ordering",
+            "prompt": "According to your notes, put the path of blood through the right side of the heart in order.",
+            "steps": [
+              "Right atrium",
+              "Tricuspid valve",
+              "Right ventricle",
+              "Pulmonary valve"
+            ],
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_6",
+                "quote": "First, it enters the right atrium."
+              },
+              {
+                "chunkId": "chk_62a99254e222_6",
+                "quote": "Finally, it is pumped through the pulmonary valve towards the lungs."
+              }
+            ],
+            "explanation": "Paragraph 7 gives the order: first, next, then, finally."
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "935fc43bb04e24f921d6146b873cd880506176c00a91836ee85c146961661b5c",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state this plainly.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, the valves between the atria and ventricles are called the ______ valves.",
+            "answer": "atrioventricular",
+            "aliases": [
+              "AV"
+            ],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_5",
+                "quote": "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+              }
+            ],
+            "explanation": "Your notes call them the atrioventricular (AV) valves.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "a",
+              "length": 16
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "0526e6cc04a718b1be7d6c1717f30a696fba1cf0ad23d958d9bead7559f6012e",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "s2,s1,s4,s3",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "92e70534ea94b8767382fb907e6625fb66575983ad972584b5456fea7f48c53c",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "atrioventricular",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    }
+  ]
+}

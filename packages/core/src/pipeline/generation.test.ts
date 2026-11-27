@@ -77,6 +77,35 @@ describe('generateForConcept results', () => {
     expect(result.ok && result.value?.primary.lockType).toBe('rune-cipher');
   });
 
+  it('parses a bone-ordering response only when bone-ordering is allowed, and offers its arm then', async () => {
+    const bone = {
+      lockType: 'bone-ordering',
+      prompt: 'According to your notes, put the steps in order.',
+      steps: ['First step', 'Second step', 'Third step'],
+      evidence: [{ chunkId: chunkIdContaining(heart, VALVES), quote: VALVES }],
+      explanation: 'See the notes.',
+    };
+    const body = { justification: 'j', primary: bone, alternate: null };
+    const allowed = await generateForConcept(recordingProvider([ok(body)]), ledger(), concept, heart, {
+      ...OPTIONS,
+      allowedLockTypes: ['rune-cipher', 'seance-board', 'bone-ordering'],
+    });
+    expect(allowed.ok && allowed.value?.primary.lockType).toBe('bone-ordering');
+
+    const withBone = recordingProvider([ok(body)]);
+    await generateForConcept(withBone, ledger(), concept, heart, {
+      ...OPTIONS,
+      allowedLockTypes: ['rune-cipher', 'seance-board', 'bone-ordering'],
+    });
+    expect(JSON.stringify(withBone.requests[0]!.jsonSchema)).toContain('bone-ordering');
+
+    // Default list: the arm is not offered, and a bone-ordering primary is not allowed.
+    const dflt = recordingProvider([ok(body)]);
+    const result = await generateForConcept(dflt, ledger(), concept, heart, OPTIONS);
+    expect(result).toEqual({ ok: false, error: { kind: 'lock-type-not-allowed' } });
+    expect(JSON.stringify(dflt.requests[0]!.jsonSchema)).not.toContain('bone-ordering');
+  });
+
   it('nulls an alternate that cites an unassigned chunk ID', async () => {
     const provider = recordingProvider([ok(response(rune(), seance('chunk-nope')))]);
     const result = await generateForConcept(provider, ledger(), concept, heart, OPTIONS);

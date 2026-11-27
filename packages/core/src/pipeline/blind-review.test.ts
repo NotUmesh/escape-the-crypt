@@ -73,7 +73,7 @@ describe('blindReview: adversarial review:* fixtures via synthetic cassette', ()
     for (const f of fixtures) {
       expect(f.translated.length).toBeGreaterThan(0);
       const q = f.question;
-      const cited = q.lockType === 'rune-cipher' ? q.evidence : q.options.map((o) => o.evidence);
+      const cited = q.lockType === 'seance-board' ? q.options.map((o) => o.evidence) : q.evidence;
       for (const e of cited) {
         const chunk = f.doc.quotableChunksByOrdinal.get(e.paragraph);
         expect(chunk?.text.replace(/\s+/g, ' ')).toContain(e.quote.replace(/\s+/g, ' '));

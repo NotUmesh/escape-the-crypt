@@ -40,6 +40,8 @@ export const HUMAN_HEART_E2E_OPTIONS: Omit<PipelineOptions, 'provider' | 'ledger
   costOf: () => 0.001,
   providerName: 'synthetic',
   concurrency: 1,
+  // Pinned so recorded prompts and digests do not change if DEFAULT_ALLOWED_LOCK_TYPES widens.
+  allowedLockTypes: ['rune-cipher', 'seance-board'],
 };
 
 export const humanHeartE2eLedger = () => makeMockLedger({ dailyCapUsd: 1 });

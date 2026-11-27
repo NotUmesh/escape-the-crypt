@@ -11,6 +11,8 @@ import {
   BLIND_REVIEW_SYSTEM_PROMPT,
   ReviewResponseSchema,
   buildBlindReviewUserMessage,
+  boneDisplayOrder,
+  boneItemId,
   buildRetryNote,
   type ReviewResponse,
 } from './blind-review-prompt';
@@ -54,8 +56,20 @@ function reject(reason: ReviewRejection): ReviewVerdict {
   return { verdict: 'rejected', reason };
 }
 
-function keyOf(question: AuthoringQuestion): string {
+function keyOf(question: Exclude<AuthoringQuestion, { lockType: 'bone-ordering' }>): string {
   return question.answer;
+}
+
+/**
+ * Bone ordering: the reviewer answers with the shown item ids, comma-separated. The reply passes
+ * only if it names every shown id exactly once and reproduces the key order exactly.
+ */
+function boneMatches(steps: readonly string[], answer: string): boolean {
+  const display = boneDisplayOrder(steps);
+  const stepOfId = new Map(display.map((stepIndex, position) => [boneItemId(position), stepIndex]));
+  const submitted = answer.split(',').map((s) => s.trim());
+  if (submitted.length !== steps.length) return false;
+  return submitted.every((id, i) => stepOfId.get(id) === i);
 }
 
 /** Applies the rejection rule (Req 15.5, 15.6) to a validated reply. Pure. */
@@ -73,6 +87,11 @@ export function decideReview(question: AuthoringQuestion, response: ReviewRespon
     );
     return result === 'correct' ? { verdict: 'passed' } : reject({ kind: 'answer-mismatch' });
   }
+  if (question.lockType === 'bone-ordering') {
+    return boneMatches(question.steps, response.answer)
+      ? { verdict: 'passed' }
+      : reject({ kind: 'answer-mismatch' });
+  }
   const answered = response.answer.trim();
   if (answered !== keyOf(question)) return reject({ kind: 'answer-mismatch' });
   const labelsOk = (response.optionLabels ?? []).every((l) =>
@@ -86,6 +105,7 @@ export function decideReview(question: AuthoringQuestion, response: ReviewRespon
  * Séance: exactly one label per shown option id, no unknown ids, no duplicates. Pure.
  */
 export function hasCompleteLabels(question: AuthoringQuestion, response: ReviewResponse): boolean {
+  // Rune cipher and bone ordering have no options to label.
   if (question.lockType !== 'seance-board') return response.optionLabels === null;
   if (response.optionLabels === null) return false;
   const shown = new Set(question.options.map((o) => o.id));

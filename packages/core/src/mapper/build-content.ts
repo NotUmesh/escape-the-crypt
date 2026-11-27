@@ -1,4 +1,5 @@
 import type { AuthoringQuestion } from '../authoring/schema';
+import { mapBoneOrderingPayload } from '../locks/bone-ordering';
 import type { CryptContentExcerpt } from './crypt-content';
 
 interface ChunkLookup {
@@ -34,10 +35,27 @@ export function everyOptionHasEvidence(input: AuthoringQuestion): boolean {
  * (no optionId); séance questions get one Option_Excerpt per option, in option order.
  * Paragraphs are already known to resolve when this runs.
  */
-export function buildContentEntry(question: AuthoringQuestion, maps: ChunkLookup): BuiltContent {
+export function buildContentEntry(
+  question: AuthoringQuestion,
+  maps: ChunkLookup,
+  questionId: string = question.id,
+): BuiltContent {
   if (question.lockType === 'rune-cipher') {
     return {
       prompt: question.prompt,
+      excerpts: question.evidence.map((e) => ({
+        chunkId: maps.chunksByParagraph.get(e.paragraph) ?? '',
+        quote: e.quote,
+      })),
+      explanation: question.explanation,
+    };
+  }
+  if (question.lockType === 'bone-ordering') {
+    // Step text is addressable by the same generated item IDs the payload uses.
+    const { itemIds } = mapBoneOrderingPayload(questionId, question.steps).payload;
+    return {
+      prompt: question.prompt,
+      options: Object.fromEntries(itemIds.map((id, i) => [id, question.steps[i] ?? ''])),
       excerpts: question.evidence.map((e) => ({
         chunkId: maps.chunksByParagraph.get(e.paragraph) ?? '',
         quote: e.quote,

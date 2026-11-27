@@ -14,7 +14,7 @@ import {
 } from '@escape-the-crypt/core';
 import { costOfUsage, worstCaseUsd, type TokenPrices } from '../budget/interim-ledger';
 import {
-  ALLOWED_LOCK_TYPES,
+  EVAL_ALLOWED_LOCK_TYPES,
   GENERATION_TEMPERATURE,
   INPUT_TOKENS_BOUND,
   MAX_OUTPUT_TOKENS,
@@ -71,7 +71,7 @@ function settingsFor(modelId: string, prices: TokenPrices): PipelineSettings {
     retryLimit: PROVIDER_RETRY_LIMIT,
     worstCaseUsd: worstCaseUsd({ inputTokensEstimate: INPUT_TOKENS_BOUND, maxOutputTokens: MAX_OUTPUT_TOKENS }, prices),
     costOf: (usage: ProviderUsage) => costOfUsage(usage, prices),
-    allowedLockTypes: ALLOWED_LOCK_TYPES,
+    allowedLockTypes: EVAL_ALLOWED_LOCK_TYPES,
     concurrency: EVAL_CONCURRENCY,
   };
 }

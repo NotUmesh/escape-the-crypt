@@ -43,6 +43,10 @@
     "27.2 Write core tests for cancellation": {
       "status": "passed",
       "lastRunTimestamp": 1795752209628
+    },
+    "29.7 Write property tests for bone-ordering": {
+      "status": "passed",
+      "lastRunTimestamp": 1795785246492
     }
   },
   "executionHistory": {
@@ -1640,6 +1644,174 @@
         "executionId": "87e7df18-56f4-4690-a7cd-f0bd32834fe8",
         "chatSessionId": "sess_05b836c0-5afb-47d6-aa1f-860910e575fc",
         "timestamp": 1795752726792
+      }
+    ],
+    "28.1 Re-read `packages/core/src/checks/` and confirm it is settled": [
+      {
+        "executionId": "4da2d2f4-10b3-4cdf-9a9e-9c1afe266b31",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795780218960
+      },
+      {
+        "executionId": "7a5c6cfd-6184-41ee-b743-31951923c314",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795782664191
+      },
+      {
+        "executionId": "7a5c6cfd-6184-41ee-b743-31951923c314",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795782668391
+      },
+      {
+        "executionId": "7a5c6cfd-6184-41ee-b743-31951923c314",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795782742136
+      }
+    ],
+    "28.2 Record baseline test, lint and typecheck results": [
+      {
+        "executionId": "7a5c6cfd-6184-41ee-b743-31951923c314",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795782752700
+      },
+      {
+        "executionId": "7a5c6cfd-6184-41ee-b743-31951923c314",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795782863374
+      }
+    ],
+    "28.3 Pin `allowedLockTypes` in the existing cassette end-to-end options": [
+      {
+        "executionId": "7a5c6cfd-6184-41ee-b743-31951923c314",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795782868725
+      },
+      {
+        "executionId": "7a5c6cfd-6184-41ee-b743-31951923c314",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795782937153
+      }
+    ],
+    "28. Phase 5 baseline: re-read the live checks package and record results": [
+      {
+        "executionId": "7a5c6cfd-6184-41ee-b743-31951923c314",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795782937224
+      }
+    ],
+    "29.1 Authoring schema and generation response arm": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795783336204
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795783672016
+      }
+    ],
+    "29.2 Code_Checks and registry entries": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795783680661
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795784199141
+      }
+    ],
+    "29.3 Generation prompt section": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795783680765
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795784986817
+      }
+    ],
+    "29.4 Blind-review rule": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795783680878
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795784199245
+      }
+    ],
+    "29.5 Mapper to the judge payload": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795783680981
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795784199328
+      }
+    ],
+    "29.6 Add `bone-ordering` to the test and eval allow-lists only": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795784990603
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795785073061
+      }
+    ],
+    "29.7 Write property tests for bone-ordering": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795785079037
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795785342108
+      }
+    ],
+    "29.8 Write the cassette test for bone-ordering": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795785079432
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795785342594
+      }
+    ],
+    "29. Phase 5: bone-ordering": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795785342639
+      }
+    ],
+    "30. Checkpoint - bone-ordering group": [
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795785346150
+      },
+      {
+        "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795785820447
       }
     ]
   }

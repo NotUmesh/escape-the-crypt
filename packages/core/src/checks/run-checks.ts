@@ -1,4 +1,5 @@
 import type { AuthoringQuestion } from '../authoring/schema';
+import { boneOrderingChecks } from '../locks/bone-ordering-checks';
 import { runeCipherChecks } from '../locks/rune-cipher-checks';
 import { checkSeanceBoard } from '../locks/seance-board-checks';
 import type { Chunk } from '../types';
@@ -17,7 +18,7 @@ export interface UnsupportedQuestion {
   readonly id: string;
   readonly conceptId: string;
   readonly role: 'primary' | 'alternate';
-  readonly lockType: 'bone-ordering' | 'bound-threads' | 'cursed-object' | 'combination-dial';
+  readonly lockType: 'bound-threads' | 'cursed-object' | 'combination-dial';
 }
 
 /** Any question runChecks accepts. Narrow on `lockType`. */
@@ -45,14 +46,17 @@ export interface RunChecksInput extends EvidenceContext {
   readonly siblings?: readonly CheckableQuestion[];
 }
 
+// Every AuthoringQuestion arm (rune cipher, séance board, bone ordering) has checks.
+// Each later lock type's task widens this with its own schema arm.
 function isSupported(q: CheckableQuestion): q is AuthoringQuestion {
-  return q.lockType === 'rune-cipher' || q.lockType === 'seance-board';
+  return q.lockType === 'rune-cipher' || q.lockType === 'seance-board' || q.lockType === 'bone-ordering';
 }
 
 /** Every learner-visible text of a question, for banned-phrase scanning and the leak scan. */
 export function visibleTextOf(q: CheckableQuestion): readonly string[] {
   if (q.lockType === 'rune-cipher') return [q.prompt, q.explanation];
   if (q.lockType === 'seance-board') return [q.prompt, ...q.options.map((o) => o.text), q.explanation];
+  if (q.lockType === 'bone-ordering') return [q.prompt, ...q.steps, q.explanation];
   return [];
 }
 
@@ -127,6 +131,9 @@ export function runChecks(input: RunChecksInput): readonly CheckFailure[] {
       if (failure) failures.push(failure);
     }
     failures.push(...runeCipherChecks(question, { chunks, paragraphChunkIds }));
+  } else if (question.lockType === 'bone-ordering') {
+    // Includes each evidence quote's own checks.
+    failures.push(...boneOrderingChecks(question, { chunks, paragraphChunkIds }));
   } else {
     // Includes each option's quote checks.
     failures.push(...checkSeanceBoard(question, { chunks, paragraphChunkIds }));

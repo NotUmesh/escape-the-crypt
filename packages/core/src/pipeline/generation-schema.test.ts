@@ -3,10 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { parseAuthoringQuestion } from '../authoring/parse';
 import {
   GenerationResponseSchema,
+  buildGenerationResponseSchema,
   toAuthoringQuestion,
   type GeneratedQuestion,
   type QuestionIdentity,
 } from './generation-schema';
+import { toModelJsonSchema } from '../provider/model-json-schema';
+import { DEFAULT_ALLOWED_LOCK_TYPES } from './generation-prompt';
 import { prepareDocument } from './prepare-input';
 
 const NOTES = [
@@ -58,6 +61,14 @@ const seance = fc.record({
   explanation: fc.string({ maxLength: 60 }),
 });
 
+const bone = fc.record({
+  lockType: fc.constant('bone-ordering' as const),
+  prompt: text,
+  steps: fc.array(text, { minLength: 3, maxLength: 5 }),
+  evidence: fc.array(evidence, { minLength: 1, maxLength: 3 }),
+  explanation: fc.string({ maxLength: 60 }),
+});
+
 const identity = fc.record({
   id: text,
   conceptId: text,
@@ -71,7 +82,7 @@ describe('toAuthoringQuestion', () => {
 
   it('always yields a question that parses as an AuthoringQuestion (Req 14.1)', () => {
     fc.assert(
-      fc.property(fc.oneof(rune, seance), identity, (generated, ident) => {
+      fc.property(fc.oneof(rune, seance, bone), identity, (generated, ident) => {
         const result = toAuthoringQuestion(generated, ident, doc);
         expect(result.ok).toBe(true);
         if (!result.ok) return;
@@ -162,6 +173,58 @@ describe('toAuthoringQuestion', () => {
     };
     const r2 = toAuthoringQuestion(badSeance, ident, doc);
     expect(!r2.ok && r2.error.kind).toBe('pipeline-unknown-chunk');
+  });
+
+  it('translates a bone-ordering arm and rejects an unassigned chunk ID', () => {
+    const arm: GeneratedQuestion = {
+      lockType: 'bone-ordering',
+      prompt: 'According to your notes, put the steps in order.',
+      steps: ['One', 'Two', 'Three'],
+      evidence: [{ chunkId: id1, quote: 'Ribosomes build proteins' }],
+      explanation: 'See paragraph 2.',
+    };
+    const result = toAuthoringQuestion(arm, ident, doc);
+    expect(result.ok).toBe(true);
+    if (!result.ok || result.value.lockType !== 'bone-ordering') return;
+    expect(result.value.steps).toEqual(['One', 'Two', 'Three']);
+    expect(result.value.evidence).toEqual([{ paragraph: 2, quote: 'Ribosomes build proteins' }]);
+    expect(result.value).toMatchObject(ident);
+    const bad = toAuthoringQuestion({ ...arm, evidence: [{ chunkId: 'nope', quote: 'q' }] }, ident, doc);
+    expect(!bad.ok && bad.error.kind).toBe('pipeline-unknown-chunk');
+    const withBone = buildGenerationResponseSchema(['rune-cipher', 'seance-board', 'bone-ordering']);
+    expect(withBone.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(true);
+    expect(withBone.safeParse({ justification: 'j', primary: { ...arm, steps: ['a', 'b'] }, alternate: null }).success).toBe(false);
+    expect(GenerationResponseSchema.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(false);
+  });
+
+  const fnv1a64 = (s: string): string => {
+    let h = 0xcbf29ce484222325n;
+    for (let i = 0; i < s.length; i += 1) h = BigInt.asUintN(64, (h ^ BigInt(s.charCodeAt(i))) * 0x100000001b3n);
+    return h.toString(16);
+  };
+
+  const schemaJson = (s: Parameters<typeof toModelJsonSchema>[0]): string => {
+    const r = toModelJsonSchema(s);
+    if (!r.ok) throw new Error('schema not representable');
+    return JSON.stringify(r.value);
+  };
+
+  it('default schema JSON is byte-identical to the pre-bone-ordering build', () => {
+    // FNV-1a 64 of the JSON schema; its sha256 (f98697d6...9b22) was confirmed equal to the pre-bone-ordering schema at commit 38e0c61.
+    const FROZEN = '3700d0814412e7e';
+    expect(fnv1a64(schemaJson(GenerationResponseSchema))).toBe(FROZEN);
+    expect(schemaJson(buildGenerationResponseSchema(DEFAULT_ALLOWED_LOCK_TYPES))).toBe(schemaJson(GenerationResponseSchema));
+    expect(schemaJson(GenerationResponseSchema)).not.toContain('bone-ordering');
+  });
+
+  it('offers only the allowed arms', () => {
+    expect(schemaJson(buildGenerationResponseSchema(['rune-cipher', 'seance-board', 'bone-ordering']))).toContain('bone-ordering');
+    const only = schemaJson(buildGenerationResponseSchema(['seance-board']));
+    expect(only).toContain('seance-board');
+    expect(only).not.toContain('rune-cipher');
+    const single = buildGenerationResponseSchema(['bone-ordering']);
+    expect(single.safeParse({ justification: 'j', primary: null, alternate: null }).success).toBe(true);
+    expect(single.safeParse({ justification: 'j', primary: runeArm, alternate: null }).success).toBe(false);
   });
 
   it('GenerationResponseSchema accepts the arms used above', () => {

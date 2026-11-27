@@ -19,6 +19,28 @@ function isPermutation(items: readonly string[], order: readonly string[]): bool
   return true;
 }
 
+export interface MappedBoneOrdering {
+  readonly payload: BoneOrderingQuestion;
+  readonly hintEffect: Extract<HintEffectSpec, { kind: 'lock-first-bone' }>;
+}
+
+/**
+ * Additive mapper helper. One generated item ID per step (`<questionId>-step-<index>`);
+ * `steps` is already the answer order, so `keyOrder` equals `itemIds`. The hint is pinned to
+ * `keyOrder[0]`. Pure; assumes at least one step (the schema requires 3 to 5).
+ */
+export function mapBoneOrderingPayload(
+  questionId: string,
+  steps: readonly string[],
+): MappedBoneOrdering {
+  const itemIds = steps.map((_, i) => `${questionId}-step-${i}`);
+  const keyOrder = [...itemIds];
+  return {
+    payload: { itemIds, keyOrder },
+    hintEffect: { kind: 'lock-first-bone', boneId: keyOrder[0] ?? '' },
+  };
+}
+
 /**
  * Pure, never throws. A lock-first-bone hint pins that bone to its key position;
  * a submission that moves it is invalid.

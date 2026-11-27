@@ -43,15 +43,44 @@ export const BLIND_REVIEW_SYSTEM_PROMPT = [
   'Return JSON only.',
 ].join('\n');
 
+function fnv1a(text: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i += 1) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h;
+}
+
+/**
+ * The order in which a bone-ordering reviewer is shown the steps: `result[d]` is the index into
+ * `steps` (the key order) of the step shown at position `d`. Deterministic, derived from the step
+ * texts, and never the identity for two or more steps, so the reviewer is not handed the key.
+ * Pure.
+ */
+export function boneDisplayOrder(steps: readonly string[]): readonly number[] {
+  const order = steps
+    .map((text, index) => ({ index, h: fnv1a(text) }))
+    .sort((a, b) => a.h - b.h || a.index - b.index)
+    .map((e) => e.index);
+  if (steps.length > 1 && order.every((v, i) => v === i)) {
+    return [...order.slice(1), order[0] as number];
+  }
+  return order;
+}
+
+/** Item id shown to the reviewer for the step at display position `position` (0-based). */
+export const boneItemId = (position: number): string => `s${position + 1}`;
+
 /** Full text of every cited chunk, once each, in first-cited order. Uncited ordinals are skipped. */
 export function citedChunks(
   question: AuthoringQuestion,
   doc: PreparedDocument,
 ): readonly { readonly id: string; readonly text: string }[] {
   const ordinals =
-    question.lockType === 'rune-cipher'
-      ? question.evidence.map((e) => e.paragraph)
-      : question.options.map((o) => o.evidence.paragraph);
+    question.lockType === 'seance-board'
+      ? question.options.map((o) => o.evidence.paragraph)
+      : question.evidence.map((e) => e.paragraph); // rune cipher and bone ordering
   const seen = new Set<string>();
   const out: { id: string; text: string }[] = [];
   for (const ordinal of ordinals) {
@@ -79,6 +108,15 @@ export function buildBlindReviewUserMessage(
     for (const option of question.options) {
       lines.push(`- id ${defang(option.id)}: ${defang(option.text)}`);
     }
+  }
+  if (question.lockType === 'bone-ordering') {
+    lines.push('Steps, each with an item id (listed in no particular order):');
+    boneDisplayOrder(question.steps).forEach((stepIndex, position) => {
+      lines.push(`- id ${boneItemId(position)}: ${defang(question.steps[stepIndex] as string)}`);
+    });
+    lines.push(
+      'Put the steps in the order the notes state. Set answer to the item ids in that order, separated by commas (for example "s2,s1,s3"), and set optionLabels to null. If the notes do not fix the order, answer unknown.',
+    );
   }
   lines.push(buildNotesBlock(citedChunks(question, doc), doc.headingContext));
   return lines.join('\n');

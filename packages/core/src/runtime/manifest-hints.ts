@@ -40,5 +40,16 @@ export function narrowHint(
     } else if (hintEffect.optionId === keyOptionId) {
       fail('hint-option-is-key: remove-option must not remove the key option');
     }
+    return;
+  }
+  if (lockType === 'bone-ordering') {
+    if (hintEffect.kind !== 'lock-first-bone') {
+      fail(`hint-kind-not-allowed: bone-ordering accepts only lock-first-bone, got ${hintEffect.kind}`);
+      return;
+    }
+    const { itemIds } = payload as { readonly itemIds: readonly string[] };
+    if (!itemIds.includes(hintEffect.boneId)) {
+      fail('hint-bone-unknown: lock-first-bone boneId is not in itemIds');
+    }
   }
 }

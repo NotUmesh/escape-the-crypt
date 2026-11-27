@@ -1,7 +1,7 @@
 import type { CheckRegistration } from './types';
 
 /** Change whenever the set or behaviour of Code_Checks changes. */
-export const CHECK_VERSION = '2026-11-27.1';
+export const CHECK_VERSION = '2026-11-27.2';
 
 const shared = (id: CheckRegistration['id']): CheckRegistration => ({
   id,
@@ -24,9 +24,17 @@ const seance = (id: CheckRegistration['id']): CheckRegistration => ({
   implemented: true,
 });
 
+const bone = (id: CheckRegistration['id']): CheckRegistration => ({
+  id,
+  scope: ['bone-ordering'],
+  severity: 'blocking',
+  implemented: true,
+});
+
+/** Not yet implemented. Bone ordering is implemented, so it has its own helper (`bone`). */
 const later = (
   id: CheckRegistration['id'],
-  lockType: 'bone-ordering' | 'bound-threads' | 'cursed-object' | 'combination-dial',
+  lockType: 'bound-threads' | 'cursed-object' | 'combination-dial',
 ): CheckRegistration => ({
   id,
   scope: [lockType],
@@ -61,9 +69,10 @@ export const CHECK_REGISTRY: readonly CheckRegistration[] = [
   shared('lock-type-not-supported'),
   // Phase 5 ids: registered now so the registry equals the Req 3.5 list.
   // Until their checks exist, questions of these types fail with lock-type-not-supported.
-  later('step-count', 'bone-ordering'),
-  later('duplicate-steps', 'bone-ordering'),
-  later('no-explicit-sequence-marker-in-quotes', 'bone-ordering'),
+  // Deliberate flip (task 29.2): bone-ordering checks now exist and runChecks calls them.
+  bone('step-count'),
+  bone('duplicate-steps'),
+  bone('no-explicit-sequence-marker-in-quotes'),
   later('pair-count', 'bound-threads'),
   later('not-one-to-one', 'bound-threads'),
   later('item-count', 'cursed-object'),
