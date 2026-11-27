@@ -36,3 +36,10 @@
     opacity: 0;
   }
 }
+/* Reduced motion: the sheet is already clear, so nothing covers the crypt. */
+@media (prefers-reduced-motion: reduce) {
+  .descent--fade {
+    animation: none;
+    opacity: 0;
+  }
+}
