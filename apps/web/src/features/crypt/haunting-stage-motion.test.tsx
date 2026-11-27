@@ -70,6 +70,14 @@ describe.each([false, true])('the stage with reduced motion %s', (reduce) => {
     expect(stage().dataset.moment).toBe('ghost-laid-to-rest');
     expect(mount.container.querySelector('.ghost-art--leaving')).not.toBeNull();
   });
+  it('still fades a ghost when its laid-to-rest notice arrives a render after it left (saved runs)', () => {
+    reduceMotion(reduce);
+    mount.render(view({ ghosts: [ghost] }));
+    mount.render(view({ ghosts: [] }));
+    expect(mount.container.querySelector('[data-ghost="a"]')?.getAttribute('data-state')).toBe('present');
+    mount.render(view({ ghosts: [], notices: [{ kind: 'ghostLaidToRest', conceptId: 'a' }] }));
+    expect(mount.container.querySelector('[data-ghost="a"]')?.getAttribute('data-state')).toBe('leaving');
+  });
   it('drops a notice the stage does not draw', () => {
     reduceMotion(reduce);
     mount.render(view({ notices: [{ kind: 'candleLit', target: { type: 'slot', slotId: 'elsewhere' } }] }));

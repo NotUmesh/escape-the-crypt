@@ -13,6 +13,7 @@ import type { RoomAction } from '../../state/room-actions';
 import { doorButtonName, lockName, returnSlotName } from './accessible-names';
 import { ArtStage } from './art-stage';
 import type { Viewport } from './crop-mapping';
+import { drawnGhosts } from './drawn-ghosts';
 import { GhostList } from './ghost-list';
 import { LockCloseUp } from './lock-closeup';
 import { panelSideFor } from './panel-side';
@@ -73,6 +74,7 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
     shownRoom.current = state.currentRoomId;
     titleRef.current?.focus();
   }, [state.currentRoomId]);
+  const ghosts = drawnGhosts(state);
   const spiritCandleCount =
     (room?.spiritCandles.length ?? 0) + (state.atFinalDoor ? state.finalDoor.spiritCandles.length : 0);
   // A judged slot is no longer `open`, but its panel stays until the learner continues from the evidence.
@@ -156,7 +158,7 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
           log={log}
           onActivate={activate}
           notices={notices}
-          ghosts={state.ghosts}
+          ghosts={ghosts}
           spiritCandleCount={spiritCandleCount}
           viewport={viewport}
         />
@@ -221,7 +223,7 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
         </button>
       ) : null}
       <GhostList
-        ghosts={state.ghosts}
+        ghosts={ghosts}
         spiritCandleCount={spiritCandleCount}
       />
       <p className="room-screen__status" data-testid="slot-status">

@@ -12,8 +12,8 @@ const WRONG_RUNE = 'zzzxq';
 const continueButton = (page: Page) => page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true });
 const liveRegion = (page: Page) => page.getByTestId('room-live-region');
 
-/** The live region shows the moment's sentence. Messages queue one at a time, so wait for it. */
-async function expectAnnounced(page: Page, text: string, ms = 9000): Promise<void> {
+/** The live region shows the sentence. It shows one queued message every 1.5 s, so a backlog can take a while. */
+async function expectAnnounced(page: Page, text: string, ms = 20000): Promise<void> {
   await expect(liveRegion(page)).toHaveText(text, { timeout: ms });
 }
 
@@ -103,13 +103,45 @@ for (const motion of ['no-preference', 'reduce'] as const) {
       await expectAnnounced(page, ROOM_ANNOUNCEMENT_COPY.notice.ghostSpawned);
     });
 
-    // Blocked, not skipped for convenience. A ghost leaves `State.ghosts` when its return becomes due
-    // (`room-clearing.ts`), and the return is answered later as a Return_Slot or a final-door seal. By then
-    // there is no ghost on the stage to fade, so `ghostLaidToRest` has nothing to draw. The fade CSS and the
-    // selector are covered by unit tests (`haunting-stage-motion.test.tsx`). Making this play needs the room
-    // screen to keep a due ghost drawn until it is laid to rest, which is a frozen file (`room-screen.tsx`).
-    test('ghost-laid-to-rest: the ghost fades only when motion is allowed, and it is gone', () => {
-      test.fixme(true, 'a due ghost has left State.ghosts before it is laid to rest; needs a room-screen change');
+    test('ghost-laid-to-rest: the ghost fades only when motion is allowed, and it is gone', async ({ page }) => {
+      // About 19 messages are queued by the time the ghost is laid to rest, shown 1.5 s apart.
+      test.setTimeout(90_000);
+      await enterCrypt(page);
+      await waitForArtStage(page);
+      // One wrong answer in room 1 summons a ghost; the other locks are answered right.
+      await openFirstLock(page);
+      await answerOpenPanel(page, false);
+      await continueButton(page).click();
+      await expect(continueButton(page)).toHaveCount(0);
+      const rest = page.locator('.room-screen__lock-button[data-status="open"], .room-screen__return-button[data-status="open"]');
+      for (let guard = 0; guard < 6 && (await rest.count()) > 0; guard += 1) {
+        await rest.first().click();
+        await answerOpenPanel(page, true);
+        await continueButton(page).click();
+        await expect(continueButton(page)).toHaveCount(0);
+      }
+      await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+      const seals = page.locator('.final-door__seal-button');
+      await seals.first().waitFor();
+      // The due ghost is drawn at the door until its returning question is answered.
+      await expect(page.locator('[data-ghost]')).toHaveCount(1);
+      const leaving = page.locator('[data-ghost][data-state="leaving"]');
+      let sawRest = false;
+      for (let guard = 0; guard < 12 && !sawRest && (await seals.count()) > 0; guard += 1) {
+        await seals.first().click();
+        await answerOpenPanel(page, true);
+        sawRest = await leaving.waitFor({ timeout: 1000 }).then(() => true, () => false);
+        if (sawRest) {
+          await expect(page.getByTestId('art-stage')).toHaveAttribute('data-moment', /ghost-laid-to-rest/);
+          const name = await animationName(page, '[data-ghost][data-state="leaving"]');
+          if (moving) expect(name).toBe('ghost-fade');
+          else expect(name).toBe('none');
+          await expectAnnounced(page, ROOM_ANNOUNCEMENT_COPY.notice.ghostLaidToRest, 45_000);
+          await expect(page.locator('[data-ghost]')).toHaveCount(0, { timeout: 3000 });
+        }
+        await continueButton(page).click();
+      }
+      expect(sawRest).toBe(true);
     });
 
     test('autopsy-opens: the page fades in only when motion is allowed, and every count and entry is there', async ({ page }) => {

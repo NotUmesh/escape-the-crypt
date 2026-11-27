@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Outcome_Notice, State } from '@escape-the-crypt/core';
 import { ArtStage } from './art-stage';
+import { drawnGhosts } from './drawn-ghosts';
 import type { Viewport } from './crop-mapping';
 import type { SceneLayout } from './scene-layout';
 import type { RoomArt } from './use-room-art';
@@ -28,7 +29,7 @@ export function DoorStage({ art, state, notices, viewport, overlay }: DoorStageP
       cleared
       log={art.log}
       notices={notices}
-      ghosts={state.ghosts}
+      ghosts={drawnGhosts(state)}
       spiritCandleCount={
         (state.rooms.find((r) => r.roomId === state.currentRoomId)?.spiritCandles.length ?? 0) +
         state.finalDoor.spiritCandles.length

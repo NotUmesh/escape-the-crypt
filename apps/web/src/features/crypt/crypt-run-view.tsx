@@ -64,6 +64,7 @@ export function CryptRunView({
         <FinalDoor
           state={state}
           dispatch={dispatch}
+          notices={binding.notices}
           assets={binding.assets}
           rejection={binding.rejection}
           eventLog={binding.eventLog}
