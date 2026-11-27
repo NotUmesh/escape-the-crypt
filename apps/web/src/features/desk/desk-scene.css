@@ -1,0 +1,128 @@
+/* The desk behind the pre-crypt screens. Colours from tokens only. Art never carries text or controls. */
+.desk-scene {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background-color: var(--stone-950);
+  color: var(--bone-50);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+@media (min-width: 40rem) {
+  .desk-scene {
+    font-size: 18px;
+  }
+}
+.desk-scene__stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.desk-scene__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+}
+.desk-scene[data-set='mobile'] .desk-scene__layer {
+  object-position: top;
+}
+.desk-scene__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 50%, var(--stone-950) 100%);
+  opacity: 0.55;
+}
+/* Content sits above the art. Panels inside it are solid; the art is only ever seen around them. */
+.desk-scene__content {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  min-height: 100svh;
+  padding: 1rem;
+}
+.desk-scene :focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* The camera moves onto the open book once, when the screen mounts. */
+.desk-scene[data-push='true'] .desk-scene__stage {
+  transform-origin: var(--push-origin);
+  animation: desk-push-in 600ms ease-out both;
+}
+@keyframes desk-push-in {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+/* Lantern mode and reduced motion: no flicker. */
+.desk-scene[data-lantern='true'] .flame__body {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .desk-scene .flame__body {
+    animation: none;
+  }
+}
+
+/* The shared solid panel. Text on the pre-crypt screens always sits on one of these. */
+.fh-panel {
+  box-sizing: border-box;
+  padding: 1rem 1.25rem;
+  background: var(--stone-800);
+  color: var(--bone-50);
+  border: 1px solid var(--stone-300);
+  border-radius: 4px;
+}
+.fh-panel--paper {
+  background: var(--parchment-100);
+  color: var(--ink-900);
+}
+.fh-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-title);
+  font-weight: 700;
+  line-height: 1.2;
+}
+.fh-note {
+  margin: 0;
+  color: var(--stone-300);
+}
+.fh-button {
+  box-sizing: border-box;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  background: var(--stone-950);
+  color: var(--bone-50);
+  border: 1px solid var(--spectre-300);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+.fh-button:disabled {
+  color: var(--stone-300);
+  border-color: var(--stone-300);
+  cursor: default;
+}
+.fh-button--primary {
+  background: var(--spectre-300);
+  color: var(--stone-950);
+}
+a.fh-button {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}

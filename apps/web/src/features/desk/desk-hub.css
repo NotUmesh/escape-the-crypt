@@ -1,0 +1,88 @@
+.desk-hub {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+.desk-hub__tools {
+  display: flex;
+  justify-content: flex-end;
+}
+.desk-hub__intro {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+}
+.desk-hub__intro p {
+  margin: 0;
+}
+.desk-hub__samples {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+}
+.desk-hub__shelf {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+.desk-hub__shelf > * {
+  margin: 0;
+}
+.desk-hub__card {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--stone-300);
+}
+.desk-hub__card-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: inherit;
+}
+.desk-hub__card-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  color: var(--stone-300);
+}
+.sample-shelf {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sample-shelf__button {
+  display: grid;
+  gap: 0.125rem;
+  width: 100%;
+  text-align: left;
+}
+.sample-shelf__label {
+  color: var(--stone-300);
+}
+/* The desk art is on the left of the screen on wide windows; the panels sit on the sides. */
+@media (min-width: 56rem) {
+  .desk-hub {
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+    grid-template-areas:
+      'tools tools'
+      'intro shelf';
+    justify-content: space-between;
+    max-width: none;
+  }
+  .desk-hub__tools {
+    grid-area: tools;
+  }
+  .desk-hub__intro {
+    grid-area: intro;
+  }
+  .desk-hub__shelf {
+    grid-area: shelf;
+    justify-self: end;
+    width: min(100%, 28rem);
+  }
+}

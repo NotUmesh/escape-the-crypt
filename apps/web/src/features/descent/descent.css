@@ -1,0 +1,38 @@
+/* The descent covers the screen while it plays. Tokens only. */
+.descent {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: var(--stone-950);
+}
+.descent__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.descent__skip {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1;
+}
+.descent :focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+/* The fade is a dark sheet that clears. Clicks pass through it. */
+.descent--fade {
+  pointer-events: none;
+  animation: descent-fade-out 400ms ease-out forwards;
+}
+@keyframes descent-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
