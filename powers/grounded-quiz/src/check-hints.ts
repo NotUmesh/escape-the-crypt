@@ -138,9 +138,41 @@ const HINTS: Readonly<Partial<Record<CheckId, CheckHint>>> = {
     problem: "The alternate's answer-bearing quote does not overlap any of the primary's quotes. This check is advisory.",
     fix: 'Check the alternate really asks about the same concept, and quote the same passage.',
   },
+  'missing-units': {
+    problem: 'A combination dial question has no units. The dial shows them next to the number.',
+    fix: 'Set `units` to what is counted or measured, for example "chambers" or "beats per minute". Use "(no units)" only when the number really has none.',
+  },
+  'number-not-in-quote': {
+    problem: 'The exact number does not appear, as written in the notes, in any evidence quote. "970" does not count as 97, and a computed number does not count.',
+    fix: 'Ask for a number a quote states outright (digits or a number word such as "four"), and quote that sentence. For a number the notes only imply, set the question aside.',
+  },
+  'range-not-in-quote': {
+    problem: 'The range is reversed (min above max), or its two ends do not both appear in one evidence quote.',
+    fix: 'Use a range the notes state as two numbers in one quote, for example "between 60 and 100", with min no higher than max.',
+  },
+  'template-not-allowlisted': {
+    problem: 'The answer uses a formula template that is not on the list. Only "difference" and "percent-change" exist.',
+    fix: 'Use `difference` (first number minus second) or `percent-change` (from the first number to the second), or ask for a number the notes state.',
+  },
+  'template-input-not-in-quote': {
+    problem: 'One of the two numbers a template starts from does not appear in an evidence quote.',
+    fix: 'Choose two numbers that a quote states word for word, and quote them.',
+  },
+  'template-value-mismatch': {
+    problem: "The value does not match what code computes from the two inputs. `difference` is first minus second. `percent-change` is (second minus first) divided by first, times 100, and cannot start from zero.",
+    fix: 'Set `value` to the computed result, or swap the inputs if they are the wrong way round. The value is only a claim: code recomputes it.',
+  },
+  'model-written-expression': {
+    problem: 'The answer carries an expression, formula or code. The dial accepts a stated number, a stated range, or one of the two templates, never an expression.',
+    fix: 'Remove it. Give the number, the range or a template with its two inputs.',
+  },
+  'dial-range-prompt': {
+    problem: 'The prompt of a range question asks for both ends of the range ("both", "the range", "minimum and maximum" and so on). The dial takes one value.',
+    fix: 'Ask for one value, for example "about how many … ? Any value in the normal range counts."',
+  },
   'lock-type-not-supported': {
-    problem: 'Combination dial questions are not checked yet, so this Power does not support them.',
-    fix: 'Use rune-cipher, seance-board, bone-ordering, bound-threads or cursed-object.',
+    problem: 'A lock type with no checks was submitted. Core checks all six lock types, so this should not appear.',
+    fix: 'Use one of the six lock types: rune-cipher, seance-board, bone-ordering, bound-threads, cursed-object or combination-dial.',
   },
 };
 

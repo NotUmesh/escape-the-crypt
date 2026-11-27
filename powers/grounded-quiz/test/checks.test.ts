@@ -7,12 +7,12 @@ import type { Json } from './support';
 const list = (value: unknown): Json[] => value as Json[];
 
 describe('check_question on the sample crypt', () => {
-  it('passes every supported question in samples/questions/human-heart.json (five lock types)', () => {
+  it('passes every supported question in samples/questions/human-heart.json (all six lock types)', () => {
     const ctx = newContext();
     const { notesId } = prepareHeart(ctx);
     const supported = supportedSampleQuestions();
-    expect(new Set(supported.map((q) => q.lockType)).size).toBe(5);
-    expect(supported.length).toBe(10);
+    expect(new Set(supported.map((q) => q.lockType)).size).toBe(6);
+    expect(supported.length).toBe(sampleQuestions().length);
     for (const question of supported) {
       const out = run('check_question', { notesId, question }, ctx);
       expect(out, question.id).toMatchObject({ valid: true, passes: true, blocking: [], questionId: question.id });
@@ -93,16 +93,88 @@ describe('check_question on the sample crypt', () => {
     expect(String(out['hint'])).toContain('rune-cipher, seance-board, bone-ordering');
   });
 
-  it('does not support combination dial questions yet, and says which types it does', () => {
+  it('supports combination dial questions: the sample dial questions pass', () => {
     const ctx = newContext();
     const { notesId } = prepareHeart(ctx);
-    const dial = sampleQuestions().find((q) => q.lockType === 'combination-dial');
-    expect(dial).toBeDefined();
-    const out = run('check_question', { notesId, question: dial }, ctx);
-    expect(out['valid']).toBe(false);
-    expect(String(out['hint'])).toContain('rune-cipher, seance-board, bone-ordering, bound-threads, cursed-object');
+    const dials = sampleQuestions().filter((q) => q.lockType === 'combination-dial');
+    expect(dials.length).toBeGreaterThanOrEqual(2);
+    for (const question of dials) {
+      expect(run('check_question', { notesId, question }, ctx), question.id).toMatchObject({ valid: true, passes: true, blocking: [] });
+    }
   });
-
+  describe('combination dial failures, each with advice', () => {
+    const blocking = (question: unknown): string[] => {
+      const ctx = newContext();
+      const { notesId } = prepareHeart(ctx);
+      const out = run('check_question', { notesId, question }, ctx);
+      expect(out['valid']).toBe(true);
+      for (const finding of list(out['blocking'])) {
+        expect(String(finding['problem']).length).toBeGreaterThan(20);
+        expect(String(finding['fix']).length).toBeGreaterThan(10);
+      }
+      return list(out['blocking']).map((f) => String(f['checkId']));
+    };
+    const range = byId('hh-q11') as unknown as Json;
+    const exact = byId('hh-q10') as unknown as Json;
+    const template = {
+      ...exact,
+      id: 'dial-t',
+      role: 'primary',
+      prompt: 'According to your notes, how many beats per minute separate the top of the normal resting heart rate from the bottom?',
+      answer: { kind: 'template', template: 'difference', inputs: [100, 60], value: 40 },
+      units: 'beats per minute',
+      evidence: [{ paragraph: 9, quote: 'a normal heart rate is between 60 and 100 beats per minute' }],
+    } as Json;
+    it('passes a computed answer whose value code agrees with', () => {
+      expect(blocking(template)).toEqual([]);
+    });
+    it('fails blank units (missing-units)', () => {
+      expect(blocking({ ...exact, units: '  ' })).toEqual(['missing-units']);
+    });
+    it('fails an exact number the quote does not state (number-not-in-quote)', () => {
+      expect(blocking({ ...exact, answer: { kind: 'exact', value: 5 } })).toEqual(['number-not-in-quote']);
+    });
+    it('fails a range whose ends are not both in a quote, or that is reversed (range-not-in-quote)', () => {
+      expect(blocking({ ...range, answer: { kind: 'range', min: 60, max: 120 } })).toEqual(['range-not-in-quote']);
+      expect(blocking({ ...range, answer: { kind: 'range', min: 100, max: 60 } })).toEqual(['range-not-in-quote']);
+    });
+    it('fails a range prompt that asks for both ends (dial-range-prompt)', () => {
+      expect(blocking({ ...range, prompt: 'According to your notes, what are the minimum and maximum resting heart rates?' })).toEqual(['dial-range-prompt']);
+    });
+    it('fails a template whose inputs are not in the quote (template-input-not-in-quote)', () => {
+      expect(blocking({ ...template, answer: { kind: 'template', template: 'difference', inputs: [100, 50], value: 50 } })).toEqual(['template-input-not-in-quote']);
+    });
+    it('fails a template value that code does not recompute (template-value-mismatch)', () => {
+      expect(blocking({ ...template, answer: { kind: 'template', template: 'difference', inputs: [100, 60], value: 41 } })).toEqual(['template-value-mismatch']);
+    });
+    it('rejects an unlisted template or an expression, naming the schema, never running anything', () => {
+      const ctx = newContext();
+      const { notesId } = prepareHeart(ctx);
+      for (const answer of [
+        { kind: 'template', template: 'power', inputs: [100, 60], value: 40 },
+        { kind: 'exact', value: 4, expression: '2+2' },
+      ]) {
+        const out = run('check_question', { notesId, question: { ...exact, answer } }, ctx);
+        expect(out['valid']).toBe(false);
+        expect(String(out['hint'])).toContain('combination-dial');
+      }
+    });
+  });
+  it('lists the six lock types and the dial checks', () => {
+    const out = run('list_checks', {}, newContext());
+    expect(out['supportedLockTypes']).toEqual([
+      'rune-cipher',
+      'seance-board',
+      'bone-ordering',
+      'bound-threads',
+      'cursed-object',
+      'combination-dial',
+    ]);
+    const ids = list(out['checks']).map((c) => String(c['id']));
+    for (const id of ['missing-units', 'number-not-in-quote', 'range-not-in-quote', 'template-not-allowlisted', 'template-input-not-in-quote', 'template-value-mismatch', 'model-written-expression', 'dial-range-prompt']) {
+      expect(ids).toContain(id);
+    }
+  });
   it('fails a matching question that uses a right-hand item twice', () => {
     const ctx = newContext();
     const { notesId } = prepareHeart(ctx);

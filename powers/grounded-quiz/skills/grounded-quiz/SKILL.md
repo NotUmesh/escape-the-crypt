@@ -22,7 +22,7 @@ Pick facts a paragraph states plainly. Skip anything the notes state vaguely, or
 
 ## Step 3: Draft the questions
 
-Use the formats in `references/question-formats.md`. Five lock types are supported:
+Use the formats in `references/question-formats.md`. Six lock types are supported:
 
 - **rune-cipher**: fill in one blank. The answer must appear in the quote.
 - **seance-board**: choose from 3 or 4 options. The prompt starts "According to your notes". Exactly one option is `supported` by a quote and each other option is `contradicted` by a quote. An option the notes merely do not mention cannot be used.
@@ -35,7 +35,7 @@ Rules for every question:
 - Every question cites at least one `paragraph` and an exact `quote` of 4 to 25 words, copied from that paragraph's text. Do not paraphrase a quote.
 - Ask what the notes say, in positive form. No "which is not", "except", "false" or "incorrect". The one exception is the odd-one-out prompt of a cursed-object question.
 - The answer must not appear in the prompt, and no question may give away another question's answer.
-- Each answer is asked once. Numbers come from the notes word for word.
+- Each answer is asked once. Numbers come from the notes word for word: a number the notes only imply, or one you worked out yourself outside a template, is set aside.
 - Write "your notes", not a generic word such as "the document".
 
 ## Step 4: Check, then repair or set aside

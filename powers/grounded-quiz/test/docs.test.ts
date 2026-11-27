@@ -25,11 +25,11 @@ const failing = (question: Json, ctx = newContext()): string[] => {
 describe('question-formats.md', () => {
   const formats = blocksAfterMarkers('question-formats.md', 'format');
 
-  it('shows one example for each of the five supported lock types', () => {
-    expect([...formats.keys()]).toEqual(['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads', 'cursed-object']);
+  it('shows one example for each of the six supported lock types', () => {
+    expect([...formats.keys()]).toEqual(['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads', 'cursed-object', 'combination-dial']);
   });
 
-  for (const lockType of ['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads', 'cursed-object']) {
+  for (const lockType of ['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads', 'cursed-object', 'combination-dial']) {
     it(`the ${lockType} example passes check_question against samples/human-heart.txt`, () => {
       const ctx = newContext();
       const { notesId } = prepareHeart(ctx);
@@ -40,6 +40,24 @@ describe('question-formats.md', () => {
   }
 });
 
+describe('question-formats.md dial variants', () => {
+  const variants = blocksAfterMarkers('question-formats.md', 'variant');
+  it('shows an exact and a computed dial answer', () => {
+    expect([...variants.keys()]).toEqual(['combination-dial-exact', 'combination-dial-template']);
+  });
+  for (const [name, question] of variants) {
+    it(`the ${name} example passes check_question against samples/human-heart.txt`, () => {
+      const ctx = newContext();
+      const { notesId } = prepareHeart(ctx);
+      expect(run('check_question', { notesId, question }, ctx)).toMatchObject({ valid: true, passes: true, blocking: [] });
+    });
+  }
+  it('no longer says dial questions are unsupported', () => {
+    for (const file of ['question-formats.md']) {
+      expect(readFileSync(join(REFERENCES, file), 'utf8')).not.toMatch(/not supported here|no checks in this Power/i);
+    }
+  });
+});
 describe('worked-example.md', () => {
   const examples = blocksAfterMarkers('worked-example.md', 'example');
   const doc = readFileSync(join(REFERENCES, 'worked-example.md'), 'utf8');

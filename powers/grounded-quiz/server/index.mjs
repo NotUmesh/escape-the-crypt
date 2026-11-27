@@ -19846,12 +19846,37 @@ var CursedObjectAuthoringSchema = external_exports.strictObject({
   explanation: external_exports.string(),
   note: external_exports.string().optional()
 });
+var DIAL_TEMPLATES = ["difference", "percent-change"];
+var DialExactAnswerSchema = external_exports.strictObject({ kind: external_exports.literal("exact"), value: external_exports.number() });
+var DialRangeAnswerSchema = external_exports.strictObject({ kind: external_exports.literal("range"), min: external_exports.number(), max: external_exports.number() });
+var DialTemplateAnswerSchema = external_exports.strictObject({
+  kind: external_exports.literal("template"),
+  template: external_exports.enum(DIAL_TEMPLATES),
+  // Exactly two numbers stated in the notes (checked against the quote by template-input-not-in-quote).
+  inputs: external_exports.array(external_exports.number()).length(2),
+  // The model's value is only a claim: template-value-mismatch recomputes it in code.
+  value: external_exports.number()
+});
+var CombinationDialAuthoringSchema = external_exports.strictObject({
+  id: external_exports.string().min(1),
+  conceptId: external_exports.string().min(1),
+  role: external_exports.enum(["primary", "alternate"]),
+  lockType: external_exports.literal("combination-dial"),
+  prompt: external_exports.string().min(1),
+  answer: external_exports.discriminatedUnion("kind", [DialExactAnswerSchema, DialRangeAnswerSchema, DialTemplateAnswerSchema]),
+  // Presence is the missing-units Code_Check's concern, not the schema's.
+  units: external_exports.string(),
+  evidence: external_exports.array(EvidenceRefSchema).min(1),
+  explanation: external_exports.string(),
+  note: external_exports.string().optional()
+});
 var AuthoringQuestionSchema = external_exports.discriminatedUnion("lockType", [
   RuneCipherAuthoringSchema,
   SeanceBoardAuthoringSchema,
   BoneOrderingAuthoringSchema,
   BoundThreadsAuthoringSchema,
-  CursedObjectAuthoringSchema
+  CursedObjectAuthoringSchema,
+  CombinationDialAuthoringSchema
 ]);
 
 // packages/core/src/authoring/parse.ts
@@ -19869,7 +19894,7 @@ function parseAuthoringQuestion(value) {
 }
 
 // packages/core/src/checks/registry.ts
-var CHECK_VERSION = "2026-11-27.4";
+var CHECK_VERSION = "2026-11-27.5";
 var shared = (id) => ({
   id,
   scope: "shared",
@@ -19906,11 +19931,11 @@ var cursed = (id) => ({
   severity: "blocking",
   implemented: true
 });
-var later = (id, lockType) => ({
+var dial = (id) => ({
   id,
-  scope: [lockType],
+  scope: ["combination-dial"],
   severity: "blocking",
-  implemented: false
+  implemented: true
 });
 var CHECK_REGISTRY = [
   shared("quote-not-found"),
@@ -19937,8 +19962,7 @@ var CHECK_REGISTRY = [
   shared("max-one-alternate"),
   { id: "alternate-off-concept", scope: "shared", severity: "advisory", implemented: true },
   shared("lock-type-not-supported"),
-  // Phase 5 ids: registered now so the registry equals the Req 3.5 list.
-  // Until their checks exist, questions of these types fail with lock-type-not-supported.
+  // Phase 5 ids: registered so the registry equals the Req 3.5 list.
   // Deliberate flip (task 29.2): bone-ordering checks now exist and runChecks calls them.
   bone("step-count"),
   bone("duplicate-steps"),
@@ -19951,14 +19975,16 @@ var CHECK_REGISTRY = [
   cursed("answer-not-an-item"),
   cursed("missing-category-rule"),
   cursed("needs-category-and-outside-quotes"),
-  later("missing-units", "combination-dial"),
-  later("number-not-in-quote", "combination-dial"),
-  later("range-not-in-quote", "combination-dial"),
-  later("template-not-allowlisted", "combination-dial"),
-  later("template-input-not-in-quote", "combination-dial"),
-  later("template-value-mismatch", "combination-dial"),
-  later("model-written-expression", "combination-dial"),
-  later("dial-range-prompt", "combination-dial")
+  // Deliberate flip (task 35.2): combination-dial checks now exist and runChecks calls them.
+  // No registry entry is left unimplemented; lock-type-not-supported stays registered (Req 3.5).
+  dial("missing-units"),
+  dial("number-not-in-quote"),
+  dial("range-not-in-quote"),
+  dial("template-not-allowlisted"),
+  dial("template-input-not-in-quote"),
+  dial("template-value-mismatch"),
+  dial("model-written-expression"),
+  dial("dial-range-prompt")
 ];
 
 // packages/core/src/limits.ts
@@ -20295,6 +20321,163 @@ function boundThreadsChecks(question, context) {
   return failures;
 }
 
+// packages/core/src/locks/combination-dial-checks.ts
+var ALLOWED_TEMPLATES = ["difference", "percent-change"];
+function isAllowedTemplate(template) {
+  return typeof template === "string" && ALLOWED_TEMPLATES.includes(template);
+}
+function computeTemplate(template, inputs) {
+  if (inputs.length !== 2) return null;
+  const [a, b] = inputs;
+  if (a === void 0 || b === void 0 || !Number.isFinite(a) || !Number.isFinite(b)) return null;
+  if (template === "difference") return a - b;
+  if (a === 0) return null;
+  return (b - a) / a * 100;
+}
+var NUMBER_WORDS = {
+  zero: 0,
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  eleven: 11,
+  twelve: 12,
+  thirteen: 13,
+  fourteen: 14,
+  fifteen: 15,
+  sixteen: 16,
+  seventeen: 17,
+  eighteen: 18,
+  nineteen: 19,
+  twenty: 20,
+  thirty: 30,
+  forty: 40,
+  fifty: 50,
+  sixty: 60,
+  seventy: 70,
+  eighty: 80,
+  ninety: 90
+};
+var NUMBER_TOKEN = /(?<![\w.])[-\u2212]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?/g;
+var WORD_TOKEN = new RegExp(`\\b(?:${Object.keys(NUMBER_WORDS).join("|")})\\b`, "gi");
+function numbersIn(quote) {
+  const out = [];
+  for (const token of quote.match(NUMBER_TOKEN) ?? []) {
+    out.push(Number(token.replace(/,/g, "").replace("\u2212", "-")));
+  }
+  for (const word of quote.match(WORD_TOKEN) ?? []) {
+    const n = NUMBER_WORDS[word.toLowerCase()];
+    if (n !== void 0) out.push(n);
+  }
+  return out;
+}
+function numberAppearsVerbatim(quote, n) {
+  if (typeof quote !== "string" || typeof n !== "number" || !Number.isFinite(n)) return false;
+  return numbersIn(quote).some((m) => m === n);
+}
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function answerOf(q) {
+  const answer = q.answer;
+  return isRecord(answer) ? answer : {};
+}
+function evidenceOf(q) {
+  const evidence = q.evidence;
+  if (!Array.isArray(evidence)) return [];
+  return evidence.filter(
+    (e) => isRecord(e) && typeof e["paragraph"] === "number" && typeof e["quote"] === "string"
+  );
+}
+function resolvedQuotes(q, context) {
+  return evidenceOf(q).filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
+}
+var fail = (checkId, q) => [{ checkId, questionId: q.id }];
+function checkMissingUnits(q) {
+  const units = q.units;
+  return typeof units === "string" && units.trim() !== "" ? [] : fail("missing-units", q);
+}
+function checkNumberNotInQuote(q, context) {
+  const answer = answerOf(q);
+  if (answer["kind"] !== "exact") return [];
+  const value = answer["value"];
+  const quotes = resolvedQuotes(q, context);
+  return typeof value === "number" && quotes.some((quote) => numberAppearsVerbatim(quote, value)) ? [] : fail("number-not-in-quote", q);
+}
+function checkRangeNotInQuote(q, context) {
+  const answer = answerOf(q);
+  if (answer["kind"] !== "range") return [];
+  const { min, max } = answer;
+  if (typeof min !== "number" || typeof max !== "number" || min > max) return fail("range-not-in-quote", q);
+  const ok2 = resolvedQuotes(q, context).some((quote) => numberAppearsVerbatim(quote, min) && numberAppearsVerbatim(quote, max));
+  return ok2 ? [] : fail("range-not-in-quote", q);
+}
+function checkTemplateNotAllowlisted(q) {
+  const answer = answerOf(q);
+  if (answer["kind"] !== "template") return [];
+  return isAllowedTemplate(answer["template"]) ? [] : fail("template-not-allowlisted", q);
+}
+function checkTemplateInputNotInQuote(q, context) {
+  const answer = answerOf(q);
+  if (answer["kind"] !== "template") return [];
+  const inputs = answer["inputs"];
+  if (!Array.isArray(inputs) || inputs.length === 0) return fail("template-input-not-in-quote", q);
+  const quotes = resolvedQuotes(q, context);
+  const ok2 = inputs.every((n) => typeof n === "number" && quotes.some((quote) => numberAppearsVerbatim(quote, n)));
+  return ok2 ? [] : fail("template-input-not-in-quote", q);
+}
+function checkTemplateValueMismatch(q) {
+  const answer = answerOf(q);
+  if (answer["kind"] !== "template") return [];
+  const { template, inputs, value } = answer;
+  if (!isAllowedTemplate(template)) return [];
+  const numeric = Array.isArray(inputs) && inputs.every((n) => typeof n === "number");
+  const computed = numeric ? computeTemplate(template, inputs) : null;
+  return computed !== null && typeof value === "number" && Math.abs(computed - value) < 1e-9 ? [] : fail("template-value-mismatch", q);
+}
+var EXPRESSION_KEYS = ["expression", "formula", "code"];
+function checkModelWrittenExpression(raw, questionId) {
+  if (!isRecord(raw)) return [];
+  const holders = [raw, raw["answer"]].filter(isRecord);
+  const found = holders.some((h) => EXPRESSION_KEYS.some((k) => k in h));
+  return found ? [{ checkId: "model-written-expression", questionId }] : [];
+}
+var RANGE_PLURAL_PROMPT = /\b(?:both|two values?|the range|endpoints?|minimum and maximum|min and max|lower and upper|lowest and highest|smallest and largest)\b/i;
+function checkDialRangePrompt(q) {
+  if (answerOf(q)["kind"] !== "range") return [];
+  const prompt = q.prompt;
+  return typeof prompt === "string" && RANGE_PLURAL_PROMPT.test(prompt) ? fail("dial-range-prompt", q) : [];
+}
+function combinationDialChecks(q, context) {
+  const failures = [];
+  for (const e of evidenceOf(q)) {
+    const failure2 = checkQuote(
+      context.chunks,
+      { paragraphChunkId: context.paragraphChunkIds.get(e.paragraph) ?? "", quote: e.quote },
+      q.id
+    );
+    if (failure2) failures.push(failure2);
+  }
+  const notAllowlisted = checkTemplateNotAllowlisted(q);
+  failures.push(
+    ...checkMissingUnits(q),
+    ...checkNumberNotInQuote(q, context),
+    ...checkRangeNotInQuote(q, context),
+    ...notAllowlisted,
+    ...checkTemplateInputNotInQuote(q, context),
+    ...checkTemplateValueMismatch(q),
+    ...notAllowlisted.length === 0 ? checkModelWrittenExpression(q, q.id) : [],
+    ...checkDialRangePrompt(q)
+  );
+  return failures;
+}
+
 // packages/core/src/locks/cursed-object-checks.ts
 var ITEM_COUNT = 4;
 var MIN_CATEGORY_RULE_LENGTH = 10;
@@ -20425,18 +20608,18 @@ function runeCipherChecks(q, context) {
 
 // packages/core/src/locks/seance-board-checks.ts
 var ACCORDING_TO_YOUR_NOTES = "According to your notes";
-function isRecord(value) {
+function isRecord2(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 function str(value) {
   return typeof value === "string" ? value : "";
 }
 function readOption(value) {
-  const o = isRecord(value) ? value : {};
+  const o = isRecord2(value) ? value : {};
   return { id: str(o["id"]), text: str(o["text"]), label: o["label"], evidence: o["evidence"] };
 }
 function readEvidence(value) {
-  if (!isRecord(value)) return null;
+  if (!isRecord2(value)) return null;
   const quote = value["quote"];
   if (typeof quote !== "string" || quote.trim() === "") return null;
   return { paragraph: value["paragraph"], quote };
@@ -20445,28 +20628,28 @@ function duplicateKey2(text) {
   return normaliseWithMap(text).text.toLowerCase();
 }
 function checkSeanceBoard(input2, context) {
-  const q = isRecord(input2) ? input2 : {};
+  const q = isRecord2(input2) ? input2 : {};
   const questionId = str(q["id"]);
   const failures = [];
-  const fail2 = (checkId) => {
+  const fail3 = (checkId) => {
     failures.push({ checkId, questionId });
   };
-  if (!str(q["prompt"]).startsWith(ACCORDING_TO_YOUR_NOTES)) fail2("missing-according-to-your-notes");
+  if (!str(q["prompt"]).startsWith(ACCORDING_TO_YOUR_NOTES)) fail3("missing-according-to-your-notes");
   const rawOptions = Array.isArray(q["options"]) ? q["options"] : [];
   const options = rawOptions.map(readOption);
-  if (options.length < 3 || options.length > 4) fail2("option-count");
+  if (options.length < 3 || options.length > 4) fail3("option-count");
   const keys = options.map((o) => duplicateKey2(o.text));
-  if (new Set(keys).size !== keys.length) fail2("duplicate-options");
+  if (new Set(keys).size !== keys.length) fail3("duplicate-options");
   if (options.some((o) => o.label !== "supported" && o.label !== "contradicted")) {
-    fail2("option-not-supported-or-contradicted");
+    fail3("option-not-supported-or-contradicted");
   }
   const evidence = options.map((o) => readEvidence(o.evidence));
-  if (evidence.some((e) => e === null)) fail2("option-without-evidence");
+  if (evidence.some((e) => e === null)) fail3("option-without-evidence");
   const supported = options.filter((o) => o.label === "supported");
   if (supported.length !== 1) {
-    fail2("not-exactly-one-supported");
+    fail3("not-exactly-one-supported");
   } else if (supported[0].id !== str(q["answer"])) {
-    fail2("key-not-the-supported-option");
+    fail3("key-not-the-supported-option");
   }
   for (const e of evidence) {
     if (e === null) continue;
@@ -20504,6 +20687,7 @@ function answerBearingQuotes(q, context) {
   if (q.lockType === "bone-ordering") return q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
   if (q.lockType === "bound-threads") return q.pairs.map((p) => p.evidence).filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
   if (q.lockType === "cursed-object") return q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
+  if (q.lockType === "combination-dial") return q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
   const key2 = q.options.filter((o) => o.id === q.answer || o.text === q.answer);
   return (key2.length > 0 ? key2 : q.options).map((o) => o.evidence).filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
 }
@@ -20538,59 +20722,63 @@ var LOCK_TYPES = [
 // packages/core/src/runtime/manifest-hints.ts
 function narrowHint(lockType, payload, hintEffect, ctx) {
   if (hintEffect === null) return;
-  const fail2 = (message) => ctx.addIssue({ code: "custom", path: ["hintEffect"], message });
+  const fail3 = (message) => ctx.addIssue({ code: "custom", path: ["hintEffect"], message });
+  if (lockType === "combination-dial") {
+    fail3(`hint-kind-not-allowed: combination-dial accepts no hint, got ${hintEffect.kind}`);
+    return;
+  }
   if (lockType === "rune-cipher") {
     if (hintEffect.kind !== "reveal-first-letter") {
-      fail2(`hint-kind-not-allowed: rune-cipher accepts only reveal-first-letter, got ${hintEffect.kind}`);
+      fail3(`hint-kind-not-allowed: rune-cipher accepts only reveal-first-letter, got ${hintEffect.kind}`);
     }
     return;
   }
   if (lockType === "seance-board") {
     if (hintEffect.kind !== "remove-option") {
-      fail2(`hint-kind-not-allowed: seance-board accepts only remove-option, got ${hintEffect.kind}`);
+      fail3(`hint-kind-not-allowed: seance-board accepts only remove-option, got ${hintEffect.kind}`);
       return;
     }
     const { optionIds, keyOptionId } = payload;
     if (!optionIds.includes(hintEffect.optionId)) {
-      fail2("hint-option-unknown: remove-option optionId is not in optionIds");
+      fail3("hint-option-unknown: remove-option optionId is not in optionIds");
     } else if (hintEffect.optionId === keyOptionId) {
-      fail2("hint-option-is-key: remove-option must not remove the key option");
+      fail3("hint-option-is-key: remove-option must not remove the key option");
     }
     return;
   }
   if (lockType === "bone-ordering") {
     if (hintEffect.kind !== "lock-first-bone") {
-      fail2(`hint-kind-not-allowed: bone-ordering accepts only lock-first-bone, got ${hintEffect.kind}`);
+      fail3(`hint-kind-not-allowed: bone-ordering accepts only lock-first-bone, got ${hintEffect.kind}`);
       return;
     }
     const { itemIds } = payload;
     if (!itemIds.includes(hintEffect.boneId)) {
-      fail2("hint-bone-unknown: lock-first-bone boneId is not in itemIds");
+      fail3("hint-bone-unknown: lock-first-bone boneId is not in itemIds");
     }
     return;
   }
   if (lockType === "bound-threads") {
     if (hintEffect.kind !== "tie-thread") {
-      fail2(`hint-kind-not-allowed: bound-threads accepts only tie-thread, got ${hintEffect.kind}`);
+      fail3(`hint-kind-not-allowed: bound-threads accepts only tie-thread, got ${hintEffect.kind}`);
       return;
     }
     const { keyPairs } = payload;
     const [a, b] = hintEffect.pair;
     if (!keyPairs.some(([l, r]) => l === a && r === b || l === b && r === a)) {
-      fail2("hint-pair-unknown: tie-thread pair is not one of keyPairs");
+      fail3("hint-pair-unknown: tie-thread pair is not one of keyPairs");
     }
     return;
   }
   if (lockType === "cursed-object") {
     if (hintEffect.kind !== "remove-option") {
-      fail2(`hint-kind-not-allowed: cursed-object accepts only remove-option, got ${hintEffect.kind}`);
+      fail3(`hint-kind-not-allowed: cursed-object accepts only remove-option, got ${hintEffect.kind}`);
       return;
     }
     const { optionIds, oddOneOutId } = payload;
     if (!optionIds.includes(hintEffect.optionId)) {
-      fail2("hint-option-unknown: remove-option optionId is not in optionIds");
+      fail3("hint-option-unknown: remove-option optionId is not in optionIds");
     } else if (hintEffect.optionId === oddOneOutId) {
-      fail2("hint-option-is-key: remove-option must not remove the odd item");
+      fail3("hint-option-is-key: remove-option must not remove the odd item");
     }
   }
 }
@@ -20641,6 +20829,15 @@ var CursedObjectPayloadSchema = external_exports.strictObject({
 }).refine((v) => v.optionIds.includes(v.oddOneOutId), {
   message: "oddOneOutId must be one of optionIds"
 });
+var CombinationDialPayloadSchema = external_exports.discriminatedUnion("kind", [
+  external_exports.strictObject({ kind: external_exports.literal("exact"), exactValue: external_exports.number().finite(), unit: external_exports.string().min(1) }),
+  external_exports.strictObject({
+    kind: external_exports.literal("range"),
+    min: external_exports.number().finite(),
+    max: external_exports.number().finite(),
+    unit: external_exports.string().min(1)
+  }).refine((v) => v.min <= v.max, { message: "min must not exceed max" })
+]);
 function payloadSchemaFor(lockType) {
   switch (lockType) {
     case "rune-cipher":
@@ -20653,6 +20850,8 @@ function payloadSchemaFor(lockType) {
       return BoundThreadsPayloadSchema;
     case "cursed-object":
       return CursedObjectPayloadSchema;
+    case "combination-dial":
+      return CombinationDialPayloadSchema;
     default:
       return null;
   }
@@ -20737,13 +20936,40 @@ var CryptManifestSchema = external_exports.strictObject({
 });
 
 // packages/core/src/checks/duplicate-answers.ts
-var LEADING_ARTICLE = /^(?:a|an|the) /;
+var LEADING_ARTICLE = /^(?:(?:a|an|the) )+/;
 var NOT_LETTER_OR_DIGIT = /[^\p{L}\p{N}]+/gu;
 function answerKey(text) {
   const folded = normaliseWithMap(text).text.toLowerCase();
   return folded.replace(NOT_LETTER_OR_DIGIT, " ").trim().replace(LEADING_ARTICLE, "");
 }
 var keysFrom = (raw) => [...new Set(raw.map(answerKey).filter((key2) => key2 !== ""))];
+function numberText(n) {
+  if (typeof n !== "number" || !Number.isFinite(n)) return null;
+  const rounded = Number(n.toFixed(9));
+  return String(Object.is(rounded, -0) ? 0 : rounded);
+}
+function dialKey(value, unit) {
+  if (value === null || typeof unit !== "string" || unit.trim() === "") return [];
+  return [`${value} ${unit.trim().toLowerCase()}`];
+}
+function isRecord3(v) {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+function dialAuthoringKeys(answer, units) {
+  if (!isRecord3(answer)) return [];
+  if (answer["kind"] === "exact") return dialKey(numberText(answer["value"]), units);
+  if (answer["kind"] === "range") {
+    const lo = numberText(answer["min"]);
+    const hi = numberText(answer["max"]);
+    return lo === null || hi === null ? [] : dialKey(`${lo}-${hi}`, units);
+  }
+  if (answer["kind"] === "template") {
+    const { template, inputs } = answer;
+    if (!isAllowedTemplate(template) || !Array.isArray(inputs) || !inputs.every((n) => typeof n === "number")) return [];
+    return dialKey(numberText(computeTemplate(template, inputs)), units);
+  }
+  return [];
+}
 function answerKeysOfAuthoring(question) {
   if (question.lockType === "rune-cipher" && "aliases" in question) {
     return keysFrom([question.answer, ...question.aliases]);
@@ -20753,6 +20979,9 @@ function answerKeysOfAuthoring(question) {
   }
   if (question.lockType === "cursed-object" && "items" in question) {
     return keysFrom([question.answer]);
+  }
+  if (question.lockType === "combination-dial" && "units" in question) {
+    return dialAuthoringKeys(question.answer, question.units);
   }
   return [];
 }
@@ -20793,9 +21022,14 @@ function leakScanRoom(roomQuestions) {
 }
 
 // packages/core/src/checks/run-checks.ts
-function isSupported(q) {
-  return q.lockType === "rune-cipher" || q.lockType === "seance-board" || q.lockType === "bone-ordering" || q.lockType === "bound-threads" || q.lockType === "cursed-object";
-}
+var SUPPORTED_LOCK_TYPES = [
+  "rune-cipher",
+  "seance-board",
+  "bone-ordering",
+  "bound-threads",
+  "cursed-object",
+  "combination-dial"
+];
 function visibleTextOf(q) {
   if (q.lockType === "rune-cipher") return [q.prompt, q.explanation];
   if (q.lockType === "seance-board") return [q.prompt, ...q.options.map((o) => o.text), q.explanation];
@@ -20804,6 +21038,7 @@ function visibleTextOf(q) {
     return [q.prompt, ...q.pairs.flatMap((p) => [p.left, p.right]), q.explanation];
   }
   if (q.lockType === "cursed-object") return [q.prompt, ...q.items, q.explanation];
+  if (q.lockType === "combination-dial") return [q.prompt, q.units, q.explanation];
   return [];
 }
 function dedupe(failures) {
@@ -20828,7 +21063,7 @@ function sortFailures(failures) {
 function alternateChecks(question, siblings, context) {
   if (question.role !== "alternate") return [];
   const sameConcept = siblings.filter(
-    (s) => s.conceptId === question.conceptId && s.id !== question.id && isSupported(s)
+    (s) => s.conceptId === question.conceptId && s.id !== question.id
   );
   const failures = [];
   const primary = sameConcept.filter((s) => s.role === "primary").sort((a, b) => compareCodeUnits(a.id, b.id))[0];
@@ -20843,7 +21078,7 @@ function alternateChecks(question, siblings, context) {
 }
 function runChecks(input2) {
   const { question, siblings = [], chunks, paragraphChunkIds } = input2;
-  if (!isSupported(question)) {
+  if (!SUPPORTED_LOCK_TYPES.includes(question.lockType)) {
     return [{ checkId: "lock-type-not-supported", questionId: question.id }];
   }
   const failures = [];
@@ -20863,6 +21098,8 @@ function runChecks(input2) {
     failures.push(...boundThreadsChecks(question, { chunks, paragraphChunkIds }));
   } else if (question.lockType === "cursed-object") {
     failures.push(...cursedObjectChecks(question, { chunks, paragraphChunkIds }));
+  } else if (question.lockType === "combination-dial") {
+    failures.push(...combinationDialChecks(question, { chunks, paragraphChunkIds }));
   } else {
     failures.push(...checkSeanceBoard(question, { chunks, paragraphChunkIds }));
   }
@@ -21795,9 +22032,41 @@ var HINTS = {
     problem: "The alternate's answer-bearing quote does not overlap any of the primary's quotes. This check is advisory.",
     fix: "Check the alternate really asks about the same concept, and quote the same passage."
   },
+  "missing-units": {
+    problem: "A combination dial question has no units. The dial shows them next to the number.",
+    fix: 'Set `units` to what is counted or measured, for example "chambers" or "beats per minute". Use "(no units)" only when the number really has none.'
+  },
+  "number-not-in-quote": {
+    problem: 'The exact number does not appear, as written in the notes, in any evidence quote. "970" does not count as 97, and a computed number does not count.',
+    fix: 'Ask for a number a quote states outright (digits or a number word such as "four"), and quote that sentence. For a number the notes only imply, set the question aside.'
+  },
+  "range-not-in-quote": {
+    problem: "The range is reversed (min above max), or its two ends do not both appear in one evidence quote.",
+    fix: 'Use a range the notes state as two numbers in one quote, for example "between 60 and 100", with min no higher than max.'
+  },
+  "template-not-allowlisted": {
+    problem: 'The answer uses a formula template that is not on the list. Only "difference" and "percent-change" exist.',
+    fix: "Use `difference` (first number minus second) or `percent-change` (from the first number to the second), or ask for a number the notes state."
+  },
+  "template-input-not-in-quote": {
+    problem: "One of the two numbers a template starts from does not appear in an evidence quote.",
+    fix: "Choose two numbers that a quote states word for word, and quote them."
+  },
+  "template-value-mismatch": {
+    problem: "The value does not match what code computes from the two inputs. `difference` is first minus second. `percent-change` is (second minus first) divided by first, times 100, and cannot start from zero.",
+    fix: "Set `value` to the computed result, or swap the inputs if they are the wrong way round. The value is only a claim: code recomputes it."
+  },
+  "model-written-expression": {
+    problem: "The answer carries an expression, formula or code. The dial accepts a stated number, a stated range, or one of the two templates, never an expression.",
+    fix: "Remove it. Give the number, the range or a template with its two inputs."
+  },
+  "dial-range-prompt": {
+    problem: 'The prompt of a range question asks for both ends of the range ("both", "the range", "minimum and maximum" and so on). The dial takes one value.',
+    fix: 'Ask for one value, for example "about how many \u2026 ? Any value in the normal range counts."'
+  },
   "lock-type-not-supported": {
-    problem: "Combination dial questions are not checked yet, so this Power does not support them.",
-    fix: "Use rune-cipher, seance-board, bone-ordering, bound-threads or cursed-object."
+    problem: "A lock type with no checks was submitted. Core checks all six lock types, so this should not appear.",
+    fix: "Use one of the six lock types: rune-cipher, seance-board, bone-ordering, bound-threads, cursed-object or combination-dial."
   }
 };
 var FALLBACK = {
@@ -21813,17 +22082,17 @@ function advisoryCheckIds() {
 
 // powers/grounded-quiz/src/tool-types.ts
 var ok = (value) => ({ ok: true, value });
-var fail = (code, message) => ({ ok: false, error: { code, message } });
+var fail2 = (code, message) => ({ ok: false, error: { code, message } });
 function stringArg(args, name, maxChars) {
   const value = args[name];
-  if (typeof value !== "string") return { error: fail("invalid-argument", `"${name}" must be a string.`) };
-  if (value.length > maxChars) return { error: fail("invalid-argument", `"${name}" is longer than ${maxChars} characters.`) };
+  if (typeof value !== "string") return { error: fail2("invalid-argument", `"${name}" must be a string.`) };
+  if (value.length > maxChars) return { error: fail2("invalid-argument", `"${name}" is longer than ${maxChars} characters.`) };
   return { value };
 }
 function positiveIntArg(args, name) {
   const value = args[name];
   if (typeof value !== "number" || !Number.isInteger(value) || value < 1) {
-    return { error: fail("invalid-argument", `"${name}" must be a whole number of 1 or more.`) };
+    return { error: fail2("invalid-argument", `"${name}" must be a whole number of 1 or more.`) };
   }
   return { value };
 }
@@ -21835,15 +22104,15 @@ var MAX_NORMALISE_CHARS = 2e4;
 function prepareNotes(args, ctx) {
   const text = stringArg(args, "text", MAX_NOTES_CHARS);
   if ("error" in text) return text.error;
-  if (text.value.trim() === "") return fail("empty-notes", "The notes are empty.");
+  if (text.value.trim() === "") return fail2("empty-notes", "The notes are empty.");
   const words = countWords(text.value);
   if (!checkWordCount(words).ok) {
-    return fail("too-many-words", `The notes have ${words} words. The limit is ${MAX_EXTRACTED_WORDS}. Send a shorter section.`);
+    return fail2("too-many-words", `The notes have ${words} words. The limit is ${MAX_EXTRACTED_WORDS}. Send a shorter section.`);
   }
   const prepared = prepareDocument(text.value);
   const first = [...prepared.chunks.values()][0];
   if (first === void 0 || prepared.quotableChunksByOrdinal.size === 0) {
-    return fail("no-quotable-text", "The notes have no paragraph that can be quoted (only headings or nothing).");
+    return fail2("no-quotable-text", "The notes have no paragraph that can be quoted (only headings or nothing).");
   }
   const notesId2 = `notes_${first.documentDigest.slice(0, 12)}`;
   ctx.store.put({ notesId: notesId2, prepared, wordCount: words });
@@ -21924,13 +22193,20 @@ function normaliseTextTool(args) {
   return ok({ normalised, changed: normalised !== text.value });
 }
 function unknownNotes() {
-  return fail("unknown-notes", "Unknown notesId. The server forgets notes when it restarts; call prepare_notes again.");
+  return fail2("unknown-notes", "Unknown notesId. The server forgets notes when it restarts; call prepare_notes again.");
 }
 
 // powers/grounded-quiz/src/tool-checks.ts
-var SUPPORTED_LOCK_TYPES = ["rune-cipher", "seance-board", "bone-ordering", "bound-threads", "cursed-object"];
+var SUPPORTED_LOCK_TYPES2 = [
+  "rune-cipher",
+  "seance-board",
+  "bone-ordering",
+  "bound-threads",
+  "cursed-object",
+  "combination-dial"
+];
 var MAX_QUIZ_QUESTIONS = 40;
-var FORMATS_POINTER = `Supported lock types: ${SUPPORTED_LOCK_TYPES.join(", ")}. See references/question-formats.md for the exact shape of each.`;
+var FORMATS_POINTER = `Supported lock types: ${SUPPORTED_LOCK_TYPES2.join(", ")}. See references/question-formats.md for the exact shape of each.`;
 function toFinding(failure2) {
   return { checkId: failure2.checkId, ...hintFor(failure2.checkId) };
 }
@@ -21974,8 +22250,8 @@ function checkQuiz(args, ctx) {
   const notes = ctx.store.get(id.value);
   if (notes === void 0) return unknownNotes();
   const raw = args["questions"];
-  if (!Array.isArray(raw) || raw.length === 0) return fail("invalid-argument", '"questions" must be a non-empty array.');
-  if (raw.length > MAX_QUIZ_QUESTIONS) return fail("invalid-argument", `"questions" has more than ${MAX_QUIZ_QUESTIONS} items.`);
+  if (!Array.isArray(raw) || raw.length === 0) return fail2("invalid-argument", '"questions" must be a non-empty array.');
+  if (raw.length > MAX_QUIZ_QUESTIONS) return fail2("invalid-argument", `"questions" has more than ${MAX_QUIZ_QUESTIONS} items.`);
   const questions = [];
   const invalid = [];
   raw.forEach((item, index) => {
@@ -21984,7 +22260,7 @@ function checkQuiz(args, ctx) {
     else invalid.push({ index, schemaProblemAt: parsed.error.path === "" ? "(the question itself)" : parsed.error.path });
   });
   const ids = questions.map((q) => q.id);
-  if (new Set(ids).size !== ids.length) return fail("duplicate-question-id", "Every question needs its own id.");
+  if (new Set(ids).size !== ids.length) return fail2("duplicate-question-id", "Every question needs its own id.");
   const failures = runRoomChecks(questions, toEvidenceContext(notes.prepared));
   const results = questions.map((q) => resultFor(q, failures));
   const byCheckId = {};
@@ -22016,7 +22292,7 @@ function listChecks() {
   }));
   return ok({
     checkVersion: CHECK_VERSION,
-    supportedLockTypes: SUPPORTED_LOCK_TYPES,
+    supportedLockTypes: SUPPORTED_LOCK_TYPES2,
     quoteRules: { minWords: MIN_QUOTE_WORDS, minChars: MIN_QUOTE_CHARS, maxWords: MAX_QUOTE_WORDS },
     checks
   });
@@ -22095,7 +22371,7 @@ var TOOL_DEFINITIONS = [
 // powers/grounded-quiz/src/tools.ts
 function callTool(name, rawArgs, ctx) {
   if (typeof rawArgs !== "object" || rawArgs === null || Array.isArray(rawArgs)) {
-    return fail("invalid-argument", "Tool arguments must be an object.");
+    return fail2("invalid-argument", "Tool arguments must be an object.");
   }
   const args = rawArgs;
   try {
@@ -22113,10 +22389,10 @@ function callTool(name, rawArgs, ctx) {
       case "list_checks":
         return listChecks();
       default:
-        return fail("unknown-tool", `There is no tool named "${name}".`);
+        return fail2("unknown-tool", `There is no tool named "${name}".`);
     }
   } catch {
-    return fail("internal-error", "The tool failed unexpectedly. Nothing was kept.");
+    return fail2("internal-error", "The tool failed unexpectedly. Nothing was kept.");
   }
 }
 

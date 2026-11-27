@@ -17,7 +17,14 @@ import type { ToolContext, ToolOutcome } from './tool-types';
 
 type Args = Readonly<Record<string, unknown>>;
 
-export const SUPPORTED_LOCK_TYPES = ['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads', 'cursed-object'] as const;
+export const SUPPORTED_LOCK_TYPES = [
+  'rune-cipher',
+  'seance-board',
+  'bone-ordering',
+  'bound-threads',
+  'cursed-object',
+  'combination-dial',
+] as const;
 export const MAX_QUIZ_QUESTIONS = 40;
 
 const FORMATS_POINTER =

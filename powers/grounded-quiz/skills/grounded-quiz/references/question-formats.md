@@ -9,7 +9,7 @@ Every question is one JSON object. Fields not listed here are rejected, and no f
 | `id` | Unique within the quiz, for example `q1` |
 | `conceptId` | The idea the question tests. Two questions on one concept are a primary and an alternate |
 | `role` | `primary`, or `alternate` (a second question on the same concept, of a different lock type; at most one) |
-| `lockType` | `rune-cipher`, `seance-board`, `bone-ordering`, `bound-threads` or `cursed-object` |
+| `lockType` | `rune-cipher`, `seance-board`, `bone-ordering`, `bound-threads`, `cursed-object` or `combination-dial` |
 | `prompt` | The question text. Positive wording. Choice questions start "According to your notes" |
 | `explanation` | One or two sentences that say what the notes say. Plain text |
 | `note` | Optional. Free text for the author, never shown as evidence |
@@ -211,6 +211,84 @@ Extra fields: `items` (exactly 4), `answer` (the exact text of the odd item), `c
 }
 ```
 
-## Not supported here
+## combination-dial: set a number
+Extra fields: `answer` (one of three shapes, below), `units` and `evidence` (at least one item). There is no `hint`. The answer is data only: a number the notes state, a range the notes state, or one of two formulas that code computes. There is no field for an expression, and one is rejected.
 
-Combination dial questions exist in the Escape the Crypt app but have no checks in this Power yet. `check_question` reports them as not valid for this Power.
+- `{ "kind": "exact", "value": 4 }`: the number appears in a quote, as digits or a number word. "970" does not count as 97.
+- `{ "kind": "range", "min": 60, "max": 100 }`: both ends appear in one quote, and `min` is not above `max`. The prompt asks for one value ("Any value in the normal range counts."), never for both ends.
+- `{ "kind": "template", "template": "difference", "inputs": [100, 60], "value": 40 }`: both inputs appear in a quote. `difference` is the first input minus the second. `percent-change` is the change from the first input to the second, as a percentage of the first (it cannot start from zero). The `value` is only a claim: code recomputes it and fails the question if it differs.
+
+`units` must not be blank: write what is counted or measured. Use "(no units)" only when the number really has none.
+
+A range, as the app uses it. The learner can turn the dial to any value from 60 to 100:
+<!-- format:combination-dial -->
+```json
+{
+  "id": "hh-q11",
+  "conceptId": "hh-c06",
+  "role": "primary",
+  "lockType": "combination-dial",
+  "prompt": "According to your notes, about how many times per minute does a resting adult's heart beat? Any value in the normal range counts.",
+  "answer": {
+    "kind": "range",
+    "min": 60,
+    "max": 100
+  },
+  "units": "beats per minute",
+  "evidence": [
+    {
+      "paragraph": 9,
+      "quote": "a normal heart rate is between 60 and 100 beats per minute"
+    }
+  ],
+  "explanation": "Any value from 60 to 100 beats per minute is accepted, because your notes give a range."
+}
+```
+A single stated number:
+<!-- variant:combination-dial-exact -->
+```json
+{
+  "id": "hh-q10",
+  "conceptId": "hh-c05",
+  "role": "alternate",
+  "lockType": "combination-dial",
+  "prompt": "According to your notes, how many chambers does the human heart have?",
+  "answer": {
+    "kind": "exact",
+    "value": 4
+  },
+  "units": "chambers",
+  "evidence": [
+    {
+      "paragraph": 3,
+      "quote": "The heart has four chambers."
+    }
+  ],
+  "explanation": "Your notes say four."
+}
+```
+A computed answer. Code works out 100 minus 60, and checks the two inputs are in the quote:
+<!-- variant:combination-dial-template -->
+```json
+{
+  "id": "hh-q12",
+  "conceptId": "hh-c06",
+  "role": "primary",
+  "lockType": "combination-dial",
+  "prompt": "According to your notes, how many beats per minute separate the top of the normal resting heart rate from the bottom?",
+  "answer": {
+    "kind": "template",
+    "template": "difference",
+    "inputs": [100, 60],
+    "value": 40
+  },
+  "units": "beats per minute",
+  "evidence": [
+    {
+      "paragraph": 9,
+      "quote": "a normal heart rate is between 60 and 100 beats per minute"
+    }
+  ],
+  "explanation": "The notes give 60 and 100 beats per minute, so the gap is 40."
+}
+```

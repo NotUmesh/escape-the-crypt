@@ -9,7 +9,7 @@ Kiro's model drafts the questions. The Power's tools decide whether each quote r
 - It does not generate questions by itself. Kiro's model writes them, using the skill's rules.
 - A question that passes these checks is not thereby a good one. The tools do not judge whether a question is worth asking, or whether the answer is the only reasonable one.
 - It does not run the blind model review that the Escape the Crypt app runs (a second reader answering without the key).
-- It supports five question types: rune cipher (fill in one blank), séance board (choose one of 3 or 4 options), bone ordering (put 3 to 5 steps in order), bound threads (match 3 or 4 pairs one to one) and cursed object (find the odd one out of four). Combination dial questions are not checked yet. Prose notes in English, up to 6,000 words.
+- It supports all six question types: rune cipher (fill in one blank), séance board (choose one of 3 or 4 options), bone ordering (put 3 to 5 steps in order), bound threads (match 3 or 4 pairs one to one) cursed object (find the odd one out of four) and combination dial (a number the notes state, a stated range, or one of two formulas that code computes: a difference or a percent change). Prose notes in English, up to 6,000 words.
 
 ## Install
 

@@ -89,6 +89,19 @@ describe('the committed bundle (server/index.mjs)', () => {
     expect(checks['checkVersion']).toBe(CHECK_VERSION);
   });
 
+  it('checks combination dial questions through the bundle, so a rebuilt bundle really has the dial checks', async () => {
+    const session = startBundle();
+    await session.send('initialize', { protocolVersion: '2025-06-18' });
+    const checks = await session.call('list_checks', {});
+    expect(checks['supportedLockTypes']).toContain('combination-dial');
+    const { notesId } = (await session.call('prepare_notes', { text: HUMAN_HEART })) as { notesId: string };
+    const dial = supportedSampleQuestions().find((q) => q.lockType === 'combination-dial');
+    const good = await session.call('check_question', { notesId, question: dial as unknown as Json });
+    expect(good).toMatchObject({ valid: true, passes: true });
+    const bad = await session.call('check_question', { notesId, question: { ...(dial as unknown as Json), units: '' } });
+    expect((bad['blocking'] as Json[]).map((f) => f['checkId'])).toEqual(['missing-units']);
+    await session.finish();
+  });
   it('runs the whole flow over stdio on samples/human-heart.txt, writes only protocol messages, and exits when input ends', async () => {
     const session = startBundle();
     const init = await session.send('initialize', { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'test', version: '0' } });
