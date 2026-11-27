@@ -1,7 +1,12 @@
 import type { Chunk, CryptContent, CryptManifest } from '@escape-the-crypt/core';
 
+/** Where a crypt's questions come from: the bundled sample, or the learner's own notes. */
+export type CryptSource = 'sample' | 'notes';
+
 /** Read-only run assets, built once at crypt-build time and held unchanged for the run. */
 export interface RoomAssets {
+  /** 'notes' for a generated crypt; it picks citation wording and the review label. */
+  readonly source: CryptSource;
   readonly content: CryptContent;
   readonly chunks: ReadonlyMap<string, Chunk>;
   /** conceptId -> the question of the concept's first Lock_Slot, in manifest order. */

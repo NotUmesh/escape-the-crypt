@@ -1,10 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ENTER_CRYPT_LABEL, ROOM_START_ERROR_COPY, SAMPLE_CRYPT_LABEL, SAMPLE_CRYPT_LINE } from '@escape-the-crypt/core';
+import { ENTER_CRYPT_LABEL, GENERATION_COPY, ROOM_START_ERROR_COPY, SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
 import type { RoomStartErrorKind, State } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
 import { useRoomBinding } from '../../state/room-binding';
-import type { RoomBinding, StartError } from '../../state/room-binding';
+import type { BuildCrypt, BuiltCrypt, RoomBinding, StartError } from '../../state/room-binding';
+import { buildSampleCrypt } from '../../state/sample-crypt-source';
+import { isGenerating } from '../generate/generation-flow';
+import { resolveClient, resolveOrigin } from '../generate/generate-seams';
+import type { GenerateSeams } from '../generate/generate-seams';
+import { useGeneration } from '../generate/use-generation';
 import { announcementsFor } from './announcements';
 import { CryptErrorBoundary } from './crypt-error-boundary';
 import { AutopsyView } from './autopsy-view';
@@ -13,13 +18,19 @@ import { LanternProvider } from './lantern-context';
 import { LiveRegion } from './live-region';
 import { RoomPanel } from './room-panel';
 import { RoomScreen } from './room-screen';
+import { StartView } from './start-view';
 import type { SceneLoader } from './use-scene';
 
 export interface CryptFlowProps {
   /** Loads each room's Scene_File. Tests inject one. */
   readonly loadSceneImpl?: SceneLoader;
   /** Supplies the binding. Defaults to the real one; tests pass a wrapper around it. */
-  readonly useBinding?: () => RoomBinding;
+  readonly useBinding?: (buildCrypt: BuildCrypt) => RoomBinding;
+  /** The confirmed notes text for Generate from my notes. Without it the button is hidden. */
+  readonly notesText?: string;
+  readonly generate?: GenerateSeams;
+  /** Reads a message through the host's polite live region. Called with '' to clear it. */
+  readonly onAnnounce?: (message: string) => void;
 }
 
 const NO_MESSAGES: readonly string[] = [];
@@ -27,18 +38,6 @@ const NO_MESSAGES: readonly string[] = [];
 function startErrorKind(error: StartError | null): RoomStartErrorKind {
   if (error !== null && error.kind in ROOM_START_ERROR_COPY) return error.kind as RoomStartErrorKind;
   return 'start-rejected';
-}
-
-function StartView({ dispatch }: { readonly dispatch: (action: RoomAction) => void }): ReactNode {
-  return (
-    <section className="crypt-start" aria-labelledby="crypt-start-title">
-      <h2 id="crypt-start-title">Escape the Crypt</h2>
-      <p>{SAMPLE_CRYPT_LINE}</p>
-      <button type="button" onClick={() => dispatch({ type: 'startRun' })}>
-        {ENTER_CRYPT_LABEL}
-      </button>
-    </section>
-  );
 }
 
 function StartFailed({
@@ -60,8 +59,23 @@ function StartFailed({
   );
 }
 
-function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl }: CryptFlowProps): ReactNode {
-  const binding = useBinding();
+function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl, notesText, generate, onAnnounce }: CryptFlowProps): ReactNode {
+  // Which crypt startRun builds: the generated one once it is ready, else the sample.
+  const playRef = useRef<BuiltCrypt | null>(null);
+  const buildCrypt = useCallback<BuildCrypt>(
+    () => (playRef.current === null ? buildSampleCrypt() : { ok: true, value: playRef.current }),
+    [],
+  );
+  const binding = useBinding(buildCrypt);
+  const origin = resolveOrigin(generate);
+  const client = useMemo(() => resolveClient(generate, origin), [generate, origin]);
+  const generation = useGeneration({
+    client,
+    intervalMs: generate?.intervalMs,
+    maxPolls: generate?.maxPolls,
+    newKey: generate?.newKey,
+  });
+  const canGenerate = origin !== null && notesText !== undefined;
   const { state, notices, phase, startError } = binding;
   const [autopsyRequested, setAutopsyRequested] = useState(false);
   // View-only flag: true once the learner closed the Evidence_Panel of the escaping answer. Holds no game state.
@@ -97,11 +111,48 @@ function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl }: CryptFlo
     if (next.length > 0) setMessages(next);
   }, [state, notices]);
 
+  const startSample = useCallback((): void => {
+    playRef.current = null;
+    dispatch({ type: 'startRun' });
+  }, [dispatch]);
+  const generationState = generation.state;
+  const readyCrypt = generation.crypt;
+  // A finished job starts room 1 of the generated crypt through the same binding as the sample.
+  useEffect(() => {
+    if (generationState.status !== 'ready') return;
+    const crypt = readyCrypt();
+    if (crypt === null) return;
+    playRef.current = crypt;
+    bindingDispatch({ type: 'startRun' });
+  }, [generationState, readyCrypt, bindingDispatch]);
+  // The progress line and the stopped message are read through the host's announcer, not a region here.
+  const generationStatus = generationState.status;
+  useEffect(() => {
+    if (onAnnounce === undefined) return;
+    if (generationStatus === 'starting' || generationStatus === 'polling') onAnnounce(GENERATION_COPY.progress);
+    else if (generationStatus === 'cancelled') onAnnounce(GENERATION_COPY.cancelled);
+    else onAnnounce('');
+  }, [generationStatus, onAnnounce]);
+  const startView = (
+    <StartView
+      onEnter={startSample}
+      generation={
+        canGenerate
+          ? {
+              state: generationState,
+              onGenerate: () => generation.start(notesText),
+              onCancel: generation.cancel,
+              onPlaySample: startSample,
+            }
+          : undefined
+      }
+    />
+  );
   let view: ReactNode;
   if (phase === 'start-failed') {
     view = <StartFailed error={startError} dispatch={dispatch} />;
   } else if (phase !== 'running' || state === null) {
-    view = <StartView dispatch={dispatch} />;
+    view = startView;
   } else if (state.status === 'escaped') {
     // The answer that escaped the run still shows its Evidence_Panel. Its Continue is local (no Event),
     // because the runtime rejects every Event after the escape. Only then does the escape view appear.
@@ -141,6 +192,7 @@ function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl }: CryptFlo
         dispatch={dispatch}
         notices={notices}
         loadSceneImpl={loadSceneImpl}
+        showSampleLabel={binding.assets?.source !== 'notes'}
         renderPanel={(slot, controls) =>
           binding.assets === null ? null : (
             <RoomPanel
@@ -159,17 +211,21 @@ function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl }: CryptFlo
       />
     );
   } else {
-    view = <StartView dispatch={dispatch} />;
+    view = startView;
   }
 
   // The room screen draws its own label; every other screen of a run gets it here (Requirement 1.6).
-  const showLabel = phase === 'running' && state !== null && (state.status === 'escaped' || state.atFinalDoor);
+  const showLabel =
+    phase === 'running' &&
+    state !== null &&
+    binding.assets?.source !== 'notes' &&
+    (state.status === 'escaped' || state.atFinalDoor);
 
   return (
     <>
       {showLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
       {view}
-      <LiveRegion messages={messages} />
+      {isGenerating(generationState) ? null : <LiveRegion messages={messages} />}
     </>
   );
 }

@@ -6,6 +6,7 @@ import {
   BANNED_COPY_PHRASES,
   buildHumanHeartSampleCrypt,
   ENTER_CRYPT_LABEL,
+  REVIEW_PASSED_LABEL,
   ROOM_PLAY_LABELS,
   SAMPLE_CRYPT_LABEL,
 } from '@escape-the-crypt/core';
@@ -29,6 +30,8 @@ function build(): SampleCryptResult {
 }
 
 const CRYPT = build();
+/** The same crypt as a generated one: every question passed the blind review before publishing. */
+const GENERATED = { ...CRYPT, source: 'notes' as const };
 const FORBIDDEN_LABELS = ['Human-reviewed', 'Blind model review passed'];
 
 let binding: RoomBinding;
@@ -41,10 +44,10 @@ function openSlotIds(state: State): string[] {
   return slots.filter((s) => s.status === 'open').map((s) => s.slotId);
 }
 
-describe('honest labels on every screen', () => {
+describe.each(['sample', 'notes'] as const)('honest labels on every screen of a %s run', (source) => {
   const mount = useMount();
 
-  it('shows the sample label during the run and no forbidden label, banned phrase or "of your notes" citation', async () => {
+  it('shows only the labels this crypt has earned', async () => {
     const snaps: { name: string; text: string; inRun: boolean }[] = [];
     const citations: string[] = [];
     const snap = (name: string, inRun = true): void => {
@@ -83,7 +86,7 @@ describe('honest labels on every screen', () => {
       createElement(CryptFlow, {
         loadSceneImpl: failedSceneLoader,
         useBinding: () => {
-          binding = useRoomBinding(() => ({ ok: true, value: CRYPT }));
+          binding = useRoomBinding(() => ({ ok: true, value: source === 'notes' ? GENERATED : CRYPT }));
           return binding;
         },
       }),
@@ -143,14 +146,25 @@ describe('honest labels on every screen', () => {
     }
     expect(citations.length).toBeGreaterThan(0);
 
+    const isPanel = (name: string): boolean => name.endsWith('panel') || name.includes('evidence');
     for (const { name, text, inRun } of snaps) {
-      if (inRun) expect(text, `sample label on "${name}"`).toContain(SAMPLE_CRYPT_LABEL);
-      for (const forbidden of FORBIDDEN_LABELS) expect(text, `"${forbidden}" on "${name}"`).not.toContain(forbidden);
+      if (source === 'sample') {
+        if (inRun) expect(text, `sample label on "${name}"`).toContain(SAMPLE_CRYPT_LABEL);
+        for (const forbidden of FORBIDDEN_LABELS) expect(text, `"${forbidden}" on "${name}"`).not.toContain(forbidden);
+      } else {
+        expect(text, `sample label on "${name}"`).not.toContain(SAMPLE_CRYPT_LABEL);
+        expect(text, `"Human-reviewed" on "${name}"`).not.toContain('Human-reviewed');
+        if (isPanel(name)) expect(text, `review label on "${name}"`).toContain(REVIEW_PASSED_LABEL);
+      }
       const lower = text.toLowerCase();
       for (const phrase of BANNED_COPY_PHRASES) {
         expect(lower, `banned phrase "${phrase}" on "${name}"`).not.toContain(phrase.toLowerCase());
       }
     }
-    for (const label of citations) expect(label).not.toMatch(/of your notes\s*$/i);
+    if (source === 'sample') {
+      for (const label of citations) expect(label).not.toMatch(/of your notes\s*$/i);
+    } else {
+      for (const label of citations) expect(label).toMatch(/^Paragraph \d+ of your notes/);
+    }
   });
 });

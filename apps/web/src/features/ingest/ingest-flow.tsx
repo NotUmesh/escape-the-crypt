@@ -28,6 +28,8 @@ export interface IngestFlowProps {
   readonly onConfirmed?: (chunks: readonly Chunk[]) => void;
   /** Test seam: builds the Extraction Client. Defaults to the real Extraction Worker. */
   readonly createClient?: () => ExtractionClient;
+  /** A message from a later step (such as generation progress). When not empty it is read in place of the flow's own. */
+  readonly announcement?: string;
 }
 
 type Source = 'paste' | 'pdf' | 'preview';
@@ -37,7 +39,7 @@ type Source = 'paste' | 'pdf' | 'preview';
  * the notes store. It sets no layout and imports no router, so a host screen can
  * place it anywhere.
  */
-export function IngestFlow({ store, onConfirmed, createClient }: IngestFlowProps): React.JSX.Element {
+export function IngestFlow({ store, onConfirmed, createClient, announcement = '' }: IngestFlowProps): React.JSX.Element {
   const { state, send, getState } = useIngestMachine();
   const [pasteText, setPasteText] = useState('');
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
@@ -205,7 +207,7 @@ export function IngestFlow({ store, onConfirmed, createClient }: IngestFlowProps
           ) : null}
         </>
       )}
-      <LiveAnnouncer message={state.announcement} />
+      <LiveAnnouncer message={announcement === '' ? state.announcement : announcement} />
     </div>
   );
 }

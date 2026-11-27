@@ -66,6 +66,7 @@ type RoomState = State['rooms'][number];
 
 const MANIFEST = twoRoomManifest();
 const ASSETS: RoomAssets = {
+  source: 'sample',
   content: CRYPT.content,
   chunks: CRYPT.chunks,
   firstQuestionByConcept: buildFirstQuestionByConcept(MANIFEST),

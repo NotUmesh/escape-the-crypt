@@ -1,0 +1,45 @@
+/* Progress, stopped and failure blocks of the generate flow. Colours come from tokens.css. */
+.crypt-generation {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  max-width: 40rem;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--bone-50);
+}
+.crypt-generation > p,
+.crypt-generation h3 {
+  margin: 0;
+}
+.crypt-generation h3 {
+  font-family: var(--font-title);
+  font-size: 1.25rem;
+  font-weight: normal;
+}
+.crypt-generation--failed {
+  padding: 1rem;
+  border: 1px solid var(--stone-300);
+  border-radius: 0.5rem;
+  background-color: var(--stone-800);
+}
+.crypt-generation button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+}
+.crypt-generation :focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+@media (max-aspect-ratio: 749/1000) {
+  .crypt-generation,
+  .crypt-generation button {
+    font-size: 1rem;
+  }
+}

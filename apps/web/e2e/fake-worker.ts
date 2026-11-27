@@ -1,0 +1,95 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import type { Page, Route } from '@playwright/test';
+import { buildHumanHeartSampleCrypt } from '@escape-the-crypt/core';
+import { FAKE_WORKER_ORIGIN } from '../playwright.config';
+import type { GenerationFailureKind, HumanHeartQuestionsFile } from '@escape-the-crypt/core';
+
+/** The origin playwright.config.ts gives the e2e build as VITE_WORKER_URL. Nothing listens there. */
+export const WORKER_ORIGIN = FAKE_WORKER_ORIGIN;
+
+const SAMPLES = fileURLToPath(new URL('../../../samples/', import.meta.url));
+
+/** The bundled sample notes, as pasted into the app. */
+export const SAMPLE_NOTES = readFileSync(`${SAMPLES}human-heart.txt`, 'utf8');
+
+/** What the fake answers to one `GET /jobs/:id`. */
+export type FakeStep =
+  | { readonly status: 'queued' | 'running' | 'expired' }
+  | { readonly status: 'completed' }
+  | { readonly status: 'failed'; readonly failure: GenerationFailureKind | 'cancelled' };
+
+export interface SeenRequest {
+  readonly method: string;
+  readonly url: string;
+  readonly headers: Readonly<Record<string, string>>;
+  readonly body: string | null;
+}
+
+export interface FakeWorker {
+  /** Every request that reached the worker origin, in order (preflights excluded). */
+  readonly seen: SeenRequest[];
+  /** Number of preflight requests answered. */
+  readonly preflights: () => number;
+}
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token, Idempotency-Key',
+  'Access-Control-Max-Age': '600',
+};
+
+/** A completed worker response built from the notes text the app posted, so chunk IDs match. */
+function completedBody(notesText: string): string {
+  const file = JSON.parse(readFileSync(`${SAMPLES}questions/human-heart.json`, 'utf8')) as HumanHeartQuestionsFile;
+  const built = buildHumanHeartSampleCrypt(notesText, file);
+  if (!built.ok) throw new Error(`fake bundle failed: ${built.error.kind}`);
+  return JSON.stringify({ status: 'completed', manifest: built.value.manifest, content: built.value.content });
+}
+
+/**
+ * Answers the worker origin with page.route. `POST /jobs` gives 202; each `GET /jobs/:id` takes
+ * the next step (the last step repeats). No real worker or AI provider is involved.
+ */
+export async function installFakeWorker(page: Page, steps: readonly FakeStep[]): Promise<FakeWorker> {
+  const seen: SeenRequest[] = [];
+  let preflightCount = 0;
+  let postedNotes = '';
+  let getCount = 0;
+  const json = (route: Route, status: number, body: string): Promise<void> =>
+    route.fulfill({ status, contentType: 'application/json', headers: CORS, body });
+  await page.route(`${WORKER_ORIGIN}/**`, async (route) => {
+    const request = route.request();
+    if (request.method() === 'OPTIONS') {
+      preflightCount += 1;
+      await route.fulfill({ status: 204, headers: CORS });
+      return;
+    }
+    seen.push({ method: request.method(), url: request.url(), headers: request.headers(), body: request.postData() });
+    const path = new URL(request.url()).pathname;
+    if (request.method() === 'POST' && path === '/jobs') {
+      const parsed: unknown = JSON.parse(request.postData() ?? '{}');
+      postedNotes =
+        typeof parsed === 'object' && parsed !== null && 'notesText' in parsed && typeof parsed.notesText === 'string'
+          ? parsed.notesText
+          : '';
+      await json(route, 202, JSON.stringify({ jobId: 'job-1', status: 'queued' }));
+      return;
+    }
+    if (request.method() === 'GET' && path === '/jobs/job-1') {
+      const step = steps[Math.min(getCount, steps.length - 1)];
+      getCount += 1;
+      if (step === undefined) {
+        await json(route, 404, '{}');
+      } else if (step.status === 'completed') {
+        await json(route, 200, completedBody(postedNotes));
+      } else {
+        await json(route, 200, JSON.stringify(step));
+      }
+      return;
+    }
+    await json(route, 404, '{}');
+  });
+  return { seen, preflights: () => preflightCount };
+}

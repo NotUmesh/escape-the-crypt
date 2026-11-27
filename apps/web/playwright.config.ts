@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = 4173;
+// A fake worker origin for the e2e build. Nothing listens here; the specs answer it with page.route.
+export const FAKE_WORKER_ORIGIN = "http://127.0.0.1:8799";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -27,6 +29,7 @@ export default defineConfig({
   webServer: {
     command: `pnpm build --mode e2e && pnpm preview --mode e2e --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
+    env: { VITE_WORKER_URL: FAKE_WORKER_ORIGIN },
     reuseExistingServer: !process.env["CI"],
     timeout: 120_000,
   },

@@ -13,10 +13,12 @@ import type { EventRoomAction, RoomAction } from './room-actions';
 import { stepBinding } from './room-binding-model';
 import type { BindingModel } from './room-binding-model';
 import { buildFirstQuestionByConcept } from './room-assets';
-import type { RoomAssets } from './room-assets';
+import type { CryptSource, RoomAssets } from './room-assets';
 import { buildSampleCrypt } from './sample-crypt-source';
 
-export type BuildCrypt = () => Result<SampleCryptResult, SampleCryptError>;
+/** A crypt ready to play. `source` is 'sample' when absent; a generated crypt says 'notes'. */
+export type BuiltCrypt = SampleCryptResult & { readonly source?: CryptSource };
+export type BuildCrypt = () => Result<BuiltCrypt, SampleCryptError>;
 export type StartError = SampleCryptError | Typed_Rejection;
 
 /** Fixed run settings (Requirement 5.1). */
@@ -41,20 +43,20 @@ export interface RoomBinding extends RoomBindingState {
 interface Store {
   readonly phase: RoomBindingState['phase'];
   readonly model: BindingModel | null;
-  readonly crypt: SampleCryptResult | null;
+  readonly crypt: BuiltCrypt | null;
   readonly assets: RoomAssets | null;
   readonly startError: StartError | null;
 }
 
 type StoreAction =
   | EventRoomAction
-  | { readonly type: 'startRun'; readonly built: Result<SampleCryptResult, SampleCryptError> }
+  | { readonly type: 'startRun'; readonly built: Result<BuiltCrypt, SampleCryptError> }
   | { readonly type: 'playAgain' };
 
 const INITIAL_STORE: Store = { phase: 'not-started', model: null, crypt: null, assets: null, startError: null };
 
 /** The four start Events in order (Requirement 5.2). */
-function startEvents(crypt: SampleCryptResult): readonly Event[] {
+function startEvents(crypt: BuiltCrypt): readonly Event[] {
   const { manifest } = crypt;
   const firstRoom = manifest.rooms[0]?.roomId ?? '';
   return [
@@ -66,7 +68,7 @@ function startEvents(crypt: SampleCryptResult): readonly Event[] {
 }
 
 /** Applies the start sequence to a fresh State. A rejected Event stops the run. */
-function startModel(crypt: SampleCryptResult): Result<BindingModel, Typed_Rejection> {
+function startModel(crypt: BuiltCrypt): Result<BindingModel, Typed_Rejection> {
   let state = initial(crypt.manifest, RUN_SETTINGS);
   const log: Event[] = [];
   for (const event of startEvents(crypt)) {
@@ -86,10 +88,11 @@ function failed(error: StartError): Store {
 }
 
 /** Starts a run against a built crypt. `assets` is reused when the crypt is the same one. */
-function startFrom(crypt: SampleCryptResult, previous: RoomAssets | null): Store {
+function startFrom(crypt: BuiltCrypt, previous: RoomAssets | null): Store {
   const started = startModel(crypt);
   if (!started.ok) return failed(started.error);
   const assets: RoomAssets = previous ?? {
+    source: crypt.source ?? 'sample',
     content: crypt.content,
     chunks: crypt.chunks,
     firstQuestionByConcept: buildFirstQuestionByConcept(crypt.manifest),

@@ -42,12 +42,14 @@ export interface RoomScreenProps {
   readonly loadSceneImpl?: SceneLoader;
   /** Window size for phone framing. The real window when omitted. */
   readonly viewport?: Viewport;
+  /** False for a generated crypt, which is not the sample. Defaults to true. */
+  readonly showSampleLabel?: boolean;
   readonly renderPanel?: (slot: LockSlotState | ReturnSlotState, controls: PanelControls) => ReactNode;
 }
 
 /** The current room as one native button per Lock_Slot, in slot order (Requirements 10.1, 10.2, 10.3).
  * While the Scene_File loads no lock button is drawn, so a click cannot land on a button that is about to be replaced. */
-export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel, loadSceneImpl, viewport }: RoomScreenProps): ReactNode {
+export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel, loadSceneImpl, viewport, showSampleLabel = true }: RoomScreenProps): ReactNode {
   const [openSlotId, setOpenSlotId] = useState<string | null>(null);
   const [statusText, setStatusText] = useState<string>('');
   const openerRef = useRef<HTMLElement | null>(null);
@@ -118,7 +120,7 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
       <h2 id="room-screen-title" className="room-screen__title">
         {room === undefined ? '' : roomDisplayName(roomIndex)}
       </h2>
-      <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p>
+      {showSampleLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
       <p className="room-screen__hints">{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}</p>
       <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
       {sceneState.status === 'ready' && artRoom !== null && drawn.length > 0 ? (

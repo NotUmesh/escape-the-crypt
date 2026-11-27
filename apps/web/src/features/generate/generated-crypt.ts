@@ -1,0 +1,33 @@
+import { chunkDocument } from '@escape-the-crypt/core';
+import type { Chunk, CryptBundle, Result, SampleCryptResult } from '@escape-the-crypt/core';
+
+/** The text the worker is sent: the confirmed chunks' text, one paragraph each. */
+export function notesTextFromChunks(chunks: readonly Chunk[]): string {
+  return chunks.map((chunk) => chunk.text).join('\n\n');
+}
+
+export type GeneratedCryptError = { readonly kind: 'excerpt-chunk-unknown' };
+
+/**
+ * Pairs a worker bundle with the chunks of the notes text that was sent. The worker chunks that
+ * text as pasted notes, so chunking it the same way here gives the same code-assigned chunk IDs.
+ * A bundle that cites an ID outside those chunks is set aside.
+ */
+export function buildGeneratedCrypt(
+  bundle: CryptBundle,
+  notesText: string,
+): Result<SampleCryptResult & { readonly source: 'notes' }, GeneratedCryptError> {
+  const chunks = new Map<string, Chunk>();
+  for (const chunk of chunkDocument({ sourceType: 'paste', text: notesText, originalText: notesText })) {
+    chunks.set(chunk.id, chunk);
+  }
+  for (const entry of Object.values(bundle.content.questions)) {
+    for (const excerpt of entry.excerpts) {
+      if (!chunks.has(excerpt.chunkId)) return { ok: false, error: { kind: 'excerpt-chunk-unknown' } };
+    }
+  }
+  return {
+    ok: true,
+    value: { manifest: bundle.manifest, content: bundle.content, chunks, source: 'notes' },
+  };
+}

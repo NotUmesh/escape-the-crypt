@@ -22,6 +22,8 @@ export interface QuestionPanelProps {
   /** Placement for the layered art (task 14.11); the plain loop ignores it. */
   readonly side?: 'left' | 'right';
   readonly panels?: LockPanelRegistry;
+  /** True for a generated crypt: shows the blind model review label under the heading. */
+  readonly reviewPassed?: boolean;
   /** Evidence panel and hint, skip and challenge controls arrive here in tasks 6 and 7. */
   readonly children?: ReactNode;
 }
@@ -43,6 +45,7 @@ function PanelShell({
   awaitingContinue = false,
   side = 'right',
   panels = LOCK_PANELS,
+  reviewPassed = false,
   children,
 }: QuestionPanelProps): ReactNode {
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -73,6 +76,7 @@ function PanelShell({
       <h3 id={`question-panel-heading-${slotId}`} ref={headingRef} tabIndex={-1} className="question-panel__heading">
         {heading}
       </h3>
+      {reviewPassed ? <p className="question-panel__review">{ROOM_PLAY_LABELS.reviewPassed}</p> : null}
       {LockPanel === undefined ? (
         <p className="question-panel__unplayable">{ROOM_PLAY_LABELS.unplayableType}</p>
       ) : (

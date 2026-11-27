@@ -92,7 +92,7 @@ function excerptFor(assets: RoomAssets, conceptId: string): ResolvedExcerpt | nu
   const questionId = Object.hasOwn(map, conceptId) ? map[conceptId] : undefined;
   if (questionId === undefined || !Object.hasOwn(assets.content.questions, questionId)) return null;
   const excerpt = assets.content.questions[questionId]?.excerpts[0];
-  return excerpt === undefined ? null : resolveExcerpt(assets, excerpt, 'sample');
+  return excerpt === undefined ? null : resolveExcerpt(assets, excerpt, assets.source);
 }
 
 function ConceptEntry({

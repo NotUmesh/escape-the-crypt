@@ -15,6 +15,8 @@ export interface EvidencePanelProps {
   readonly keyOptionId?: string;
   /** 'sample' for the human-reviewed sample crypt, 'notes' for the learner's own notes. */
   readonly source?: 'notes' | 'sample';
+  /** True for a generated crypt, whose published questions all passed the blind model review. */
+  readonly reviewPassed?: boolean;
   /** Dispatches EvidenceContinued. The panel offers no way to answer again. */
   readonly onContinue: () => void;
   /** Lets the room screen move focus into the panel. */
@@ -49,6 +51,7 @@ export function EvidencePanel({
   eventLog,
   keyOptionId,
   source = 'sample',
+  reviewPassed = false,
   onContinue,
   panelRef,
 }: EvidencePanelProps): ReactNode {
@@ -73,6 +76,7 @@ export function EvidencePanel({
           <span>{result === 'correct' ? ROOM_ANNOUNCEMENT_COPY.evidence.correct : ROOM_PLAY_LABELS.wrongOpening}</span>
         </p>
       ) : null}
+      {reviewPassed ? <p className="evidence-panel__review">{ROOM_PLAY_LABELS.reviewPassed}</p> : null}
       {slot.status === 'challenged' ? <p className="evidence-panel__challenged">{ROOM_PLAY_LABELS.challengedLabel}</p> : null}
       {chosenText !== undefined ? (
         <p className="evidence-panel__option">

@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import { buildHumanHeartSampleCrypt, ENTER_CRYPT_LABEL, SAMPLE_CRYPT_LINE } from '@escape-the-crypt/core';
+import { buildHumanHeartSampleCrypt, ENTER_CRYPT_LABEL, GENERATION_COPY, SAMPLE_CRYPT_LINE } from '@escape-the-crypt/core';
 import type { HumanHeartQuestionsFile, NotesRecord, SampleCryptResult } from '@escape-the-crypt/core';
 import { IngestScreen } from './app';
 import { createMemoryStore } from './features/ingest/notes-store-memory';
 import { useRoomBinding } from './state/room-binding';
+import { fakeWorker } from './test-support/fake-worker-client';
 import { clickButton, typeNotes, useMount } from './test-support/flow-dom';
 
 const SAMPLES = join(process.cwd(), '..', '..', 'samples');
@@ -84,3 +85,43 @@ describe('IngestScreen: Enter the crypt', () => {
     expect(mount.container.querySelector('.ingest-paste textarea')).not.toBeNull();
   });
 });
+
+describe('IngestScreen: Generate from my notes', () => {
+  const mount = useMount();
+  it('sends nothing until the button is pressed, then sends the confirmed notes text', async () => {
+    const worker = fakeWorker([{ kind: 'running' }]);
+    mount.render(
+      <IngestScreen
+        store={createMemoryStore()}
+        useBinding={useBinding}
+        generate={{ origin: 'http://localhost:8787', client: worker.client }}
+      />,
+    );
+    typeNotes(mount.container, PROSE);
+    await clickButton(mount.container, 'Confirm notes');
+    expect(worker.startTexts).toEqual([]);
+    await clickButton(mount.container, GENERATION_COPY.generateButton);
+    expect(worker.startTexts).toEqual([PROSE]);
+  });
+  it('has exactly one aria-live element during a job, and it carries the progress text', async () => {
+    const worker = fakeWorker([{ kind: 'running' }]);
+    mount.render(
+      <IngestScreen
+        store={createMemoryStore()}
+        useBinding={useBinding}
+        generate={{ origin: 'http://localhost:8787', client: worker.client }}
+      />,
+    );
+    typeNotes(mount.container, PROSE);
+    await clickButton(mount.container, 'Confirm notes');
+    await clickButton(mount.container, GENERATION_COPY.generateButton);
+    const regions = document.querySelectorAll('[aria-live]');
+    expect(regions).toHaveLength(1);
+    expect(regions[0]?.getAttribute('aria-live')).toBe('polite');
+    expect(regions[0]?.textContent).toBe(GENERATION_COPY.progress);
+    expect(mount.container.querySelectorAll('[role="status"]')).toHaveLength(1);
+    // The visible progress line is plain text.
+    expect(mount.container.querySelector('[data-testid="generation-progress"] [aria-live]')).toBeNull();
+    await clickButton(mount.container, GENERATION_COPY.cancel);
+    expect(document.querySelector('[aria-live]')?.textContent).toBe(GENERATION_COPY.cancelled);
+  });});

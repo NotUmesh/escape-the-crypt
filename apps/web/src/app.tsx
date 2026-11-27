@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { CryptFlow } from './features/crypt/crypt-flow';
 import type { CryptFlowProps } from './features/crypt/crypt-flow';
+import { notesTextFromChunks } from './features/generate/generated-crypt';
+import type { GenerateSeams } from './features/generate/generate-seams';
 import { IngestFlow } from './features/ingest/ingest-flow';
 import type { IngestFlowProps } from './features/ingest/ingest-flow';
 import { createIdbStore } from './features/ingest/notes-store-idb';
@@ -18,20 +20,24 @@ export interface IngestScreenProps {
   /** Test seams, passed straight through. */
   readonly createClient?: IngestFlowProps['createClient'];
   readonly useBinding?: CryptFlowProps['useBinding'];
+  readonly generate?: GenerateSeams;
 }
 
 /**
  * The notes step, then the crypt. Once notes are confirmed, CryptFlow's start view
- * offers "Enter the crypt" with the sample-crypt line. The run uses the built-in
- * sample crypt: the confirmed notes are not passed to it. Nothing about the run is
+ * offers "Enter the crypt" with the sample-crypt line, and "Generate from my notes" when a worker is
+ * configured. "Enter the crypt" plays the built-in sample crypt; the confirmed notes text goes only to
+ * the worker, and only after the learner presses Generate. Nothing about the run is
  * saved, so a reload starts again at the notes preview.
  */
-export function IngestScreen({ store: notesStore, createClient, useBinding }: IngestScreenProps): React.JSX.Element {
-  const [confirmed, setConfirmed] = useState(false);
+export function IngestScreen({ store: notesStore, createClient, useBinding, generate }: IngestScreenProps): React.JSX.Element {
+  const [notesText, setNotesText] = useState<string | null>(null);
+  // Generation progress is read through the notes step's one polite live region.
+  const [announcement, setAnnouncement] = useState('');
   return (
     <>
-      <IngestFlow store={notesStore} createClient={createClient} onConfirmed={() => setConfirmed(true)} />
-      {confirmed ? <CryptFlow useBinding={useBinding} /> : null}
+      <IngestFlow store={notesStore} createClient={createClient} announcement={announcement} onConfirmed={(chunks) => setNotesText(notesTextFromChunks(chunks))} />
+      {notesText !== null ? <CryptFlow useBinding={useBinding} notesText={notesText} generate={generate} onAnnounce={setAnnouncement} /> : null}
     </>
   );
 }

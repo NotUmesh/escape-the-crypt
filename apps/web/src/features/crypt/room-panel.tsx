@@ -102,6 +102,8 @@ export function RoomPanel({
         eventLog={eventLog}
         keyOptionId={keyOptionIdFor(state, slot.currentQuestionId)}
         panelRef={evidenceRef}
+        source={assets.source}
+        reviewPassed={assets.source === 'notes'}
         onContinue={() => {
           if (!continueLocally) dispatch({ type: 'continueEvidence', slotId: slot.slotId });
           onClose();
@@ -124,6 +126,7 @@ export function RoomPanel({
             : returnSlotName(slot.label === 'review', slot.status))
         }
         open
+        reviewPassed={assets.source === 'notes'}
         openerRef={openerRef}
         onClose={onClose}
         awaitingContinue={slot.evidencePanelOpen}

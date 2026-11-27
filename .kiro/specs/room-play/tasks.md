@@ -373,7 +373,7 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Component tests for reduced-motion behaviour, the toggle writing the setting and overlays removed
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.8, 12.9, 12.10_
 
-- [ ] 15. Checkpoint - Layered art and motion
+- [x] 15. Checkpoint - Layered art and motion
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 16. Art tests and reduced-motion checks
@@ -405,8 +405,36 @@ Every task is required. Property tests sit next to the code they test and cite t
     - Assert the Lantern_Setting survives a page reload; on a Phone_Viewport assert every drawn Hotspot_Button is at least 44 by 44 px and a lock can be opened and answered
     - _Requirements: 25.8, 25.13, 11.6, 12.8, 12.9_
 
-- [ ] 17. Final checkpoint - Ensure all tests pass
+- [x] 17. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 18. Generate from my notes (`apps/web` only, against the worker contract)
+  - Contract: generation-and-evaluation Requirements 29 and 31 and design component 12. `POST /jobs` with body `{ notesText, runLength: 'short' }`, the `X-Session-Token` header and an `Idempotency-Key` header (Requirement 29.7 keeps the key out of the body; the header name is this spec's assumption and the worker must allow it in CORS), answered `202 { jobId, status }`; `GET /jobs/:id` with the same token, answered `{ status }`, `{ status: 'completed', manifest, content, ... }`, `{ status: 'failed', failure }` or `{ status: 'expired' }`; a missing job is `404`
+  - Decided: core additions are limited to `parseCryptBundle` (`packages/core/src/mapper/crypt-bundle-parse.ts`) and `GENERATION_COPY` in `copy-room-play.ts`, both already in place; cancel happens in the browser only (stop polling, drop the job ID) until the worker adds `DELETE /jobs/:id`; every question of a generated, published manifest shows "Blind model review passed" (failing questions are dropped before publishing; alternates are reviewed too)
+  - [x] 18.1 Add `worker-config.ts` and the build-time CSP origin
+    - `workerOrigin()` reads `import.meta.env.VITE_WORKER_URL` once and returns a normalised origin or `null`; accept only a bare `https://host[:port]` origin, or `http://` for `localhost` and `127.0.0.1`; reject paths, queries, wildcards, quotes, whitespace and `*`; an unset or rejected value returns `null`, which hides the button
+    - A Vite plugin rewrites `dist/_headers` at build time so `connect-src` is `'self' <origin>` when the origin is set and stays `'self'` when it is not; the rewrite is a pure `headersWithWorkerOrigin(text, origin)` function
+    - Unit tests: accepted and rejected origins; the rewritten header contains exactly the configured origin once, no wildcard and no other origin; unset leaves `connect-src 'self'` unchanged; every other directive is unchanged
+  - [x] 18.2 Add `session-token.ts` and `worker-client.ts`
+    - Session token: at least 128 random bits from `crypto.getRandomValues`, base64url, 22 to 128 characters, kept in `sessionStorage` under one key and reused for the tab; storage access guarded with try/catch (a throwing store keeps an in-memory token)
+    - Client: `startJob(notesText, idempotencyKey)` and `getJob(jobId)` with an injectable `fetch`, `credentials: 'omit'`, a request timeout, and every response validated with Zod; a completed response goes through `parseCryptBundle`; results are typed (`queued`, `running`, `completed` with the bundle, `failed` with a `GenerationFailureKind`, `expired`, plus `network`, `not-found` and `invalid-response` errors); `cancelled` from the worker maps to the cancelled state; no notes text, question text or response body is ever logged
+    - Unit tests with a fake `fetch`: headers sent (token, idempotency key, no cookies), the body holds only `notesText` and `runLength`, each status, each failure kind, a malformed body, a bundle `parseCryptBundle` rejects, a `404`, a network error and a timeout
+  - [x] 18.3 Add the generation flow state and polling
+    - A pure reducer for the flow (`idle`, `starting`, `polling`, `ready`, `failed`, `cancelled`) plus a hook that polls `getJob` at a fixed interval with an attempt cap; Cancel stops polling and drops the job ID with no request; the same idempotency key is reused when the POST is retried after a network error, and a new key is made for a new press of the button
+    - The notes text sent is the confirmed notes text, and the chunks for the run come from `chunkDocument({ sourceType: 'paste', text, originalText: text })` over that same text, which is how the pipeline chunks it, so every excerpt `chunkId` resolves
+    - Unit tests for every reducer transition, the attempt cap, cancel making no further request, and key reuse
+  - [x] 18.4 Add the button, progress, cancel and failure views
+    - After notes are confirmed, show "Generate from my notes" beside "Enter the crypt" only when `workerOrigin()` is set; while the job runs show the progress line in a polite live region with a Cancel button; on success play the bundle through the existing `useRoomBinding` with an injected `buildCrypt`; on failure show `GENERATION_COPY.failures[kind]` (what and next) with a "Play the sample crypt instead" button; all text from `GENERATION_COPY`
+    - Component tests: hidden when the origin is unset; visible beside "Enter the crypt"; progress and Cancel; each failure kind with the sample offer; the sample offer starts the sample crypt
+  - [x] 18.5 Label generated crypts honestly
+    - Carry the crypt source (`sample` or `notes`) in `RoomAssets`; citations use `citationLabel(chunk, 'notes')` ("Paragraph N of your notes") for generated crypts and stay "Paragraph N of the sample notes" for the sample; a generated crypt shows no "Sample crypt" label, shows `REVIEW_PASSED_LABEL` ("Blind model review passed") on every question panel and Evidence_Panel, and never shows "Human-reviewed"; the sample crypt never shows "Blind model review passed"
+    - Component tests over every screen of a generated run and of a sample run for these labels
+  - [x] 18.6 Playwright with a fake worker
+    - Build the e2e app with `VITE_WORKER_URL` set to a fake origin and answer it with `page.route` (no real worker, no AI provider), the bundle built from the sample notes in the test
+    - Cover success (play a generated room to the escape view with "Paragraph N of your notes" citations), each failure kind with the sample offer, cancel (no request after Cancel), and expired; assert no request leaves the app origin except to the configured worker origin
+    - Keep the existing e2e suite passing
+  - [x] 18.7 Checkpoint - Generate from my notes
+    - Run web and core tests, typecheck, lint and e2e; ensure all pass, ask the user if questions arise
 
 ## Notes
 
@@ -463,7 +491,12 @@ Every task is required. Property tests sit next to the code they test and cite t
     { "id": 37, "tasks": ["14.12"] },
     { "id": 38, "tasks": ["15"] },
     { "id": 39, "tasks": ["16.1", "16.2", "16.3", "16.4", "16.5", "16.6", "16.7"] },
-    { "id": 40, "tasks": ["17"] }
+    { "id": 40, "tasks": ["17"] },
+    { "id": 41, "tasks": ["18.1", "18.2"] },
+    { "id": 42, "tasks": ["18.3"] },
+    { "id": 43, "tasks": ["18.4", "18.5"] },
+    { "id": 44, "tasks": ["18.6"] },
+    { "id": 45, "tasks": ["18.7"] }
   ]
 }
 ```
