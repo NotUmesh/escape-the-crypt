@@ -1,4 +1,6 @@
+import type { CombinationDialAuthoringQuestion } from '../authoring/schema';
 import type { HintEffectSpec, JudgeResult } from '../types';
+import { computeTemplate } from './combination-dial-checks';
 
 export interface CombinationDialQuestion {
   readonly kind: 'exact' | 'range' | 'tolerance';
@@ -65,5 +67,46 @@ export function judge(
     }
     default:
       return 'invalid';
+  }
+}
+
+/** The two payload shapes the mapper can produce. A `tolerance` payload is never produced. */
+export type MappedCombinationDialPayload =
+  | { readonly kind: 'exact'; readonly exactValue: number; readonly unit: string }
+  | { readonly kind: 'range'; readonly min: number; readonly max: number; readonly unit: string };
+
+/**
+ * Maps an authoring dial answer to the judge's question shape. Pure, additive; the judge is unchanged.
+ * - exact -> `exact` with the stated value.
+ * - range -> `range` with the stated endpoints (min must not exceed max).
+ * - template -> `exact` with the value COMPUTED BY CODE via `computeTemplate`; the authored `value` is ignored.
+ * `tolerance` is never produced from model output: a dial is solved by an exact value or a stated
+ * range, so the judge's tolerance kind stays unused by generation. `hintEffect` is always null
+ * (`reveal-digit` is unreachable). Returns null when the answer cannot be mapped (blank unit,
+ * non-finite or unrepresentable number, reversed range, template that cannot be computed).
+ */
+export function mapCombinationDialPayload(
+  answer: CombinationDialAuthoringQuestion['answer'],
+  units: string,
+): { readonly payload: MappedCombinationDialPayload; readonly hintEffect: null } | null {
+  if (typeof units !== 'string' || units.trim() === '') return null;
+  const usable = (n: unknown): n is number => typeof n === 'number' && toTenths(n) !== null;
+  switch (answer.kind) {
+    case 'exact':
+      return usable(answer.value)
+        ? { payload: { kind: 'exact', exactValue: answer.value, unit: units }, hintEffect: null }
+        : null;
+    case 'range':
+      return usable(answer.min) && usable(answer.max) && answer.min <= answer.max
+        ? { payload: { kind: 'range', min: answer.min, max: answer.max, unit: units }, hintEffect: null }
+        : null;
+    case 'template': {
+      const computed = computeTemplate(answer.template, answer.inputs);
+      return computed !== null && usable(computed)
+        ? { payload: { kind: 'exact', exactValue: computed, unit: units }, hintEffect: null }
+        : null;
+    }
+    default:
+      return null;
   }
 }

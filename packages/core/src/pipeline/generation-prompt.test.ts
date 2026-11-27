@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { z } from '../zod';
 import { DEFAULT_ALLOWED_LOCK_TYPES, buildGenerationSystemPrompt } from './generation-prompt';
+import { buildGenerationResponseSchema } from './generation-schema';
 
 describe('generation prompt: bone-ordering rule', () => {
   it('includes the rule text when bone-ordering is allowed via options', () => {
@@ -37,6 +39,39 @@ describe('generation prompt: bone-ordering rule', () => {
     const base = buildGenerationSystemPrompt(DEFAULT_ALLOWED_LOCK_TYPES);
     expect(base).not.toContain('cursed-object');
     expect(base).not.toContain('categoryRule');
+  });
+
+  it('includes the combination-dial rule text only when allowed via options', () => {
+    const system = buildGenerationSystemPrompt([...DEFAULT_ALLOWED_LOCK_TYPES, 'combination-dial']);
+    expect(system).toContain('combination-dial (enter a number)');
+    expect(system).toContain('stated verbatim in the notes');
+    expect(system).toContain('"difference"');
+    expect(system).toContain('"percent-change"');
+    expect(system).toContain('never for a range');
+    expect(system).toContain('You never compute or write an expression');
+    expect(system).toContain('units is required');
+    const base = buildGenerationSystemPrompt(DEFAULT_ALLOWED_LOCK_TYPES);
+    expect(base).not.toContain('combination-dial');
+    expect(base).not.toContain('units is required');
+  });
+
+  it('has no expression or code field anywhere in the dial generation schema', () => {
+    const schema = buildGenerationResponseSchema([...DEFAULT_ALLOWED_LOCK_TYPES, 'combination-dial']);
+    const json = JSON.stringify(z.toJSONSchema(schema, { io: 'input' }));
+    expect(json).toContain('combination-dial');
+    const keys: string[] = [];
+    const walk = (node: unknown): void => {
+      if (Array.isArray(node)) node.forEach(walk);
+      else if (node && typeof node === 'object') {
+        for (const [k, v] of Object.entries(node)) {
+          keys.push(k);
+          walk(v);
+        }
+      }
+    };
+    walk(JSON.parse(json));
+    expect(keys).not.toContain('expression');
+    expect(keys).not.toContain('code');
   });
 
   it('does not widen the default allowed types', () => {

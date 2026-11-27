@@ -1,10 +1,12 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { RUN_LENGTHS, checkWordCount, countWords, z } from '@escape-the-crypt/core';
-import type { JobAckResponse, JobStatusResponse } from '@escape-the-crypt/core';
+import type { JobAckResponse, JobStatusResponse, PipelineProgress } from '@escape-the-crypt/core';
 import { requestDigest, sha256Hex, type Job, type JobStore, type JobView } from '../jobs/job-store';
 import { readBody } from './body';
 import { ERROR_COPY, FAILURE_COPY, type ErrorKind } from './copy';
 import { runJob, type JobRunnerDeps } from './job-runner';
+import { MAX_ACTIVE_JUDGE_JOBS, type JudgeAccess } from './judge-access';
+import { clientAddress, type RateLimiter } from './rate-limit';
 import { sendError, sendJson, type Logger, type RequestOutcome } from './respond';
 
 /** Hard cap on the request body. 6,000 words is about 50 KB; the rest is headroom for escaping. */
@@ -29,7 +31,14 @@ export const createJobBodySchema = z.strictObject({
 
 export interface RouteDeps extends JobRunnerDeps {
   readonly maxBodyBytes: number;
+  /** Per-IP limit on public `POST /jobs`. */
+  readonly rateLimiter: RateLimiter;
+  /** Null when `JUDGE_ACCESS_TOKEN` is not set: the judge route answers 404. */
+  readonly judge: JudgeAccess | null;
 }
+
+/** Public: rate-limited per IP, one job per session. Judge: neither, but the daily budget holds. */
+export type CreateAccess = 'public' | 'judge';
 
 function fail(res: ServerResponse, outcome: RequestOutcome, status: number, kind: ErrorKind): void {
   sendError(res, outcome, status, kind, ERROR_COPY[kind]);
@@ -59,7 +68,21 @@ export async function handleCreateJob(
   res: ServerResponse,
   outcome: RequestOutcome,
   deps: RouteDeps,
+  access: CreateAccess = 'public',
 ): Promise<void> {
+  if (access === 'judge') {
+    // A missing route and a wrong code look the same from outside.
+    if (deps.judge === null) return sendNotFound(res, outcome);
+    if (!deps.judge.accepts(req)) return fail(res, outcome, 403, 'judge-access-denied');
+    if (deps.judge.active.size >= MAX_ACTIVE_JUDGE_JOBS) return fail(res, outcome, 429, 'capacity');
+  } else {
+    // Counted before the body is read, so a flood costs nothing to refuse.
+    const decision = deps.rateLimiter.attempt(clientAddress(req));
+    if (!decision.allowed) {
+      res.setHeader('Retry-After', String(decision.retryAfterSeconds));
+      return fail(res, outcome, 429, 'rate-limited');
+    }
+  }
   const token = sessionToken(req);
   if (token === null) return fail(res, outcome, 400, 'invalid-session-token');
   const key = headerValue(req, IDEMPOTENCY_HEADER);
@@ -95,11 +118,13 @@ export async function handleCreateJob(
     requestDigest: requestDigest(parsed.data),
     runLength: parsed.data.runLength,
     notesText: parsed.data.notesText,
+    ...(access === 'judge' ? { judge: true } : {}),
   });
   switch (created.kind) {
     case 'new':
       sendJson(res, outcome, 202, ack(created.job.id, created.job.status));
-      void runJob(deps, created.job);
+      if (access === 'judge') deps.judge?.active.add(created.job.id);
+      void runJob(deps, created.job).finally(() => deps.judge?.active.delete(created.job.id));
       return;
     case 'replay':
       return sendJson(res, outcome, 200, ack(created.job.id, created.job.status));
@@ -114,7 +139,12 @@ export async function handleCreateJob(
   }
 }
 
-function jobBody(job: Job): JobStatusResponse {
+/**
+ * The status body. `progress` is added to a running job only when the client asked for it: a client
+ * built before progress existed parses `running` strictly and would refuse the extra field.
+ */
+function jobBody(job: Job, progress: PipelineProgress | undefined): JobStatusResponse {
+  if (job.status === 'running' && progress !== undefined) return { jobId: job.id, status: 'running', progress };
   if (job.status === 'completed' && job.result !== null) {
     const { manifest, content, unplacedAccepted } = job.result;
     return { jobId: job.id, status: 'completed', bundle: { manifest, content, unplacedAccepted } };
@@ -131,8 +161,8 @@ function jobBody(job: Job): JobStatusResponse {
   }
   return { jobId: job.id, status: job.status };
 }
-function viewBody(view: JobView): JobStatusResponse {
-  return view.kind === 'expired' ? { jobId: view.jobId, status: 'expired' } : jobBody(view.job);
+function viewBody(view: JobView, progressOf: (jobId: string) => PipelineProgress | undefined): JobStatusResponse {
+  return view.kind === 'expired' ? { jobId: view.jobId, status: 'expired' } : jobBody(view.job, progressOf(view.job.id));
 }
 
 export function handleGetJob(
@@ -141,13 +171,16 @@ export function handleGetJob(
   outcome: RequestOutcome,
   store: JobStore,
   rawId: string,
+  /** Latest progress per running job; read only when the request has `?progress=1`. */
+  progress?: ReadonlyMap<string, PipelineProgress>,
 ): void {
   const token = sessionToken(req);
   if (token === null) return fail(res, outcome, 400, 'invalid-session-token');
   const id = rawId.length > MAX_JOB_ID_LENGTH ? null : rawId;
   const view = id === null ? null : store.get(id, token);
   if (view === null) return sendNotFound(res, outcome);
-  sendJson(res, outcome, 200, viewBody(view));
+  const wantsProgress = new URL(req.url ?? '/', 'http://worker').searchParams.get('progress') === '1';
+  sendJson(res, outcome, 200, viewBody(view, (jobId) => (wantsProgress ? progress?.get(jobId) : undefined)));
 }
 
 /**

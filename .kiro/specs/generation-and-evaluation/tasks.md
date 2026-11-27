@@ -2,11 +2,11 @@
 
 ## Overview
 
-This plan covers Phase 1, Phase 2 and Phase 3. Phase 1 is complete and shipped (tasks 1â€“10, all checked); its tasks are kept unchanged below for history. Phase 2 (Provider interface, cassettes, the interim Budget_Ledger) and Phase 3 (the rune-cipher/sÃ©ance-board pipeline, room assembly, publish, and the Worker's minimal job API) are now planned as tasks 11 onward. Phase 5 (live generation, checks and room assembly for bone-ordering, bound-threads, cursed-object and combination-dial) is planned as tasks 28 to 40 and is not started. Phases 4 and 6 are still not planned here.
+This plan covers Phase 1, Phase 2 and Phase 3. Phase 1 is complete and shipped (tasks 1–10, all checked); its tasks are kept unchanged below for history. Phase 2 (Provider interface, cassettes, the interim Budget_Ledger) and Phase 3 (the rune-cipher/séance-board pipeline, room assembly, publish, and the Worker's minimal job API) are now planned as tasks 11 onward. Phase 5 (live generation, checks and room assembly for bone-ordering, bound-threads, cursed-object and combination-dial) is planned as tasks 28 to 40 and is not started. Phases 4 and 6 are still not planned here.
 
-Phase 1 order: schemas (authoring, manifest, hint type change, fixture builder) â†’ checks â†’ Manifest_Mapper â†’ sample crypt â†’ dataset acceptance â†’ `parseNotesRecord` Zod migration.
+Phase 1 order: schemas (authoring, manifest, hint type change, fixture builder) → checks → Manifest_Mapper → sample crypt → dataset acceptance → `parseNotesRecord` Zod migration.
 
-Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store and mock ledger (test-support) â†’ the narrowed boundary test â†’ heading detection â†’ the pipeline stages in pipeline order (prepare input â†’ concept extraction â†’ generation â†’ blind review â†’ room assembly/publish) â†’ the cassette-driven end-to-end test â†’ the Worker (OpenAI Provider, Interim_Ledger, job store, HTTP server, process entry point) â†’ Worker integration tests.
+Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and mock ledger (test-support) → the narrowed boundary test → heading detection → the pipeline stages in pipeline order (prepare input → concept extraction → generation → blind review → room assembly/publish) → the cassette-driven end-to-end test → the Worker (OpenAI Provider, Interim_Ledger, job store, HTTP server, process entry point) → Worker integration tests.
 
 ## Tasks
 
@@ -19,24 +19,24 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - _Requirements: 2.13_
 
   - [x] 1.2 Implement the Authoring_Schema and parser
-    - Create `packages/core/src/authoring/schema.ts` with strict-object rune cipher and sÃ©ance board arms in a discriminated union on `lockType`, and the types derived from it
+    - Create `packages/core/src/authoring/schema.ts` with strict-object rune cipher and séance board arms in a discriminated union on `lockType`, and the types derived from it
     - Create `packages/core/src/authoring/parse.ts` with `parseAuthoringQuestion` returning a typed `Result` with the failing field path, never throwing
-    - Include no offset field anywhere, and no hint field on sÃ©ance board questions (the mapper decides that hint in code)
+    - Include no offset field anywhere, and no hint field on séance board questions (the mapper decides that hint in code)
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.7, 5.6_
 
   - [x] 1.3 Write unit tests for the Authoring_Schema
-    - Parse every real rune cipher and sÃ©ance board question in `eval/dev/questions/*.json` and `samples/questions/*.json`
+    - Parse every real rune cipher and séance board question in `eval/dev/questions/*.json` and `samples/questions/*.json`
     - Reject malformed values with the expected `path`, an unknown `lockType`, empty rune answers, and unknown keys such as `offset`
     - _Requirements: 1.3, 1.4, 1.5, 1.7, 5.6_
 
   - [x] 1.4 Write property test for Authoring_Question round-trip
-    - Add `authoringQuestionArb` (rune cipher and sÃ©ance board, quotes built as exact substrings of generated chunk text) in `packages/core/src/test-support/`
+    - Add `authoringQuestionArb` (rune cipher and séance board, quotes built as exact substrings of generated chunk text) in `packages/core/src/test-support/`
     - **Property 1: Authoring_Question round-trip**
     - **Validates: Requirements 1.6**
 
   - [x] 1.5 Implement the Manifest_Schema, hint narrowing and parser
-    - Create `packages/core/src/runtime/manifest-schema.ts` with `HintEffectSchema`, rune cipher and sÃ©ance board payload schemas, `payloadSchemaFor` (returns `null` for the other four types so they are rejected with `lock-type-not-supported`), `QuestionSpecSchema` with `superRefine`, slot, room (one slot per type) and `CryptManifestSchema` (unique `questionId`, 0 to 4 final-door slots, alternate type differs from primary)
-    - Add `narrowHint`: rune cipher accepts only `reveal-first-letter` or `null`; sÃ©ance board accepts only `remove-option` or `null`, with `optionId` in `optionIds` and not equal to `keyOptionId`. Move it to `manifest-hints.ts` if the file nears 300 lines
+    - Create `packages/core/src/runtime/manifest-schema.ts` with `HintEffectSchema`, rune cipher and séance board payload schemas, `payloadSchemaFor` (returns `null` for the other four types so they are rejected with `lock-type-not-supported`), `QuestionSpecSchema` with `superRefine`, slot, room (one slot per type) and `CryptManifestSchema` (unique `questionId`, 0 to 4 final-door slots, alternate type differs from primary)
+    - Add `narrowHint`: rune cipher accepts only `reveal-first-letter` or `null`; séance board accepts only `remove-option` or `null`, with `optionId` in `optionIds` and not equal to `keyOptionId`. Move it to `manifest-hints.ts` if the file nears 300 lines
     - Add a `parseManifest` wrapper returning a typed `Result`, never throwing
     - Export only `CryptManifest` and its member types from `manifest-types.ts`; add no second manifest type
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10, 2.14, 2.15, 2.16, 2.17_
@@ -50,7 +50,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
   - [x] 1.7 Write unit tests for the Manifest_Schema
     - Add the compile-time two-way assignability check between `z.infer<typeof CryptManifestSchema>` and `CryptManifest`
     - Cover accept and reject examples for payload shapes, alternate type, final-door slot count and typed errors
-    - Cover each hint rejection: rune cipher with `remove-option`; sÃ©ance with `remove-option` naming an id not in `optionIds`; sÃ©ance with `remove-option` naming `keyOptionId`; sÃ©ance with `reveal-first-letter`; `reveal-first-letter` with a 2-character `firstLetter` or non-positive `length`
+    - Cover each hint rejection: rune cipher with `remove-option`; séance with `remove-option` naming an id not in `optionIds`; séance with `remove-option` naming `keyOptionId`; séance with `reveal-first-letter`; `reveal-first-letter` with a 2-character `firstLetter` or non-positive `length`
     - _Requirements: 2.1, 2.3, 2.4, 2.5, 2.8, 2.9, 2.10, 2.16, 2.17_
 
   - [x] 1.8 Write property test for manifest serialisation round-trip
@@ -115,13 +115,13 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - **Property 7: Rune cipher check and judge agree on normalisation**
     - **Validates: Requirements 5.5**
 
-  - [x] 3.7 Implement sÃ©ance board checks
+  - [x] 3.7 Implement séance board checks
     - Create `packages/core/src/locks/seance-board-checks.ts` with `missing-according-to-your-notes`, `option-count`, `duplicate-options` (via `normalise.ts`), `option-not-supported-or-contradicted`, `option-without-evidence`, `not-exactly-one-supported`, `key-not-the-supported-option`, and run `checkQuote` on each option's own evidence
     - Accept raw pre-schema input for the two defensive checks so the `adv-10` fixture yields exactly its expected id
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.9_
 
-  - [x] 3.8 Write unit tests for sÃ©ance board checks
-    - Assert each sÃ©ance fixture's exact expected Check_ID (for example `adv-06`, `adv-10`, `adv-25`) and no other blocking id
+  - [x] 3.8 Write unit tests for séance board checks
+    - Assert each séance fixture's exact expected Check_ID (for example `adv-06`, `adv-10`, `adv-25`) and no other blocking id
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.9_
 
   - [x] 3.9 Implement alternate checks and Leak_Scan
@@ -155,18 +155,18 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
 - [x] 5. Manifest_Mapper
   - [x] 5.1 Implement `mapAuthoringQuestionToSpec`
     - Create `packages/core/src/mapper/manifest-mapper.ts` and a paragraph-to-chunk map builder using `chunkDocument` (first chunk wins for a paragraph number)
-    - Resolve every paragraph to a chunk ID or return `paragraph-not-found`; re-run blocking checks and return `check-failed`; build rune and sÃ©ance payloads, preserving option order; set `evidenceRefs` de-duplicated in order
+    - Resolve every paragraph to a chunk ID or return `paragraph-not-found`; re-run blocking checks and return `check-failed`; build rune and séance payloads, preserving option order; set `evidenceRefs` de-duplicated in order
     - Rune hint: always set `reveal-first-letter` with `firstLetter` and `length` computed from the answer (by code point), even when the authoring question has no hint; return `hint-mismatch` (naming the question, no `QuestionSpec`) when an authoring hint disagrees with the computed values
-    - SÃ©ance hint: the authoring format has no hint marker; always set `remove-option` for the first `contradicted` option in authoring order, decided in code (an accepted question always has at least two contradicted options)
+    - Séance hint: the authoring format has no hint marker; always set `remove-option` for the first `contradicted` option in authoring order, decided in code (an accepted question always has at least two contradicted options)
     - Return typed `MapperError`; never produce a partial `QuestionSpec`
     - _Requirements: 6.8, 8.1, 8.2, 8.3, 8.4, 8.5, 8.7, 8.8, 8.9_
 
   - [x] 5.2 Write unit tests for the Manifest_Mapper
-    - One mapping example per Phase 1 lock type from `samples/questions/human-heart.json`; the `paragraph-not-found` and `hint-mismatch` errors; a rune question with no authoring hint still maps to `reveal-first-letter`; a sÃ©ance question maps to `remove-option` for its first `contradicted` option (no `contradicted` option gives `check-failed`); each row of the hint table; the first-chunk-wins choice; a mapped manifest of accepted dev questions passes `manifestCheck`
+    - One mapping example per Phase 1 lock type from `samples/questions/human-heart.json`; the `paragraph-not-found` and `hint-mismatch` errors; a rune question with no authoring hint still maps to `reveal-first-letter`; a séance question maps to `remove-option` for its first `contradicted` option (no `contradicted` option gives `check-failed`); each row of the hint table; the first-chunk-wins choice; a mapped manifest of accepted dev questions passes `manifestCheck`
     - _Requirements: 8.2, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9_
 
   - [x] 5.3 Write property tests for the Manifest_Mapper
-    - **Property 9: Manifest_Mapper preserves sÃ©ance-board option order**
+    - **Property 9: Manifest_Mapper preserves séance-board option order**
     - **Validates: Requirements 6.8**
     - **Property 14: Mapper hint rules**
     - **Validates: Requirements 8.4, 8.8, 8.9, 8.10, 8.11**
@@ -174,7 +174,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
 - [x] 6. Gate 1 sample crypt
   - [x] 6.1 Implement `buildHumanHeartSampleCrypt`
     - Create `packages/core/src/sample-crypt/human-heart.ts`: pure function taking the notes text and parsed questions file
-    - Fixed selection: room locks from `hh-c01` (rune primary `hh-q01`, sÃ©ance alternate `hh-q02`) and `hh-c02` (sÃ©ance primary `hh-q03`, rune alternate `hh-q04`); final-door slots from `hh-c03` (`hh-q06`), `hh-c04` (`hh-q08`) and `hh-c07` (`hh-q12`), each a full slot spec
+    - Fixed selection: room locks from `hh-c01` (rune primary `hh-q01`, séance alternate `hh-q02`) and `hh-c02` (séance primary `hh-q03`, rune alternate `hh-q04`); final-door slots from `hh-c03` (`hh-q06`), `hh-c04` (`hh-q08`) and `hh-c07` (`hh-q12`), each a full slot spec
     - Map every question through the mapper, assemble one room, and validate with `validateManifestForPublish`; return a typed error naming the question on any failure, never a partial manifest
     - Add `isHumanReviewed(file)` that reads `status === 'human-reviewed'` as data
     - Add a comment that ghosts return only at the final door (2 locks, `GHOST_DELAY` is 3)
@@ -182,7 +182,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - _Requirements: 19.1, 19.2, 19.4, 27.1, 27.2, 27.3, 27.4, 27.5, 27.6, 27.7, 27.9_
 
   - [x] 6.2 Write tests for the sample crypt
-    - Build from the real `samples/human-heart.txt` and `samples/questions/human-heart.json`; assert the schema and `manifestCheck` accept it (Req 27.3), the exact room and final-door concept split, and that every sample rune cipher question has `reveal-first-letter` and every sÃ©ance question with a `contradicted` option has `remove-option`
+    - Build from the real `samples/human-heart.txt` and `samples/questions/human-heart.json`; assert the schema and `manifestCheck` accept it (Req 27.3), the exact room and final-door concept split, and that every sample rune cipher question has `reveal-first-letter` and every séance question with a `contradicted` option has `remove-option`
     - Do not expect an in-room ghost return
     - _Requirements: 27.1, 27.2, 27.3, 27.9_
 
@@ -196,7 +196,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
 - [x] 8. Dataset acceptance
   - [x] 8.1 Write the Phase 1 acceptance test
     - Create `phase1-acceptance.test.ts` that reads `eval/dev/questions/*.json`, `samples/questions/*.json` and `eval/adversarial/fixtures.json` at test time
-    - Assert counts against named constants (56 questions: 26 rune cipher and 30 sÃ©ance board; 10 `code:*` fixtures; 4 `review:*` fixtures), failing with a message that states expected and actual counts
+    - Assert counts against named constants (56 questions: 26 rune cipher and 30 séance board; 10 `code:*` fixtures; 4 `review:*` fixtures), failing with a message that states expected and actual counts
     - Assert all 56 questions pass the blocking checks, each `code:*` fixture fails with exactly its expected Check_ID and no other blocking id, each `review:*` fixture passes, and the sample crypt passes the schema and `manifestCheck`
     - Do not edit `eval/adversarial/fixtures.json`
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.6, 9.7, 9.9_
@@ -360,7 +360,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
 
 - [x] 17. Pipeline: typed generation
   - [x] 17.1 Implement `generateForConcept`
-    - Create `packages/core/src/pipeline/generation.ts`: `GenerationResponseSchema` with rune cipher and sÃ©ance board arms mirroring `AuthoringQuestionSchema`'s arms minus `id`/`conceptId`/`role`
+    - Create `packages/core/src/pipeline/generation.ts`: `GenerationResponseSchema` with rune cipher and séance board arms mirroring `AuthoringQuestionSchema`'s arms minus `id`/`conceptId`/`role`
     - Make `GenerationResponseSchema` strict-compatible: any field the Authoring_Schema treats as optional (for example a rune hint) is `.nullable()` here and `null` values are dropped before the re-parse with `AuthoringQuestionSchema`; build `ProviderRequest.jsonSchema` with `toModelJsonSchema`
     - One call per concept; `primary: null` short-circuits to `Ok(null)`; attach `id`/`conceptId`/`role` after a successful parse and re-parse with the real `AuthoringQuestionSchema`
     - Defensively drop a proposed alternate that shares its primary's `lockType` (set to `null`, never replaced with a different type)
@@ -393,7 +393,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - _Requirements: 15.7, 15.9, 31.4_
 
   - [x] 19.3 Write unit tests for `blindReview`
-    - The rune and sÃ©ance `review:*` adversarial fixtures via cassette, each asserted `rejected`; one `passed` example; the temperature-0 request assertion; the retry-then-reject-on-second-failure example; label-mismatch and incomplete-labels examples; a blocking-Code_Check question never reaching the reviewer call
+    - The rune and séance `review:*` adversarial fixtures via cassette, each asserted `rejected`; one `passed` example; the temperature-0 request assertion; the retry-then-reject-on-second-failure example; label-mismatch and incomplete-labels examples; a blocking-Code_Check question never reaching the reviewer call
     - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.8, 15.11, 24.1, 24.2_
 
   - [x] 19.4 Write the strict-compatibility test for model-facing schemas
@@ -405,7 +405,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
 
 - [x] 21. Pipeline: room assembly, publish and orchestrator
   - [x] 21.1 Implement room assembly
-    - Create `packages/core/src/pipeline/room-assembly.ts`: build at most one lock slot per Lock_Type (rune cipher, sÃ©ance board) from accepted primaries/alternates; the first accepted question per Lock_Type in extraction order takes the room slot, and every other accepted concept goes to `unplacedAccepted` (`{ conceptId, conceptTitle, question, content }`), validated with the same schemas and kept out of `manifest.rooms` and `manifest.finalDoor`
+    - Create `packages/core/src/pipeline/room-assembly.ts`: build at most one lock slot per Lock_Type (rune cipher, séance board) from accepted primaries/alternates; the first accepted question per Lock_Type in extraction order takes the room slot, and every other accepted concept goes to `unplacedAccepted` (`{ conceptId, conceptTitle, question, content }`), validated with the same schemas and kept out of `manifest.rooms` and `manifest.finalDoor`
     - Run `leakScanRoom` over tentative slots plus alternates; on failure, swap in a leak-free accepted alternate, else drop the concept; re-run until clean or no slots remain
     - Final door is always `[]` in Phase 3
     - Return a typed `empty-room` result when no slots remain; never publish that case
@@ -436,7 +436,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - _Requirements: none beyond the cassette mechanism itself (test-support for Requirement 12 and the end-to-end test below)_
 
   - [x] 21.7 Write the cassette-driven end-to-end pipeline test
-    - `runRoomPipeline` over `samples/human-heart.txt` with `makeCassetteProvider(humanHeartE2eCassettes)` and `makeMockLedger`; assert one published room with the expected rune/sÃ©ance slot, non-empty `CryptContent`, a `PipelineRunMetadata` whose `promptDigests.length` equals the number of cassette hits and that carries no notes text, any extra accepted concept in `unplacedAccepted` and not in the manifest, and `assertRecordedOnly` over the cassette's entries returning `synthetic-cassette-in-evaluation` (this test must not write to `eval/results/`)
+    - `runRoomPipeline` over `samples/human-heart.txt` with `makeCassetteProvider(humanHeartE2eCassettes)` and `makeMockLedger`; assert one published room with the expected rune/séance slot, non-empty `CryptContent`, a `PipelineRunMetadata` whose `promptDigests.length` equals the number of cassette hits and that carries no notes text, any extra accepted concept in `unplacedAccepted` and not in the manifest, and `assertRecordedOnly` over the cassette's entries returning `synthetic-cassette-in-evaluation` (this test must not write to `eval/results/`)
     - _Requirements: 16.3, 21.3, 25.8, 31.6, 12.10_
 
 - [x] 22. Checkpoint - Ensure all tests pass
@@ -489,7 +489,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - _Requirements: 29.1, 29.2, 29.3, 29.6, 29.7, 29.8, 29.9, 29.10, 29.12, 29.13, 29.15, 29.17, 25.8, 25.9_
 
   - [x] 25.4 Write unit tests for the HTTP server
-    - In-process request tests (no external network) covering the full `POST /jobs` â†’ `GET /jobs/:id` happy path with the cassette provider and mock ledger; a missing or malformed `X-Session-Token` rejected with a typed error; a wrong session answered identically to a missing job (status, body, headers); `{ status: 'expired' }` with `Cache-Control: private, no-store` for the right session after the TTL; CORS allowing only `WEB_ORIGIN` and the `X-Session-Token` header with no `Access-Control-Allow-Credentials`; `Cache-Control: private, no-store` on Job-carrying responses; request-size/word-count rejection before any Provider call; the typed failure body for each `JobFailureKind`; a repeated `POST /jobs` after the TTL with the same session, key and digest answering `{ jobId, status: 'expired' }` with zero reservations and zero Provider calls
+    - In-process request tests (no external network) covering the full `POST /jobs` → `GET /jobs/:id` happy path with the cassette provider and mock ledger; a missing or malformed `X-Session-Token` rejected with a typed error; a wrong session answered identically to a missing job (status, body, headers); `{ status: 'expired' }` with `Cache-Control: private, no-store` for the right session after the TTL; CORS allowing only `WEB_ORIGIN` and the `X-Session-Token` header with no `Access-Control-Allow-Credentials`; `Cache-Control: private, no-store` on Job-carrying responses; request-size/word-count rejection before any Provider call; the typed failure body for each `JobFailureKind`; a repeated `POST /jobs` after the TTL with the same session, key and digest answering `{ jobId, status: 'expired' }` with zero reservations and zero Provider calls
     - 429 for session-busy and capacity, with zero reservations and zero provider calls
     - _Requirements: 29.1, 29.2, 29.3, 29.6, 29.7, 29.8, 29.9, 29.10, 29.12, 29.13, 29.15, 29.17_
 
@@ -680,13 +680,13 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - _Requirements: 22.3, 14.1_
 
   - [x] 33.2 Write the `adv-20` fixture-literal test, then implement the cursed-object Code_Checks
-    - First, before any check code: create `packages/core/src/locks/cursed-object-checks.test.ts` with the fixture-literal unit test that feeds the `adv-20` question from `eval/adversarial/fixtures.json` (read at test time, file not edited) to `needs-category-and-outside-quotes` and expects exactly its expected Check_ID; run it and see it fail
-    - Then create `packages/core/src/locks/cursed-object-checks.ts` with `item-count` (exactly 4), `answer-not-an-item`, `missing-category-rule` and `needs-category-and-outside-quotes`, and tighten the `needs-category-and-outside-quotes` heuristic until the `adv-20` test passes with exactly its expected Check_ID (the design flags this check as a conservative heuristic). Each function returns `readonly CheckFailure[]` and never throws
+    - First, before any check code: create `packages/core/src/locks/cursed-object-checks.test.ts` with fixture-literal unit tests for `needs-category-and-outside-quotes` using hand-written cursed-object questions (category quote missing fails, odd item not explicitly outside fails, a passing question passes), plus a test that `adv-20` read from `eval/adversarial/fixtures.json` at test time (file not edited) passes all cursed-object code checks. `adv-20` stays a review fixture: its expectedCatch is `review:odd-item-not-explicitly-outside`, a blind-review reason, so it is rejected only at blind review in task 33.5. Run the tests against a stub and see the hand-written failing cases fail first
+    - Then create `packages/core/src/locks/cursed-object-checks.ts` with `item-count` (exactly 4), `answer-not-an-item`, `missing-category-rule` and `needs-category-and-outside-quotes`, and tighten the `needs-category-and-outside-quotes` heuristic until the hand-written cases pass with no false positives on every real cursed-object dev and sample question (the design flags this check as a conservative heuristic). Each function returns `readonly CheckFailure[]` and never throws
     - Do not touch the registry, `run-checks.ts` or `CHECK_VERSION` in this task: the check is not trusted until task 33.3
     - _Requirements: 22.3, 4.9, 3.2, 3.4, 3.6_
 
   - [x] 33.3 Flip the cursed-object registry entries (only after the `adv-20` test passes)
-    - Precondition: the `adv-20` test from task 33.2 passes. If it does not, stop and do not flip anything
+    - Precondition: the fixture-literal tests from task 33.2 pass. If it does not, stop and do not flip anything
     - Flip the `cursed-object` registry entries to `implemented: true` without changing any Check_ID string, widen `isSupported` and `visibleTextOf` in `run-checks.ts` (the `isSupported` and `later(...)` helpers change in step with this type's schema arm), bump `CHECK_VERSION` once for this group, and update the registry test (a comment marks the flip as deliberate)
     - With the bump, update any result-file or cassette test that compares the version; if the cassette tests compare `checkVersion`, change only that field in cassette files (prompt digests and responses untouched)
     - Confirm the "which one is not" exemption in `negative-question` now applies to a real cursed-object prompt
@@ -735,14 +735,14 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
 
-- [ ] 35. Phase 5: combination-dial
-  - [ ] 35.1 Authoring schema and generation response arm
+- [x] 35. Phase 5: combination-dial
+  - [x] 35.1 Authoring schema and generation response arm
     - Append `CombinationDialAuthoringSchema` to `AuthoringQuestionSchema`: strict object whose answer is `exact`, `range`, or `template` (`difference` or `percent-change` with numeric inputs and a `value`); no expression or code field anywhere, so a `template` answer with an extra `expression` key is rejected by the schema itself
     - Add the matching strict-compatible arm to `GeneratedQuestionSchema` and the numeric-answer branch in `toAuthoringQuestion`
     - Extend `schema.test.ts` with the real `combination-dial` dev and sample fixtures (`hh-q10`, `hh-q11`, `d06-q07`, `d07-q06`) and `generation-schema.test.ts` with the shared re-parse test
     - _Requirements: 22.4, 22.5, 22.6, 14.1_
 
-  - [ ] 35.2 Code_Checks, registry entries and removal of the unsupported branch
+  - [x] 35.2 Code_Checks, registry entries and removal of the unsupported branch
     - The combination-dial group uses exactly the Check_IDs of Requirement 22.4 and does not reuse the rune cipher's `answer-not-in-quote` (a dial answer is a number, checked by `number-not-in-quote` or `range-not-in-quote`); no dial task, test or fixture expects `answer-not-in-quote`
     - Create `packages/core/src/locks/combination-dial-checks.ts` with `missing-units`, `number-not-in-quote`, `range-not-in-quote`, `template-not-allowlisted`, `template-input-not-in-quote`, `template-value-mismatch` (recomputed by code with `computeTemplate`, never the model's value), `model-written-expression` and `dial-range-prompt`; a number matches a resolved quote verbatim after thousands-separator normalisation. Write the fixture-literal unit tests for the dial `code:*` fixtures first
     - Flip the `combination-dial` registry entries to `implemented: true`, bump `CHECK_VERSION` once for this group, and update the registry test so every entry in the registry is `implemented: true`
@@ -750,28 +750,28 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - Because this is the last type, widen `isSupported` to all six, remove the `lock-type-not-supported` branch and the `UnsupportedQuestion` path from `run-checks.ts`, and update `run-checks.test.ts` to assert `runChecks` never returns `lock-type-not-supported` for any of the six types (keep `lock-type-not-supported` registered)
     - _Requirements: 22.4, 22.5, 22.6, 22.7, 3.2, 3.4, 3.6, 3.11, 3.14_
 
-  - [ ] 35.3 Generation prompt section
+  - [x] 35.3 Generation prompt section
     - Add the `combination-dial` entry to `LOCK_RULES`. Generated only when the answer is a number or range stated verbatim in the notes, or one of the two allowlisted templates over numbers stated in the notes; the model never computes or writes an expression, and a range prompt asks for one value
     - Extend `generation-prompt.test.ts` so the rule text is present when the type is allowed and no executable-expression field exists in the generation schema
     - _Requirements: 22.4, 22.5, 22.6, 22.7, 14.5_
 
-  - [ ] 35.4 Blind-review rule
+  - [x] 35.4 Blind-review rule
     - Add `combination-dial` branches to `citedChunks`, `buildBlindReviewUserMessage`, `decideReview` and `hasCompleteLabels`; the reviewer sees the question and cited chunks and gives the number it derives, never the key or the explanation
     - Extend `blind-review.test.ts` with the `combination-dial` `review:*` adversarial fixtures via cassette and one `passed` example
     - _Requirements: 22.4, 15.1, 15.3, 15.4, 15.6_
 
-  - [ ] 35.5 Mapper to the judge payload
+  - [x] 35.5 Mapper to the judge payload
     - In `packages/core/src/locks/combination-dial.ts`, add a pure, additive `mapCombinationDialPayload` export producing the `CombinationDialQuestion` shape (`exact`, `range`, or a template value computed by code) with `hintEffect: null` always; the mapper never produces `tolerance` or `reveal-digit`. Leave the judge unchanged (or use `locks/combination-dial-mapper.ts` if the file would pass ~300 lines)
     - Add the `mapSpec`/`evidenceParagraphs` branches, `CombinationDialPayloadSchema`, and a `narrowHint` branch that rejects any non-`null` hint for this type
     - Unit-test the `hh-q10` and `hh-q11` mappings and feed each payload plus its correct submission to the real judge, expecting `correct`
     - _Requirements: 22.4, 22.5, 22.6, 8.2, 22.8_
 
-  - [ ] 35.6 Add `combination-dial` to the test and eval allow-lists only
+  - [x] 35.6 Add `combination-dial` to the test and eval allow-lists only
     - Add `'combination-dial'` to `PHASE5_TEST_ALLOWED_LOCK_TYPES` and `EVAL_ALLOWED_LOCK_TYPES` (both now all six); use the former in the `combination-dial` cassette test (task 35.8)
     - Do NOT change `DEFAULT_ALLOWED_LOCK_TYPES` or `ALLOWED_LOCK_TYPES`; the assertions from task 29.6 must keep passing
     - _Requirements: 22.4, 14.9_
 
-  - [ ] 35.7 Write property tests for combination-dial
+  - [x] 35.7 Write property tests for combination-dial
     - **Property 23: A stated number or range endpoint not present in any resolved quote is always rejected**
     - **Validates: Requirements 22.4**
     - **Property 24: Only the two allowlisted templates are ever accepted**
@@ -786,16 +786,16 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - **Property 29: Every Dev_Set and Sample_Set question of the four new types passes Code_Checks, and every `code:*` adversarial fixture of those types fails with exactly its expected Check_ID** (combination-dial part; reads only `eval/dev`, `samples` and `eval/adversarial`, never `eval/holdout`)
     - **Validates: Requirements 22.9**
 
-  - [ ] 35.8 Write the cassette test for combination-dial
+  - [x] 35.8 Write the cassette test for combination-dial
     - Add a cassette fixture driving `runRoomPipeline` (cassette provider and mock ledger only) with a `combination-dial` primary, one `exact` and one `template` case; assert generation, Code_Checks, blind review, mapping and `validateManifestForPublish`; assert each entry's `digest` against `promptDigest`
     - _Requirements: 22.4, 22.5, 12.2, 16.3_
 
-  - [ ] 35.9 Extend the duplicate-answer keys for combination-dial
+  - [x] 35.9 Extend the duplicate-answer keys for combination-dial
     - Extend `answerKeysOfAuthoring` and `answerKeysOf` in `packages/core/src/checks/duplicate-answers.ts` so a `combination-dial` question contributes one key: the normalised value plus its unit, with a range written as `low-high unit`
     - Add ONE property test for this type to the duplicate suite (`packages/core/src/checks/duplicate-answers.test.ts` or a sibling file): for any two `combination-dial` questions in different concepts whose normalised value and unit (or `low-high unit` for a range) are equal, `duplicate-answer-in-room` is reported, and for any two that differ it is not
     - _Requirements: 22.4, 4.9_
 
-- [ ] 36. Checkpoint - combination-dial group
+- [x] 36. Checkpoint - combination-dial group
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
   - After the checkpoint passes, give the user the exact paid re-record command (all six types via `--allowed-lock-types`, through the evaluation skill with its spending cap). Do not run it; the user runs it in their own shell

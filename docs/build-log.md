@@ -139,3 +139,19 @@ Haunting polish: Open_Decision 4 findings (report-only audit, `outside-crypt-mot
 - descent/descent.css: `.descent--fade` animation has no reduced-motion rule.
 - descent and start: no screen source reads `useLantern`.
 Runtime note from the selector properties: a Skipped lock queues a ghost without a `ghostSpawned` notice, so that ghost never rises on screen and has no announcement. A later correct return answer still sends `ghostLaidToRest`. Not changed here (runtime is outside this spec).
+
+## Checkpoint 36 (after task 35: combination-dial)
+
+| Check | Pass | Fail | Skipped | Notes |
+| --- | --- | --- | --- | --- |
+| tsc packages/core | clean | 0 | 0 | exit 0 |
+| tsc apps/worker | clean | 0 | 0 | exit 0 |
+| tsc apps/web | clean | 0 | 0 | exit 0 |
+| pnpm lint (ESLint + structure) | pass | 0 | 0 | First run: generation-prompt.test.ts (task 35.1) imported `zod` directly; changed to `import { z } from '../zod'`. Re-run passes |
+| vitest packages/core | 1519 (175 files) | 0 | 0 | |
+| vitest apps/worker | 255 (22 files) | 0 | 0 | |
+| vitest apps/web | 1223 (153 files) | 0 | 0 | share-card-css and style-guard tests pass in this run |
+| worker build | ok | 0 | 0 | dist/index.js 1.9mb |
+| web e2e (--workers=2) | 175 | 0 | 1 | port 4173 had no listener |
+
+Cassette and constants: e2e-pipeline, e2e-cassette-digest, bone-ordering-e2e, bound-threads-e2e, cursed-object-e2e, combination-dial-e2e and human-heart tests pass (7 files, 39 tests) with no digest edits. Only `checkVersion` changed in task 35.2 for human-heart-e2e, bone-ordering-e2e, bound-threads-e2e and cursed-object-e2e (2026-11-27.4 to 2026-11-27.5). combination-dial-e2e.json is new. The `--allowed-lock-types rune-cipher,seance-board` replay digest test in apps/worker cli.test.ts passes (12 tests in that file). CHECK_VERSION is 2026-11-27.5. DEFAULT_ALLOWED_LOCK_TYPES and ALLOWED_LOCK_TYPES are both ['rune-cipher', 'seance-board']; EVAL_ALLOWED_LOCK_TYPES and PHASE5_TEST_ALLOWED_LOCK_TYPES list all six. The registry has all 17 phase-5 Check_IDs implemented (bone-ordering 3, bound-threads 2, cursed-object 4, combination-dial 8).

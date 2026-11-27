@@ -8,14 +8,10 @@ import {
   runRoomChecks,
   type CheckableQuestion,
   type EvidenceContext,
-  type UnsupportedQuestion,
 } from './run-checks';
 import type { CheckFailure, CheckId } from './types';
 
-// Deliberate flip (task 33.3): cursed-object is implemented. Only combination-dial is still unsupported.
-const PHASE_5_LOCK_TYPES = ['combination-dial'] as const;
-
-/** Lock types whose checks exist and that runChecks calls (bone-ordering 29.2, bound-threads 31.2). */
+/** Lock types covered by this file's per-id inputs. cursed-object and combination-dial have their own files (registry-cursed, registry-dial). */
 const IMPLEMENTED_TYPES: readonly string[] = ['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads'];
 
 // ---------------------------------------------------------------------------
@@ -233,7 +229,9 @@ const SYNTHETIC_CASES: Partial<Record<CheckId, () => readonly CheckFailure[]>> =
   'lock-type-not-supported': () =>
     runChecks({
       ...SYNTH,
-      question: { id: 'q', conceptId: 'c', role: 'primary', lockType: 'combination-dial' },
+      // Deliberate flip (task 35.2): every real lock type has checks, so the id is reached only by a
+      // lockType outside the six, built here with a cast.
+      question: { id: 'q', conceptId: 'c', role: 'primary', lockType: 'unknown-lock-type' } as unknown as CheckableQuestion,
     }),
 };
 
@@ -265,27 +263,4 @@ describe('implementation status (Req 3.14)', () => {
     const failures = fixture ? runFixture(fixture.id) : synthetic!();
     expect(failures.map((f) => f.checkId)).toContain(id);
   });
-
-  it('marks every id scoped to a Phase 5 lock type as not implemented', () => {
-    const phase5 = CHECK_REGISTRY.filter(
-      (r) => r.scope !== 'shared' && r.scope.some((t) => (PHASE_5_LOCK_TYPES as readonly string[]).includes(t)),
-    );
-    expect(phase5.length).toBeGreaterThan(0);
-    expect(phase5.filter((r) => r.implemented).map((r) => r.id)).toEqual([]);
-  });
-
-  it.each(PHASE_5_LOCK_TYPES)(
-    'fails a generated %s question with exactly lock-type-not-supported',
-    (lockType) => {
-      const phase5Ids = new Set<string>(
-        CHECK_REGISTRY.filter(
-          (r) => r.scope !== 'shared' && r.scope.some((t) => t === lockType),
-        ).map((r) => r.id),
-      );
-      const question: UnsupportedQuestion = { id: 'q', conceptId: 'c', role: 'primary', lockType };
-      const failures = runChecks({ ...SYNTH, question });
-      expect(failures).toEqual([{ checkId: 'lock-type-not-supported', questionId: 'q' }]);
-      expect(failures.some((f) => phase5Ids.has(f.checkId))).toBe(false);
-    },
-  );
 });

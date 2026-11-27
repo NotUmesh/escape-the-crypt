@@ -4,10 +4,10 @@ import type { CursedObjectAuthoringQuestion } from '../authoring/schema';
 import { chunkDocument } from '../chunker';
 import type { Chunk } from '../types';
 import { CHECK_REGISTRY } from './registry';
-import { runChecks, visibleTextOf, type EvidenceContext, type UnsupportedQuestion } from './run-checks';
+import { runChecks, visibleTextOf, type EvidenceContext } from './run-checks';
 
 // Deliberate flip (task 33.3): the four cursed-object ids are now implemented: true and
-// runChecks calls cursedObjectChecks. Only combination-dial is still reported as unsupported.
+// runChecks calls cursedObjectChecks. (Task 35.2 then flipped combination-dial; see registry-dial.test.ts.)
 
 // packages/core compiles without Node types, so load Node modules dynamically.
 const fsSpecifier: string = 'node:fs';
@@ -48,19 +48,6 @@ describe('cursed-object registry entries', () => {
     for (const r of entries) {
       expect(r).toMatchObject({ scope: ['cursed-object'], severity: 'blocking', implemented: true });
     }
-  });
-
-  it('leave only combination-dial entries unimplemented', () => {
-    const notImplemented = CHECK_REGISTRY.filter((r) => !r.implemented);
-    expect(notImplemented.length).toBeGreaterThan(0);
-    expect(notImplemented.every((r) => r.scope !== 'shared' && r.scope.every((t) => t === 'combination-dial'))).toBe(true);
-  });
-
-  it('still fails a combination-dial question with exactly lock-type-not-supported', () => {
-    const question: UnsupportedQuestion = { id: 'q', conceptId: 'c', role: 'primary', lockType: 'combination-dial' };
-    expect(runChecks({ question, chunks: new Map(), paragraphChunkIds: new Map() })).toEqual([
-      { checkId: 'lock-type-not-supported', questionId: 'q' },
-    ]);
   });
 });
 

@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export const ALLOWED_METHODS = 'GET, POST, DELETE, OPTIONS';
-export const ALLOWED_HEADERS = 'Content-Type, X-Session-Token, Idempotency-Key';
+export const ALLOWED_HEADERS = 'Content-Type, X-Session-Token, Idempotency-Key, X-Judge-Token';
 const PREFLIGHT_MAX_AGE_SECONDS = '600';
 
 /**

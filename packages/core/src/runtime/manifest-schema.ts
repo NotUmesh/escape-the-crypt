@@ -85,10 +85,27 @@ export const CursedObjectPayloadSchema = z
     message: 'oddOneOutId must be one of optionIds',
   });
 
-/** Returns `null` for lock types with no payload schema yet; the manifest rejects them. */
+/**
+ * Mirrors the `exact` and `range` kinds of `CombinationDialQuestion` in `locks/combination-dial.ts`.
+ * The judge's `tolerance` kind is never produced by the mapper, so it is not valid in a manifest.
+ */
+export const CombinationDialPayloadSchema = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('exact'), exactValue: z.number().finite(), unit: z.string().min(1) }),
+  z
+    .strictObject({
+      kind: z.literal('range'),
+      min: z.number().finite(),
+      max: z.number().finite(),
+      unit: z.string().min(1),
+    })
+    .refine((v) => v.min <= v.max, { message: 'min must not exceed max' }),
+]);
+
+/** Returns `null` only for a lock type outside the six; the manifest rejects it. */
 export function payloadSchemaFor(
   lockType: LockType,
 ):
+  | typeof CombinationDialPayloadSchema
   | typeof RuneCipherPayloadSchema
   | typeof SeanceBoardPayloadSchema
   | typeof BoneOrderingPayloadSchema
@@ -106,6 +123,8 @@ export function payloadSchemaFor(
       return BoundThreadsPayloadSchema;
     case 'cursed-object':
       return CursedObjectPayloadSchema;
+    case 'combination-dial':
+      return CombinationDialPayloadSchema;
     default:
       return null;
   }

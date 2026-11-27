@@ -49,6 +49,8 @@ function answerBearingQuotes(q: AuthoringQuestion, context: QuoteContext): strin
   if (q.lockType === 'bound-threads') return q.pairs.map((p) => p.evidence).filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
   // cursed-object: its answer-bearing quote logic arrives with its checks (task 33.3).
   if (q.lockType === 'cursed-object') return q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
+  // combination-dial: answer-bearing quote logic arrives with its checks (task 35.2).
+  if (q.lockType === 'combination-dial') return q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
   const key = q.options.filter((o) => o.id === q.answer || o.text === q.answer);
   return (key.length > 0 ? key : q.options)
     .map((o) => o.evidence as Evidence)

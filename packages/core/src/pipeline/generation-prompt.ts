@@ -56,6 +56,15 @@ const LOCK_RULES: Readonly<Partial<Record<LockType, string>>> = {
     '- Never infer the odd item from outside knowledge. If the notes do not say the item is outside the category, do not use this type.',
     '- Every item is supported by the quoted evidence, each quote with its own chunk ID.',
   ].join('\n'),
+  'combination-dial': [
+    'combination-dial (enter a number): use only when the answer is a number or range stated verbatim in the notes, or one of two templates computed from numbers stated in the notes.',
+    '- answer.kind "exact": value is a number copied from the quote. Never round, convert or restate it.',
+    '- answer.kind "range": min and max are both stated in the quote. The prompt asks the learner for one value, never for a range; the range is only the accepted band for that value.',
+    '- answer.kind "template": template is "difference" (larger minus smaller) or "percent-change" (from the first number to the second), and inputs lists exactly the two numbers the notes state, copied from the quote. Never use any other template.',
+    '- You never compute or write an expression, formula or code. For a template, value is only your claim and code recomputes it.',
+    '- units is required: the unit the notes use for the number (for example "years" or "%"). Never leave it empty.',
+    '- Never use this type for a number that appears only in a calculation you would have to do yourself beyond the two templates, or for a number the notes do not state.',
+  ].join('\n'),
 };
 
 export function buildGenerationSystemPrompt(allowed: readonly LockType[]): string {

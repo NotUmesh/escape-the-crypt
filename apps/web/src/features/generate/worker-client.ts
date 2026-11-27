@@ -1,10 +1,11 @@
 import { JobAckResponseSchema, JobStatusResponseSchema, parseCryptBundle } from '@escape-the-crypt/core';
-import type { CryptBundle, GenerationFailureKind, JobAckResponse, JobStatusResponse, Result, RunLength } from '@escape-the-crypt/core';
+import type { CryptBundle, GenerationFailureKind, JobAckResponse, JobProgress, JobStatusResponse, Result, RunLength } from '@escape-the-crypt/core';
 
 /** Worker job states the client hands back. No response body ever travels in an error. */
 export type JobState =
   | { readonly kind: 'queued' }
-  | { readonly kind: 'running' }
+  /** `progress`: stage and real counts, when the worker reports them (contract version 2). */
+  | { readonly kind: 'running'; readonly progress?: JobProgress }
   | { readonly kind: 'completed'; readonly bundle: CryptBundle }
   | { readonly kind: 'failed'; readonly failure: GenerationFailureKind }
   | { readonly kind: 'cancelled' }
@@ -69,8 +70,9 @@ function fail<T>(error: WorkerError): WorkerResult<T> {
  */
 function toJobState(body: JobStatusResponse): WorkerResult<JobState> {
   switch (body.status) {
-    case 'queued':
     case 'running':
+      return { ok: true, value: body.progress === undefined ? { kind: 'running' } : { kind: 'running', progress: body.progress } };
+    case 'queued':
     case 'expired':
     case 'cancelled':
       return { ok: true, value: { kind: body.status } };
@@ -151,7 +153,8 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
     },
     getJob(jobId) {
       return request(
-        `/jobs/${encodeURIComponent(jobId)}`,
+        // ?progress=1 asks for the stage and counts; a worker that predates them ignores it.
+        `/jobs/${encodeURIComponent(jobId)}?progress=1`,
         { method: 'GET', headers: { 'X-Session-Token': sessionToken } },
         (json) => {
           const parsed = JobStatusResponseSchema.safeParse(json);

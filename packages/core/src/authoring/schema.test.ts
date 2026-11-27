@@ -125,6 +125,34 @@ describe('parseAuthoringQuestion', () => {
     expect(path({ ...base, hint: { kind: 'x' } })).toBe('hint');
   });
 
+  it('parses every real combination-dial dev and sample question, and rejects expressions and bad shapes', async () => {
+    const dials = (await realQuestions()).filter(({ q }) => q.lockType === 'combination-dial');
+    const ids = dials.map(({ q }) => q.id);
+    for (const id of ['hh-q10', 'hh-q11', 'd06-q07', 'd07-q06']) expect(ids).toContain(id);
+    for (const { file, q } of dials) {
+      expect(parseAuthoringQuestion(q).ok, `${file} ${String(q.id)}`).toBe(true);
+    }
+    const byId = (id: string) => dials.find(({ q }) => q.id === id)!.q as { answer: Record<string, unknown> };
+    const path = (v: unknown) => {
+      const r = parseAuthoringQuestion(v);
+      return r.ok ? null : r.error.path;
+    };
+    const exact = byId('hh-q10');
+    const range = byId('hh-q11');
+    const template = byId('d06-q07');
+    expect(exact.answer.kind).toBe('exact');
+    expect(range.answer.kind).toBe('range');
+    expect(template.answer.kind).toBe('template');
+    expect(path({ ...template, answer: { ...template.answer, expression: '100-80' } })).toBe('answer.expression');
+    expect(path({ ...template, expression: '100-80' })).toBe('expression');
+    expect(path({ ...template, answer: { ...template.answer, template: 'elasticity' } })).toBe('answer.template');
+    expect(path({ ...template, answer: { ...template.answer, inputs: [100] } })).toBe('answer.inputs');
+    expect(path({ ...exact, answer: { kind: 'exact', value: '4' } })).toBe('answer.value');
+    expect(path({ ...range, answer: { kind: 'range', min: 60 } })).toBe('answer.max');
+    expect(path({ ...exact, evidence: [] })).toBe('evidence');
+    expect(path({ ...exact, hint: { kind: 'x' } })).toBe('hint');
+  });
+
   it('parses every real rune cipher and séance board question (again, by directory)', async () => {
     const relevant = (await realQuestions()).filter(({ q }) => q.lockType === 'rune-cipher' || q.lockType === 'seance-board');
     for (const { file, q } of relevant) {

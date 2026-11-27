@@ -11,12 +11,13 @@ import {
   generationOutcome,
   newOutcomeLog,
   recordPlacements,
-  recordVerdict,
   snapshotOutcomes,
 } from './candidate-outcomes';
 import { runCodeCheckStage } from './code-check-stage';
 import { conceptsForTarget } from './concept-spread';
 import { assembleForTarget } from './crypt-assembly';
+import { progressReporter, type PipelineProgress } from './pipeline-progress';
+import { tallyReviews } from './review-tally';
 import { extractConcepts, type ExtractedConcept } from './concept-extraction';
 import { DEFAULT_CONCURRENCY, runWithConcurrency } from './concurrency';
 import {
@@ -70,6 +71,8 @@ export interface PipelineOptions extends GenerationOptions {
   readonly assemblyPolicy?: AssemblyPolicy;
   /** Crypt size (`cryptTargetFor`). Absent: every concept, one room. Present: capped spread, up to `rooms` rooms. */
   readonly target?: CryptTarget;
+  /** Stage and counts as the run goes. Advisory: a throwing callback is ignored. */
+  readonly onProgress?: (progress: PipelineProgress) => void;
 }
 
 export interface PipelineResult {
@@ -122,6 +125,7 @@ export async function runRoomPipeline(
   const recorder = recordCalls(options.provider, now, options.costOf);
   const counts = newCounts();
   const outcomes = newOutcomeLog();
+  const progress = progressReporter(options.onProgress);
   const timings = Object.fromEntries(TIMED_STAGES.map((s) => [s, 0])) as Record<TimedStage, number>;
   const metadata = (): PipelineRunMetadata =>
     buildRunMetadata({
@@ -163,6 +167,7 @@ export async function runRoomPipeline(
   const doc = await timed('prepare', () => prepareDocument(notesText));
 
   if (aborted()) return cancelled();
+  progress.stage('extracting');
   const extracted = await timed('concept-extraction', () =>
     extractConcepts(recorder.provider, options.ledger, doc, stageOptions),
   );
@@ -173,6 +178,7 @@ export async function runRoomPipeline(
   counts.conceptsNotSelected = extracted.value.length - concepts.length;
 
   // Generation: one task per concept, in extraction order.
+  const generatedOne = progress.counted('generating', concepts.length);
   const generated = await timed('generation', () =>
     runWithConcurrency(
       concepts.map((concept) => async (): Promise<Slot<Result<GeneratedConceptQuestions | null, PipelineStageError>>> => {
@@ -186,6 +192,7 @@ export async function runRoomPipeline(
         ) {
           stopOn(result.error);
         }
+        generatedOne();
         return { skipped: false, value: result };
       }),
       limit,
@@ -225,6 +232,7 @@ export async function runRoomPipeline(
   );
 
   // Blind review: one task per surviving question, primary and alternate separately.
+  const reviewedOne = progress.counted('reviewing', survivors.length);
   const reviewed = await timed('review', () =>
     runWithConcurrency(
       survivors.map((c) => async (): Promise<Slot<ReviewVerdict>> => {
@@ -237,36 +245,14 @@ export async function runRoomPipeline(
             stopOn({ kind: 'schema-not-representable', stage: 'review' });
           }
         }
+        reviewedOne();
         return { skipped: false, value: verdict };
       }),
       limit,
     ),
   );
 
-  const accepted: (AuthoringQuestion | null)[][] = concepts.map(() => [null, null]);
-  survivors.forEach((c, i) => {
-    const outcome = reviewed[i];
-    if (outcome === undefined || (outcome.ok && outcome.value.skipped)) return;
-    // A task that rejected despite the never-throws contract sets only its question aside.
-    const verdict: ReviewVerdict | null = outcome.ok && !outcome.value.skipped ? outcome.value.value : null;
-    recordVerdict(outcomes, c, verdict);
-    if (verdict?.verdict === 'passed') {
-      counts.accepted += 1;
-      const row = accepted[c.conceptIndex];
-      if (row !== undefined) row[c.role === 'primary' ? 0 : 1] = c.question;
-      return;
-    }
-    // A budget/defect stop is not a judgement on the question.
-    if (verdict?.verdict === 'rejected') {
-      const kind = verdict.reason.kind;
-      if (kind === 'budget-exhausted' || kind === 'schema-not-representable' || kind === 'cancelled') {
-        return;
-      }
-      if (kind === 'schema-rejected') counts.schemaRejected += 1;
-    }
-    counts.reviewRejections += 1;
-    counts.discarded += 1;
-  });
+  const accepted = tallyReviews(survivors, reviewed, concepts.length, counts, outcomes);
   // One check before assembly: an abort after the last call still ends as cancelled.
   if (aborted()) return cancelled();
   if (halt.error !== null) return fail(halt.error);
@@ -277,6 +263,7 @@ export async function runRoomPipeline(
     primary: accepted[i]?.[0] ?? null,
     alternate: accepted[i]?.[1] ?? null,
   }));
+  progress.stage('assembling');
   const assembled = await timed('assembly', () =>
     assembleForTarget(
       { manifestId: manifestIdOf(doc), document: doc, concepts: assemblyConcepts, ...(options.assemblyPolicy && { policy: options.assemblyPolicy }) },

@@ -5,6 +5,7 @@ import {
   type PipelineJobError,
   type PipelineJobFailure,
   type PipelineOptions,
+  type PipelineProgress,
   type PipelineResult,
   type Provider,
 } from '@escape-the-crypt/core';
@@ -33,6 +34,8 @@ export interface JobRunnerDeps {
   readonly runPipeline?: RunPipeline;
   /** One `AbortController` per running job, keyed by job ID. Owned by the server. */
   readonly controllers?: Map<string, AbortController>;
+  /** Latest pipeline stage and counts per running job, keyed by job ID. Owned by the server. */
+  readonly progress?: Map<string, PipelineProgress>;
 }
 
 /** Maps a pipeline error to the learner-visible failure kind. */
@@ -69,6 +72,7 @@ export async function runJob(deps: JobRunnerDeps, job: Job): Promise<void> {
     const result = await run(job.notesText, {
       ...deps.pipelineSettings,
       target: cryptTargetFor(job.runLength),
+      onProgress: (p) => deps.progress?.set(job.id, p),
       provider: deps.provider,
       providerName: deps.providerName,
       ledger: deps.ledger,
@@ -117,5 +121,6 @@ export async function runJob(deps: JobRunnerDeps, job: Job): Promise<void> {
     }
   } finally {
     deps.controllers?.delete(job.id);
+    deps.progress?.delete(job.id);
   }
 }

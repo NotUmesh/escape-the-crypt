@@ -66,15 +66,16 @@ describe('429', () => {
     gate.release();
   });
 
+  // Each session comes from its own address, so the per-IP limit is not what refuses it.
   it('answers capacity once the store is full, from a new session', async () => {
     const gate = deferred();
     const pending = gatedPipeline(gate.promise);
     const h = await startHarness({ runPipeline: pending });
     for (let i = 0; i < MAX_LIVE_JOBS; i += 1) {
-      const res = await h.post(heartBody, { 'X-Session-Token': `${TOKEN}-${i}` });
+      const res = await h.post(heartBody, { 'X-Session-Token': `${TOKEN}-${i}`, 'X-Forwarded-For': `10.0.0.${i}` });
       expect(res.status).toBe(202);
     }
-    const over = await h.post(heartBody, { 'X-Session-Token': `${TOKEN}-over`, 'Idempotency-Key': KEY });
+    const over = await h.post(heartBody, { 'X-Session-Token': `${TOKEN}-over`, 'Idempotency-Key': KEY, 'X-Forwarded-For': '10.0.1.1' });
     expect(over.status).toBe(429);
     expect(over.json).toMatchObject({ error: 'capacity' });
     expect(over.headers.get('cache-control')).toBe(NO_STORE);

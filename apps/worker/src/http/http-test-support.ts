@@ -10,6 +10,7 @@ import {
   type CountingProvider,
   type MockLedger,
   type PipelineJobError,
+  type PipelineProgress,
   type PipelineRunMetadata,
   type Provider,
 } from '@escape-the-crypt/core';
@@ -17,6 +18,8 @@ import { createJobStore, type JobStore } from '../jobs/job-store';
 import type { PipelineSettings, RunPipeline } from './job-runner';
 import type { LogFields, Logger } from './respond';
 import { createServer } from './server';
+import type { JudgeAccess } from './judge-access';
+import type { RateLimitConfig } from './rate-limit';
 
 export const WEB_ORIGIN = 'https://crypt.example.test';
 export const LOOPBACK = '127.0.0.1';
@@ -76,6 +79,14 @@ export const gatedPipeline =
     return failingPipeline({ kind: 'empty-room' })(notes, options);
   };
 
+/** Reports `steps` through the pipeline's own progress callback, waits for `gate`, then fails cheaply. */
+export function reportingPipeline(steps: readonly PipelineProgress[], gate: Deferred): RunPipeline {
+  return async (notes, options) => {
+    for (const step of steps) options.onProgress?.(step);
+    await gate.promise;
+    return failingPipeline({ kind: 'empty-room' })(notes, options);
+  };
+}
 export interface Deferred {
   readonly promise: Promise<void>;
   readonly release: () => void;
@@ -121,6 +132,9 @@ export interface HarnessOptions {
   readonly pipelineSettings?: PipelineSettings;
   /** Injected so a test can inspect it. Defaults to a fresh map owned by the harness. */
   readonly controllers?: Map<string, AbortController>;
+  /** Judge access, as `start` builds it from `JUDGE_ACCESS_TOKEN`. Default: off. */
+  readonly judge?: JudgeAccess | null;
+  readonly rateLimit?: RateLimitConfig;
 }
 
 const open = new Set<Harness>();
@@ -157,6 +171,8 @@ export async function startHarness(options: HarnessOptions = {}): Promise<Harnes
     webOrigin: WEB_ORIGIN,
     logger,
     ...(options.maxBodyBytes === undefined ? {} : { limits: { maxBodyBytes: options.maxBodyBytes } }),
+    ...(options.judge === undefined ? {} : { judge: options.judge }),
+    ...(options.rateLimit === undefined ? {} : { rateLimit: options.rateLimit }),
   });
   await new Promise<void>((resolve) => server.listen(0, LOOPBACK, resolve));
   const base = `http://${LOOPBACK}:${(server.address() as AddressInfo).port}`;

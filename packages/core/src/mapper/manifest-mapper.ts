@@ -10,6 +10,7 @@ import { runChecks } from '../checks/run-checks';
 import type { CheckId } from '../checks/types';
 import { mapBoneOrderingPayload } from '../locks/bone-ordering';
 import { mapBoundThreadsPayload } from '../locks/bound-threads';
+import { mapCombinationDialPayload } from '../locks/combination-dial';
 import { mapCursedObjectPayload } from '../locks/cursed-object';
 import type { QuestionSpec } from '../runtime/manifest-types';
 import type { Chunk, HintEffectSpec, Result } from '../types';
@@ -77,6 +78,7 @@ function evidenceParagraphs(question: AuthoringQuestion): readonly number[] {
     case 'rune-cipher':
     case 'bone-ordering':
     case 'cursed-object':
+    case 'combination-dial':
       return question.evidence.map((e) => e.paragraph);
   }
 }
@@ -252,6 +254,21 @@ function mapSpec(
       value: {
         questionId,
         lockType: 'cursed-object',
+        payload: mapped.payload,
+        evidenceRefs,
+        hintEffect: mapped.hintEffect,
+      },
+    };
+  }
+  if (question.lockType === 'combination-dial') {
+    // The value is computed in code for templates; the hint is always null (no authored hint field).
+    const mapped = mapCombinationDialPayload(question.answer, question.units);
+    if (mapped === null) return { ok: false, error: { kind: 'hint-mismatch', questionId } };
+    return {
+      ok: true,
+      value: {
+        questionId,
+        lockType: 'combination-dial',
         payload: mapped.payload,
         evidenceRefs,
         hintEffect: mapped.hintEffect,

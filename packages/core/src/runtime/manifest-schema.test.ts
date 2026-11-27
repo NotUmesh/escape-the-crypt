@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { parseManifest } from './manifest-schema';
+import type { LockType } from '../types';
+import { parseManifest, payloadSchemaFor } from './manifest-schema';
 
 const rune = (id: string, hintEffect: unknown = null) => ({
   questionId: id,
@@ -36,11 +37,12 @@ describe('parseManifest', () => {
   });
 
   it('rejects lock types without a payload schema', () => {
-    // bone-ordering gained its payload schema in task 29.5; bound-threads in 31.5; cursed-object in 33.6; combination-dial is still unsupported.
-    const q = { ...rune('q1'), lockType: 'combination-dial' };
-    const r = parseManifest(manifest(q, null, 'combination-dial'));
+    // All six lock types have a payload schema (combination-dial in task 35.5); only an unknown type has none.
+    const unknown = 'not-a-lock-type';
+    expect(payloadSchemaFor(unknown as LockType)).toBeNull();
+    const q = { ...rune('q1'), lockType: unknown };
+    const r = parseManifest(manifest(q, null, unknown));
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error.issues[0]?.message).toContain('lock-type-not-supported');
   });
 
   it('rejects wrong hint kinds and bad remove-option targets', () => {

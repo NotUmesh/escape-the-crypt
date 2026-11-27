@@ -1,7 +1,7 @@
 import type { CheckRegistration } from './types';
 
 /** Change whenever the set or behaviour of Code_Checks changes. */
-export const CHECK_VERSION = '2026-11-27.4';
+export const CHECK_VERSION = '2026-11-27.5';
 
 const shared = (id: CheckRegistration['id']): CheckRegistration => ({
   id,
@@ -45,15 +45,11 @@ const cursed = (id: CheckRegistration['id']): CheckRegistration => ({
   implemented: true,
 });
 
-/** Not yet implemented (combination-dial only). Implemented types have their own helpers (`bone`, `threads`, `cursed`). */
-const later = (
-  id: CheckRegistration['id'],
-  lockType: 'combination-dial',
-): CheckRegistration => ({
+const dial = (id: CheckRegistration['id']): CheckRegistration => ({
   id,
-  scope: [lockType],
+  scope: ['combination-dial'],
   severity: 'blocking',
-  implemented: false,
+  implemented: true,
 });
 
 export const CHECK_REGISTRY: readonly CheckRegistration[] = [
@@ -81,8 +77,7 @@ export const CHECK_REGISTRY: readonly CheckRegistration[] = [
   shared('max-one-alternate'),
   { id: 'alternate-off-concept', scope: 'shared', severity: 'advisory', implemented: true },
   shared('lock-type-not-supported'),
-  // Phase 5 ids: registered now so the registry equals the Req 3.5 list.
-  // Until their checks exist, questions of these types fail with lock-type-not-supported.
+  // Phase 5 ids: registered so the registry equals the Req 3.5 list.
   // Deliberate flip (task 29.2): bone-ordering checks now exist and runChecks calls them.
   bone('step-count'),
   bone('duplicate-steps'),
@@ -95,12 +90,14 @@ export const CHECK_REGISTRY: readonly CheckRegistration[] = [
   cursed('answer-not-an-item'),
   cursed('missing-category-rule'),
   cursed('needs-category-and-outside-quotes'),
-  later('missing-units', 'combination-dial'),
-  later('number-not-in-quote', 'combination-dial'),
-  later('range-not-in-quote', 'combination-dial'),
-  later('template-not-allowlisted', 'combination-dial'),
-  later('template-input-not-in-quote', 'combination-dial'),
-  later('template-value-mismatch', 'combination-dial'),
-  later('model-written-expression', 'combination-dial'),
-  later('dial-range-prompt', 'combination-dial'),
+  // Deliberate flip (task 35.2): combination-dial checks now exist and runChecks calls them.
+  // No registry entry is left unimplemented; lock-type-not-supported stays registered (Req 3.5).
+  dial('missing-units'),
+  dial('number-not-in-quote'),
+  dial('range-not-in-quote'),
+  dial('template-not-allowlisted'),
+  dial('template-input-not-in-quote'),
+  dial('template-value-mismatch'),
+  dial('model-written-expression'),
+  dial('dial-range-prompt'),
 ];

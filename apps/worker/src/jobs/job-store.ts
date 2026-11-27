@@ -59,6 +59,8 @@ export interface CreateJobInput {
   readonly requestDigest: string;
   readonly runLength: RunLength;
   readonly notesText: string;
+  /** Judge access: skips the per-session and public capacity limits. The daily budget still applies. */
+  readonly judge?: boolean;
 }
 
 export type CreateJobResult =
@@ -174,8 +176,8 @@ export function createJobStore(config: JobStoreConfig): JobStore {
       for (const j of jobs.values()) {
         if (j.sessionHash === sessionHash && j.terminalAtMs === null) activeForSession += 1;
       }
-      if (activeForSession >= MAX_ACTIVE_JOBS_PER_SESSION) return { kind: 'session-busy' };
-      if (jobs.size >= MAX_LIVE_JOBS) return { kind: 'capacity' };
+      if (input.judge !== true && activeForSession >= MAX_ACTIVE_JOBS_PER_SESSION) return { kind: 'session-busy' };
+      if (input.judge !== true && jobs.size >= MAX_LIVE_JOBS) return { kind: 'capacity' };
 
       const job: Job = {
         id: newId(),

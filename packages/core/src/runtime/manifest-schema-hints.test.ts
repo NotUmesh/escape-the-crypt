@@ -100,10 +100,12 @@ describe('parseManifest: fixture manifests and shapes', () => {
   });
 
   it('rejects lock types that have no payload schema, naming the type', () => {
-    const m = buildManifest({ rooms: 1, conceptsPerRoom: 1, lockTypes: ['combination-dial', 'rune-cipher'], finalDoorQuestions: 0 });
-    const r = parseManifest(m);
-    expect(r.ok).toBe(false);
-    expect(issues(m)).toContain('lock-type-not-supported');
+    // All six types now have a schema (combination-dial in task 35.5); an unknown type is still rejected.
+    const m = buildManifest({ rooms: 1, conceptsPerRoom: 1, lockTypes: ['rune-cipher', 'seance-board'], finalDoorQuestions: 0 });
+    const unknown = 'not-a-lock-type' as QuestionSpec['lockType'];
+    const raw = withFirstSlot(m, (p) => ({ primary: { ...p, lockType: unknown }, stationType: unknown }));
+    expect(parseManifest(raw).ok).toBe(false);
+    expect(issues(raw)).toContain('lockType');
   });
 });
 

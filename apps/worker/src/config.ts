@@ -17,6 +17,7 @@ export const EVAL_ALLOWED_LOCK_TYPES: readonly LockType[] = [
   'bone-ordering',
   'bound-threads',
   'cursed-object',
+  'combination-dial',
 ];
 
 /** Sweep cadence: the design requires at least once a minute. */

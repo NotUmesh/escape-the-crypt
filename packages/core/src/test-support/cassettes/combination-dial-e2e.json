@@ -1,0 +1,195 @@
+{
+  "checkVersion": "2026-11-27.5",
+  "entries": [
+    {
+      "digest": "578fcb38ab1e1b194234f9b5938d2aa1b80dce6c0afcccbb72fcc786782d163b",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Number of heart chambers",
+              "chunkIds": [
+                "chk_62a99254e222_2"
+              ],
+              "quotes": [
+                "The heart has four chambers."
+              ]
+            },
+            {
+              "label": "Resting heart rate",
+              "chunkIds": [
+                "chk_62a99254e222_8"
+              ],
+              "quotes": [
+                "a normal heart rate is between 60 and 100 beats per minute"
+              ]
+            },
+            {
+              "label": "Heart valves",
+              "chunkIds": [
+                "chk_62a99254e222_5"
+              ],
+              "quotes": [
+                "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "a9c0a160c7055a937cc88232fc1d0bd03be26bd07007d600595ee03f0518a829",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state the number.",
+          "primary": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many chambers does the human heart have?",
+            "answer": {
+              "kind": "exact",
+              "value": 4
+            },
+            "units": "chambers",
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_2",
+                "quote": "The heart has four chambers."
+              }
+            ],
+            "explanation": "Your notes say four."
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "fd1d7595f96867446030f8da691572e7f57db59c8062e896a221330ff24e7eef",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state both bounds.",
+          "primary": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many beats per minute higher is the top of a normal resting heart rate than the bottom?",
+            "answer": {
+              "kind": "template",
+              "template": "difference",
+              "inputs": [
+                100,
+                60
+              ],
+              "value": 40
+            },
+            "units": "beats per minute",
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_8",
+                "quote": "a normal heart rate is between 60 and 100 beats per minute"
+              }
+            ],
+            "explanation": "Your notes give 60 and 100, and 100 minus 60 is 40."
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "5063e859fd7bff5a3d7b716d47e583d16a3b1394f3f0c5b2c17f4ec7ca1d4b91",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state this plainly.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, the valves between the atria and ventricles are called the ______ valves.",
+            "answer": "atrioventricular",
+            "aliases": [
+              "AV"
+            ],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_5",
+                "quote": "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+              }
+            ],
+            "explanation": "Your notes call them the atrioventricular (AV) valves.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "a",
+              "length": 16
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "75aa33acd2a0a658fce209cf8c8d2b5094600ace8c24a14e36a73bd1fee6ca08",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "4",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "3c4b91331ce108e4887913e2f29bab1d69472a30425fc3033ac30b565fbd65af",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "40",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "92e70534ea94b8767382fb907e6625fb66575983ad972584b5456fea7f48c53c",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "atrioventricular",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    }
+  ]
+}

@@ -20,6 +20,11 @@ export function narrowHint(
   const fail = (message: string): void =>
     ctx.addIssue({ code: 'custom', path: ['hintEffect'], message });
 
+  if (lockType === 'combination-dial') {
+    // The dial has no reachable hint: the mapper always produces null.
+    fail(`hint-kind-not-allowed: combination-dial accepts no hint, got ${hintEffect.kind}`);
+    return;
+  }
   if (lockType === 'rune-cipher') {
     if (hintEffect.kind !== 'reveal-first-letter') {
       fail(`hint-kind-not-allowed: rune-cipher accepts only reveal-first-letter, got ${hintEffect.kind}`);

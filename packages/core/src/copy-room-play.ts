@@ -236,3 +236,21 @@ export const GENERATION_COPY = {
     },
   } satisfies Readonly<Record<GenerationFailureKind, ErrorCopy>>,
 } as const;
+
+/** Why the worker would not start a crypt just now (HTTP 429). Nothing was spent in any of them. */
+export const REQUEST_LIMIT_KINDS = ['rate-limited', 'session-busy', 'capacity'] as const;
+export type RequestLimitKind = (typeof REQUEST_LIMIT_KINDS)[number];
+export const REQUEST_LIMIT_COPY = {
+  'rate-limited': {
+    what: 'Several crypts were started from this connection in a short time.',
+    next: 'Please wait a few minutes, then try again.',
+  },
+  'session-busy': {
+    what: 'A crypt is already being built for you.',
+    next: 'Wait for it to finish, then start another.',
+  },
+  capacity: {
+    what: 'The crypt is busy right now.',
+    next: 'Please try again in a few minutes.',
+  },
+} as const satisfies Readonly<Record<RequestLimitKind, ErrorCopy>>;

@@ -48,7 +48,7 @@ describe('worker contract: the real completed response plays in the web app', ()
     expect(started).toEqual({ ok: true, value: { jobId: jobId(), status: 'queued' } });
     if (!started.ok) return;
     const polled = await client.getJob(started.value.jobId);
-    expect(seen).toEqual(['POST /jobs', `GET /jobs/${jobId()}`]);
+    expect(seen).toEqual(['POST /jobs', `GET /jobs/${jobId()}?progress=1`]);
     expect(polled.ok).toBe(true);
     if (!polled.ok || polled.value.kind !== 'completed') throw new Error('the golden response must read as completed');
 
@@ -81,5 +81,28 @@ describe('worker contract: the real completed response plays in the web app', ()
     const locks = mount.container.querySelectorAll<HTMLButtonElement>('.room-screen__lock-button');
     expect(locks.length).toBe(crypt.value.manifest.rooms[0]?.lockSlots.length);
     for (const lock of locks) expect(lock.disabled).toBe(false);
+  });
+});
+
+describe('worker contract version 2: a running job reports its stage', () => {
+  const recorded = golden as unknown as {
+    contractVersion?: number;
+    running?: { request: string; response: unknown };
+  };
+
+  it('reads the recorded running body with its stage and counts', async () => {
+    expect(recorded.contractVersion).toBe(2);
+    const running = recorded.running?.response;
+    expect(JobStatusResponseSchema.safeParse(running).success).toBe(true);
+    const fetchRunning = (() => Promise.resolve(jsonResponse(200, running))) as unknown as typeof fetch;
+    const client = createWorkerClient({ origin: ORIGIN, fetchImpl: fetchRunning, sessionToken: 'A'.repeat(32), timeoutMs: 1000 });
+    const polled = await client.getJob(jobId());
+    expect(polled).toEqual({ ok: true, value: { kind: 'running', progress: { stage: 'generating', done: 2, total: 6 } } });
+  });
+
+  it('still reads a running body without progress, from a worker that predates it', async () => {
+    const fetchOld = (() => Promise.resolve(jsonResponse(200, { jobId: jobId(), status: 'running' }))) as unknown as typeof fetch;
+    const client = createWorkerClient({ origin: ORIGIN, fetchImpl: fetchOld, sessionToken: 'A'.repeat(32), timeoutMs: 1000 });
+    expect(await client.getJob(jobId())).toEqual({ ok: true, value: { kind: 'running' } });
   });
 });

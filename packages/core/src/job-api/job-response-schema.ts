@@ -1,6 +1,7 @@
-﻿import { z } from '../zod';
+import { z } from '../zod';
 import { CryptContentEntrySchema, CryptContentSchema } from '../mapper/crypt-content';
 import { CryptManifestSchema, QuestionSpecSchema } from '../runtime/manifest-schema';
+import { PIPELINE_STAGES } from '../pipeline/pipeline-progress';
 
 /**
  * The worker's HTTP bodies, as one contract for the worker (which builds them) and the web
@@ -49,10 +50,25 @@ export const JobBundleSchema = z.strictObject({
 /** `message` is the worker's plain-language copy. The web shows its own copy instead. */
 export const JobFailureSchema = z.strictObject({ kind: JobFailureKindSchema, message: z.string() });
 
+/**
+ * Where a running job is (contract version 2). `done` and `total` appear together, only for the
+ * counted stages (generating, reviewing), with `done <= total`. Optional: a worker that predates it
+ * never sends it, and the worker sends it only to clients that ask with `?progress=1`, because a
+ * client built before it parses `running` strictly and would refuse the extra field.
+ */
+export const JobProgressSchema = z
+  .strictObject({
+    stage: z.enum(PIPELINE_STAGES),
+    done: z.number().int().nonnegative().optional(),
+    total: z.number().int().nonnegative().optional(),
+  })
+  .refine((p) => (p.done === undefined) === (p.total === undefined), { message: 'done and total come together' })
+  .refine((p) => p.done === undefined || p.total === undefined || p.done <= p.total, { message: 'done exceeds total' });
+
 /** `GET /jobs/:id`. */
 export const JobStatusResponseSchema = z.discriminatedUnion('status', [
   z.strictObject({ jobId: JobIdSchema, status: z.literal('queued') }),
-  z.strictObject({ jobId: JobIdSchema, status: z.literal('running') }),
+  z.strictObject({ jobId: JobIdSchema, status: z.literal('running'), progress: JobProgressSchema.optional() }),
   z.strictObject({ jobId: JobIdSchema, status: z.literal('cancelling') }),
   z.strictObject({ jobId: JobIdSchema, status: z.literal('completed'), bundle: JobBundleSchema }),
   z.strictObject({ jobId: JobIdSchema, status: z.literal('failed'), failure: JobFailureSchema }),
@@ -78,5 +94,6 @@ type DeepReadonly<T> = T extends readonly (infer U)[]
 export type JobBundle = DeepReadonly<z.infer<typeof JobBundleSchema>>;
 export type JobFailureBody = DeepReadonly<z.infer<typeof JobFailureSchema>>;
 export type JobStatusResponse = DeepReadonly<z.infer<typeof JobStatusResponseSchema>>;
+export type JobProgress = DeepReadonly<z.infer<typeof JobProgressSchema>>;
 export type JobAckResponse = DeepReadonly<z.infer<typeof JobAckResponseSchema>>;
 export type JobErrorResponse = DeepReadonly<z.infer<typeof JobErrorResponseSchema>>;

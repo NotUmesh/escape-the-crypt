@@ -111,13 +111,44 @@ const CursedObjectAuthoringSchema = z.strictObject({
   note: z.string().optional(),
 });
 
-// P5 appends the remaining lock type (combination dial) here.
+// The dial answer is data only: a stated number, a stated range, or one of two allowlisted
+// templates over stated inputs. Every object is strict and there is no expression or code field,
+// so a `template` answer carrying an `expression` key is rejected by the schema itself.
+export const DIAL_TEMPLATES = ['difference', 'percent-change'] as const;
+
+const DialExactAnswerSchema = z.strictObject({ kind: z.literal('exact'), value: z.number() });
+const DialRangeAnswerSchema = z.strictObject({ kind: z.literal('range'), min: z.number(), max: z.number() });
+const DialTemplateAnswerSchema = z.strictObject({
+  kind: z.literal('template'),
+  template: z.enum(DIAL_TEMPLATES),
+  // Exactly two numbers stated in the notes (checked against the quote by template-input-not-in-quote).
+  inputs: z.array(z.number()).length(2),
+  // The model's value is only a claim: template-value-mismatch recomputes it in code.
+  value: z.number(),
+});
+
+// No hint field: the dial's hintEffect is always null.
+const CombinationDialAuthoringSchema = z.strictObject({
+  id: z.string().min(1),
+  conceptId: z.string().min(1),
+  role: z.enum(['primary', 'alternate']),
+  lockType: z.literal('combination-dial'),
+  prompt: z.string().min(1),
+  answer: z.discriminatedUnion('kind', [DialExactAnswerSchema, DialRangeAnswerSchema, DialTemplateAnswerSchema]),
+  // Presence is the missing-units Code_Check's concern, not the schema's.
+  units: z.string(),
+  evidence: z.array(EvidenceRefSchema).min(1),
+  explanation: z.string(),
+  note: z.string().optional(),
+});
+
 export const AuthoringQuestionSchema = z.discriminatedUnion('lockType', [
   RuneCipherAuthoringSchema,
   SeanceBoardAuthoringSchema,
   BoneOrderingAuthoringSchema,
   BoundThreadsAuthoringSchema,
   CursedObjectAuthoringSchema,
+  CombinationDialAuthoringSchema,
 ]);
 
 export type AuthoringQuestion = z.infer<typeof AuthoringQuestionSchema>;
@@ -126,3 +157,4 @@ export type SeanceBoardAuthoringQuestion = z.infer<typeof SeanceBoardAuthoringSc
 export type BoneOrderingAuthoringQuestion = z.infer<typeof BoneOrderingAuthoringSchema>;
 export type BoundThreadsAuthoringQuestion = z.infer<typeof BoundThreadsAuthoringSchema>;
 export type CursedObjectAuthoringQuestion = z.infer<typeof CursedObjectAuthoringSchema>;
+export type CombinationDialAuthoringQuestion = z.infer<typeof CombinationDialAuthoringSchema>;

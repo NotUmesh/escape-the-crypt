@@ -1,6 +1,7 @@
 import type { AuthoringQuestion } from '../authoring/schema';
 import { boneOrderingChecks } from '../locks/bone-ordering-checks';
 import { boundThreadsChecks } from '../locks/bound-threads-checks';
+import { combinationDialChecks } from '../locks/combination-dial-checks';
 import { cursedObjectChecks } from '../locks/cursed-object-checks';
 import { runeCipherChecks } from '../locks/rune-cipher-checks';
 import { checkSeanceBoard } from '../locks/seance-board-checks';
@@ -11,19 +12,8 @@ import { checkBannedPhrase, checkNegativeQuestion, checkQuote } from './evidence
 import { leakScanRoom, type LeakScanRoomEntry } from './leak-scan';
 import type { CheckFailure } from './types';
 
-/**
- * A generated question of a lock type whose checks do not exist yet (combination dial).
- * Only identity fields are read; the rest of the payload is ignored.
- */
-export interface UnsupportedQuestion {
-  readonly id: string;
-  readonly conceptId: string;
-  readonly role: 'primary' | 'alternate';
-  readonly lockType: 'combination-dial';
-}
-
 /** Any question runChecks accepts. Narrow on `lockType`. */
-export type CheckableQuestion = AuthoringQuestion | UnsupportedQuestion;
+export type CheckableQuestion = AuthoringQuestion;
 
 /** Chunk lookup shared by every question of a job. */
 export interface EvidenceContext {
@@ -47,17 +37,14 @@ export interface RunChecksInput extends EvidenceContext {
   readonly siblings?: readonly CheckableQuestion[];
 }
 
-// Every AuthoringQuestion arm (rune cipher, séance board, bone ordering, bound threads, cursed object)
-// has checks. The combination-dial task widens this with its own schema arm.
-function isSupported(q: CheckableQuestion): q is AuthoringQuestion {
-  return (
-    q.lockType === 'rune-cipher' ||
-    q.lockType === 'seance-board' ||
-    q.lockType === 'bone-ordering' ||
-    q.lockType === 'bound-threads' ||
-    q.lockType === 'cursed-object'
-  );
-}
+const SUPPORTED_LOCK_TYPES: readonly string[] = [
+  'rune-cipher',
+  'seance-board',
+  'bone-ordering',
+  'bound-threads',
+  'cursed-object',
+  'combination-dial',
+];
 
 /** Every learner-visible text of a question, for banned-phrase scanning and the leak scan. */
 export function visibleTextOf(q: CheckableQuestion): readonly string[] {
@@ -68,6 +55,7 @@ export function visibleTextOf(q: CheckableQuestion): readonly string[] {
     return [q.prompt, ...q.pairs.flatMap((p) => [p.left, p.right]), q.explanation];
   }
   if (q.lockType === 'cursed-object') return [q.prompt, ...q.items, q.explanation];
+  if (q.lockType === 'combination-dial') return [q.prompt, q.units, q.explanation];
   return [];
 }
 
@@ -101,8 +89,8 @@ function alternateChecks(
 ): CheckFailure[] {
   if (question.role !== 'alternate') return [];
   const sameConcept = siblings.filter(
-    (s) => s.conceptId === question.conceptId && s.id !== question.id && isSupported(s),
-  ) as AuthoringQuestion[];
+    (s) => s.conceptId === question.conceptId && s.id !== question.id,
+  );
   const failures: CheckFailure[] = [];
   // Lowest-id primary, so the result does not depend on input order.
   const primary = sameConcept
@@ -122,12 +110,14 @@ function alternateChecks(
 /**
  * Runs every implemented Code_Check for one question. Pure, total and deterministic:
  * the same input gives the same failures in the same order, with duplicates removed.
- * Questions of the later lock type (combination dial) return exactly one `lock-type-not-supported`.
+ * All six lock types have checks, so `lock-type-not-supported` is never returned for them. It stays
+ * registered (Req 3.5) and is returned only for a `lockType` outside the six, which the types cannot express
+ * but untrusted input can carry.
  * `answer-leak-in-room` is room-level; see `runRoomChecks`.
  */
 export function runChecks(input: RunChecksInput): readonly CheckFailure[] {
   const { question, siblings = [], chunks, paragraphChunkIds } = input;
-  if (!isSupported(question)) {
+  if (!SUPPORTED_LOCK_TYPES.includes((question as { lockType: string }).lockType)) {
     return [{ checkId: 'lock-type-not-supported', questionId: question.id }];
   }
 
@@ -151,6 +141,9 @@ export function runChecks(input: RunChecksInput): readonly CheckFailure[] {
   } else if (question.lockType === 'cursed-object') {
     // Includes each evidence quote's own checks.
     failures.push(...cursedObjectChecks(question, { chunks, paragraphChunkIds }));
+  } else if (question.lockType === 'combination-dial') {
+    // Includes each evidence quote's own checks.
+    failures.push(...combinationDialChecks(question, { chunks, paragraphChunkIds }));
   } else {
     // Includes each option's quote checks.
     failures.push(...checkSeanceBoard(question, { chunks, paragraphChunkIds }));

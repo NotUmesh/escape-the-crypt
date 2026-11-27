@@ -90,8 +90,10 @@ export {
   ESCAPE_COPY,
   GENERATION_COPY,
   RUN_SETUP_COPY,
+  REQUEST_LIMIT_COPY,
+  REQUEST_LIMIT_KINDS,
 } from './copy-room-play';
-export type { RoomStartErrorKind, GenerationFailureKind } from './copy-room-play';
+export type { RoomStartErrorKind, GenerationFailureKind, RequestLimitKind } from './copy-room-play';
 export { initial } from './runtime/initial';
 export { apply } from './runtime/apply';
 export { isEvent } from './runtime/event-guard';
@@ -138,6 +140,8 @@ export type { CryptTarget, LengthAvailability, RunLength } from './run-length';
 export { DIFFICULTIES, runSettingsFor, showsRuneLetterCount } from './difficulty';
 export type { Difficulty } from './difficulty';
 export { lengthAvailabilityForNotes } from './pipeline/notes-capacity';
+export { PIPELINE_STAGES, progressReporter } from './pipeline/pipeline-progress';
+export type { PipelineProgress, PipelineStageName } from './pipeline/pipeline-progress';
 export { toModelJsonSchema } from './provider/model-json-schema';
 export type { ModelJsonSchema, ModelJsonSchemaError } from './provider/model-json-schema';
 export type {
@@ -178,6 +182,7 @@ export {
   JobBundleSchema,
   JobFailureSchema,
   JobStatusResponseSchema,
+  JobProgressSchema,
   JobAckResponseSchema,
   JobErrorResponseSchema,
 } from './job-api/job-response-schema';
@@ -187,6 +192,7 @@ export type {
   JobBundle,
   JobFailureBody,
   JobStatusResponse,
+  JobProgress,
   JobAckResponse,
   JobErrorResponse,
 } from './job-api/job-response-schema';

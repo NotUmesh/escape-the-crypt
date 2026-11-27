@@ -97,6 +97,17 @@ export function buildContentEntry(
       explanation: question.explanation,
     };
   }
+  if (question.lockType === 'combination-dial') {
+    // A dial has no options: the learner types a number, so content is the prompt and quotes.
+    return {
+      prompt: question.prompt,
+      excerpts: question.evidence.map((e) => ({
+        chunkId: maps.chunksByParagraph.get(e.paragraph) ?? '',
+        quote: e.quote,
+      })),
+      explanation: question.explanation,
+    };
+  }
   return {
     prompt: question.prompt,
     options: Object.fromEntries(question.options.map((o) => [o.id, o.text])),

@@ -14,4 +14,5 @@ export const PHASE5_TEST_ALLOWED_LOCK_TYPES: readonly LockType[] = [
   'bone-ordering',
   'bound-threads',
   'cursed-object',
+  'combination-dial',
 ];

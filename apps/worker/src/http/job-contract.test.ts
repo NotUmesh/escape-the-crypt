@@ -17,9 +17,11 @@ import {
   TOKEN,
   TOKEN_B,
   closeAll,
+  deferred,
   failingPipeline,
   heartBody,
   heartExtractionJson,
+  reportingPipeline,
   startHarness,
   type Harness,
   type HttpResult,
@@ -78,7 +80,23 @@ describe('completed job (real pipeline over the recorded cassette)', () => {
     // The web's deeper gate accepts the same bundle.
     expect(parseCryptBundle(body.bundle).ok).toBe(true);
 
-    const golden = { notesText: HEART_NOTES, response: { ...body, jobId: FIXTURE_JOB_ID } };
+    // Contract version 2 (deliberate): a running job reports its stage and real counts to a client
+    // that asks with ?progress=1. Recorded from the real server so the web's test reads real output.
+    const gate = deferred();
+    const progressing = await startHarness({
+      runPipeline: reportingPipeline([{ stage: 'extracting' }, { stage: 'generating', done: 2, total: 6 }], gate),
+    });
+    const runningId = idOf(await progressing.post(heartBody));
+    const runningRes = await progressing.request(`/jobs/${runningId}?progress=1`, { headers: { 'X-Session-Token': TOKEN } });
+    const running = parseStatus(runningRes);
+    gate.release();
+    expect(running?.status).toBe('running');
+    const golden = {
+      contractVersion: 2,
+      notesText: HEART_NOTES,
+      response: { ...body, jobId: FIXTURE_JOB_ID },
+      running: { request: 'GET /jobs/:id?progress=1', response: { ...running, jobId: FIXTURE_JOB_ID } },
+    };
     const text = `${JSON.stringify(golden, null, 2)}\n`;
     if (process.env['UPDATE_CONTRACT'] === '1' || !existsSync(FIXTURE_PATH)) {
       mkdirSync(dirname(FIXTURE_PATH), { recursive: true });

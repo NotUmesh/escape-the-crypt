@@ -21,6 +21,7 @@ import {
   buildRetryNote,
   type ReviewResponse,
 } from './blind-review-prompt';
+import { dialMatches } from './blind-review-dial';
 import type { ConceptExtractionOptions } from './concept-extraction';
 import { toEvidenceContext, type PreparedDocument } from './prepare-input';
 
@@ -62,7 +63,7 @@ function reject(reason: ReviewRejection): ReviewVerdict {
 }
 
 function keyOf(
-  question: Exclude<AuthoringQuestion, { lockType: 'bone-ordering' | 'bound-threads' | 'cursed-object' }>,
+  question: Exclude<AuthoringQuestion, { lockType: 'bone-ordering' | 'bound-threads' | 'cursed-object' | 'combination-dial' }>,
 ): string {
   return question.answer;
 }
@@ -162,6 +163,12 @@ export function decideReview(question: AuthoringQuestion, response: ReviewRespon
       ? { verdict: 'passed' }
       : reject({ kind: 'answer-mismatch' });
   }
+  if (question.lockType === 'combination-dial') {
+    // The reviewer's one number is parsed and compared with the key in code (dial judge).
+    return dialMatches(question, response.answer)
+      ? { verdict: 'passed' }
+      : reject({ kind: 'answer-mismatch' });
+  }
   const answered = response.answer.trim();
   if (answered !== keyOf(question)) return reject({ kind: 'answer-mismatch' });
   const labelsOk = (response.optionLabels ?? []).every((l) =>
@@ -185,7 +192,7 @@ export function hasCompleteLabels(question: AuthoringQuestion, response: ReviewR
     }
     return seenIds.size === shownIds.size;
   }
-  // Rune cipher, bone ordering and bound threads have no options to label.
+  // Rune cipher, bone ordering, bound threads and combination dial have no options to label.
   if (question.lockType !== 'seance-board') return response.optionLabels === null;
   if (response.optionLabels === null) return false;
   const shown = new Set(question.options.map((o) => o.id));

@@ -88,7 +88,28 @@ export const CursedObjectGeneratedSchema = z.strictObject({
   explanation: z.string(),
 });
 
+// No expression or code field anywhere: the model states numbers, code computes templates.
+// No hint field: a dial's hintEffect is always null.
+export const CombinationDialGeneratedSchema = z.strictObject({
+  lockType: z.literal('combination-dial'),
+  prompt: z.string().min(1),
+  answer: z.union([
+    z.strictObject({ kind: z.literal('exact'), value: z.number() }),
+    z.strictObject({ kind: z.literal('range'), min: z.number(), max: z.number() }),
+    z.strictObject({
+      kind: z.literal('template'),
+      template: z.enum(['difference', 'percent-change']),
+      inputs: z.array(z.number()).length(2),
+      value: z.number(),
+    }),
+  ]),
+  units: z.string(),
+  evidence: z.array(GeneratedEvidenceSchema).min(1),
+  explanation: z.string(),
+});
+
 type GeneratedArm =
+  | z.infer<typeof CombinationDialGeneratedSchema>
   | z.infer<typeof CursedObjectGeneratedSchema>
   | z.infer<typeof RuneCipherGeneratedSchema>
   | z.infer<typeof SeanceBoardGeneratedSchema>
@@ -111,6 +132,7 @@ const ARMS: ReadonlyArray<readonly [LockType, z.ZodType<GeneratedArm>]> = [
   ['bone-ordering', BoneOrderingGeneratedSchema],
   ['bound-threads', BoundThreadsGeneratedSchema],
   ['cursed-object', CursedObjectGeneratedSchema],
+  ['combination-dial', CombinationDialGeneratedSchema],
 ];
 
 /**
@@ -148,6 +170,7 @@ export const FullGenerationResponseSchema = buildGenerationResponseSchema([
   'bone-ordering',
   'bound-threads',
   'cursed-object',
+  'combination-dial',
 ]);
 export interface QuestionIdentity {
   readonly id: string;
@@ -199,7 +222,11 @@ export function toAuthoringQuestion(
     const { hint, ...rest } = generated;
     void hint;
     candidate = { ...rest, ...identity, evidence: evidence.value };
-  } else if (generated.lockType === 'bone-ordering' || generated.lockType === 'cursed-object') {
+  } else if (
+    generated.lockType === 'bone-ordering' ||
+    generated.lockType === 'cursed-object' ||
+    generated.lockType === 'combination-dial'
+  ) {
     const evidence = collect(generated.evidence, (e) => evidenceOf(doc, e));
     if (!evidence.ok) return evidence;
     candidate = { ...generated, ...identity, evidence: evidence.value };

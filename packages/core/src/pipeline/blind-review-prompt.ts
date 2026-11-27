@@ -127,7 +127,7 @@ export function citedChunks(
       ? question.options.map((o) => o.evidence.paragraph)
       : question.lockType === 'bound-threads'
         ? question.pairs.map((p) => p.evidence.paragraph)
-        : question.evidence.map((e) => e.paragraph); // rune cipher, bone ordering, cursed object
+        : question.evidence.map((e) => e.paragraph); // rune cipher, bone ordering, cursed object, combination dial
   const seen = new Set<string>();
   const out: { id: string; text: string }[] = [];
   for (const ordinal of ordinals) {
@@ -186,6 +186,11 @@ export function buildBlindReviewUserMessage(
     });
     lines.push(
       'Exactly one item does not fit the category the question describes. Set answer to the id of that item. Then set optionLabels with one entry per item id: supported if the notes say the item fits the category, contradicted if the notes say it does not fit, unknown if the notes do not say. If the notes do not say which item is the odd one, answer unknown.',
+    );
+  }
+  if (question.lockType === 'combination-dial') {
+    lines.push(
+      'Set answer to the one number the notes give for this question, written as digits only (no units, no words, no range), and set optionLabels to null. If the notes state a span, give the single value the question asks for. If the notes do not state it, answer unknown.',
     );
   }
   lines.push(buildNotesBlock(citedChunks(question, doc), doc.headingContext));

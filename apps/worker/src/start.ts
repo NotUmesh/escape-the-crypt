@@ -14,6 +14,7 @@ import {
   type Env,
   type StartupError,
 } from './config';
+import { judgeAccessFromEnv } from './http/judge-access';
 import { createServer } from './http/server';
 import type { Logger } from './http/respond';
 import { createJobStore } from './jobs/job-store';
@@ -84,6 +85,8 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
     now,
   });
   const jobStore = createJobStore({ now, jobTtlMs: cfg.jobTtlMs });
+  // The judge code is read here and only its hash is kept; it is never logged or put in config.
+  const judge = judgeAccessFromEnv(env['JUDGE_ACCESS_TOKEN']);
 
   const server = createServer({
     jobStore,
@@ -104,6 +107,7 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
     now,
     logger,
     healthStatus: () => (configured ? 'ok' : 'budget-not-configured'),
+    judge,
   });
 
   const listening = await new Promise<boolean>((resolve) => {

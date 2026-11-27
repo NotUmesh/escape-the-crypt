@@ -4,6 +4,9 @@ import { ERROR_COPY } from './copy';
 import type { JobRunnerDeps } from './job-runner';
 import { DEFAULT_MAX_BODY_BYTES, handleCreateJob, handleDeleteJob, handleGetJob, sendNotFound } from './routes-jobs';
 import { sendError, sendJson, silentLogger, type Logger, type RequestOutcome } from './respond';
+import type { PipelineProgress } from '@escape-the-crypt/core';
+import type { JudgeAccess } from './judge-access';
+import { DEFAULT_RATE_LIMIT, createRateLimiter, type RateLimitConfig } from './rate-limit';
 
 export interface ServerLimits {
   /** Hard cap on the `POST /jobs` body, in bytes. */
@@ -17,6 +20,10 @@ export interface ServerDeps extends Omit<JobRunnerDeps, 'logger'> {
   readonly limits?: Partial<ServerLimits>;
   /** What `GET /health` reports. Defaults to `ok`. Always answers 200: the process is up either way. */
   readonly healthStatus?: () => 'ok' | 'budget-not-configured';
+  /** From `JUDGE_ACCESS_TOKEN`. Absent or null: `POST /judge/jobs` answers 404. */
+  readonly judge?: JudgeAccess | null;
+  /** Per-IP limit on public `POST /jobs`. Defaults to `DEFAULT_RATE_LIMIT`. */
+  readonly rateLimit?: RateLimitConfig;
 }
 
 const JOB_PATH = /^\/jobs\/([^/]+)$/;
@@ -39,7 +46,10 @@ export function createServer(deps: ServerDeps): Server {
     ...deps,
     logger,
     controllers: deps.controllers ?? new Map<string, AbortController>(),
+    progress: deps.progress ?? new Map<string, PipelineProgress>(),
     maxBodyBytes: deps.limits?.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES,
+    rateLimiter: createRateLimiter(deps.rateLimit ?? DEFAULT_RATE_LIMIT, deps.now),
+    judge: deps.judge ?? null,
   };
 
   const route = async (req: IncomingMessage, res: ServerResponse, outcome: RequestOutcome): Promise<void> => {
@@ -65,6 +75,11 @@ export function createServer(deps: ServerDeps): Server {
       await handleCreateJob(req, res, outcome, routeDeps);
       return;
     }
+    if (method === 'POST' && path === '/judge/jobs') {
+      outcome.route = 'POST /judge/jobs';
+      await handleCreateJob(req, res, outcome, routeDeps, 'judge');
+      return;
+    }
     const match = method === 'GET' || method === 'DELETE' ? JOB_PATH.exec(path) : null;
     if (match !== null) {
       const id = decodeId(match[1] ?? '');
@@ -74,7 +89,7 @@ export function createServer(deps: ServerDeps): Server {
         return;
       }
       outcome.route = 'GET /jobs/:id';
-      handleGetJob(req, res, outcome, deps.jobStore, id);
+      handleGetJob(req, res, outcome, deps.jobStore, id, routeDeps.progress);
       return;
     }
     outcome.route = 'unmatched';

@@ -51,6 +51,10 @@
     "33.8 Write property tests for cursed-object": {
       "status": "passed",
       "lastRunTimestamp": 1795797679060
+    },
+    "35.7 Write property tests for combination-dial": {
+      "status": "passed",
+      "lastRunTimestamp": 1795803521209
     }
   },
   "executionHistory": {
@@ -2129,6 +2133,133 @@
         "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795798353542
+      }
+    ],
+    "35.1 Authoring schema and generation response arm": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795801598406
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795802037719
+      }
+    ],
+    "35.2 Code_Checks, registry entries and removal of the unsupported branch": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795802037886
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795802657500
+      }
+    ],
+    "35.3 Generation prompt section": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795802038007
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795802657631
+      }
+    ],
+    "35.4 Blind-review rule": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795802038376
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803354693
+      }
+    ],
+    "35.5 Mapper to the judge payload": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795802657899
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803047516
+      }
+    ],
+    "35.9 Extend the duplicate-answer keys for combination-dial": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795802658761
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803354145
+      }
+    ],
+    "35.6 Add `combination-dial` to the test and eval allow-lists only": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803047661
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803139846
+      }
+    ],
+    "35.7 Write property tests for combination-dial": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803355510
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803748826
+      }
+    ],
+    "35.8 Write the cassette test for combination-dial": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803356302
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803749679
+      }
+    ],
+    "35. Phase 5: combination-dial": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803749760
+      }
+    ],
+    "36. Checkpoint - combination-dial group": [
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795803756219
+      },
+      {
+        "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795804263124
       }
     ]
   }
