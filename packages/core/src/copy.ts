@@ -143,7 +143,7 @@ export const INGEST_UI_COPY = {
   counting: 'Opening your PDF',
   reading: (done: number, total: number): string => `Reading page ${done} of ${total}`,
   confirmedTitle: 'Your notes are ready',
-  chunkCount: (n: number): string => (n === 1 ? '1 piece of your notes' : ` pieces of your notes`),
+  chunkCount: (n: number): string => (n === 1 ? '1 piece of your notes' : `${n} pieces of your notes`),
   pagesReadTitle: 'Pages we read',
   removePage: 'Remove page',
   removePageFor: (page: number): string => `Remove page ${page}`,

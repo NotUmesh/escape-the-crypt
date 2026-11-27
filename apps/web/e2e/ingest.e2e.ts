@@ -57,6 +57,10 @@ test('paste flow: confirm is explained while empty, text stays plain, only parag
   await confirm.click();
   await expect(page.getByRole('status')).toHaveText(SAVED);
 
+  // The notes-ready card states a real number of pieces.
+  const readyCount = page.locator('.ingest-confirmed .ingest-text');
+  await expect(readyCount).toHaveText(/\d+ pieces? of your notes/);
+  await expect(readyCount).toContainText(/\d/);
   expectOnlyChunk2Edited(await storedChunks(page));
 });
 
