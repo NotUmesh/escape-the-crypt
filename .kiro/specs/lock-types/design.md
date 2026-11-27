@@ -2,45 +2,68 @@
 
 ## Overview
 
-This spec makes `bone-ordering`, `bound-threads`, `combination-dial` and `cursed-object` playable end to end: a pure Interaction_Model per type in `packages/core/src/locks/`, a React panel per type in `apps/web/src/features/crypt/`, registration in `lock-panel-registry.ts`, a widened Manifest_Schema, and three sample crypts (human-heart, https, printing-press) that each exercise all six lock types across rooms and the final door.
+This spec makes `bone-ordering`, `bound-threads`, `combination-dial` and `cursed-object` playable end to end. It adds:
 
-Nothing here touches live generation. The four judges (`locks/bone-ordering.ts`, `bound-threads.ts`, `cursed-object.ts`, `combination-dial.ts`) are read-only; this spec adds new files beside them (`*-interaction.ts`) and extends the manifest schema that already imports their payload shapes by name.
+- a pure Interaction_Model per type in `packages/core/src/locks/` and a shared Display_Order function,
+- a React panel per type in `apps/web/src/features/crypt/`,
+- registration of the four panels in `lock-panel-registry.ts`,
+- a widened Manifest_Schema (three payload schemas, two hint branches, one hint rejection),
+- three sample builders (human-heart, https, printing-press) that place all six lock types, and a Sample_Registry that the front-of-house hub uses to start and restore them.
 
-## Coordination gate
+Nothing here touches live generation. The four judges in `packages/core/src/locks/` are read-only. This spec adds new files beside them (`*-interaction.ts`).
 
-Before any file is touched:
-1. Confirm with the user that the Other_Machine's push (multi-room play, rune letter count) landed.
-2. `git pull --rebase`. Stop and report on conflict.
-3. Re-run `git pull --rebase` immediately before every commit.
+The sample builders call the Core_Mapper (`packages/core/src/mapper/manifest-mapper.ts`) for every question of every lock type. The Core_Mapper belongs to the Other_Machine and is read-only here. This spec has no sample-only mapper and no workaround for a missing mapper arm. If an arm is missing when Phase 3 begins, work stops and the missing types are reported (Requirement 1.16).
 
-The six shared files (`room-screen.tsx`, `art-room.ts`, `question-controls.tsx`, `rune-cipher-panel.tsx`, `room-panel.tsx`, `lock-panel-context.ts`) are read fresh after the pull. Design assumption, to be re-checked after the pull: `room-panel.tsx`'s `RoomPanel` and `question-panel.tsx`'s `PanelShell` stay generic over `questionType`/`LOCK_PANELS[type]`, so registering four more entries in `LOCK_PANELS` requires **no edit** to `room-panel.tsx` or `question-panel.tsx` — the existing `createElement(LockPanel, { slotId, questionId, questionType })` call already works for any registered type. `lock-panel-context.ts` is unchanged (its `LockPanelContextValue` is already generic: `dispatch`, `rejection`, `content`, `appliedHintFor`). `question-controls.tsx` is unchanged (Hint/Skip/Challenge are type-agnostic). `room-screen.tsx` and `art-room.ts` need no change for lock art, because today's Scene_Files already list all six lock types per room (confirmed by reading `scene.json` for all three Art_Rooms) and `room-screen.tsx` already draws any lock present in `State.rooms[...].lockSlots` — the gap is only that the sample manifests never created slots of the four missing types. If the pull reveals either file now depends on a hardcoded two-lock assumption, the task list's first step re-reads it and reports the delta before continuing.
+The hub (`features/desk/sample-shelf.tsx`, fed by `features/desk/sample-list.ts`) already lists the three samples and reports the chosen ID. This spec adds no picker, no start-view control and no crypt-flow wiring (Requirement 12.11). It exports a Sample_Registry keyed by the same IDs, which the hub integration calls.
+
+## Delivery phases
+
+The order of work is part of the design because two machines edit the same repository.
+
+| Phase | Starts when | Work | Shared_Panel_Files |
+|---|---|---|---|
+| Gate | First task | `git pull --rebase`, re-read the six files, report the differences to the user | read only |
+| 1 | Gate done | Display_Order, accessible names, `copy-lock-panels.ts`, four Interaction_Models, four panel files with tests, manifest widening | not edited |
+| 2 | User gives the Push_Go_Ahead | `git pull --rebase`, re-read, registry registration, `payloadFor` accessor, removal of the unplayable path for the four types, registry-dependent tests | edited, smallest change |
+| 3 | `git pull --rebase` has brought all four mapper arms | sample builders, Sample_Registry, `https.json` rune question, manifest limit change if a sample needs one | not edited |
+| 4 | Phase 3 done | sample end-to-end tests, per-type end-to-end and axe tests, final Checkpoint | not edited |
+
+Rules that apply in every phase:
+
+1. `git pull --rebase` runs before the first edit of a task and immediately before every commit. A conflict stops the work and is reported.
+2. The paths `packages/core/src/pipeline/`, `checks/`, `mapper/`, `apps/worker/`, `eval/` and `apps/web/src/state/` are not edited. The one exception is the narrow change to `mapper/crypt-bundle-parse.ts` or `mapper/crypt-content.ts` that Requirement 2.7 allows, and it is reported.
+3. Existing files in `packages/core/src/locks/` are not edited.
+4. Phase 1 panel tests do not import `lock-panel-registry.ts`.
+5. If the Core_Mapper output for a new type differs from the shape in "Item texts" below, work stops and the difference is reported (Requirement 11.4).
 
 ## Architecture
 
 ```mermaid
 graph TD
-  subgraph core["packages/core/src (new in this spec)"]
-    bi[locks/bone-ordering-interaction.ts]
-    ti[locks/bound-threads-interaction.ts]
-    ci[locks/combination-dial-interaction.ts]
-    oi[locks/cursed-object-interaction.ts]
-    disp[locks/display-order.ts]
-    bts[runtime/manifest-schema.ts CHANGE: 3 payload schemas, narrowHint 2 branches]
-    bundle[mapper/crypt-bundle-parse.ts CHANGE if content schema blocks new entries]
-    smap[sample-crypt/sample-mapping.ts NEW: sample-only mapper for the 3 unmapped types]
-    hh[sample-crypt/human-heart.ts CHANGE: 6-type room+final-door layout]
-    https[sample-crypt/https.ts NEW]
-    pp[sample-crypt/printing-press.ts NEW]
+  subgraph core["packages/core/src"]
+    disp[locks/display-order.ts NEW]
+    bi[locks/bone-ordering-interaction.ts NEW]
+    ti[locks/bound-threads-interaction.ts NEW]
+    ci[locks/combination-dial-interaction.ts NEW]
+    oi[locks/cursed-object-interaction.ts NEW]
+    ms[runtime/manifest-schema.ts CHANGE]
+    mh[runtime/manifest-hints.ts CHANGE]
     copy[copy-lock-panels.ts NEW]
+    mapper[mapper/manifest-mapper.ts READ-ONLY]
+    hh[sample-crypt/human-heart.ts CHANGE]
+    hs[sample-crypt/https.ts NEW]
+    pp[sample-crypt/printing-press.ts NEW]
+    reg[sample-crypt/sample-registry.ts NEW]
   end
-  subgraph web["apps/web/src (new in this spec)"]
-    bp[features/crypt/bone-ordering-panel.tsx]
-    tp[features/crypt/bound-threads-panel.tsx]
-    cp[features/crypt/combination-dial-panel.tsx]
-    op[features/crypt/cursed-object-panel.tsx]
-    reg[features/crypt/lock-panel-registry.ts CHANGE: +4 entries]
-    picker[features/crypt/sample-picker.tsx NEW]
-    sv[features/crypt/start-view.tsx CHANGE: renders Sample_Picker]
+  subgraph web["apps/web/src/features/crypt"]
+    bp[bone-ordering-panel.tsx NEW]
+    tp[bound-threads-panel.tsx NEW]
+    cp[combination-dial-panel.tsx NEW]
+    op[cursed-object-panel.tsx NEW]
+    pay[lock-panel-payload.ts NEW]
+    lreg[lock-panel-registry.ts CHANGE phase 2]
+    lctx[lock-panel-context.ts CHANGE phase 2]
+    src[sample-sources.ts NEW]
   end
   bi --> disp
   ti --> disp
@@ -48,264 +71,190 @@ graph TD
   tp --> ti
   cp --> ci
   op --> oi
-  smap --> bts
-  hh --> smap
-  https --> smap
-  pp --> smap
-  reg --> bp
-  reg --> tp
-  reg --> cp
-  reg --> op
-  sv --> picker
+  bp --> pay
+  tp --> pay
+  cp --> pay
+  op --> pay
+  lreg --> bp
+  lreg --> tp
+  lreg --> cp
+  lreg --> op
+  pay -. phase 2 reads .-> lctx
+  hh --> mapper
+  hs --> mapper
+  pp --> mapper
+  reg --> hh
+  reg --> hs
+  reg --> pp
+  src --> reg
 ```
 
-`packages/core` gains no React, database or AI SDK dependency. The four Interaction_Models and `display-order.ts` are pure, side-effect-free TypeScript consumed by both `packages/core` property tests and the `apps/web` panels.
+`packages/core` gains no React, database or AI SDK dependency. The Interaction_Models, Display_Order, builders and registry are pure. Raw notes and question files are imported only in `apps/web` (`sample-sources.ts`) and passed into the core builders as arguments, as `state/sample-crypt-source.ts` does today for human-heart.
+
+The existing `PanelShell` and `RoomPanel` render `LOCK_PANELS[type]` generically. Registering four more entries needs no change to `question-panel.tsx`, `question-controls.tsx` or `art-room.ts`. This is an assumption that the Phase 2 re-read must confirm. Hint, Skip and Challenge controls are siblings of the Lock_Panel in `RoomPanel`, so the four panels get them without new code. Scene files already list all six lock types per room, so lock art needs no change.
 
 ## Components and Interfaces
 
-### `locks/display-order.ts` (shared)
+### Display_Order (`locks/display-order.ts`)
 
 ```ts
-/** A small, seedable, non-cryptographic shuffle. Deterministic for a given seed and length. */
-export function displayOrder<T>(items: readonly T[], seed: string): readonly T[] {
-  const hash = seed.split('').reduce((h, c) => (h * 31 + c.codePointAt(0)!) >>> 0, 7);
-  const arr = [...items];
-  let state = hash || 1;
-  for (let i = arr.length - 1; i > 0; i--) {
-    state = (state * 1103515245 + 12345) >>> 0;
-    const j = state % (i + 1);
-    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
-  }
-  return arr;
-}
+export function displayOrder<T>(items: readonly T[], seed: string): readonly T[];
+export function displayOrderAvoiding<T>(
+  items: readonly T[],
+  seed: string,
+  avoid: (candidate: readonly T[]) => boolean,
+): readonly T[];
 ```
 
-Used for the initial bone-ordering draft (seeded with `questionId`) and the bound-threads right-column order (seeded with `questionId + ':right'`). A seeded Fisher-Yates is deterministic and needs no random source per Requirement 3.2. Both call sites re-shuffle and discard any result that equals the identity or key order outright (a `while` loop with a different seed suffix, capped at 5 tries, then an explicit rotate-by-one fallback) so Requirements 3.3 and 3.5 hold even for very short lists (3 items) where a shuffle has a non-trivial chance of landing on the key order.
+`displayOrder` is a seeded Fisher-Yates shuffle driven by a small integer hash of the seed. It uses no random source, returns a permutation of the input and returns the same result for the same input and seed. `displayOrderAvoiding` retries with the suffixes `:1` to `:5` while `avoid(candidate)` is true, then falls back to rotating the list by one. It guarantees a result that `avoid` rejects for lists of two or more distinct items where a rotation avoids the predicate. This covers the 3-item lists where a shuffle has a real chance of reproducing the key order (Requirements 3.3 to 3.5).
 
-### `locks/bone-ordering-interaction.ts`
+### Payload access (`features/crypt/lock-panel-payload.ts`)
+
+Panels need payload fields that Crypt_Content does not carry (`itemIds`, `leftIds`, `rightIds`, `unit`, and the inputs of the Interaction_Model initialisers). They get them through one narrow typed hook, so that Phase 1 does not depend on `lock-panel-context.ts`.
+
+```ts
+export interface LockPayloadByType {
+  readonly 'bone-ordering': BoneOrderingQuestion;
+  readonly 'bound-threads': BoundThreadsQuestion;
+  readonly 'combination-dial': CombinationDialQuestion;
+  readonly 'cursed-object': CursedObjectQuestion;
+}
+export type LockPayloadSource = <T extends keyof LockPayloadByType>(
+  slotId: string,
+  questionId: string,
+  type: T,
+) => LockPayloadByType[T] | null;
+
+export const LockPayloadContext: React.Context<LockPayloadSource | null>;
+export function useLockPayload<T extends keyof LockPayloadByType>(
+  slotId: string,
+  questionId: string,
+  type: T,
+): LockPayloadByType[T] | null;
+```
+
+- **Phase 1.** `useLockPayload` reads `LockPayloadContext`. Panel tests supply it with a test-local provider, together with a test-local value for the existing `LockPanelContext` (dispatch, rejection, content, `appliedHintFor`). Neither provider imports the registry.
+- **Phase 2.** `lock-panel-context.ts` gains one read-only accessor `payloadFor(slotId, questionId)` on `LockPanelContextValue`, and `RoomPanel` supplies it from the manifest it already holds. `useLockPayload` then reads that accessor and `LockPayloadContext` is removed. Panel files do not change, because they only call the hook. The Phase 2 task re-reads `room-panel.tsx` and `lock-panel-context.ts` after the pull and makes the smallest equivalent edit if their shape changed.
+
+A `null` result means the payload is missing or of another type. The panel then shows the `payloadMissing` string from `copy-lock-panels.ts` and leaves the Skip control working. It dispatches no answer. The payload is public manifest data, and the panels never render `keyOrder`, `keyPairs`, `oddOneOutId` or numeric dial fields (Property 5).
+
+### Item texts
+
+Panels read every item text from `content.questions[questionId].options` through the existing `LockPanelContext`. Panels do not parse item IDs and do not depend on how the mapper names them (Requirement 11.2). The expected shape of Core_Mapper output, to be confirmed against the mapper at the start of Phase 3 and against the panel tests earlier:
+
+| Type | Keys of `options` |
+|---|---|
+| bone-ordering | the step IDs in `itemIds` |
+| bound-threads | every ID in `leftIds` and in `rightIds` |
+| cursed-object | the IDs in `optionIds` |
+| combination-dial | no `options` entry; the unit comes from the payload |
+
+If an ID has no text in `options`, the panel shows `itemTextMissing` for that item and stays usable. A sample test (Requirement 11.5) checks that the sample content has no such gap.
+
+### Interaction_Models
+
+Each model is a module in `packages/core/src/locks/` with no React, timers, randomness or I/O. Every function is total and returns a typed value. None returns `keyOrder`, `keyPairs`, `oddOneOutId` or a dial number to the caller (Requirement 3.6). Initialisers take the full payload because they must avoid the key order and size the wheels; the draft they return holds no key.
+
+#### `bone-ordering-interaction.ts`
 
 ```ts
 export interface BoneOrderingDraft {
-  readonly order: readonly string[]; // current displayed order of itemIds
-  readonly pinned: string | null;    // Pinned_Bone id, or null
+  readonly order: readonly string[];
+  readonly pinned: string | null;
 }
-
-export function initBoneOrderingDraft(payload: BoneOrderingQuestion, hint: HintEffectSpec | null): BoneOrderingDraft;
-export function moveBoneUp(draft: BoneOrderingDraft, boneId: string): BoneOrderingDraft;
-export function moveBoneDown(draft: BoneOrderingDraft, boneId: string): BoneOrderingDraft;
-export function boneOrderingSubmission(draft: BoneOrderingDraft): BoneOrderingSubmission;
+export function initBoneOrderingDraft(
+  payload: BoneOrderingQuestion,
+  hint: HintEffectSpec | null,
+  seed: string, // the questionId
+): BoneOrderingDraft;
+export function moveBone(draft: BoneOrderingDraft, boneId: string, direction: 'up' | 'down'): BoneOrderingDraft;
+export function boneOrderingSubmission(draft: BoneOrderingDraft): { readonly order: readonly string[] };
 ```
 
-`initBoneOrderingDraft` calls `displayOrder(payload.itemIds, questionId-derived seed)` — the seed is threaded in via a `questionId` parameter so the same question always starts the same way. If a `lock-first-bone` hint is applied, the pinned bone is spliced to its `keyOrder` index after shuffling and `pinned` is set; `moveBoneUp`/`moveBoneDown` are no-ops when `boneId === pinned` or at an array bound (Requirement 4.8, 3.8). `boneOrderingSubmission` returns `{ order: draft.order }` unconditionally — bone ordering is always "ready" since a full permutation exists from the start, matching how `RuneCipherPanel` treats an always-ready draft. Never throws; `moveBoneUp`/`moveBoneDown` return the input draft unchanged on the boundary cases.
+The initial order comes from `displayOrderAvoiding(itemIds, seed, c => equals(c, keyOrder))`. With a `lock-first-bone` hint, the pinned bone is placed at its key index and the other bones are shuffled among the remaining positions with the same avoid rule applied to those positions. `moveBone` returns the draft unchanged at the first or last position, for an unknown ID and for the pinned bone. A bone that moves past the pinned bone swaps with its neighbour only if the neighbour is not pinned, so the pinned bone never leaves its index. The submission is always ready, since a full permutation exists from the start.
 
-### `locks/bound-threads-interaction.ts`
+#### `bound-threads-interaction.ts`
 
 ```ts
 export interface BoundThreadsDraft {
-  readonly rightOrder: readonly string[];       // Display_Order of rightIds
-  readonly pairs: ReadonlyMap<string, string>;   // leftId -> rightId, includes the hinted pair
+  readonly rightOrder: readonly string[];
+  readonly threads: readonly ThreadPair[]; // [leftId, rightId], includes the hinted pair
   readonly hintedPair: ThreadPair | null;
   readonly selectedLeft: string | null;
 }
-export type ThreadRefusal = { readonly kind: 'already-tied'; readonly side: 'left' | 'right'; readonly id: string };
-
-export function initBoundThreadsDraft(payload: BoundThreadsQuestion, hint: HintEffectSpec | null): BoundThreadsDraft;
-export function selectLeft(draft: BoundThreadsDraft, leftId: string): BoundThreadsDraft;
-export function tieRight(draft: BoundThreadsDraft, rightId: string): { draft: BoundThreadsDraft; refusal: ThreadRefusal | null };
-export function undoThread(draft: BoundThreadsDraft, leftId: string): BoundThreadsDraft;
-export function boundThreadsSubmission(draft: BoundThreadsDraft): BoundThreadsSubmission | { ready: false };
-```
-
-```ts
 export type ThreadRefusal =
   | { readonly kind: 'already-tied'; readonly side: 'left' | 'right'; readonly id: string }
   | { readonly kind: 'no-left-selected' };
+export type TieResult = { readonly draft: BoundThreadsDraft; readonly refusal: ThreadRefusal | null };
+
+export function initBoundThreadsDraft(
+  payload: BoundThreadsQuestion,
+  hint: HintEffectSpec | null,
+  seed: string,
+): BoundThreadsDraft;
+export function selectLeft(draft: BoundThreadsDraft, leftId: string): TieResult;
+export function tieRight(draft: BoundThreadsDraft, rightId: string): TieResult;
+export function undoThread(draft: BoundThreadsDraft, leftId: string): BoundThreadsDraft;
+export function boundThreadsSubmission(
+  draft: BoundThreadsDraft,
+  leftIds: readonly string[],
+): { readonly pairs: readonly ThreadPair[] } | { readonly ready: false };
 ```
 
-`pairs` is seeded with the hinted pair pre-tied when a `tie-thread` hint is applied; `undoThread` refuses (returns the draft unchanged) when `leftId` is the hinted pair's left ID (Requirement 5.7, 3.11). `selectLeft` toggles: selecting an already-selected left clears the selection (Requirement 5.5); selecting an already-tied left is a no-op returning the same draft (checked by the panel before calling, and defensively inside the function). `tieRight` returns `{ draft, refusal: { kind: 'no-left-selected' } }` when `selectedLeft === null` (the panel shows the "choose a left item first" message for this case, Requirement 5.4), and `{ draft, refusal: { kind: 'already-tied', side, id } }` when the chosen right (or, defensively, the already-selected left) is already tied. `boundThreadsSubmission` returns `{ ready: false }` while any left ID in `payload.leftIds` has no entry in `pairs` (Requirement 3.16); otherwise `{ pairs: [...draft.pairs.entries()] }`. Invariant (Requirement 5.15, property test): after any sequence of `selectLeft`/`tieRight`/`undoThread`, `pairs` has no duplicate value and every key/value pair is unique — enforced structurally because `pairs` is a `Map` keyed by `leftId` and `tieRight` checks `![...pairs.values()].includes(rightId)` before inserting.
+`rightOrder` comes from `displayOrderAvoiding(rightIds, seed + ':right', c => c.some((id, i) => keyPartnerOf(leftIds[i]) === id))`, so no right item stands on the row of its key partner. Threads are held as a list and checked for uniqueness on both sides before every insertion, so the draft stays one-to-one (Requirement 5.15). `selectLeft` toggles the selection and refuses an already tied left item. `tieRight` refuses when no left item is selected or when the right item is already tied. `undoThread` returns the draft unchanged for the hinted pair. The submission is `{ ready: false }` while any ID in `leftIds` has no thread.
 
-### `locks/combination-dial-interaction.ts`
+#### `combination-dial-interaction.ts`
 
 ```ts
 export interface CombinationDialDraft {
-  readonly text: string;       // the Typed_Entry value, source of truth
-  readonly wheelCount: number; // integer-digit wheels; a tenths wheel is wheelCount+1 when hasTenths
+  readonly text: string;       // source of truth
+  readonly integerWheels: number;
   readonly hasTenths: boolean;
 }
-
 export function initCombinationDialDraft(payload: CombinationDialQuestion): CombinationDialDraft;
-export function wheelsOf(draft: CombinationDialDraft): readonly number[]; // digits derived from text, left to right, 0 for blank
+export function wheelsOf(draft: CombinationDialDraft): readonly number[];
 export function stepWheel(draft: CombinationDialDraft, wheelIndex: number, delta: 1 | -1): CombinationDialDraft;
 export function setTypedEntry(draft: CombinationDialDraft, text: string): CombinationDialDraft;
-export function combinationDialSubmission(draft: CombinationDialDraft): CombinationDialSubmission | { ready: false };
+export function combinationDialSubmission(
+  draft: CombinationDialDraft,
+): { readonly rawInput: string } | { readonly ready: false };
 ```
 
-`text` is the single source of truth (Requirement 3.12, 6.5): `wheelsOf` derives displayed digits from `text` by parsing it with the same tolerant pattern `combination-dial.ts`'s `parseTenths` uses, so the Wheels and the Typed_Entry can never disagree (`setTypedEntry` is just `{ ...draft, text }`; the panel calls `wheelsOf` on every render to redraw the dial, never storing digits separately — this is the "round trip" of Requirement 6.16: `wheelsOf(setTypedEntry(draft, text))` reconstructs the same digits `text` encodes, because both read through the same parser). `stepWheel` increments/decrements the digit at `wheelIndex` (counting from the most significant integer digit, with a tenths digit, if `hasTenths`, as the last index), re-renders `text` from the new digit array, wrapping 9→0 or 0→9 at that position only (Requirement 3.14) and leaving a leading `-` sign untouched. `wheelCount` is `max(3, integerDigitsOf(largestStatedNumber))`, computed once in `initCombinationDialDraft` by inspecting `question.kind`'s numeric fields (Requirement 3.13); `hasTenths` is true only when a stated number has a non-zero tenths part. `combinationDialSubmission` returns `{ ready: false }` when `text.trim() === ''`, else `{ rawInput: draft.text }`.
+The text is the only stored value. `wheelsOf` derives the digits from the text with the same tolerant number reading that `locks/combination-dial.ts` uses, so Wheels and text cannot disagree (Requirements 3.12, 6.16). `integerWheels` is at least 3 and at least the integer digits of the largest number the payload states. `hasTenths` is true only when a stated number has a decimal place. `stepWheel` changes one digit, wraps at 9 and 0 for that Wheel only, keeps a leading minus sign and rewrites the text. The initial text is empty; the Wheels show zeros. A step on an empty text starts from zeros. The submission is `{ ready: false }` when the trimmed text is empty. The model returns no number taken from the payload; it reads the payload only to size the wheel row.
 
-### `locks/cursed-object-interaction.ts`
+#### `cursed-object-interaction.ts`
 
 ```ts
 export interface CursedObjectDraft {
   readonly selected: string | null;
-  readonly removed: string | null; // Removed_Item id from an applied remove-option hint
+  readonly removed: string | null;
 }
 export function initCursedObjectDraft(hint: HintEffectSpec | null): CursedObjectDraft;
-export function chooseItem(draft: CursedObjectDraft, optionId: string): CursedObjectDraft; // no-op if optionId === removed
+export function chooseItem(draft: CursedObjectDraft, optionId: string): CursedObjectDraft;
 export function clearChoice(draft: CursedObjectDraft): CursedObjectDraft;
-export function cursedObjectSubmission(draft: CursedObjectDraft): CursedObjectSubmission | { ready: false };
+export function cursedObjectSubmission(
+  draft: CursedObjectDraft,
+): { readonly selectedId: string } | { readonly ready: false };
 ```
 
-`chooseItem` is a no-op (returns the same draft) when `optionId === draft.removed` (Requirement 3.15, 7.10). `cursedObjectSubmission` returns `{ ready: false }` while `selected === null`.
+`chooseItem` returns the draft unchanged for the removed item. The submission is `{ ready: false }` while nothing is chosen.
 
-All four modules export only the draft type, the init/operation functions and the submission builder — never a function that returns `keyOrder`, `keyPairs`, `oddOneOutId` or any payload numeric field (Requirement 3.6). Each has a sibling `.test.ts` with unit tests for the boundary cases and a property test (fast-check) that drives a random sequence of operations and checks the Judge's verdict matches expectation, satisfying Requirements 4.13, 5.14, 5.15, 6.15, 6.16, 7.9, 7.10.
+### Panels
 
-## Manifest widening (`runtime/manifest-schema.ts`)
+Each panel is a file `<type>-panel.tsx` of about 300 lines or fewer under `apps/web/src/features/crypt/`. Each follows the shape of `RuneCipherPanel` and `SeanceBoardPanel`: it reads `LockPanelContext` for `dispatch`, `rejection`, `content`, `appliedHintFor` and the announcer, reads the payload through `useLockPayload`, and keeps its draft in `useState` seeded on mount. The existing `key` on `PanelShell` remounts the panel when an Alternate replaces the question, which gives an empty draft (Requirement 8.8). Drafts are never put in the Event_Log or in State.
 
-Three new payload schemas, each mirroring the Judge's own `*Question` interface exactly (Requirement 2.12):
+| Panel | Structure | Submit |
+|---|---|---|
+| Bone ordering | `<ol>` of items, each with "Move up" and "Move down" buttons. Alt+Arrow moves the focused bone, plain Arrow moves focus (roving tabindex). A visible line names the shortcut. A pinned bone shows "Fixed by hint" and has both buttons disabled. | `{ order }` |
+| Bound threads | Left column in manifest order, right column in `rightOrder`. Left buttons use `aria-pressed`. Each item shows a text state: untied, selected or tied to a named partner. A list of tied threads with "Undo" buttons. A hinted thread shows "Tied by hint" and no Undo. A message line for refusals. | `{ pairs }`, or a message when a left item is untied |
+| Combination dial | A row of Wheels with Increase and Decrease buttons, a visible unit, and a labelled `<input type="text" inputMode="decimal">`. Up and Down arrows step a Wheel, Left and Right move focus. Enter in the input submits. A message for empty input and for the `invalid-submission` rejection. A line that this lock has no hint when the hint had no effect. | `{ rawInput }`, or a message when the text is empty |
+| Cursed object | A `role="radiogroup"` of radio inputs with a visible group label, arrow keys move to the next enabled item. The removed item shows its text label and is disabled. | `{ selectedId }`, or a message when nothing is chosen |
 
-```ts
-export const BoundThreadsPayloadSchema = z
-  .strictObject({
-    leftIds: z.array(z.string().min(1)).min(3).max(4),
-    rightIds: z.array(z.string().min(1)).min(3).max(4),
-    keyPairs: z.array(z.tuple([z.string().min(1), z.string().min(1)])),
-  })
-  .refine(
-    (v) =>
-      v.leftIds.length === v.rightIds.length &&
-      new Set(v.leftIds).size === v.leftIds.length &&
-      new Set(v.rightIds).size === v.rightIds.length &&
-      v.keyPairs.length === v.leftIds.length &&
-      new Set(v.keyPairs.map((p) => p[0])).size === v.leftIds.length &&
-      new Set(v.keyPairs.map((p) => p[1])).size === v.rightIds.length &&
-      v.keyPairs.every(([l, r]) => v.leftIds.includes(l) && v.rightIds.includes(r)),
-    { message: 'keyPairs must be a one-to-one matching of leftIds and rightIds' },
-  );
+Accessible names come from new helpers added to `accessible-names.ts` (for example `boneMoveName(action, text, position, total)` and `wheelName(action, place, digit)`), which keeps one place for names. States that a control shows (selected, tied, fixed, removed, position) are also in its accessible name or description. Every control is at least 44 by 44 px, uses the 2 px `--spectre-300` focus outline and has no drag handler. All colours come from `tokens.css`. Texts render as plain React text, never as HTML.
 
-export const CursedObjectPayloadSchema = z
-  .strictObject({
-    optionIds: z.array(z.string().min(1)).length(4),
-    oddOneOutId: z.string().min(1),
-  })
-  .refine((v) => new Set(v.optionIds).size === 4 && v.optionIds.includes(v.oddOneOutId), {
-    message: 'optionIds must hold 4 unique IDs including oddOneOutId',
-  });
+Draft changes announce through the existing Live_Announcer; no panel creates a live region.
 
-export const CombinationDialPayloadSchema = z
-  .discriminatedUnion('kind', [
-    z.strictObject({ kind: z.literal('exact'), exactValue: z.number().finite(), unit: z.string().min(1) }),
-    z.strictObject({ kind: z.literal('range'), min: z.number().finite(), max: z.number().finite(), unit: z.string().min(1) })
-      .refine((v) => v.min <= v.max, { message: 'min must not exceed max' }),
-    z.strictObject({ kind: z.literal('tolerance'), value: z.number().finite(), tolerance: z.number().finite().nonnegative(), unit: z.string().min(1) }),
-  ]);
-```
-
-`payloadSchemaFor` gains three cases; its return type widens to include the three new schema types. `narrowHint` gains two new `if (lockType === ...)` blocks mirroring the existing `seance-board`/`bone-ordering` ones:
-
-```ts
-if (lockType === 'bound-threads') {
-  if (hintEffect.kind !== 'tie-thread') { fail(`hint-kind-not-allowed: bound-threads accepts only tie-thread, got ${hintEffect.kind}`); return; }
-  const { keyPairs } = payload as { readonly keyPairs: readonly ThreadPair[] };
-  const matches = keyPairs.some(([l, r]) => l === hintEffect.pair[0] && r === hintEffect.pair[1]);
-  if (!matches) fail('hint-pair-unknown: tie-thread pair is not one of keyPairs');
-  return;
-}
-if (lockType === 'cursed-object') {
-  if (hintEffect.kind !== 'remove-option') { fail(`hint-kind-not-allowed: cursed-object accepts only remove-option, got ${hintEffect.kind}`); return; }
-  const { optionIds, oddOneOutId } = payload as { readonly optionIds: readonly string[]; readonly oddOneOutId: string };
-  if (!optionIds.includes(hintEffect.optionId)) fail('hint-option-unknown: remove-option optionId is not in optionIds');
-  else if (hintEffect.optionId === oddOneOutId) fail('hint-option-is-odd: remove-option must not remove oddOneOutId');
-  return;
-}
-```
-
-`combination-dial` needs no branch: `narrowHint` already falls through (returns with no issue) for any lock type it does not special-case, so a `null` hint passes and any non-`null` hint is currently *accepted* — this is a gap against Requirement 2.6 ("only `null`"). The design closes it with one more explicit block:
-
-```ts
-if (lockType === 'combination-dial') {
-  fail(`hint-kind-not-allowed: combination-dial accepts no hint, got ${hintEffect.kind}`);
-}
-```
-
-This runs only when `hintEffect !== null` (the function's top guard already returns early for `null`), so a `null` hint is unaffected.
-
-### `CryptBundleError`/`CryptContentSchema` check (Requirement 2.7)
-
-`CryptContentEntrySchema.options` is `z.record(z.string(), z.string().min(1)).optional()` — already generic over any string-keyed option map, so bound-threads (`leftIds` + `rightIds` keys) and cursed-object (`optionIds` keys) content entries need **no schema change**. Combination-dial entries have no `options` at all (Requirement 11.3), which the existing `.optional()` already permits. Design conclusion: Requirement 2.7's conditional change is **not needed** — `crypt-content.ts` and `crypt-bundle-parse.ts` already accept the new shapes unmodified. This is confirmed by a unit test (task 2) rather than assumed, and if that test fails, the fallback is the smallest compatible widening (a `.max()` removed or a comment relaxed), reported to the user per Requirement 2.7's "report the change."
-
-## Sample mapping (`sample-crypt/sample-mapping.ts`, new)
-
-The authoring mapper (`mapper/manifest-mapper.ts`) only has arms for `rune-cipher`, `seance-board` and `bone-ordering` (confirmed by reading `authoring/schema.ts`'s `AuthoringQuestionSchema` discriminated union — bound-threads, cursed-object and combination-dial are not members). This spec must not add arms there (owned by the Other_Machine). Instead, `sample-crypt/sample-mapping.ts` is a **sample-only**, read-only-input adapter that reads the three new question shapes directly from the parsed Sample_Questions_File JSON (`unknown` until here, like `AuthoringQuestion` is today) and builds `{ spec, content, concept }` triples the same shape `MappedQuestion` already has:
-
-```ts
-// sample-crypt/sample-mapping.ts
-interface RawBoundThreadsQuestion { id: string; conceptId: string; lockType: 'bound-threads'; prompt: string;
-  pairs: readonly { left: string; right: string; evidence: { paragraph: number; quote: string } }[]; explanation: string }
-interface RawCursedObjectQuestion { id: string; conceptId: string; lockType: 'cursed-object'; prompt: string;
-  items: readonly string[]; answer: string; evidence: readonly { paragraph: number; quote: string }[]; explanation: string }
-interface RawCombinationDialQuestion { id: string; conceptId: string; lockType: 'combination-dial'; prompt: string;
-  answer: { kind: 'exact'; value: number } | { kind: 'range'; min: number; max: number }; units: string;
-  evidence: readonly { paragraph: number; quote: string }[]; explanation: string }
-
-export type SampleMappingError =
-  | { readonly kind: 'sample-mapping-quote-unresolved'; readonly questionId: string; readonly paragraph: number }
-  | { readonly kind: 'sample-mapping-shape-invalid'; readonly questionId: string };
-
-export function mapSampleBoundThreads(raw: RawBoundThreadsQuestion, maps: DocumentChunkMaps): Result<MappedQuestion, SampleMappingError>;
-export function mapSampleCursedObject(raw: RawCursedObjectQuestion, maps: DocumentChunkMaps): Result<MappedQuestion, SampleMappingError>;
-export function mapSampleCombinationDial(raw: RawCombinationDialQuestion, maps: DocumentChunkMaps): Result<MappedQuestion, SampleMappingError>;
-```
-
-Each function: (1) resolves every cited paragraph through `maps.chunksByParagraph` exactly as `build-content.ts` does today, returning `sample-mapping-quote-unresolved` on a miss; (2) builds the payload with the fixed ID conventions of Requirement 11.2 (`-l`/`-r`/`-o`/`-step-` suffixes, matching `mapBoneOrderingPayload`'s own pattern so all four generated-ID types look alike); (3) calls `parseCryptContentEntry` to validate the content entry before returning, exactly as the real mapper does. `mapSampleBoundThreads`'s hint is always `{ kind: 'tie-thread', pair: keyPairs[0] }` (hints the first pair, mirroring `mapBoneOrderingPayload`'s "pin the first" convention); `mapSampleCursedObject`'s hint removes the first non-odd item; `mapSampleCombinationDial`'s `hintEffect` is always `null` (Requirement 2.6, 3's dial has no hint). These three sample-only functions are intentionally not exported from `packages/core`'s public `index.ts` — they are an internal implementation detail of `sample-crypt/`, used only by the three builder files, so they carry no risk of being mistaken for the real (Other_Machine-owned) generation mapper.
-
-## The three sample crypts
-
-### `sample-crypt/human-heart.ts` (changed)
-
-The existing `ROOM_SELECTION`/`FINAL_DOOR_SELECTION` tables are widened from 2 Lock_Slots/3 final-door questions to a layout that places all six types. Using the already-tagged `hh-q01`..`hh-q12` (see requirements Introduction's finding table):
-
-| Room | Slot | Primary | Alternate |
-|---|---|---|---|
-| `hh-room-1` | `hh-slot-1` rune-cipher | `hh-q01` | `hh-q02` (seance) |
-| `hh-room-1` | `hh-slot-2` seance-board | `hh-q03` | `hh-q04` (rune) |
-| `hh-room-2` | `hh-slot-3` bone-ordering | `hh-q05` | `hh-q06` (seance) |
-| `hh-room-2` | `hh-slot-4` bound-threads | `hh-q07` | `hh-q08` (rune) |
-
-Final door: `hh-q09` (cursed-object), `hh-q10` (combination-dial, alternate of `hh-c05` — used here as a *primary* final-door question since the final door has no Alternate slot type; `hh-q10`'s own `role: 'alternate'` tag in the authoring file is about the room layout, not the final door, so the builder reads its text and payload the same way regardless of that tag), `hh-q11` (combination-dial, `hh-c06`). This covers cursed-object and combination-dial at the final door and keeps the room layout at the 4-lock-slot, 2-room shape the table above shows, satisfying "all six types, at least two rooms, at least one final-door question, at most 3 rooms" (Requirement 12.2, 12.4). `hh-q12` (rune-cipher, `hh-c07`) is dropped from the fixed selection to keep the final door at 3 slots as before — its concept `hh-c07` is simply unused by the sample, matching the existing file's own note that `hh-c05`/`hh-c06` already have no alternate-less leftover. Builder structure otherwise unchanged: two rooms now instead of one, `loadMappedQuestion` for the rune/seance/bone-ordering questions, and the three new `mapSample*` functions for `hh-q07` (bound-threads), `hh-q09` (cursed-object), `hh-q10`/`hh-q11` (combination-dial).
-
-### `sample-crypt/https.ts` (new)
-
-`samples/questions/https.json` has no rune-cipher question (confirmed above). Requirement 12.7 adds one, quoted from `samples/https.txt`, as a new question `hs-q10` (`lockType: rune-cipher`, `role: primary`) under its own new concept `hs-c07`, so the existing `hs-c01`-`hs-c06` concepts and their question roles stay exactly as authored. The implementer picks the exact quoted term and paragraph while writing the file (the design fixes only the ID, concept and lock type, not the wording), and checks that the quote resolves before using it.
-
-Layout, using the existing concepts unchanged plus the new `hs-c07`:
-
-| Room | Slot | Primary | Alternate |
-|---|---|---|---|
-| `hs-room-1` | `hs-slot-1` bone-ordering | `hs-q01` (`hs-c01`) | `hs-q02` (seance, `hs-c01`) |
-| `hs-room-1` | `hs-slot-2` cursed-object | `hs-q03` (`hs-c02`) | `hs-q04` (bound-threads, `hs-c02`) |
-| `hs-room-2` | `hs-slot-3` bound-threads | `hs-q05` (`hs-c03`) | `hs-q06` (seance, `hs-c03`) |
-| `hs-room-2` | `hs-slot-4` rune-cipher | `hs-q10` (new, `hs-c07`) | — |
-
-Final door: `hs-q07` (combination-dial, `hs-c04`), `hs-q08` (combination-dial, `hs-c05`), `hs-q09` (seance-board, `hs-c06`) — three reserved questions, all of the sample's remaining concepts. Every one of the file's 9 original questions plus the 1 new one is used; no leftover. Builder reads `hs-q01`, `hs-q02`, `hs-q06`, `hs-q09`, `hs-q10` through the existing mapper (rune-cipher, séance-board, bone-ordering) and `hs-q03`, `hs-q04`, `hs-q05`, `hs-q07`, `hs-q08` through the sample mapping (cursed-object, bound-threads, combination-dial).
-
-### `sample-crypt/printing-press.ts` (new)
-
-Same pattern, using `pp-q01`..`pp-q10`:
-
-| Room | Slot | Primary | Alternate |
-|---|---|---|---|
-| `pp-room-1` | `pp-slot-1` bone-ordering | `pp-q01` | `pp-q02` (seance) |
-| `pp-room-1` | `pp-slot-2` cursed-object | `pp-q03` | — |
-| `pp-room-2` | `pp-slot-3` bound-threads | `pp-q04` | — |
-| `pp-room-2` | `pp-slot-4` rune-cipher | `pp-q09` | — |
-
-Final door: `pp-q05` (bound-threads, `pp-c03`), `pp-q06` (combination-dial, `pp-c03`'s alternate, used here as a second final-door question since the final door has no Alternate slot type — the same precedent as `hh-q10` in the human-heart table above), `pp-q07` (combination-dial, `pp-c04`), `pp-q10` (seance-board, `pp-c07`) — four reserved questions, at the `MAX_RESERVED_FINAL_DOOR_QUESTIONS` limit. `pp-q08` (combination-dial, `pp-c05`) is the sample's one leftover question, matching `hh-q12`'s and `hs-q06`'s precedent of occasionally leaving one question unused — acceptable since the requirement only needs "every type appears at least once," not "every question is used." Each builder exposes its own `SAMPLE_CONCEPT_TITLES`-style fixed table (`HTTPS_CONCEPT_TITLES`, `PRINTING_PRESS_CONCEPT_TITLES`) matching the pattern `human-heart.ts` already uses, and its own `is*SampleId` / fixed selection constants, never a search.
-
-Each builder's final shape and error type match `SampleCryptResult`/`SampleCryptError` exactly, so a single `SampleId` union in `apps/web/src/state/sample-crypt-source.ts`-adjacent code (see below) can hold all three without changing that file's public contract.
-
-## Web layer
-
-### `lock-panel-registry.ts` (changed)
+### Registry and the unplayable path (Phase 2)
 
 ```ts
 export const LOCK_PANELS: LockPanelRegistry = {
@@ -318,135 +267,189 @@ export const LOCK_PANELS: LockPanelRegistry = {
 };
 ```
 
-A unit test asserts `Object.keys(LOCK_PANELS).sort()` equals `[...LOCK_TYPES].sort()` (Requirement 9.6), which is the mechanism that keeps `UnplayablePanel`'s branch reachable only for a genuinely unknown string (Requirement 9.1-9.4) — no code change to `question-panel.tsx`'s `LOCK_PANELS[questionType] === undefined` check is needed; it simply never trips for any of the six real types any more.
+`UnplayablePanel`, `ROOM_PLAY_LABELS.unplayableType` and the fallback branches in `question-panel.tsx` and `final-door.tsx` stay. They are reached only for a type string that is not a key of the registry. Existing tests that expected an unplayable message for one of the four types are changed to expect the panel (Requirement 9.7).
 
-### `bone-ordering-panel.tsx`
+### Manifest widening
 
-```tsx
-export function BoneOrderingPanel({ slotId, questionId }: LockPanelProps): ReactNode {
-  const context = useLockPanelContext();
-  const [draft, setDraft] = useState(() => initBoneOrderingDraft(payload, hint)); // payload/hint read from context via a small accessor
-  // Move up / Move down per item, each a <button> inside an <ol>; Alt+ArrowUp/Down also move,
-  // plain ArrowUp/Down move focus between <li> buttons (roving tabindex pattern, like SeanceBoardPanel's radiogroup).
-}
-```
+`runtime/manifest-schema.ts` gains three payload schemas that mirror the Judge input types exactly (Requirement 2.12). They are defined in this order of constraint:
 
-Mirrors `RuneCipherPanel`'s shape: one `useState` draft seeded on mount, re-seeded via the `key={slotId:questionId}` remount `QuestionPanel` already does on an Alternate swap (Requirement 8.8 — no new remount logic needed, the existing `PanelShell`'s `key` prop already forces this). The panel needs the raw `payload` (`itemIds`), which is not on `LockPanelContextValue` today; the panel reads it from the manifest via a small new read-only accessor `payloadFor(slotId, questionId)` added to the context value — this is the one addition `lock-panel-context.ts` needs (confirmed necessary: rune cipher and séance board panels never needed the payload because `content.questions[...]` already gave them everything; the four new panels need payload-only fields `itemIds`/`leftIds`/`rightIds`/`unit` that are deliberately absent from Crypt_Content so the browser never ships enough to reconstruct a key — `itemIds` is not a key, it is the generated-ID list in authoring, not answer order, so exposing it is safe). `RoomPanel`'s `value` memo (in `room-panel.tsx`) gains one more field:
+- `BoundThreadsPayloadSchema`: strict object `{ leftIds, rightIds, keyPairs }`. `leftIds` and `rightIds` hold 3 to 4 unique non-empty IDs, have equal length, and `keyPairs` is a one-to-one matching that uses every left and right ID once.
+- `CursedObjectPayloadSchema`: strict object `{ optionIds, oddOneOutId }` with exactly 4 unique non-empty IDs and `oddOneOutId` among them.
+- `CombinationDialPayloadSchema`: discriminated union on `kind` for `exact`, `range` and `tolerance`, with finite numbers, a non-empty `unit`, `min <= max` for `range` and `tolerance >= 0`.
+
+`payloadSchemaFor` returns these schemas instead of `null` for the three types. `narrowHint` in `runtime/manifest-hints.ts` gains:
+
+- `bound-threads`: accepts only `tie-thread` whose pair is one of `keyPairs`.
+- `cursed-object`: accepts only `remove-option` whose option ID is in `optionIds` and is not `oddOneOutId`.
+- `combination-dial`: rejects every non-null hint, because the Judge ignores hints for that type. This closes a gap in the current fall-through, which would accept any hint.
+
+These hint shapes match the mapper plan (`tie-thread`, `remove-option`, `null`), so both machines produce one manifest shape. Limits stay as they are: at most one Lock_Slot per type per room, at most 4 final-door questions, and an Alternate of a different type.
+
+Before editing `manifest-schema.ts`, `manifest-hints.ts` or `crypt-bundle-parse.ts`, the implementer pulls and checks that the Other_Machine has not changed the same lines (Requirement 2.13).
+
+`CryptContentEntry.options` is already `Record<string, string>` and optional, so bound-threads, cursed-object and combination-dial entries should parse without a schema change. A unit test in Phase 1 confirms this. If it fails, the smallest change to `mapper/crypt-bundle-parse.ts` or `mapper/crypt-content.ts` is made and reported (Requirement 2.7).
+
+### Sample builders and Sample_Registry (Phase 3)
+
+Each builder returns the existing `SampleCryptResult` or `SampleCryptError` and builds every question through the Core_Mapper. A builder holds a fixed selection table (question ID per slot, Alternate and final-door position) and a fixed concept-title table in code. It never searches or reorders. A quote that does not resolve returns a typed error that names the question ID, and nothing is published (Requirement 15.5). Sample question files keep a draft `status`, so `isHumanReviewed` is false and no review label appears.
 
 ```ts
-payloadFor: (slotId, questionId) => findQuestionById-like lookup, returning `question.payload` (already in the manifest, already public — `State.manifest` is already passed around; this is a read, not new data)
-```
-
-This is the smallest possible touch to `room-panel.tsx` the design can find; it is called out explicitly for the task list to implement under Requirement 1.9's "smallest change" rule, and is re-verified against the Other_Machine's actual edit once pulled (if `room-panel.tsx`'s shape changed meaningfully, the task re-derives the equivalent minimal addition instead of assuming this snippet verbatim).
-
-Rendering: an ordered list of buttons, each item's accessible name built by a small pure helper `boneMoveName(action, text, position, total)` in `accessible-names.ts`-adjacent code — but `accessible-names.ts` is not in the off-limits list and already holds `lockName`/`ghostName`/etc., so this spec adds to it directly rather than creating a parallel file (keeps the "one place for accessible names" convention). `Hint`/`Skip`/`Challenge` render exactly as `RuneCipherPanel` does not render them — they are already lifted one level up into `RoomPanel`'s `<QuestionControls>` sibling, not inside the Lock_Panel itself (confirmed by reading `room-panel.tsx`: `QuestionControls` is a sibling `children` of `QuestionPanel`, not nested in `RuneCipherPanel`). So Requirement 4.12/5.13/6.14/7.8 ("the panel shows Hint/Skip/Challenge") is satisfied by the existing `RoomPanel` wiring with zero new code — true for all four new panels automatically, exactly as it already is for rune cipher and séance board.
-
-### `bound-threads-panel.tsx`
-
-Two columns rendered as two `<ul>`s inside one `<div role="group">`. Left buttons toggle selection (`aria-pressed`); right buttons call `tieRight`. Each tied pair additionally renders one line of text plus an "Undo" button, in a `<ul>` below the columns, matching Requirement 5.6. A `showMessage` state (string | null) mirrors `SeanceBoardPanel`'s pattern for the "choose a left item first" and "tie every item" messages.
-
-### `combination-dial-panel.tsx`
-
-A row of per-wheel `<button>` pairs (Increase/Decrease) above a labelled `<input type="text" inputMode="decimal">` for Typed_Entry — `type="text"` rather than `type="number"` because the value can be a range-accepting free decimal and negative sign, and a native number input's spinner conflicts with the custom Wheel buttons (same reasoning `RuneCipherPanel` already uses `type="text"` for its own typed field, i.e. following existing convention, not inventing one). The unit text renders as a fixed `<span>` beside the dial, read from `payloadFor(...).unit`. Enter in the input and the wheel buttons call the same `submit()` closure `RuneCipherPanel` uses for its own Enter-key pattern.
-
-### `cursed-object-panel.tsx`
-
-A `role="radiogroup"` identical in shape to `SeanceBoardPanel`'s, with `disabled` on the Removed_Item's `<input>` exactly like `SeanceBoardPanel`'s `removedId` handling — this panel is close enough to `SeanceBoardPanel` that it is written by copying that file's structure and substituting the submission shape (`{ selectedId }` instead of `{ selectedOptionId }`) and the source of its option list (`content.questions[questionId].options` keyed by `optionIds` instead of the séance `options` map — same field, same code path, since both are `Record<string, string>`).
-
-### `sample-picker.tsx` (new) and `start-view.tsx` (changed)
-
-```tsx
 export type SampleId = 'human-heart' | 'https' | 'printing-press';
-export interface SamplePickerProps {
-  readonly value: SampleId;
-  readonly onChange: (id: SampleId) => void;
+export interface SampleSources {
+  readonly notesText: string;
+  readonly questionsFile: unknown; // validated by the builder
 }
-export function SamplePicker({ value, onChange }: SamplePickerProps): ReactNode; // role="radiogroup", 3 labelled options
+export type SampleBuilder = (sources: SampleSources) => Result<SampleCryptResult, SampleCryptError>;
+export type UnknownSampleError = { readonly kind: 'unknown-sample'; readonly id: string };
+
+export const SAMPLE_IDS: readonly SampleId[];
+export function getSampleBuilder(id: string): Result<SampleBuilder, UnknownSampleError>;
 ```
 
-`start-view.tsx` gains one new optional prop `samplePicker?: { value: SampleId; onChange: (id: SampleId) => void }` (so existing callers/tests that do not pass it keep the human-heart-only behaviour) and renders `<SamplePicker>` above the "Enter the crypt" button when present. `crypt-flow.tsx` (in `apps/web/src/features/crypt/`, **not** `apps/web/src/state/`, so in-scope) holds the `SampleId` state and builds a `buildCrypt` function that switches on it:
+`getSampleBuilder` returns a builder for each ID in `SAMPLE_LIST` and a typed error for any other string. A test checks that `SAMPLE_IDS` equals the IDs in `SAMPLE_LIST`.
+
+In `apps/web/src/features/crypt/sample-sources.ts` (not under `state/`), the raw notes and question files of all three samples are imported at build time, and one function connects the registry to the run:
 
 ```ts
-const [sampleId, setSampleId] = useState<SampleId>('human-heart');
-const buildCrypt = useCallback<BuildCrypt>(() => {
-  if (playRef.current !== null) return { ok: true, value: playRef.current };
-  switch (sampleId) {
-    case 'human-heart': return buildSampleCrypt(); // unchanged import from state/sample-crypt-source
-    case 'https': return buildHttpsSampleCrypt();
-    case 'printing-press': return buildPrintingPressSampleCrypt();
-  }
-}, [sampleId]);
+export function buildCryptForSample(id: string): BuildCrypt;
 ```
 
-`buildHttpsSampleCrypt`/`buildPrintingPressSampleCrypt` are new thin wrappers in `crypt-flow.tsx`'s own module or a tiny new `apps/web/src/features/crypt/sample-crypt-sources.ts` file (a sibling of `state/sample-crypt-source.ts` but under `features/crypt/`, so it stays out of the off-limits `state/` directory) that import the two new `?raw`/JSON sample files the same way `state/sample-crypt-source.ts` already imports the human-heart ones, and call the two new `packages/core` builders. This is the mechanism Requirement 12.11 asks for: the existing `buildCrypt` parameter of `useRoomBinding` (in `state/room-binding.ts`, unedited) already accepts any function of that shape, so swapping which builder it calls happens entirely from `features/crypt/`.
+It returns a function of the shape that `useRoomBinding` already accepts as `buildCrypt`. The hub integration passes the chosen ID to it. No edit to `apps/web/src/state/` or to `crypt-flow.tsx` is needed. Nothing leaves the origin, because all sources are bundled.
 
-### `copy-lock-panels.ts` (new, `packages/core/src/`)
+Restore is a known limit. `restoreRun` in `state/storage/restore-run.ts` rebuilds only the human-heart sample through its `buildSample` dependency. A saved run on another sample fails with the existing typed error `record-unreadable`. This is reported to the user and left alone (Requirement 12.12).
 
-Holds every new string: move-up/down labels, tie/undo/select messages, "choose an item first," "tie every item," "type a number," wheel accessible-name templates, the "Fixed by hint"/"Tied by hint"/"Removed by hint" labels (the last already exists as `removedByHint` in `ROOM_PLAY_LABELS`, reused rather than duplicated). Covered by the existing banned-words test by following the same `export const X_LABELS = {...}` pattern `copy-room-play.ts` uses, which that test already walks via `Object.values` reflection over every exported `*_LABELS`/`*_COPY` object in `copy.ts`'s barrel — confirmed by reading the banned-words test's import list before assuming this; if it imports a fixed list of modules rather than globbing, the task adds `copy-lock-panels.ts` to that list explicitly.
+#### Layouts
+
+All three samples have two rooms with two Lock_Slots each and a final door of 3 or 4 questions, which meets "at least two rooms, at most three, at least one final-door question". Across each sample, all six types appear at least once among slot primaries and final-door questions (Requirement 12.2). The question IDs are fixed in the builder after the Phase 3 task has read each questions file. The table gives the shape that the selection must have, not the IDs.
+
+| Sample | Room 1 slots | Room 2 slots | Final door |
+|---|---|---|---|
+| human-heart | rune-cipher, séance-board | bone-ordering, bound-threads | cursed-object, combination-dial, one more |
+| https | bone-ordering, cursed-object | bound-threads, rune-cipher | combination-dial, combination-dial, séance-board |
+| printing-press | bone-ordering, cursed-object | bound-threads, rune-cipher | bound-threads or combination-dial, combination-dial, séance-board |
+
+Each slot may carry an Alternate of a different type, taken from the questions that the file already holds. The current human-heart layout (one room, two Lock_Slots, three final-door questions) changes, so its builder and every test, fixture and end-to-end test that depends on the old shape are updated (Requirement 12.13).
+
+`samples/questions/https.json` has no rune cipher question. Phase 3 adds one with `draft` status, quoted from `samples/https.txt`, with its own concept, so the existing concepts and roles stay as authored. The implementer chooses the quoted term and paragraph and checks that the quote resolves before using it.
+
+### Copy
+
+`packages/core/src/copy-lock-panels.ts` holds every new learner-facing string, as an exported `*_LABELS` object like `copy-room-play.ts`: move labels, shortcut line, refusal messages, "Fixed by hint", "Tied by hint", "no hint to give", `payloadMissing`, `itemTextMissing`, wheel name templates. The existing "Removed by hint" label is reused. Copy follows `.kiro/steering/tone.md`. Phase 1 checks whether the banned-phrases test finds the new file by reflection or by a fixed import list, and adds the file to the list if needed.
 
 ## Data Models
 
-The Judge-facing payload and submission types are unchanged — they already exist in `packages/core/src/locks/<type>.ts` and are read-only in this spec. The new types this spec introduces are the four Interaction_Model draft shapes and the three new Manifest_Schema payload shapes, both shown in full above. Summary:
+Judge payload and submission types are unchanged. The new types are the four draft shapes above and the three payload schemas.
 
-| Type | Draft (new, `locks/*-interaction.ts`) | Payload (schema-widened, mirrors existing Judge input) | Submission (unchanged, from the Judge file) |
+| Type | Draft | Payload | Submission |
 |---|---|---|---|
-| bone-ordering | `{ order: readonly string[]; pinned: string \| null }` | `{ itemIds, keyOrder }` (existing) | `{ order: readonly string[] }` |
-| bound-threads | `{ rightOrder, pairs: ReadonlyMap<string,string>, hintedPair, selectedLeft }` | `{ leftIds, rightIds, keyPairs }` (new schema) | `{ pairs: readonly ThreadPair[] }` |
-| combination-dial | `{ text: string; wheelCount: number; hasTenths: boolean }` | `{ kind, exactValue? / min? / max? / value? / tolerance?, unit }` (new schema) | `{ rawInput: string }` |
-| cursed-object | `{ selected: string \| null; removed: string \| null }` | `{ optionIds, oddOneOutId }` (new schema) | `{ selectedId: string \| null }` |
+| bone-ordering | `{ order, pinned }` | `{ itemIds, keyOrder }` (existing schema) | `{ order }` |
+| bound-threads | `{ rightOrder, threads, hintedPair, selectedLeft }` | `{ leftIds, rightIds, keyPairs }` (new schema) | `{ pairs }` |
+| combination-dial | `{ text, integerWheels, hasTenths }` | `{ kind, ... , unit }` (new schema) | `{ rawInput }` |
+| cursed-object | `{ selected, removed }` | `{ optionIds, oddOneOutId }` (new schema) | `{ selectedId }` |
 
-`CryptContentEntry` (`mapper/crypt-content.ts`) is unchanged by this spec: its `options?: Record<string, string>` field already accepts the `leftIds`/`rightIds`/`optionIds`-keyed text maps the three new sample mappings produce, and combination-dial entries simply omit `options`, which the field's `.optional()` already allows.
-
-`SampleId = 'human-heart' | 'https' | 'printing-press'` (new, `features/crypt/`) selects which of the three `SampleCryptResult`-shaped builders `buildCrypt` calls; `SampleCryptResult`/`SampleCryptError` themselves are unchanged.
-
-## Error Handling
-
-- **Manifest_Schema**: an invalid payload of any of the three new types returns the existing `ManifestSchemaError` (`kind: 'manifest-schema-invalid'`) with a path into `payload`; an invalid hint returns the same `narrowHint`-raised issue shape the existing four branches already use. No new error kind is introduced at this layer.
-- **Sample_Mapping**: `mapSampleBoundThreads`/`mapSampleCursedObject`/`mapSampleCombinationDial` return the new `SampleMappingError` (`sample-mapping-quote-unresolved` naming the question and paragraph, or `sample-mapping-shape-invalid` naming the question) instead of throwing, for a malformed Sample_Questions_File entry or an unresolvable quote. The three sample builders fold this error into their existing `SampleCryptError` union (widened to include `SampleMappingError`) and return it without publishing a partial manifest, exactly as `buildHumanHeartSampleCrypt` already does for `SampleQuestionError`.
-- **Interaction_Models**: every operation is total and returns a draft; there is no thrown exception path. "Not ready to submit" is represented as a typed `{ ready: false }` return from each `*Submission` function rather than `null` or a thrown error, so a panel can `if (!result) return` style check with no `try/catch` anywhere in `apps/web`.
-- **Panels**: an incomplete or empty draft at submit time shows the panel's own inline message (Requirements 4-7's "ask the learner to ..." criteria) and dispatches no Event, mirroring `RuneCipherPanel`'s existing `askForAnswer` pattern. A `rejection.kind === 'invalid-submission'` from the Room_Binding (e.g. unparsable `rawInput`) is read from `LockPanelContext` exactly as `RuneCipherPanel` already reads it for its own type.
-- **Missing art**: unchanged existing `ArtFailureLog` path (Requirement 10.6) — a failed lock-layer or close-up image load is logged once by filename and error type, never by learner content, and the panel stays usable.
+`CryptContentEntry` is unchanged. `SampleId`, `SampleSources`, `SampleBuilder` and `UnknownSampleError` are new and live in `packages/core/src/sample-crypt/`.
 
 ## Correctness Properties
 
+*A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
 ### Property 1: Judge agreement
 
-For every New_Lock_Type, for all valid payloads (and, where applicable, all hints `narrowHint` accepts for that type), the Submission that the Interaction_Model's operations build when driven to the key answer is judged `correct`; the Submission built for any other complete, well-formed answer is judged `wrong`; an incomplete draft never reaches `judge` (the panel withholds submission). **Validates: Requirements 4.13, 5.14, 6.15, 7.9**
+For any valid payload of a New_Lock_Type and any hint that `narrowHint` accepts for it, the Submission built by driving the Interaction_Model to the key answer is judged `correct` by the core Judge, and the Submission built for any other complete answer the model can produce is judged `wrong`. An incomplete draft yields `{ ready: false }` and never reaches the Judge.
 
-### Property 2: Bound-threads one-to-one invariant
+**Validates: Requirements 3.16, 4.13, 5.14, 6.15, 7.9**
 
-For any sequence of `selectLeft`/`tieRight`/`undoThread` operations (including operations attempted on already-tied or hinted items), `pairs` never holds two entries with the same value, and `undoThread` never removes the hinted pair. **Validates: Requirements 5.15, 3.11**
+### Property 2: Bound threads stay one-to-one
 
-### Property 3: Display_Order is a permutation that avoids the key order for the shapes this spec ships
+For any sequence of select, tie and undo operations, including operations on tied, refused and hinted items, no left item and no right item appears in more than one thread, and the hinted pair is never removed.
 
-For bone-ordering's initial draft and bound-threads' right column, `displayOrder` returns a rearrangement of its input (same multiset of IDs) and, for the specific `itemIds`-equals-`keyOrder` / `rightIds`-aligned-with-`leftIds` shapes the mappers produce, differs from the identity/key order. **Validates: Requirements 3.2, 3.3, 3.4, 3.5**
+**Validates: Requirements 3.9, 3.10, 3.11, 5.15**
 
-### Property 4: Combination-dial round trip
+### Property 3: Display_Order is a deterministic permutation that avoids the key
 
-For any draft, `wheelsOf(setTypedEntry(draft, text))` reconstructs the same digit sequence that `text` encodes, for every `text` the panel can produce by typing or by wheel stepping. **Validates: Requirements 6.16**
+For any list of IDs and seed, `displayOrder` returns a permutation of the list and returns the same result on every call. For any bone ordering payload with `itemIds` equal to `keyOrder`, the initial draft differs from `keyOrder`, and with a `lock-first-bone` hint it holds the pinned bone at its key index and differs from `keyOrder` elsewhere. For any bound threads payload with `rightIds` aligned with `leftIds`, no right item stands on the row of its key partner.
 
-### Property 5: No early answer leak
+**Validates: Requirements 3.2, 3.3, 3.4, 3.5**
 
-Before an answer is submitted, no rendered DOM node of a Lock_Panel contains `keyOrder`, `keyPairs`, `oddOneOutId`, or a dial's `exactValue`/`min`/`max`/`value`/`tolerance` as text or as a data attribute. **Validates: Requirements 13.9**
+### Property 4: Bone moves are bounded and keep the pin
 
-### Property 6: Manifest round trip for the three new payloads
+For any bone ordering draft and any sequence of move operations, the order stays a permutation of `itemIds`, a move past the first or last position leaves the draft unchanged, and the pinned bone stays at its index.
 
-For all valid `bound-threads`, `cursed-object` and `combination-dial` payloads embedded in an otherwise-valid manifest, `parseManifest(JSON.parse(JSON.stringify(manifest)))` returns an equal manifest. **Validates: Requirements 2.10**
+**Validates: Requirements 3.7, 3.8**
 
-### Property 7: Sample crypts are complete and escapable
+### Property 5: Dial text and Wheels agree
 
-For each of the three Sample_Crypt_Entries, the built manifest passes `validateManifestForPublish` and `parseCryptBundle`, contains all six lock types, and a play-through that skips or challenges every question reaches status `"escaped"`. **Validates: Requirements 12.2, 12.3, 12.15**
+For any dial draft and any text, `wheelsOf(setTypedEntry(draft, text))` gives the digits that the text encodes, and for any draft, stepping a Wheel up and then down returns the same text. A step wraps only the Wheel it acts on.
 
-## Testing strategy
+**Validates: Requirements 3.12, 3.14, 6.16**
 
-- **Interaction_Model property tests** (`packages/core`, fast-check): for each type, generate a random valid payload and a random sequence of panel operations that is guaranteed to end at the key answer; assert `judge(...) === 'correct'`. A second property generates operations ending at a different, still-valid, complete answer and asserts `judge(...) !== 'invalid'` and, when it is not the key, `=== 'wrong'`. Display_Order gets its own permutation + determinism property.
-- **Component tests** (`apps/web`, Vitest + Testing Library, keyboard-only: `userEvent` with `{ pointerEventsCheck: 0 }` disabled and no `.click()`): one file per panel, reusing `RuneCipherPanel.test.tsx`'s harness pattern (a minimal `LockPanelContext.Provider` wrapper).
-- **Playwright**: one spec per New_Lock_Type under `apps/web/e2e/`, parametrised or duplicated per the existing `crypt-*.e2e.ts` convention, run across `chromium`, `firefox`, `pixel` per the project list in `playwright.config.ts` (already configured; no config change needed). A phone-tap variant checks 44×44 targets using the same geometry helper `crypt-hotspots.e2e.ts` already has.
-- **axe**: extends `crypt-axe.e2e.ts`'s existing per-panel-open pattern with four more cases.
-- **Sample crypt escape tests**: one Playwright test per sample that answers every lock correctly (reading the key from the manifest fixture in test code, never the DOM) and one that skips/challenges everything, reusing `crypt-all-correct.e2e.ts`/`crypt-all-wrong.e2e.ts`'s structure.
-- **Manifest schema tests**: extend `manifest-schema.test.ts` and `manifest-schema-hints.test.ts` with the three new payload shapes' accept/reject cases and the round-trip property.
-- **No-leak test**: a Testing Library test per panel that renders the Lock_Panel before any submission and asserts `screen.queryByText(/keyOrder-like value/)` style checks are unnecessary — simpler: assert the rendered DOM's `textContent` does not include any of the key's own generated IDs' *text* value in a position that reveals the answer (e.g., for bone-ordering, that no element carries a "correct order" affordance beyond the neutral Display_Order); implemented concretely as a snapshot-free assertion that the panel's initial rendered order (from the DOM) differs from `keyOrder`/`keyPairs` taken from the test's own payload fixture.
+### Property 6: Cursed object never submits the removed item
 
-## CPU / checkpoint discipline
+For any cursed object payload and hint, `chooseItem` on the removed item leaves the draft unchanged, so no submission ever holds the removed item.
 
-Each task group runs its own new/changed test files only (`vitest run <pattern>`, `playwright test <file> --project=chromium`). Checkpoints (end of core groundwork, end of panels, end of sample crypts, end of e2e) run `pnpm test` (which is `pnpm -r test --run`, already using Vitest's default worker pool — the design adds `--maxWorkers=50%` at the checkpoint invocation specifically) and `pnpm e2e -- --workers=2`, then append one row per checkpoint to `docs/build-log.md` matching the existing table format.
+**Validates: Requirements 3.15, 7.10**
+
+### Property 7: Interaction models are total
+
+For any draft and any input to any operation of an Interaction_Model, the call returns a typed value and does not throw.
+
+**Validates: Requirements 3.17**
+
+### Property 8: Panels do not show the key before judging
+
+For any valid payload, the DOM of a freshly rendered Lock_Panel shows the items in the Display_Order, not `keyOrder` or key row order, and contains no `oddOneOutId` marker, no pair marker and no dial number taken from the payload (the unit excepted).
+
+**Validates: Requirements 4.1, 5.1, 6.11, 13.9**
+
+### Property 9: Manifest round trip for the three new payloads
+
+For any manifest that holds valid `bound-threads`, `cursed-object` and `combination-dial` payloads, parsing the JSON of the manifest with the Manifest_Schema gives an equal manifest.
+
+**Validates: Requirements 2.10**
+
+### Property 10: Hint narrowing
+
+For any valid payload of any of the six lock types, the Manifest_Schema accepts a QuestionSpec with a hint that `narrowHint` allows for that type, and rejects a hint of any other kind, a hint that names an unknown pair or option, and a `remove-option` that names `oddOneOutId`.
+
+**Validates: Requirements 2.4, 2.5, 2.6, 2.11**
+
+### Property 11: Sample crypts are complete, resolvable and escapable
+
+For each Sample_Crypt_Entry, the built manifest passes `validateManifestForPublish` and `parseCryptBundle`, contains all six lock types, has every `evidenceRefs` ID among its excerpts' chunk IDs, resolves every quote against its chunk, has an `options` entry for every payload item ID that has display text and none for an ID the payload lacks, and a play-through that skips or challenges every question reaches `escaped`.
+
+**Validates: Requirements 11.5, 12.2, 12.3, 12.14, 12.15**
+
+## Error Handling
+
+- **Manifest_Schema.** An invalid payload or hint returns the existing `manifest-schema-invalid` error with the payload path and no payload content (Requirement 2.9). No new error kind is added.
+- **Interaction_Models.** Every operation is total. A refusal is a typed `ThreadRefusal`. An incomplete draft is `{ ready: false }`. There is no `try/catch` in `apps/web` for them.
+- **Panels.** An incomplete draft at submit shows the panel's own message and dispatches no Event. A `rejection` of kind `invalid-submission` from the binding shows the dial's message, keeps the draft and keeps the slot open. A `null` payload or a missing item text shows the matching string from `copy-lock-panels.ts` and leaves Skip and Challenge working.
+- **Unknown question type.** `UnplayablePanel` with its Skip button, unchanged (Requirement 9.3).
+- **Sample builders.** A shape error, a missing mapper arm result or an unresolved quote returns a typed `SampleCryptError` that names the question ID. No partial manifest is published. A missing mapper arm found before Phase 3 stops the work instead (Requirement 1.16).
+- **Sample_Registry.** An unknown ID returns `unknown-sample`, never a default sample.
+- **Art.** A failed lock layer or close-up is logged once with the file name and error type only, and the panel stays usable. No new art is added.
+- **Restore.** A saved run on https or printing-press fails with the existing `record-unreadable` error (Requirement 12.12).
+
+## Testing Strategy
+
+Property-based testing applies to the Interaction_Models, Display_Order, the manifest schemas and the sample builders, because these are pure functions with large input spaces. It does not apply to panel layout, styling or art, which use example-based component tests, Playwright and axe.
+
+**Library and configuration.** fast-check with Vitest. Each property is one property-based test that runs at least 100 iterations and carries the comment `Feature: lock-types, Property N: <title>`. Arbitraries for the new payloads go in `packages/core/src/test-support/arbitraries.ts` next to the existing ones. Fixtures shared with other specs go in `packages/core/src/test-support/`.
+
+**Unit tests (example-based).**
+- One `<type>-interaction.test.ts` per model for boundary cases, plus `display-order.test.ts`.
+- Manifest schema and hint tests for accept and reject cases of the three new payloads, including a corrupted payload per type.
+- A test that `CryptContentEntry` accepts the content shapes of the three new types (Requirement 2.7 check).
+- Component tests per panel with Testing Library and keyboard-only events (Tab, Enter, Space, arrows, Alt+arrows, no pointer events). They render the panel with a test-local `LockPayloadContext` provider and a test-local `LockPanelContext` value, and do not import the registry (Phase 1). They cover the hint states, the empty-draft messages, the `invalid-submission` message, the unit-only display of the dial and the Alternate remount.
+- Phase 2: a registry test that `LOCK_PANELS` has one entry per `LOCK_TYPES` value, a test that an unknown type shows `UnplayablePanel` and its Skip button, and updated tests that expected an unplayable message.
+- Art tests: for each new type the four close-up files exist, and for each Art_Room the scene file holds the lock entry with its four layers and light pass (Requirements 10.7, 10.8).
+- Copy: the banned-phrases test covers `copy-lock-panels.ts`.
+- Sample_Registry: a builder for each ID in `SAMPLE_LIST` and a typed error for an unknown ID.
+
+**End-to-end (Phase 4).**
+- One Playwright test per new type that opens the lock, answers by keyboard and checks the Evidence_Panel, on `chromium`, `firefox` and `pixel`.
+- One phone test per new type that answers by tap and checks that each control is at least 44 by 44 px.
+- One axe check per new type with its panel open.
+- Per sample: one play-through with every question answered correctly (answers read from the manifest in test code, not from the screen) and one that skips every question, both ending in `escaped`.
+
+**Constraints.** No test calls an AI provider or uses a cassette. During a task only the targeted Vitest file or a single Playwright file on one project runs. At a Checkpoint the full Vitest suite runs with `--maxWorkers=50%` and the full Playwright suite with `--workers=2`, and the counts, including failures and skips, go into `docs/build-log.md`. No dev server or watcher is started from a shell command. `pnpm lint`, `pnpm typecheck` and the structure check must pass at every Checkpoint.

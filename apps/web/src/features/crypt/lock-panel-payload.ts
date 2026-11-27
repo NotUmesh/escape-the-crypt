@@ -1,0 +1,86 @@
+import { createContext, useContext } from 'react';
+import type {
+  BoneOrderingQuestion,
+  BoundThreadsQuestion,
+  CombinationDialQuestion,
+  CursedObjectQuestion,
+  HintEffectSpec,
+} from '@escape-the-crypt/core';
+import { useLockPanelContext } from './lock-panel-context';
+import type { LockPanelContextValue } from './lock-panel-context';
+
+/** The payload shape each of the four panels reads. */
+export interface LockPayloadByType {
+  readonly 'bone-ordering': BoneOrderingQuestion;
+  readonly 'bound-threads': BoundThreadsQuestion;
+  readonly 'combination-dial': CombinationDialQuestion;
+  readonly 'cursed-object': CursedObjectQuestion;
+}
+export type PayloadLockType = keyof LockPayloadByType;
+
+/** Where a panel finds the payload of its slot's current question. Provided around the question panel. */
+export interface LockPayloadSource {
+  readonly payloadFor: (slotId: string, questionId: string) => unknown;
+}
+export const LockPayloadContext = createContext<LockPayloadSource | null>(null);
+/** The one announcer the panels speak through. The default says nothing. */
+export const LockAnnounceContext = createContext<(message: string) => void>(() => undefined);
+export function useLockAnnounce(): (message: string) => void {
+  return useContext(LockAnnounceContext);
+}
+
+const isStrings = (v: unknown): v is readonly string[] => Array.isArray(v) && v.every((x) => typeof x === 'string');
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+const isPair = (v: unknown): boolean => isStrings(v) && v.length === 2;
+const finite = (v: unknown): boolean => v === undefined || (typeof v === 'number' && Number.isFinite(v));
+
+const GUARDS: { readonly [K in PayloadLockType]: (v: unknown) => v is LockPayloadByType[K] } = {
+  'bone-ordering': (v): v is BoneOrderingQuestion => isObject(v) && isStrings(v['itemIds']) && isStrings(v['keyOrder']),
+  'bound-threads': (v): v is BoundThreadsQuestion =>
+    isObject(v) &&
+    isStrings(v['leftIds']) &&
+    isStrings(v['rightIds']) &&
+    Array.isArray(v['keyPairs']) &&
+    v['keyPairs'].every(isPair),
+  'cursed-object': (v): v is CursedObjectQuestion =>
+    isObject(v) && isStrings(v['optionIds']) && typeof v['oddOneOutId'] === 'string',
+  'combination-dial': (v): v is CombinationDialQuestion =>
+    isObject(v) &&
+    (v['kind'] === 'exact' || v['kind'] === 'range' || v['kind'] === 'tolerance') &&
+    typeof v['unit'] === 'string' &&
+    finite(v['exactValue']) &&
+    finite(v['min']) &&
+    finite(v['max']) &&
+    finite(v['value']) &&
+    finite(v['tolerance']),
+};
+
+/** The slot's payload, or null when it is missing or has another lock type's shape. */
+export function useLockPayload<T extends PayloadLockType>(
+  slotId: string,
+  questionId: string,
+  type: T,
+): LockPayloadByType[T] | null {
+  const source = useContext(LockPayloadContext);
+  if (source === null) return null;
+  const value = source.payloadFor(slotId, questionId);
+  return GUARDS[type](value) ? value : null;
+}
+
+/** The slot's applied hint effect, when the hint is for this question. */
+export function hintEffectFor(env: LockPanelContextValue, slotId: string, questionId: string): HintEffectSpec | null {
+  const hint = env.appliedHintFor(slotId);
+  return hint !== null && hint.questionId === questionId ? (hint.effect ?? null) : null;
+}
+
+/** The text of one option, or a plain fallback when the content lacks it. */
+export function itemText(env: LockPanelContextValue, questionId: string, itemId: string, fallback: string): string {
+  return env.content.questions[questionId]?.options?.[itemId] ?? fallback;
+}
+
+/** True when the last rejection is an invalid submission for this slot. */
+export function rejectedInvalid(env: LockPanelContextValue, slotId: string): boolean {
+  return env.rejection?.kind === 'invalid-submission' && env.rejection['slotId'] === slotId;
+}
+
+export { useLockPanelContext };

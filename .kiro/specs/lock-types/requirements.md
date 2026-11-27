@@ -4,20 +4,26 @@
 
 Lock types makes the four remaining lock types playable: bone ordering, bound threads, combination dial and cursed object. Their judges and payload types already exist and are tested in `packages/core/src/locks/`. Room play (spec 5) shipped panels for rune cipher and séance board only, and shows an "unplayable" message for every other type.
 
-This spec adds one panel per type, registered in `apps/web/src/features/crypt/lock-panel-registry.ts` next to the rune and séance panels. It also widens the manifest so that questions of these types can be published, and it ships three sample crypts (human heart, HTTPS, printing press) that each place all six types across their rooms and final door, so that a judge can pick any of the three.
+This spec adds one panel per type, registered in `apps/web/src/features/crypt/lock-panel-registry.ts` next to the rune and séance panels. It also widens the manifest so that questions of these types can be published, and it ships three sample crypts (human heart, HTTPS, printing press) that each place all six types across their rooms and final door. The front-of-house hub (`apps/web/src/features/desk/sample-shelf.tsx`, fed by `features/desk/sample-list.ts`) already lists the three samples, so a judge picks one there. This spec supplies the sample registry that builds and restores them, keyed by the same IDs.
 
-Live generation of these four types is another machine's work and is not touched here. That work edits `packages/core/src/pipeline/**`, `checks/**`, `mapper/**`, `apps/worker/**`, `eval/**` and `apps/web/src/state/**`. This spec must not edit those paths, with the single narrow exception in Requirement 2.
+Live generation of these four types is another machine's work and is not touched here. That work edits `packages/core/src/pipeline/**`, `checks/**`, `mapper/**`, `apps/worker/**`, `eval/**` and `apps/web/src/state/**`. This spec must not edit those paths, with the single narrow exception in Requirement 2. The sample builders call the core mapper (`packages/core/src/mapper/manifest-mapper.ts`), which that machine owns and which is read-only here. The mapper is adding arms for bone ordering, bound threads, cursed object and combination dial. On this machine's checkout only bone ordering is in the mapper today.
 
-Six other files are being edited by the other machine right now for multi-room play and the rune letter count: `room-screen.tsx`, `art-room.ts`, `question-controls.tsx`, `rune-cipher-panel.tsx`, `room-panel.tsx` and `lock-panel-context.ts`. Requirement 1 sequences this work behind that push.
+Six other files are being edited by the other machine right now for multi-room play and the rune letter count: `room-screen.tsx`, `art-room.ts`, `question-controls.tsx`, `rune-cipher-panel.tsx`, `room-panel.tsx` and `lock-panel-context.ts`. Requirement 1 sequences this work behind that push, in four phases:
+
+1. Phase 1, free of the shared files: the coordination gate, the shared foundation (Display_Order, accessible names, copy), the four Interaction_Models, the four panel files with their tests, and the manifest widening.
+2. Phase 2, after the user says the other machine's work is pushed: registry registration, payload access wiring, removal of the unplayable path for the four types, and the registry-dependent tests.
+3. Phase 3, after `git pull` brings cursed-object and combination-dial support into the mapper: the sample builders, the sample registry and any manifest limit change they need.
+4. Phase 4: the sample end-to-end tests and the final Checkpoint.
 
 Findings from reading the code that shape these requirements:
 
 - `payloadSchemaFor` in `runtime/manifest-schema.ts` returns `null` for the three types without a payload schema, so the manifest rejects them with `lock-type-not-supported`. Bone ordering already has a schema.
 - `narrowHint` in `runtime/manifest-hints.ts` handles four types. The mapper plan for generation gives bound threads a `tie-thread` hint, cursed object a `remove-option` hint and combination dial no hint (`null`). This spec matches that plan so the two machines agree on one manifest shape.
 - The bone ordering and bound threads mappers (existing and planned) emit `itemIds` equal to `keyOrder` and `leftIds` aligned with `rightIds` in key order. A panel that lists them as given would show the answer, so each panel must shuffle its display order in a controlled way (Requirement 3).
-- The authoring schema and mapper in `packages/core/src/authoring` and `mapper/` have no arm for bound threads, cursed object or combination dial yet. The sample builders therefore need a sample-only mapping that does not touch `mapper/**` (Requirement 12).
+- The mapper has no arm yet for bound threads, cursed object or combination dial on this checkout. The sample builders use the mapper as it is once the other machine's arms arrive, with no local mapper and no workaround (Requirement 12).
 - `samples/questions/https.json` holds no rune cipher question, so that sample needs one added question to place all six types.
-- `restoreRun` in `apps/web/src/state/storage/restore-run.ts` rebuilds only the bundled human-heart sample. Resume of a run on another sample is therefore an open item (Requirement 12, criterion 12).
+- `restoreRun` in `apps/web/src/state/storage/restore-run.ts` rebuilds only the bundled human-heart sample. Resume of a run on another sample is therefore an open item (Requirement 12, criterion 10).
+- `features/desk/sample-list.ts` states that building and restoring sample runs belongs to a sample registry that this spec exports.
 
 ## Glossary
 
@@ -44,8 +50,12 @@ Findings from reading the code that shape these requirements:
 - **Lock_Closeup**: The `LockCloseUp` component that shows `locks/<type>/closed.webp` or `open.webp` behind a Question_Panel.
 - **Sample_Crypt_Entry**: One of the three bundled sample crypts: `human-heart`, `https` and `printing-press`. Each has a notes file in `samples/`, a questions file in `samples/questions/` and a builder in `packages/core/src/sample-crypt/`.
 - **Sample_Questions_File**: A file `samples/questions/<sample>.json`.
-- **Sample_Mapping**: The sample-only mapping in `packages/core/src/sample-crypt/` that turns the bound threads, cursed object and combination dial questions of a Sample_Questions_File into QuestionSpecs and Crypt_Content entries, without using `mapper/**`.
-- **Sample_Picker**: The control on the start view that lets the learner choose which Sample_Crypt_Entry to play.
+- **Core_Mapper**: `packages/core/src/mapper/manifest-mapper.ts` and the rest of `mapper/`, owned by the Other_Machine and read-only for this spec.
+- **Sample_Registry**: A new module that maps each Sample_Crypt_Entry ID (`human-heart`, `https`, `printing-press`) to its builder, so that the front-of-house hub can start a sample run and a restore can rebuild it. It lives in `packages/core/src/sample-crypt/` or `apps/web/src/features/crypt/`.
+- **Sample_Hub**: The front-of-house hub in `apps/web/src/features/desk/` (`sample-shelf.tsx` and `sample-list.ts`) that already lists the three samples and reports the chosen ID.
+- **Phase**: One of the four delivery stages listed in the Introduction.
+- **Shared_Panel_Files**: `lock-panel-registry.ts`, `lock-panel-context.ts` and the six files that the Other_Machine edits (`room-screen.tsx`, `art-room.ts`, `question-controls.tsx`, `rune-cipher-panel.tsx`, `room-panel.tsx`, `lock-panel-context.ts`).
+- **Push_Go_Ahead**: The user's statement that the Other_Machine's multi-room and rune letter count work is pushed.
 - **Crypt_Bundle_Parser**: `parseCryptBundle` in `packages/core/src/mapper/crypt-bundle-parse.ts`.
 - **Manifest_Schema**: `CryptManifestSchema` and its payload schemas in `packages/core/src/runtime/manifest-schema.ts`.
 - **Other_Machine**: The second development machine that owns the paths listed in the Introduction.
@@ -61,7 +71,7 @@ Findings from reading the code that shape these requirements:
 
 #### Acceptance Criteria
 
-1. THE Lock_Types_Feature SHALL start implementation only after the user has confirmed that the Other_Machine's work on multi-room play and the rune letter count is pushed.
+1. THE Lock_Types_Feature SHALL run the coordination gate of criteria 10 and 11 first, and SHALL deliver the work in the four Phases of the Introduction in that order.
 2. WHEN implementation of any task begins, THE implementer SHALL run `git pull --rebase` and confirm that the pull succeeded before editing any file.
 3. WHEN a commit is about to be created, THE implementer SHALL run `git pull --rebase` immediately before the commit.
 4. IF `git pull --rebase` reports a conflict, THEN THE implementer SHALL stop, report the conflicting files to the user and make no further edits until the user decides.
@@ -70,6 +80,14 @@ Findings from reading the code that shape these requirements:
 7. THE Lock_Types_Feature SHALL NOT change live generation, the worker, the authoring schema, the prompts or the checks for any lock type.
 8. WHEN the pull has succeeded, THE implementer SHALL read the current contents of `room-screen.tsx`, `art-room.ts`, `question-controls.tsx`, `rune-cipher-panel.tsx`, `room-panel.tsx` and `lock-panel-context.ts` before changing any of them.
 9. WHERE an edit to one of the files in criterion 8 is needed, THE Lock_Types_Feature SHALL keep the edit to the smallest change that the requirement needs and SHALL leave multi-room behaviour and the rune letter count unchanged.
+10. WHEN Phase 1 begins, THE implementer SHALL run `git pull --rebase`, re-read the six files of criterion 8, and report to the user how they differ from the versions this spec was written against, before any other edit.
+11. THE implementer SHALL NOT edit any Shared_Panel_File before the Push_Go_Ahead, and SHALL NOT edit `lock-panel-registry.ts` or `lock-panel-context.ts` before the Push_Go_Ahead.
+12. WHILE the Push_Go_Ahead has not been given, THE Lock_Types_Feature SHALL limit work to the coordination gate, the shared foundation (Display_Order, accessible names, `copy-lock-panels.ts`), the four Interaction_Models, the four panel files `<type>-panel.tsx` with their tests, and the manifest widening of Requirement 2.
+13. WHILE the Push_Go_Ahead has not been given, THE panel tests SHALL render each Lock_Panel with a test-local props object or test-local context provider and SHALL NOT import `lock-panel-registry.ts`.
+14. WHEN the Push_Go_Ahead is given, THE implementer SHALL run `git pull --rebase`, re-read the Shared_Panel_Files and then perform, in Phase 2, the registry registration, the payload access wiring, the removal of the unplayable path for the four types and the registry-dependent tests of Requirement 9.
+15. THE implementer SHALL build the sample builders, the Sample_Registry, any manifest limit change that the samples need and the sample end-to-end tests only in Phase 3 and Phase 4, after `git pull --rebase` has brought cursed-object and combination-dial support into the Core_Mapper.
+16. IF the Core_Mapper lacks an arm for bone ordering, bound threads, cursed object or combination dial when Phase 3 begins, THEN THE implementer SHALL stop, report the missing types to the user and make no workaround, no local mapper and no further sample edit.
+17. THE Lock_Types_Feature SHALL NOT edit `apps/web/src/features/desk/sample-list.ts` or other Sample_Hub files, except where a change is unavoidable, and THE implementer SHALL then report the change to the user.
 
 ### Requirement 2: Manifest widening for the three missing payloads
 
@@ -89,6 +107,7 @@ Findings from reading the code that shape these requirements:
 10. FOR ALL valid payloads of the three types, serialising a manifest to JSON and parsing it with the Manifest_Schema SHALL produce an equal manifest (round-trip property).
 11. FOR ALL valid payloads of the six lock types and all hints that `narrowHint` accepts, THE Manifest_Schema SHALL accept the QuestionSpec, and FOR ALL hints of a kind that `narrowHint` does not accept for that type, THE Manifest_Schema SHALL reject it.
 12. THE payload shapes for the three types SHALL stay identical to the shapes that `locks/bound-threads.ts`, `locks/cursed-object.ts` and `locks/combination-dial.ts` already define, so that `judge` consumes a parsed payload without conversion.
+13. WHEN `git pull --rebase` has run and before editing `runtime/manifest-schema.ts`, `runtime/manifest-hints.ts` or `mapper/crypt-bundle-parse.ts`, THE implementer SHALL check that the Other_Machine has not changed the same lines, and SHALL report any collision to the user before editing.
 
 ### Requirement 3: Interaction models and display order
 
@@ -222,6 +241,7 @@ Findings from reading the code that shape these requirements:
 
 #### Acceptance Criteria
 
+0. This requirement is delivered in Phase 2, after the Push_Go_Ahead (Requirement 1).
 1. THE Lock_Panel_Registry SHALL hold a Lock_Panel for all six lock types.
 2. WHEN the Current_Question_Type of a slot is one of the six lock types, THE Room_Screen and THE final door SHALL show the Lock_Panel and SHALL NOT show the Unplayable_Panel.
 3. IF the Current_Question_Type of a slot is an Unknown_Type, THEN THE Room_Screen and THE final door SHALL show the Unplayable_Panel with the message from `ROOM_PLAY_LABELS.unplayableType` and a "Skip" button.
@@ -251,35 +271,37 @@ Findings from reading the code that shape these requirements:
 
 #### Acceptance Criteria
 
-1. THE Sample_Mapping SHALL store the item texts of a New_Lock_Type question in `content.questions[questionId].options`, keyed by the item ID that the payload uses: the step ID for bone ordering, both `leftIds` and `rightIds` for bound threads and `optionIds` for cursed object.
-2. THE Sample_Mapping SHALL use the ID conventions `<questionId>-step-<i>` for bone ordering steps, `<questionId>-l<i>` and `<questionId>-r<i>` for bound threads and `<questionId>-o<i>` for cursed object items, where `<i>` is the zero-based authoring index.
-3. THE Sample_Mapping SHALL store no item text for combination dial and SHALL carry the unit only in the payload.
-4. THE Sample_Mapping SHALL give every excerpt a `chunkId` of a chunk of the sample notes and a quote that the Quote Resolver resolves against that chunk.
-5. FOR ALL questions of the three Sample_Crypt_Entries, every item ID of the payload that has display text SHALL have an entry in `content.questions[questionId].options`, and no entry SHALL name an ID that the payload does not hold.
+1. THE sample builders SHALL take the item texts of a New_Lock_Type question from the Core_Mapper output in `content.questions[questionId].options`, keyed by the item ID that the payload uses: the step ID for bone ordering, both `leftIds` and `rightIds` for bound threads and `optionIds` for cursed object.
+2. THE Lock_Panels SHALL read item texts only from that `options` map and SHALL NOT depend on any item ID naming pattern.
+3. THE sample builders SHALL NOT add, rewrite or post-process Crypt_Content or payloads produced by the Core_Mapper.
+4. IF the Core_Mapper output for a New_Lock_Type differs from the shape in criterion 1, THEN THE implementer SHALL stop and report the difference to the user before changing a panel or a builder.
+5. FOR ALL questions of the three Sample_Crypt_Entries, every item ID of the payload that has display text (all New_Lock_Types except combination dial) SHALL have an entry in `content.questions[questionId].options`, and no entry SHALL name an ID that the payload does not hold.
 6. THE Crypt_Content of every sample question SHALL contain no field that holds an answer key.
 
-### Requirement 12: Three sample crypts and the picker
+### Requirement 12: Three sample crypts and the sample registry
 
-**User Story:** As a judge, I want to pick any of three sample crypts and play all six lock types in it, so that I can see every lock without writing notes.
+**User Story:** As a judge, I want to pick any of three sample crypts from the hub and play all six lock types in it, so that I can see every lock without writing notes.
+
+This requirement is delivered in Phase 3 and Phase 4 (Requirement 1).
 
 #### Acceptance Criteria
 
-1. THE Lock_Types_Feature SHALL provide a builder for each Sample_Crypt_Entry in `packages/core/src/sample-crypt/`: the existing `buildHumanHeartSampleCrypt` (changed) and new builders for `https` and `printing-press`, each returning `{ manifest, content, chunks }` as a typed result.
+1. THE Lock_Types_Feature SHALL provide a builder for each Sample_Crypt_Entry in `packages/core/src/sample-crypt/`: the existing `buildHumanHeartSampleCrypt` (changed) and new builders for `https` and `printing-press`, each returning `{ manifest, content, chunks }` as a typed result, and each building its questions through the Core_Mapper.
 2. FOR ALL three Sample_Crypt_Entries, THE builder SHALL return a manifest that holds a Lock_Slot or a final-door question of each of the six lock types, counting the primary question of every Lock_Slot and every final-door question.
 3. FOR ALL three Sample_Crypt_Entries, THE manifest SHALL pass `validateManifestForPublish` and `parseCryptBundle` of its `{ manifest, content }`.
 4. FOR ALL three Sample_Crypt_Entries, THE builder SHALL place Lock_Slots in at least two rooms and at least one question in the final door, and SHALL use at most 3 rooms.
 5. THE builders SHALL select questions from the Sample_Questions_File with a fixed selection table in code, and SHALL NOT search for or reorder questions.
-6. THE Sample_Mapping SHALL map the bound threads, cursed object and combination dial questions of a Sample_Questions_File, and SHALL use the existing mapper only for rune cipher, séance board and bone ordering questions.
+6. THE builders SHALL create every QuestionSpec and Crypt_Content entry through the Core_Mapper for all six lock types, and SHALL NOT contain a sample-only mapping, a local mapper or a workaround for a missing Core_Mapper arm.
 7. THE Lock_Types_Feature SHALL add one rune cipher question to `samples/questions/https.json`, quoted from `samples/https.txt`, so that the HTTPS sample can place all six types, and SHALL record it with the same `draft` status as the other questions.
 8. THE Sample_Questions_Files SHALL keep `status` set to a draft value, so that `isHumanReviewed` is false and no screen shows "Human-reviewed" or "Blind model review passed" for any sample.
-9. WHEN the learner sees the start view, THE start view SHALL show a Sample_Picker with the three sample names, SHALL keep "Enter the crypt" as the way to start, and SHALL start a run of the chosen sample.
-10. THE Sample_Picker SHALL be a labelled radio group, operable by keyboard, with a default of the human-heart sample and each target at least 44 by 44 px.
-11. THE Lock_Types_Feature SHALL provide the Sample_Picker and the builder choice through the existing `buildCrypt` parameter of `useRoomBinding` and files under `apps/web/src/features/crypt/`, and SHALL NOT edit `apps/web/src/state/`.
+9. THE Lock_Types_Feature SHALL export a Sample_Registry keyed by the IDs `human-heart`, `https` and `printing-press` of `SAMPLE_LIST`, with a typed result for an unknown ID, so that the Sample_Hub can start a run of the chosen sample.
+10. THE Lock_Types_Feature SHALL connect the Sample_Registry to the run through the existing `buildCrypt` parameter of `useRoomBinding` and files under `apps/web/src/features/crypt/` or `packages/core/src/sample-crypt/`, and SHALL NOT edit `apps/web/src/state/`.
+11. THE Lock_Types_Feature SHALL add no sample picker, no start-view control and no crypt-flow wiring for choosing a sample, because the Sample_Hub already lists the three samples.
 12. IF a saved run belongs to a sample other than the human-heart sample, THEN THE Lock_Types_Feature SHALL leave resume of that run to the existing typed error `record-unreadable` and SHALL report this limit to the user, because `restoreRun` in `apps/web/src/state/` rebuilds only the human-heart sample.
 13. THE Lock_Types_Feature SHALL update the human-heart builder and every existing test, fixture and end-to-end test that depends on the old shape of the human-heart sample (one room, two Lock_Slots, three final-door questions).
 14. FOR ALL three Sample_Crypt_Entries, every `evidenceRefs` ID of every question SHALL appear as the `chunkId` of one of that question's excerpts, and every quote SHALL resolve against its chunk.
 15. FOR ALL three Sample_Crypt_Entries, a play-through that skips or challenges every question SHALL reach the status "escaped" (escape is always possible).
-16. THE start view SHALL keep the existing sample-crypt line and label and SHALL NOT claim that the questions were generated from the learner's notes.
+16. THE Lock_Types_Feature SHALL keep the existing sample-crypt line and label and SHALL NOT claim that the questions were generated from the learner's notes.
 17. THE builders SHALL take concept titles from a fixed table in code, as the human-heart builder does, and SHALL leave the Sample_Questions_Files without concept titles.
 
 ### Requirement 13: Tests
@@ -289,7 +311,7 @@ Findings from reading the code that shape these requirements:
 #### Acceptance Criteria
 
 1. THE Test_Suite SHALL include one fast-check property test per New_Lock_Type that checks that the answer the correct interaction builds is judged `correct` by the core Judge and that wrong interactions are judged `wrong` (Requirements 4.13, 5.14, 6.15, 7.9).
-2. THE Test_Suite SHALL include a keyboard-only component test per Lock_Panel that completes a correct answer and a wrong answer with Tab, Enter, Space and arrow keys and no pointer event.
+2. THE Test_Suite SHALL include a keyboard-only component test per Lock_Panel (using the test-local context of Requirement 1 criterion 13 until Phase 2) that completes a correct answer and a wrong answer with Tab, Enter, Space and arrow keys and no pointer event.
 3. THE Test_Suite SHALL include one Playwright test per New_Lock_Type that opens the lock, answers it correctly by the keyboard and checks the Evidence_Panel, and SHALL run each on the `chromium`, `firefox` and `pixel` projects.
 4. THE Test_Suite SHALL include a Playwright test on the Phone_Project per New_Lock_Type that answers by tap and checks that every control is at least 44 by 44 px.
 5. THE Test_Suite SHALL include an axe check per New_Lock_Type with its Lock_Panel open, and the check SHALL report no violations.
@@ -299,7 +321,7 @@ Findings from reading the code that shape these requirements:
 9. THE Test_Suite SHALL include a test that shows each Lock_Panel renders none of `keyOrder`, `keyPairs`, `oddOneOutId` or a dial value in its DOM before the answer is judged.
 10. THE Test_Suite SHALL call no AI provider and SHALL use no recorded cassette.
 11. THE Test_Suite SHALL include the round-trip properties of Requirements 2.10 and 6.16 and the invariant property of Requirement 5.15.
-12. THE Test_Suite SHALL include a test that the Sample_Picker is a keyboard-operable radio group and starts the chosen sample.
+12. THE Test_Suite SHALL include a unit test that the Sample_Registry returns a builder for each ID in `SAMPLE_LIST` and a typed error for an unknown ID.
 
 ### Requirement 14: Verification discipline and CPU limits
 
@@ -336,5 +358,7 @@ Findings from reading the code that shape these requirements:
 - New art, new scene files and new motion clips.
 - Persisting or resuming a run on the https or printing-press sample (Requirement 12 criterion 12).
 - A change to the Judges.
+- A sample picker, a sample-only mapping layer or a local mapper (the Sample_Hub and the Core_Mapper cover these).
+- Edits to Shared_Panel_Files before the Push_Go_Ahead.
 - Showing the correct order, pairs or number after a wrong answer beyond the explanation and cited excerpts that the Evidence_Panel already shows.
 - Sound, accounts and any server-side storage.

@@ -1,0 +1,76 @@
+.bone-ordering-panel__list,
+.bound-threads-panel__list,
+.combination-dial-panel__wheels {
+  list-style: none;
+  margin: 0.5rem 0;
+  padding: 0;
+}
+.bone-ordering-panel__row,
+.bound-threads-panel__pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+}
+.bone-ordering-panel__text {
+  flex: 1 1 10rem;
+}
+.bone-ordering-panel__row[data-pinned='true'] {
+  border-left: 3px solid var(--stone-300);
+  padding-left: 0.5rem;
+}
+.lock-panel__shortcut,
+.lock-panel__unit {
+  opacity: 0.85;
+}
+.lock-panel__button[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.bound-threads-panel__columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.bound-threads-panel__column {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.bound-threads-panel__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 0.25rem 0;
+}
+.bound-threads-panel__item[aria-pressed='true'],
+.bound-threads-panel__item[data-tied='true'] {
+  border-width: 2px;
+}
+.combination-dial-panel__wheels {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.combination-dial-panel__wheel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+.combination-dial-panel__digit {
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--stone-300);
+  font-size: 1.5rem;
+}
+.combination-dial-panel__digit:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.cursed-object-panel__option {
+  display: block;
+  margin: 0.25rem 0;
+}

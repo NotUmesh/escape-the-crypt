@@ -184,3 +184,37 @@ export type {
   JobAckResponse,
   JobErrorResponse,
 } from './job-api/job-response-schema';
+
+export { LOCK_PANEL_LABELS } from './copy-lock-panels';
+export type { HintEffectSpec, ThreadPair } from './types';
+export type { BoneOrderingQuestion, BoundThreadsQuestion, CombinationDialQuestion, CursedObjectQuestion } from './locks/judge-registry';
+export type { InteractionSubmission } from './locks/interaction/interaction-result';
+export { displayOrder, displayOrderAvoiding } from './locks/interaction/display-order';
+export { initBoneOrderingDraft, moveBone, boneOrderingSubmission } from './locks/interaction/bone-ordering-interaction';
+export type { BoneOrderingDraft, BoneDirection } from './locks/interaction/bone-ordering-interaction';
+export {
+  initBoundThreadsDraft,
+  selectLeft,
+  tieRight,
+  undoThread,
+  isLeftTied,
+  isRightTied,
+  boundThreadsSubmission,
+} from './locks/interaction/bound-threads-interaction';
+export type { BoundThreadsDraft, ThreadRefusal, TieResult } from './locks/interaction/bound-threads-interaction';
+export {
+  initCombinationDialDraft,
+  stepWheel,
+  setTypedEntry,
+  wheelsOf,
+  wheelCount,
+  combinationDialSubmission,
+} from './locks/interaction/combination-dial-interaction';
+export type { CombinationDialDraft, Wheel, WheelDirection } from './locks/interaction/combination-dial-interaction';
+export {
+  initCursedObjectDraft,
+  chooseItem,
+  clearChoice,
+  cursedObjectSubmission,
+} from './locks/interaction/cursed-object-interaction';
+export type { CursedObjectDraft } from './locks/interaction/cursed-object-interaction';

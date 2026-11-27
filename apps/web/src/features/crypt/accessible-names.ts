@@ -38,3 +38,25 @@ const SEAL_STATUS_WORDS: Readonly<Record<SlotStatus, string>> = {
 export function sealName(sealNumber: number, status: SlotStatus): string {
   return `Seal ${sealNumber}, ${SEAL_STATUS_WORDS[status]}`;
 }
+
+const PLACE_NAMES: readonly string[] = ['ones', 'tens', 'hundreds', 'thousands', 'ten-thousands', 'hundred-thousands'];
+/** The place a dial wheel stands for: exponent 0 is ones, -1 is tenths. */
+export function placeName(exponent: number): string {
+  if (exponent === -1) return 'tenths';
+  return PLACE_NAMES[exponent] ?? `place ${exponent + 1}`;
+}
+/** "Increase tens wheel, now 4" and its siblings. */
+export function wheelName(action: 'wheel' | 'increase' | 'decrease', exponent: number, digit: number): string {
+  const place = placeName(exponent);
+  const verb = action === 'increase' ? 'Increase' : action === 'decrease' ? 'Decrease' : null;
+  return verb === null ? `${place} wheel` : `${verb} ${place} wheel, now ${digit}`;
+}
+/** "Move up: The aorta, position 2 of 4". */
+export function boneMoveName(action: 'up' | 'down', text: string, position: number, total: number): string {
+  return `${action === 'up' ? 'Move up' : 'Move down'}: ${text}, position ${position} of ${total}`;
+}
+/** "The aorta, tied to The heart" / "The aorta, selected" / "The aorta, not tied". */
+export function threadStateName(text: string, state: 'tied' | 'selected' | 'untied', partnerText?: string): string {
+  if (state === 'tied') return `${text}, tied to ${partnerText ?? 'a partner'}`;
+  return state === 'selected' ? `${text}, selected` : `${text}, not tied`;
+}
