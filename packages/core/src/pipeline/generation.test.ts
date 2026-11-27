@@ -99,9 +99,12 @@ describe('generateForConcept results', () => {
     });
     expect(JSON.stringify(withBone.requests[0]!.jsonSchema)).toContain('bone-ordering');
 
-    // Default list: the arm is not offered, and a bone-ordering primary is not allowed.
+    // Explicit two-type list: the arm is not offered, and a bone-ordering primary is not allowed.
     const dflt = recordingProvider([ok(body)]);
-    const result = await generateForConcept(dflt, ledger(), concept, heart, OPTIONS);
+    const result = await generateForConcept(dflt, ledger(), concept, heart, {
+      ...OPTIONS,
+      allowedLockTypes: ['rune-cipher', 'seance-board'],
+    });
     expect(result).toEqual({ ok: false, error: { kind: 'lock-type-not-allowed' } });
     expect(JSON.stringify(dflt.requests[0]!.jsonSchema)).not.toContain('bone-ordering');
   });

@@ -61,7 +61,8 @@ export function buildPayload(lockType: LockType, id: string, n: number): BuiltPa
     case 'combination-dial':
       return {
         payload: { kind: 'exact', exactValue: 10 + (n % 50) + 0.5, unit: 'candles' },
-        hint: { kind: 'reveal-digit', position: 0 },
+        // The Manifest_Schema accepts no dial hint (narrowHint), and the mapper always emits null.
+        hint: null,
       };
   }
 }

@@ -1,5 +1,5 @@
 {
-  "checkVersion": "2026-11-27.1",
+  "checkVersion": "2026-11-27.5",
   "entries": [
     {
       "digest": "377f5d6734b31ddb5ab1fa3084502c050c7873206eecf81c3b745b9d129f2d7b",
@@ -89,84 +89,16 @@
       }
     },
     {
-      "digest": "8baf9fb3cc2ac63aace0e1db57c91095eda846fdca7acfca39543d693f0cd99a",
+      "digest": "d940081b7c1b71988755df1ed705c8e35bdf5733cf5480c8c82661c99a910503",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single factual claim about Earth's water distribution, and a seance-board question can test that directly with one supported option and clear contradicted alternatives.",
-          "primary": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what percentage of Earth's water is salt water in the oceans?",
-            "options": [
-              {
-                "id": "A",
-                "text": "About 97 percent",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_2",
-                  "quote": "About 97 percent of Earth's water is salt water in the oceans."
-                }
-              },
-              {
-                "id": "B",
-                "text": "About 3 percent",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_2",
-                  "quote": "Only about 3 percent is fresh water"
-                }
-              },
-              {
-                "id": "C",
-                "text": "About 50 percent",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_2",
-                  "quote": "About 97 percent of Earth's water is salt water in the oceans."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes say about 97 percent of Earth's water is salt water in the oceans."
-          },
-          "alternate": {
-            "lockType": "rune-cipher",
-            "prompt": "About ______ percent of Earth's water is salt water in the oceans.",
-            "answer": "97",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_23a1ecfc6522_2",
-                "quote": "About 97 percent of Earth's water is salt water in the oceans."
-              }
-            ],
-            "explanation": "The blank is filled by the percentage stated in the notes.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "9",
-              "length": 2
-            }
-          }
-        },
-        "usage": {
-          "inputTokens": 1191,
-          "outputTokens": 358
-        }
-      }
-    },
-    {
-      "digest": "b76aaf7d3299ac334ef9882d8e1e79c841589b17753f7d5e1a8065dad3cd17bf",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes give a single definitional sentence for the concept, so a rune-cipher fill-in-the-blank fits best. A seance-board is unnecessary because there is only one fact to recall.",
+          "justification": "The notes give a single definitional sentence for the concept, so a rune-cipher fill-in-the-blank fits best.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "The water cycle describes how water moves continuously between the ______.",
-            "answer": "oceans, the air and the land",
+            "prompt": "The water cycle describes how water moves continuously between the oceans, the air and the ______.",
+            "answer": "land",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
@@ -175,440 +107,310 @@
                 "quote": "The water cycle describes how water moves continuously between the oceans, the air and the land."
               }
             ],
-            "explanation": "The missing phrase is the exact destination set in the definition of the water cycle.",
+            "explanation": "The missing term is stated directly in the definition.",
             "hint": {
               "kind": "first-letter-and-length",
-              "firstLetter": "o",
-              "length": 27
+              "firstLetter": "l",
+              "length": 4
             }
           },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what does the water cycle describe?",
-            "options": [
-              {
-                "id": "A",
-                "text": "How water moves continuously between the oceans, the air and the land",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_1",
-                  "quote": "The water cycle describes how water moves continuously between the oceans, the air and the land."
-                }
-              },
-              {
-                "id": "B",
-                "text": "How water moves only between the oceans and the land",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_1",
-                  "quote": "The water cycle describes how water moves continuously between the oceans, the air and the land."
-                }
-              },
-              {
-                "id": "C",
-                "text": "How water stays fixed in one place",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_1",
-                  "quote": "water can enter it at any stage and keep circulating."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes define the water cycle as continuous movement among the oceans, air, and land."
-          }
+          "alternate": null
         },
         "usage": {
-          "inputTokens": 1189,
-          "outputTokens": 405
+          "inputTokens": 2719,
+          "outputTokens": 154
         }
       }
     },
     {
-      "digest": "6be76a3cbb410ad602ef689855a856cfe5c4c7984b52900c3c9591c6b3776409",
+      "digest": "9ddf51003dcc07df174ccc32bc9c8ad61412fa5afb9993b9134249bf6f6179c6",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes define three related processes, so a seance-board question can ask which process matches a description with one supported option and clear contradicted distractors.",
+          "justification": "The notes state a single numeric fact about Earth's water distribution, so a combination-dial question fits best. A second valid option is a rune-cipher question using the term 'salt water' from the same sentence.",
           "primary": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which process is the release of water vapour from the leaves of plants?",
-            "options": [
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, what percent of Earth's water is salt water in the oceans?",
+            "answer": {
+              "kind": "exact",
+              "value": 97
+            },
+            "units": "percent",
+            "evidence": [
               {
-                "id": "a",
-                "text": "Transpiration is the release of water vapour from the leaves of plants.",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_3",
-                  "quote": "Transpiration is the release of water vapour from the leaves of plants."
-                }
-              },
-              {
-                "id": "b",
-                "text": "Evaporation happens when the Sun heats liquid water and turns it into water vapour.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_3",
-                  "quote": "Evaporation happens when the Sun heats liquid water and turns it into water vapour."
-                }
-              },
-              {
-                "id": "c",
-                "text": "Sublimation is when ice turns directly into water vapour without melting first.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_3",
-                  "quote": "Sublimation is when ice turns directly into water vapour without melting first."
-                }
+                "chunkId": "chk_23a1ecfc6522_2",
+                "quote": "About 97 percent of Earth's water is salt water in the oceans."
               }
             ],
-            "answer": "a",
-            "explanation": "The notes explicitly say transpiration is the release of water vapour from the leaves of plants."
+            "explanation": "The notes directly state that about 97 percent of Earth's water is salt water in the oceans."
           },
           "alternate": {
             "lockType": "rune-cipher",
-            "prompt": "______ is the release of water vapour from the leaves of plants.",
+            "prompt": "According to your notes, About 97 percent of Earth's water is ______ in the oceans.",
+            "answer": "salt water",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_23a1ecfc6522_2",
+                "quote": "About 97 percent of Earth's water is salt water in the oceans."
+              }
+            ],
+            "explanation": "The missing term is the exact phrase 'salt water' from the notes.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "s",
+              "length": 10
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 2721,
+          "outputTokens": 274
+        }
+      }
+    },
+    {
+      "digest": "8eac51d90b2cf66831f499c50d3a454ee133ba9f3e5e7bd414aea7eec1e046f5",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank term/phrase: condensation is defined as the opposite of evaporation, and clouds form from droplets gathering around dust specks. A rune-cipher question fits best because the answer is a short phrase copied from the notes.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, ______ is the opposite of evaporation.",
+            "answer": "Condensation",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_23a1ecfc6522_4",
+                "quote": "Condensation is the opposite of evaporation: water vapour cools and turns back into tiny liquid droplets."
+              }
+            ],
+            "explanation": "The notes explicitly state that condensation is the opposite of evaporation.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "C",
+              "length": 12
+            }
+          },
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many days does a single molecule of water stay in the atmosphere on average before it falls again?",
+            "answer": {
+              "kind": "exact",
+              "value": 9
+            },
+            "units": "days",
+            "evidence": [
+              {
+                "chunkId": "chk_23a1ecfc6522_4",
+                "quote": "A single molecule of water stays in the atmosphere for about nine days on average before it falls again."
+              }
+            ],
+            "explanation": "The notes give the average time as about nine days."
+          }
+        },
+        "usage": {
+          "inputTokens": 2737,
+          "outputTokens": 288
+        }
+      }
+    },
+    {
+      "digest": "ae763b3b9d4812f796af67dd25551faf9863b157535dffbe1bcee9774f6ffd3c",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define three related processes, but they do not provide a single explicit sequence, pairing, odd-one-out category, or number. A rune-cipher fits best because the concept label can be asked as a short phrase from the notes.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "What process is described as the release of water vapour from the leaves of plants? ______",
             "answer": "Transpiration",
             "aliases": [],
-            "caseSensitive": true,
+            "caseSensitive": false,
             "evidence": [
               {
                 "chunkId": "chk_23a1ecfc6522_3",
                 "quote": "Transpiration is the release of water vapour from the leaves of plants."
               }
             ],
-            "explanation": "The notes give the exact term that completes the sentence.",
+            "explanation": "The notes directly state the term that matches the definition.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "T",
               "length": 13
             }
-          }
-        },
-        "usage": {
-          "inputTokens": 1225,
-          "outputTokens": 415
-        }
-      }
-    },
-    {
-      "digest": "4443387026c994fcd7f095647ef3d4fae3828d9a64b1ee4b3701d4a14e0e0a3c",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about condensation and cloud formation, and the answer is a short phrase quoted directly from the notes.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "Condensation is the opposite of evaporation: water vapour cools and turns back into ______.",
-            "answer": "tiny liquid droplets",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_23a1ecfc6522_4",
-                "quote": "water vapour cools and turns back into tiny liquid droplets"
-              }
-            ],
-            "explanation": "The notes state that condensation turns water vapour back into tiny liquid droplets.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "t",
-              "length": 19
-            }
           },
           "alternate": {
             "lockType": "seance-board",
-            "prompt": "According to your notes, what do clouds form around?",
+            "prompt": "According to your notes, which process is when ice turns directly into water vapour without melting first?",
             "options": [
               {
-                "id": "a",
-                "text": "specks of dust in the air",
+                "id": "A",
+                "text": "Evaporation",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_23a1ecfc6522_3",
+                  "quote": "Evaporation happens when the Sun heats liquid water and turns it into water vapour, a gas."
+                }
+              },
+              {
+                "id": "B",
+                "text": "Transpiration",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_23a1ecfc6522_3",
+                  "quote": "Transpiration is the release of water vapour from the leaves of plants."
+                }
+              },
+              {
+                "id": "C",
+                "text": "Sublimation",
                 "label": "supported",
                 "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_4",
-                  "quote": "Clouds form when billions of these droplets gather around specks of dust in the air"
-                }
-              },
-              {
-                "id": "b",
-                "text": "water vapour in the atmosphere",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_4",
-                  "quote": "water vapour cools and turns back into tiny liquid droplets"
-                }
-              },
-              {
-                "id": "c",
-                "text": "tiny liquid droplets in the ocean",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_4",
-                  "quote": "Clouds form when billions of these droplets gather around specks of dust in the air"
+                  "chunkId": "chk_23a1ecfc6522_3",
+                  "quote": "Sublimation is when ice turns directly into water vapour without melting first,"
                 }
               }
             ],
-            "answer": "a",
-            "explanation": "The notes say clouds form around specks of dust in the air, not the other listed options."
+            "answer": "C",
+            "explanation": "Only sublimation matches the definition given in the notes."
           }
         },
         "usage": {
-          "inputTokens": 1207,
-          "outputTokens": 379
+          "inputTokens": 2755,
+          "outputTokens": 394
         }
       }
     },
     {
-      "digest": "bc0a5fc62dbaaa5699a393f27c66a1f469f5d75960d682e263d65512272648bb",
+      "digest": "21d9d697b75def1b7e03570d98cafbad8599142d07f63e90eba0308aad04f1f1",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes define a single term with a short phrase suitable for a fill-in-the-blank question, and no competing option set is needed.",
-          "primary": {
+          "justification": "The notes define three related terms, but they do not support a single lock type with one unambiguous study question better than the others. A simple fill-in-the-blank could work for one term, but the prompt asks for one study question about a single concept, and the evidence is broad enough that no stronger structured lock is necessary.",
+          "primary": null,
+          "alternate": {
             "lockType": "rune-cipher",
-            "prompt": "Precipitation is any water that falls from clouds to the ground, including rain, snow, sleet and ______.",
-            "answer": "hail",
+            "prompt": "Once water reaches the land, it can take several paths. ______ is water soaking down into the soil.",
+            "answer": "Infiltration",
+            "aliases": [],
+            "caseSensitive": true,
+            "evidence": [
+              {
+                "chunkId": "chk_23a1ecfc6522_6",
+                "quote": "Infiltration is water soaking down into the soil."
+              }
+            ],
+            "explanation": "The notes give a direct definition for infiltration, so a one-blank fill-in-the-blank fits.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "I",
+              "length": 12
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 2746,
+          "outputTokens": 206
+        }
+      }
+    },
+    {
+      "digest": "b1c0e4655e8c6155adb6d19e543064f76e96b496692384712d968bfb9e533c92",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define precipitation and explicitly contrast it with fog and dew, so a cursed-object question fits best: three items belong to the category and one does not.",
+          "primary": {
+            "lockType": "cursed-object",
+            "prompt": "Which item is the odd one out according to your notes: rain, snow, dew, hail?",
+            "items": [
+              "rain",
+              "snow",
+              "dew",
+              "hail"
+            ],
+            "answer": "dew",
+            "categoryRule": "Items that are precipitation, meaning water that falls from clouds to the ground.",
+            "evidence": [
+              {
+                "chunkId": "chk_23a1ecfc6522_5",
+                "quote": "Precipitation is any water that falls from clouds to the ground, including rain, snow, sleet and hail."
+              },
+              {
+                "chunkId": "chk_23a1ecfc6522_5",
+                "quote": "Fog and dew are not precipitation, because they form at ground level instead of falling from clouds."
+              }
+            ],
+            "explanation": "Rain, snow, and hail are listed as precipitation, while dew is explicitly not precipitation."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "Precipitation is any water that falls from clouds to the ______.",
+            "answer": "ground",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
                 "chunkId": "chk_23a1ecfc6522_5",
-                "quote": "including rain, snow, sleet and hail"
+                "quote": "Precipitation is any water that falls from clouds to the ground"
               }
             ],
-            "explanation": "The notes list hail as one of the forms of precipitation.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "h",
-              "length": 4
-            }
-          },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which is precipitation?",
-            "options": [
-              {
-                "id": "a",
-                "text": "hail",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_5",
-                  "quote": "including rain, snow, sleet and hail"
-                }
-              },
-              {
-                "id": "b",
-                "text": "fog",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_5",
-                  "quote": "Fog and dew are not precipitation"
-                }
-              },
-              {
-                "id": "c",
-                "text": "dew",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_5",
-                  "quote": "Fog and dew are not precipitation"
-                }
-              }
-            ],
-            "answer": "a",
-            "explanation": "The notes explicitly say hail is precipitation, while fog and dew are not."
-          }
-        },
-        "usage": {
-          "inputTokens": 1190,
-          "outputTokens": 326
-        }
-      }
-    },
-    {
-      "digest": "419b69e0a1180aa784a12d314be38986153cd1ec8d9ca15a35c93e1e26c34b35",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes define one key term directly, so a rune-cipher fill-in-the-blank fits best. A seance-board is unnecessary because there is only one clear term to ask about.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "Water that soaks deep enough to fill the spaces in rock becomes ______.",
-            "answer": "groundwater",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_23a1ecfc6522_6",
-                "quote": "Water that soaks deep enough to fill the spaces in rock becomes groundwater"
-              }
-            ],
-            "explanation": "The notes state that water soaking deep enough into rock becomes groundwater.",
+            "explanation": "The missing word is directly stated in the definition.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "g",
-              "length": 11
-            }
-          },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what is water that soaks deep enough to fill the spaces in rock?",
-            "options": [
-              {
-                "id": "a",
-                "text": "groundwater",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_6",
-                  "quote": "Water that soaks deep enough to fill the spaces in rock becomes groundwater"
-                }
-              },
-              {
-                "id": "b",
-                "text": "runoff",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_6",
-                  "quote": "Runoff is water that flows over the surface into streams, rivers and eventually the sea."
-                }
-              },
-              {
-                "id": "c",
-                "text": "infiltration",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_6",
-                  "quote": "Infiltration is water soaking down into the soil."
-                }
-              }
-            ],
-            "answer": "a",
-            "explanation": "Only groundwater is described as water that soaks deep enough to fill spaces in rock; runoff and infiltration are different processes."
-          }
-        },
-        "usage": {
-          "inputTokens": 1216,
-          "outputTokens": 380
-        }
-      }
-    },
-    {
-      "digest": "7c97ad28e41a0f080b9807f280a0163903adcb9c914ea0a94fcbbf6efafa0428",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single factual question about how human activity affects the water cycle, and they provide one clear supported statement with a contrasting false option set for a seance-board question.",
-          "primary": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what is one effect of paving over land on the water cycle?",
-            "options": [
-              {
-                "id": "A",
-                "text": "It reduces infiltration and increases runoff.",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_7",
-                  "quote": "Paving over land reduces infiltration and increases runoff"
-                }
-              },
-              {
-                "id": "B",
-                "text": "It increases infiltration and reduces runoff.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_7",
-                  "quote": "Paving over land reduces infiltration and increases runoff"
-                }
-              },
-              {
-                "id": "C",
-                "text": "It has no effect on runoff.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_23a1ecfc6522_7",
-                  "quote": "Human activity changes parts of the cycle."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes explicitly say paving over land reduces infiltration and increases runoff."
-          },
-          "alternate": {
-            "lockType": "rune-cipher",
-            "prompt": "Human activity changes parts of the ______.",
-            "answer": "cycle",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_23a1ecfc6522_7",
-                "quote": "Human activity changes parts of the cycle."
-              }
-            ],
-            "explanation": "The missing word is directly stated in the notes.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "c",
               "length": 6
             }
           }
         },
         "usage": {
-          "inputTokens": 1180,
-          "outputTokens": 342
+          "inputTokens": 2720,
+          "outputTokens": 319
         }
       }
     },
     {
-      "digest": "e70cb7b99cf5b5d8d6bc82dac70e77398ddd11264c36da1926858b81ec9d1cca",
+      "digest": "5b336ec09be70ed81dc10f7b7ee52e3e270c355aa25dc822bd841e0cc3766d6a",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
+          "justification": "The notes support a single factual prompt about the effect of human activity on the water cycle, but they do not provide a term, ordered steps, pairings, a category with an odd item, or a number to use for the allowed lock types. So no valid lock type fits.",
+          "primary": null,
+          "alternate": null
         },
         "usage": {
-          "inputTokens": 375,
-          "outputTokens": 47
+          "inputTokens": 2710,
+          "outputTokens": 75
         }
       }
     },
     {
-      "digest": "4421a0d4d4a2792f86ae0fc038cd1926758dc857be28bb6b810c88954dcc4794",
+      "digest": "c8a2319556f392a0405d06d51ed70c1da2c95db5ed494b1048a075fb78ef8d76",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "oceans, the air and the land",
+          "answer": "land",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 328,
-          "outputTokens": 23
+          "inputTokens": 334,
+          "outputTokens": 16
         }
       }
     },
     {
-      "digest": "a8608d2a933a5dc8d0d9cc475207fa432135347c9437f48f7ddc295ffc5193ee",
+      "digest": "92266503b5593f2e042c6f4ff8743be4fb8dd7cc099cd5f82a6eb780e0baf4f5",
       "origin": "recorded",
       "response": {
         "ok": true,
@@ -617,13 +419,28 @@
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 331,
+          "inputTokens": 396,
           "outputTokens": 16
         }
       }
     },
     {
-      "digest": "28f14eb179817b26d4d8c8ed5dddc28c7e52e213a902f5e5c0f97d3bcb1ff566",
+      "digest": "f211e9267a740ad0cb43713eab82147d98ff34b44f826abaf9ea927e42ba9777",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "salt water",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 336,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "2431ea9f5e79fd6e154a272f455bafd27b0d275c1b5ad4adeb553f9beec19cc9",
       "origin": "recorded",
       "response": {
         "ok": true,
@@ -632,37 +449,22 @@
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 359,
+          "inputTokens": 364,
           "outputTokens": 18
         }
       }
     },
     {
-      "digest": "520b6b0bc27ff13fce7de6b70c12a7fb1d89c97ef1b55feb28775d50f43cccd2",
+      "digest": "b08fc0d4c10961a2833d4565cde7af14cb99b8a20dfa88ecc280b5d290f4635a",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "tiny liquid droplets",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 351,
-          "outputTokens": 18
-        }
-      }
-    },
-    {
-      "digest": "c540fff245457647cc0a64f1e4f080e6ba4f4c12aa984b9b5b93c5e3af3dda7c",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
+          "answer": "C",
           "optionLabels": [
             {
               "optionId": "A",
-              "label": "supported"
+              "label": "contradicted"
             },
             {
               "optionId": "B",
@@ -670,169 +472,89 @@
             },
             {
               "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 364,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "63fc45032426a7a4727b1083ad51dc3d3bd7df23b82accce95bf5412027a593a",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "hail",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 341,
-          "outputTokens": 16
-        }
-      }
-    },
-    {
-      "digest": "17847268792918313e278f36149fe9dffb546582c84a036ad2c2ef4f0ff2be76",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
               "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "c",
-              "label": "contradicted"
             }
           ]
         },
         "usage": {
-          "inputTokens": 379,
+          "inputTokens": 390,
           "outputTokens": 47
         }
       }
     },
     {
-      "digest": "e1fb9110cf2fcfa952471acce57851d1cbaf0fb9628ab2746adfc79fe11bce3a",
+      "digest": "656a5da40cd7122211430bad288ddff4749bf4940e840a9b8d5d87347aa99c80",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "groundwater",
+          "answer": "condensation",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 354,
+          "inputTokens": 344,
           "outputTokens": 17
         }
       }
     },
     {
-      "digest": "2167f5a8b65a91095e10a22c2d02d3da34c110d69a365b43f9d9aaa6a6d7d500",
+      "digest": "fa27c84517786b915910173e5cae2654a24d97328c9a5103ce70eddb2a3b325d",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
-              "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "c",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 346,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "5a12ef93be51ef6b1a6ef51c13d45a45a3b1e4db587b228dd77c946188a070a3",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
-              "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "c",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 379,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "302266608c35d4ae8292c0a13983b0603df7984a1fd430cb5af5d9463bef8d79",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 357,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "be0d2da8856028b712535e428ac733c26d12e5a8f43e21dced06db773884e5ca",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "cycle",
+          "answer": "9",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 312,
+          "inputTokens": 418,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "085edafb54f6e1f7fe6db721ee10f718e2cbf2544af6e51664d674806c326563",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "c3",
+          "optionLabels": [
+            {
+              "optionId": "c1",
+              "label": "supported"
+            },
+            {
+              "optionId": "c2",
+              "label": "supported"
+            },
+            {
+              "optionId": "c3",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c4",
+              "label": "supported"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 457,
+          "outputTokens": 59
+        }
+      }
+    },
+    {
+      "digest": "9cbe4ad8fa56ae2882a9e161c37cf568f9a5180700bdf09e008f457fa56ed2b7",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "ground",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 331,
           "outputTokens": 16
         }
       }

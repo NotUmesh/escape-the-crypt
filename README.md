@@ -61,14 +61,26 @@ VITE_WORKER_URL=http://localhost:8787 pnpm dev
 
 | Name | Required | Meaning |
 | --- | --- | --- |
-| `OPENAI_API_KEY` | yes | Key for the model provider. Never commit it. |
-| `OPENAI_MODEL` | yes | Model ID to use. |
+| `PROVIDER` | no | `openai` (default) or `gemini`. Anything else stops the worker at startup. |
+| `OPENAI_API_KEY` | when `PROVIDER=openai` | Key for OpenAI. Never commit it. |
+| `OPENAI_MODEL` | when `PROVIDER=openai` | OpenAI model ID to use. |
+| `PRICE_INPUT_USD_PER_MTOK` | to accept jobs on OpenAI | OpenAI input price per million tokens, for the budget. |
+| `PRICE_OUTPUT_USD_PER_MTOK` | to accept jobs on OpenAI | OpenAI output price per million tokens, for the budget. |
+| `GEMINI_API_KEY` | when `PROVIDER=gemini` | Key for the Gemini API, from a billing-enabled project. Never commit it. |
+| `GEMINI_MODEL` | when `PROVIDER=gemini` | Bare Gemini model ID, for example `gemini-3.8-flash`. No default in code. |
+| `GEMINI_PRICE_INPUT_USD_PER_MTOK` | when `PROVIDER=gemini` | Gemini input price per million tokens, for the budget. |
+| `GEMINI_PRICE_OUTPUT_USD_PER_MTOK` | when `PROVIDER=gemini` | Gemini output price per million tokens (thinking tokens are billed at this rate). |
 | `WEB_ORIGIN` | yes | The origin the web app is served from (for CORS). |
 | `DAILY_BUDGET_USD` | to accept jobs | Daily spending cap. Without it the worker refuses jobs. |
-| `PRICE_INPUT_USD_PER_MTOK` | to accept jobs | Input price per million tokens, for the budget. |
-| `PRICE_OUTPUT_USD_PER_MTOK` | to accept jobs | Output price per million tokens, for the budget. |
 | `PORT` | no | Defaults to 8787. |
 | `JOB_TTL_MINUTES` | no | How long a finished job is kept. Defaults to 30. |
+| `JUDGE_ACCESS_TOKEN` | no | Judge access code for `POST /judge/jobs`, at least 24 characters. Unset: that route answers 404. |
+
+With `PROVIDER=gemini`, a missing or invalid Gemini setting stops the worker at startup with a message naming the variable. The OpenAI variables are not read.
+
+If the OpenAI credit runs out: set `PROVIDER=gemini` and the four `GEMINI_*` variables in the worker's Render environment, then redeploy.
+To switch back, set `PROVIDER=openai` (or remove it) and redeploy. The startup log line shows which provider is live.
+Switching is manual only. The worker never fails over between providers by itself.
 
 `.env.example` lists the same names. **Web build variable:** `VITE_WORKER_URL` is the worker's `https://` origin (plain `http://` only for `localhost` or `127.0.0.1`). Without it the "Generate from my notes" button is hidden.
 
@@ -132,7 +144,7 @@ Not measured yet. These cells are filled only from runs on the held-out set, aft
 - **Generated crypts are small today.** A generated crypt is one room with up to two lock types (rune cipher and séance board). The other four lock types (bone ordering, bound threads, cursed object, combination dial) are in the engine and being added to generation; the sample crypts show what the full set looks like. TODO: update this line when multi-room and the other lock types reach generation.
 - **Questions can be wrong.** Code checks and the blind review reduce errors; they do not remove them. That is why every question shows its source and can be challenged.
 - **No claims about learning.** The app does not claim to improve results, mastery or exam performance.
-- **AI provider and what is sent.** Generation uses OpenAI through the worker, with the model named by `OPENAI_MODEL`. Only the text of the notes you confirm is sent (up to 6,000 words), plus the worker's own prompts. Your PDF file and its name never leave your device. The worker keeps job text and results only while the job runs and for 30 minutes after it ends by default, then keeps a content-free record for 24 hours. Its logs hold counts, timings and error types, never notes or model output. Under OpenAI's default API terms, data sent to the API is not used to train OpenAI's models, and OpenAI may keep it for up to 30 days for abuse monitoring. See [OpenAI's API data controls page](https://developers.openai.com/api/docs/guides/your-data) for the details, which can change.
+- **AI provider and what is sent.** Generation uses OpenAI through the worker, with the model named by `OPENAI_MODEL`. Only the text of the notes you confirm is sent (up to 6,000 words), plus the worker's own prompts. Your PDF file and its name never leave your device. The worker keeps job text and results only while the job runs and for 30 minutes after it ends by default, then keeps a content-free record for 24 hours. Its logs hold counts, timings and error types, never notes or model output. Under OpenAI's default API terms, data sent to the API is not used to train OpenAI's models, and OpenAI may keep it for up to 30 days for abuse monitoring. See [OpenAI's API data controls page](https://developers.openai.com/api/docs/guides/your-data) for the details, which can change. If the worker is switched to the Gemini fallback (`PROVIDER=gemini`), the same text goes to Google's Gemini API instead, through `generateContent`, which keeps no conversation state. On paid quota, Google's terms say prompts and responses are not used to improve its products and are logged for a limited time to detect policy violations; on unpaid quota, human reviewers may read them, so the fallback must use a billing-enabled project. See the [Gemini API terms](https://ai.google.dev/gemini-api/terms), which can change.
 - **The worker's budget cap is in memory.** It resets if the worker restarts. The backstop is a monthly limit on the provider project. A database-backed ledger is planned.
 - **Samples are drafts.** The sample question files are marked draft until the author has read every question, so none shows the "Human-reviewed" label yet. TODO: update after review.
 - **Not in this version:** accounts, leaderboards, teacher mode, multiplayer, OCR, diagram labelling, server-side storage of private uploads.

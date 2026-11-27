@@ -1,5 +1,5 @@
 {
-  "checkVersion": "2026-11-27.1",
+  "checkVersion": "2026-11-27.5",
   "entries": [
     {
       "digest": "bebc3271e2cbc744d83bfc821f0b39a040e18ce0e62f91df4e188576b3904d45",
@@ -114,42 +114,12 @@
       }
     },
     {
-      "digest": "8c5a6e33c25e722d6c1cf7193609af21717b249743be215e292332cd68e024c9",
+      "digest": "0451dd47892111298163e37925468c8f521ab6e9917f7eb891d203245392897c",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: Apollo 11 is identified as the first crewed Moon landing, which fits a rune-cipher question. A seance-board question is unnecessary because the concept is directly stated rather than requiring a choice among options.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "Apollo 11: the ______",
-            "answer": "first crewed Moon landing",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_57ddc74c3455_0",
-                "quote": "Apollo 11: the first crewed Moon landing"
-              }
-            ],
-            "explanation": "The notes explicitly name Apollo 11 as the first crewed Moon landing.",
-            "hint": null
-          },
-          "alternate": null
-        },
-        "usage": {
-          "inputTokens": 1215,
-          "outputTokens": 158
-        }
-      }
-    },
-    {
-      "digest": "58ab1d2782f644eb9234969f917b40c875eb04ea81c6c1c3dd949db9a89bbf95",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "A single fact in the notes states the launch date and rocket for Apollo 11, which fits a rune-cipher fill-in-the-blank question.",
+          "justification": "The notes state a single fact pairing the mission with its launch date and rocket, which fits a rune-cipher fill-in-the-blank question best.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "Apollo 11 launched from Kennedy Space Center in Florida on ______.",
@@ -162,169 +132,141 @@
                 "quote": "It launched from Kennedy Space Center in Florida on July 16, 1969, on a Saturn V rocket."
               }
             ],
-            "explanation": "The notes directly give Apollo 11's launch date and rocket in one sentence.",
+            "explanation": "The missing phrase is stated verbatim in the notes.",
             "hint": null
           },
           "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what rocket did Apollo 11 launch on?",
-            "options": [
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, on what date did Apollo 11 launch?",
+            "answer": {
+              "kind": "exact",
+              "value": 1969
+            },
+            "units": "year",
+            "evidence": [
               {
-                "id": "a",
-                "text": "Saturn V rocket",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_1",
-                  "quote": "on a Saturn V rocket."
-                }
-              },
-              {
-                "id": "b",
-                "text": "Falcon 9 rocket",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_1",
-                  "quote": "on a Saturn V rocket."
-                }
-              },
-              {
-                "id": "c",
-                "text": "Space Shuttle",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_1",
-                  "quote": "on a Saturn V rocket."
-                }
+                "chunkId": "chk_57ddc74c3455_1",
+                "quote": "It launched from Kennedy Space Center in Florida on July 16, 1969, on a Saturn V rocket."
               }
             ],
-            "answer": "a",
-            "explanation": "The notes say Apollo 11 launched on a Saturn V rocket, not the other rockets listed."
+            "explanation": "The notes include the launch date, but this alternate asks only for the year."
           }
         },
         "usage": {
-          "inputTokens": 1186,
-          "outputTokens": 346
+          "inputTokens": 2716,
+          "outputTokens": 261
         }
       }
     },
     {
-      "digest": "bc9eb5af23db0b601fc6ba10bf58a681fb8a2de58abc07fc0d3749faeaf56175",
+      "digest": "26462e0dc5b550424fd40498e671932d5b76910e54a9c915ad2fc04ba450ba7c",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single factual prompt about one crew role and provide exact quoted roles for the Apollo 11 astronauts, so a seance-board question fits best. A rune-cipher is less suitable because the concept is a multi-part set of roles rather than one short completion.",
+          "justification": "The notes support a single fill-in-the-blank fact: Apollo 11 is the first crewed Moon landing. This fits rune-cipher best because the answer is a short phrase stated directly in the notes. An alternate seance-board question is also valid from the same evidence.",
           "primary": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, who was the commander of Apollo 11?",
-            "options": [
-              {
-                "id": "A",
-                "text": "Neil Armstrong was the commander.",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Neil Armstrong was the commander."
-                }
-              },
-              {
-                "id": "B",
-                "text": "Buzz Aldrin was the commander.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Buzz Aldrin was the lunar module pilot, who flew down to the surface with Armstrong."
-                }
-              },
-              {
-                "id": "C",
-                "text": "Michael Collins was the commander.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Michael Collins was the command module pilot, who stayed in lunar orbit while the other two landed."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes explicitly say Neil Armstrong was the commander, while the other two astronauts had different roles."
-          },
-          "alternate": {
             "lockType": "rune-cipher",
-            "prompt": "Neil Armstrong was the ______.",
-            "answer": "commander",
+            "prompt": "Apollo 11: the first crewed ______",
+            "answer": "Moon landing",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
-                "chunkId": "chk_57ddc74c3455_2",
-                "quote": "Neil Armstrong was the commander."
+                "chunkId": "chk_57ddc74c3455_0",
+                "quote": "Apollo 11: the first crewed Moon landing"
               }
             ],
-            "explanation": "The notes give a direct one-word role that completes the sentence.",
+            "explanation": "The notes state the exact phrase completing the sentence.",
             "hint": {
               "kind": "first-letter-and-length",
-              "firstLetter": "c",
-              "length": 9
+              "firstLetter": "M",
+              "length": 11
             }
-          }
-        },
-        "usage": {
-          "inputTokens": 1229,
-          "outputTokens": 378
-        }
-      }
-    },
-    {
-      "digest": "15d9db1fdd2960e6f52061cfce83036550ace164ce58be66d9873b7b8c774965",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "A seance-board fits because the notes support one clear claim and directly contradict plausible alternatives about Apollo 11 crew membership.",
-          "primary": {
+          },
+          "alternate": {
             "lockType": "seance-board",
-            "prompt": "According to your notes, who was not part of Apollo 11?",
+            "prompt": "According to your notes, what did Apollo 11 first land on?",
             "options": [
               {
                 "id": "A",
-                "text": "Yuri Gagarin",
+                "text": "the Moon",
                 "label": "supported",
                 "evidence": {
-                  "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Yuri Gagarin was not part of Apollo 11"
+                  "chunkId": "chk_57ddc74c3455_1",
+                  "quote": "first landed humans on the Moon"
                 }
               },
               {
                 "id": "B",
-                "text": "Neil Armstrong",
+                "text": "Mars",
                 "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_1",
+                  "quote": "first landed humans on the Moon"
+                }
+              },
+              {
+                "id": "C",
+                "text": "Venus",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_1",
+                  "quote": "first landed humans on the Moon"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes say Apollo 11 first landed humans on the Moon, so that option is supported."
+          }
+        },
+        "usage": {
+          "inputTokens": 2745,
+          "outputTokens": 348
+        }
+      }
+    },
+    {
+      "digest": "025a789b9763f36f96f6ecdb41e932c690d6c9f37b4fdcef816e7fa0a1462007",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "A seance-board question fits because the notes support one correct option about Apollo 11 crew membership and contradict alternatives with different people or roles.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, who was part of Apollo 11?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Neil Armstrong",
+                "label": "supported",
                 "evidence": {
                   "chunkId": "chk_57ddc74c3455_2",
                   "quote": "Neil Armstrong was the commander."
                 }
               },
               {
-                "id": "C",
-                "text": "Buzz Aldrin",
+                "id": "B",
+                "text": "Yuri Gagarin",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Buzz Aldrin was the lunar module pilot"
+                  "quote": "Yuri Gagarin was not part of Apollo 11:"
                 }
               },
               {
-                "id": "D",
+                "id": "C",
                 "text": "Michael Collins",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Michael Collins was the command module pilot"
+                  "quote": "Michael Collins was the command module pilot, who stayed in lunar orbit"
                 }
               }
             ],
             "answer": "A",
-            "explanation": "The notes explicitly say Yuri Gagarin was not part of Apollo 11, while the other three were crew members."
+            "explanation": "The notes explicitly say Neil Armstrong was on the Apollo 11 crew, while Yuri Gagarin was not part of Apollo 11."
           },
           "alternate": {
             "lockType": "rune-cipher",
@@ -335,10 +277,10 @@
             "evidence": [
               {
                 "chunkId": "chk_57ddc74c3455_2",
-                "quote": "Yuri Gagarin was not part of Apollo 11"
+                "quote": "Yuri Gagarin was not part of Apollo 11:"
               }
             ],
-            "explanation": "The missing phrase is the mission name stated in the notes.",
+            "explanation": "The notes directly state the missing phrase.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "A",
@@ -347,19 +289,126 @@
           }
         },
         "usage": {
-          "inputTokens": 1235,
-          "outputTokens": 384
+          "inputTokens": 2765,
+          "outputTokens": 348
         }
       }
     },
     {
-      "digest": "ea834b16c3259b3eeb90466a97bbdcd6e350e70d3c970ff3b27ad903f07e90c1",
+      "digest": "59ef14e65ddef3e56934849cb3d7ae6120f371826761d213b91d8900a638a7cf",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about the names of the two spacecraft parts, so a rune-cipher fits best. A seance-board is unnecessary because there is only one direct term to recall.",
+          "justification": "The notes state a one-to-one pairing of each Apollo 11 crew member with a role, so a bound-threads question fits best.",
           "primary": {
+            "lockType": "bound-threads",
+            "prompt": "Match each Apollo 11 crew member to their role.",
+            "pairs": [
+              {
+                "left": "Neil Armstrong",
+                "right": "commander",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_2",
+                  "quote": "Neil Armstrong was the commander."
+                }
+              },
+              {
+                "left": "Buzz Aldrin",
+                "right": "lunar module pilot",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_2",
+                  "quote": "Buzz Aldrin was the lunar module pilot,"
+                }
+              },
+              {
+                "left": "Michael Collins",
+                "right": "command module pilot",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_2",
+                  "quote": "Michael Collins was the command module pilot,"
+                }
+              }
+            ],
+            "explanation": "Each crew member is explicitly matched to a unique role in the notes."
+          },
+          "alternate": {
+            "lockType": "cursed-object",
+            "prompt": "Which item is the odd one out?",
+            "items": [
+              "Neil Armstrong",
+              "Buzz Aldrin",
+              "Michael Collins",
+              "Yuri Gagarin"
+            ],
+            "answer": "Yuri Gagarin",
+            "categoryRule": "Apollo 11 crew members",
+            "evidence": [
+              {
+                "chunkId": "chk_57ddc74c3455_2",
+                "quote": "The crew had three astronauts."
+              },
+              {
+                "chunkId": "chk_57ddc74c3455_2",
+                "quote": "Yuri Gagarin was not part of Apollo 11:"
+              }
+            ],
+            "explanation": "Three names are Apollo 11 crew members, while Yuri Gagarin is explicitly not part of Apollo 11."
+          }
+        },
+        "usage": {
+          "inputTokens": 2759,
+          "outputTokens": 347
+        }
+      }
+    },
+    {
+      "digest": "2d8aa33ce99d830506de00af8c1feb6f6c7a1e68fa4896c4783bee2fd4fa71cb",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a one-to-one pairing between the two spacecraft parts and their names, so a bound-threads question fits best. An alternate rune-cipher question is also valid because the names are stated directly.",
+          "primary": {
+            "lockType": "bound-threads",
+            "prompt": "Match each spacecraft part to its name.",
+            "pairs": [
+              {
+                "left": "command module",
+                "right": "Columbia",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_3",
+                  "quote": "The command module, named Columbia, carried the crew to the Moon and back to Earth."
+                }
+              },
+              {
+                "left": "lunar module",
+                "right": "Eagle",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_3",
+                  "quote": "The lunar module, named Eagle, carried two astronauts from lunar orbit down to the surface and back up again."
+                }
+              },
+              {
+                "left": "command module",
+                "right": "carried the crew to the Moon and back to Earth",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_3",
+                  "quote": "The command module, named Columbia, carried the crew to the Moon and back to Earth."
+                }
+              },
+              {
+                "left": "lunar module",
+                "right": "carried two astronauts from lunar orbit down to the surface and back up again",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_3",
+                  "quote": "The lunar module, named Eagle, carried two astronauts from lunar orbit down to the surface and back up again."
+                }
+              }
+            ],
+            "explanation": "The notes explicitly pair the command module with Columbia and the lunar module with Eagle."
+          },
+          "alternate": {
             "lockType": "rune-cipher",
             "prompt": "The command module was named ______.",
             "answer": "Columbia",
@@ -371,270 +420,165 @@
                 "quote": "The command module, named Columbia, carried the crew to the Moon and back to Earth."
               }
             ],
-            "explanation": "The notes explicitly state the command module's name is Columbia.",
+            "explanation": "The notes state the command module's name directly.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "C",
               "length": 8
             }
-          },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which spacecraft part carried the crew to the Moon and back to Earth?",
-            "options": [
-              {
-                "id": "A",
-                "text": "The command module",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_3",
-                  "quote": "The command module, named Columbia, carried the crew to the Moon and back to Earth."
-                }
-              },
-              {
-                "id": "B",
-                "text": "The lunar module",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_3",
-                  "quote": "The lunar module, named Eagle, carried two astronauts from lunar orbit down to the surface and back up again."
-                }
-              },
-              {
-                "id": "C",
-                "text": "The lunar module carried the crew to the Moon and back to Earth",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_3",
-                  "quote": "The lunar module, named Eagle, carried two astronauts from lunar orbit down to the surface and back up again."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "Only the command module is described as carrying the crew to the Moon and back to Earth."
           }
         },
         "usage": {
-          "inputTokens": 1200,
-          "outputTokens": 406
+          "inputTokens": 2730,
+          "outputTokens": 432
         }
       }
     },
     {
-      "digest": "1865edf303a62bf18fd7d44a25225b966ed25725374e143359d7ac0b4402a303",
+      "digest": "70f3f93bdc6b803219fe005405a9d97b2ed4552bce8643d403af6fa2b5b72727",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes give a single ordered mission sequence with one clearly supported landing event, so a seance-board question fits best. A rune-cipher is not suitable because the concept is not a single term or short phrase to complete one sentence.",
+          "justification": "The notes give an explicit ordered sequence, so a bone-ordering question fits best. A secondary number question is also valid because the landing date is stated verbatim.",
           "primary": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, where did Eagle land on July 20?",
-            "options": [
+            "lockType": "bone-ordering",
+            "prompt": "Put the mission sequence and landing events in order:",
+            "steps": [
+              "Saturn V launched the crew into Earth orbit and then sent them towards the Moon",
+              "the spacecraft entered orbit around the Moon on July 19",
+              "Eagle separated from Columbia and landed in the Sea of Tranquility on July 20",
+              "Columbia returned to Earth and splashed down in the Pacific Ocean on July 24"
+            ],
+            "evidence": [
               {
-                "id": "A",
-                "text": "The Sea of Tranquility",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_4",
-                  "quote": "Then Eagle separated from Columbia and landed in the Sea of Tranquility on July 20."
-                }
+                "chunkId": "chk_57ddc74c3455_4",
+                "quote": "First, the Saturn V launched the crew into Earth orbit and then sent them towards the Moon."
               },
               {
-                "id": "B",
-                "text": "Earth orbit",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_4",
-                  "quote": "First, the Saturn V launched the crew into Earth orbit and then sent them towards the Moon."
-                }
+                "chunkId": "chk_57ddc74c3455_4",
+                "quote": "Next, the spacecraft entered orbit around the Moon on July 19."
               },
               {
-                "id": "C",
-                "text": "the Pacific Ocean",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_4",
-                  "quote": "Finally, Columbia returned to Earth and splashed down in the Pacific Ocean on July 24."
-                }
+                "chunkId": "chk_57ddc74c3455_4",
+                "quote": "Then Eagle separated from Columbia and landed in the Sea of Tranquility on July 20."
+              },
+              {
+                "chunkId": "chk_57ddc74c3455_4",
+                "quote": "Finally, Columbia returned to Earth and splashed down in the Pacific Ocean on July 24."
               }
             ],
-            "answer": "A",
-            "explanation": "The notes explicitly say Eagle landed in the Sea of Tranquility on July 20."
+            "explanation": "The notes explicitly mark the sequence with First, Next, Then, and Finally."
           },
           "alternate": {
-            "lockType": "rune-cipher",
-            "prompt": "Then Eagle separated from Columbia and landed in the ______ on July 20.",
-            "answer": "Sea of Tranquility",
-            "aliases": [],
-            "caseSensitive": true,
+            "lockType": "combination-dial",
+            "prompt": "On what date did Eagle land in the Sea of Tranquility?",
+            "answer": {
+              "kind": "exact",
+              "value": 20
+            },
+            "units": "July 20",
             "evidence": [
               {
                 "chunkId": "chk_57ddc74c3455_4",
                 "quote": "Then Eagle separated from Columbia and landed in the Sea of Tranquility on July 20."
               }
             ],
-            "explanation": "The missing phrase is the landing site named in the notes.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "S",
-              "length": 19
-            }
+            "explanation": "The landing date is stated directly in the notes."
           }
         },
         "usage": {
-          "inputTokens": 1241,
-          "outputTokens": 402
+          "inputTokens": 2771,
+          "outputTokens": 401
         }
       }
     },
     {
-      "digest": "5d4f22da5aedaeb1340e86ec2e5eebcd4b22e950793268c30d13f093370e2639",
+      "digest": "f39ca94fece606d570dd9a6f123f00dbd0c17b8ac05605f2a6e53b4bdfaf5985",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: the experiment left behind was a laser reflector. This is a short phrase that completes one sentence on its own, so rune-cipher fits best. An alternate seance-board question is also possible from the same sentence.",
+          "justification": "The notes state a single exact duration for the moonwalk and list activities done during it, so a combination-dial question fits best. A second valid lock type is rune-cipher for the phrase 'United States flag'.",
           "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "One experiment left behind was a ______.",
-            "answer": "laser reflector",
-            "aliases": [],
-            "caseSensitive": false,
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many hours did Armstrong and Aldrin spend walking outside during the moonwalk?",
+            "answer": {
+              "kind": "exact",
+              "value": 2.5
+            },
+            "units": "hours",
             "evidence": [
               {
-                "chunkId": "chk_57ddc74c3455_6",
-                "quote": "One experiment left behind was a laser reflector"
+                "chunkId": "chk_57ddc74c3455_5",
+                "quote": "only about two and a half hours of that time walking outside"
               }
             ],
-            "explanation": "The notes directly name the experiment left behind as a laser reflector.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "l",
-              "length": 15
-            }
+            "explanation": "The notes give the moonwalk duration as about two and a half hours walking outside."
           },
           "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what experiment was left behind?",
-            "options": [
-              {
-                "id": "A",
-                "text": "laser reflector",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_6",
-                  "quote": "One experiment left behind was a laser reflector"
-                }
-              },
-              {
-                "id": "B",
-                "text": "seismometer",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_6",
-                  "quote": "One experiment left behind was a laser reflector"
-                }
-              },
-              {
-                "id": "C",
-                "text": "radio antenna",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_6",
-                  "quote": "One experiment left behind was a laser reflector"
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes explicitly say the experiment left behind was a laser reflector, and the other options are not supported by the notes."
-          }
-        },
-        "usage": {
-          "inputTokens": 1185,
-          "outputTokens": 356
-        }
-      }
-    },
-    {
-      "digest": "4ceb1175d39721e475f77b976c71ad46b9490dcf43efec92f924e3373ba5d171",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about the moonwalk duration and activities, with a short phrase that can complete one sentence on its own.",
-          "primary": {
             "lockType": "rune-cipher",
-            "prompt": "Armstrong and Aldrin spent about ______ on the lunar surface.",
-            "answer": "21 and a half hours",
+            "prompt": "During the moonwalk they planted a ______.",
+            "answer": "United States flag",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
                 "chunkId": "chk_57ddc74c3455_5",
-                "quote": "Armstrong and Aldrin spent about 21 and a half hours on the lunar surface"
+                "quote": "planted a United States flag"
               }
             ],
-            "explanation": "The notes state the total time on the lunar surface directly.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "2",
-              "length": 19
-            }
-          },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, how long did Armstrong and Aldrin spend walking outside during the moonwalk?",
-            "options": [
-              {
-                "id": "A",
-                "text": "about two and a half hours",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_5",
-                  "quote": "only about two and a half hours of that time walking outside"
-                }
-              },
-              {
-                "id": "B",
-                "text": "about 21 and a half hours",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_5",
-                  "quote": "Armstrong and Aldrin spent about 21 and a half hours on the lunar surface"
-                }
-              },
-              {
-                "id": "C",
-                "text": "about 21.5 kilograms of rock and soil",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_5",
-                  "quote": "During the moonwalk they collected about 21.5 kilograms of rock and soil"
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "Only one option matches the time spent walking outside; the others refer to total surface time or collected material."
+            "explanation": "The notes name the planted item directly, so it can fill the blank.",
+            "hint": null
           }
         },
         "usage": {
-          "inputTokens": 1208,
-          "outputTokens": 392
+          "inputTokens": 2738,
+          "outputTokens": 248
         }
       }
     },
     {
-      "digest": "988389bb6a9cfbeda515ff0ea8770bc807132a440f7d64210ac9b355662f864b",
+      "digest": "f7611d3069b876ad5ac6aa1b0b933fef9c9c09d371cbcef6e237ca3ce74a966b",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: Kennedy's Moon landing goal was to land a person on the Moon and return them safely to Earth before the end of the decade.",
+          "justification": "The notes support a single fill-in-the-blank fact about the laser reflector experiment, and no other lock type fits because there is only one stated concept with one definitional sentence.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "President John F. Kennedy’s 1961 goal was to ______.",
-            "answer": "landing a person on the Moon and returning them safely to Earth before the end of the decade",
+            "prompt": "A laser reflector is a panel of mirrors that scientists on Earth still use to measure the distance to the Moon by timing how long a laser pulse takes to ______.",
+            "answer": "bounce back",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_57ddc74c3455_6",
+                "quote": "a laser reflector, a panel of mirrors that scientists on Earth still use to measure the distance to the Moon by timing how long a laser pulse takes to bounce back"
+              }
+            ],
+            "explanation": "The notes directly state the missing phrase that completes the sentence.",
+            "hint": null
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 2715,
+          "outputTokens": 181
+        }
+      }
+    },
+    {
+      "digest": "86c593eca193be28a89da27e6ac7c9737a63d3abeda024bfff452fa899cb070b",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state a single factual sentence about Kennedy's Moon landing goal, which fits a fill-in-the-blank rune-cipher question.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Apollo 11 met the goal set by President John F. Kennedy in 1961 of landing a person on the Moon and returning them safely to ______ before the end of the decade.",
+            "answer": "Earth",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
@@ -643,14 +587,48 @@
                 "quote": "Apollo 11 met the goal set by President John F. Kennedy in 1961 of landing a person on the Moon and returning them safely to Earth before the end of the decade."
               }
             ],
-            "explanation": "The chunk states Kennedy’s goal in one complete phrase that fits a single blank.",
-            "hint": null
+            "explanation": "The missing term is the destination Kennedy's goal specified: Earth.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "E",
+              "length": 5
+            }
           },
-          "alternate": null
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, in what year did President John F. Kennedy set the Moon landing goal?",
+            "answer": {
+              "kind": "exact",
+              "value": 1961
+            },
+            "units": "year",
+            "evidence": [
+              {
+                "chunkId": "chk_57ddc74c3455_7",
+                "quote": "set by President John F. Kennedy in 1961"
+              }
+            ],
+            "explanation": "The notes explicitly state the year Kennedy set the goal."
+          }
         },
         "usage": {
-          "inputTokens": 1186,
-          "outputTokens": 190
+          "inputTokens": 2716,
+          "outputTokens": 290
+        }
+      }
+    },
+    {
+      "digest": "c6bb36e3c9c89b726b1baec119b7fa0af93fa0895be9101f5d2ebd20669a2538",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Moon landing",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 295,
+          "outputTokens": 17
         }
       }
     },
@@ -670,237 +648,7 @@
       }
     },
     {
-      "digest": "8402cb0d0d49a160a3c6c927a93a7a9462243c36533321a33de8813e127318d2",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "first crewed Moon landing",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 292,
-          "outputTokens": 20
-        }
-      }
-    },
-    {
-      "digest": "c6044d3513ebbb6d64d1ac78b43f117347ed943317a78f3909650c070409df6c",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
-              "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "c",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 352,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "11feef90c0fed64b8c75daae03be31dbd1c30c0950cf9598b5681ed26bde8915",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "commander",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 360,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
-      "digest": "e37f8e4794c53811594fc7d48dfeb824f27527469fbcb95d0c42921ca06cdb60",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "Columbia",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 333,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
-      "digest": "0a2c77c9e8c3a251f4575da72c95843132fb08566b15ee3247c907105d4a2230",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 401,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "2abbcfa3e955b94a4fca0dcab8f912f2eac95bbec4ed3b9790d46649458da30c",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 381,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "a72e6f4d715a316c9cb788a634a1501497268ee909692b21e112ee766c0144df",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 409,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "82b1c1f7b03156233e0f52a036ce8a220a45067fad50e514a1ac71632ab38625",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "21 and a half hours",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 345,
-          "outputTokens": 20
-        }
-      }
-    },
-    {
-      "digest": "2be7563e921a8153f516ee46dbc0ea7f54edaa9286dc1f912656aae797c48570",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "Sea of Tranquility",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 382,
-          "outputTokens": 20
-        }
-      }
-    },
-    {
-      "digest": "42a461c411e73321e4791804d041c9952941b524806658f222572f4ee6ffc332",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 393,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "bab1953ec90e0a7b13fc17a096e4286e182965d8dbd0d7cf0b46a07b4191269b",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "laser reflector",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 320,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
-      "digest": "c5fcbb3e5be7f16a0879c27c513904057c55c5b20b036f58c2bd70e36ab270f6",
+      "digest": "7b1e60e62e412a5bbafe8c208f6c2bebc9079c590a0668a1eed7658047699711",
       "origin": "recorded",
       "response": {
         "ok": true,
@@ -924,6 +672,139 @@
         "usage": {
           "inputTokens": 347,
           "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "a8ddec82f228a3fa7671298e0bffe554a451a0f8b7624fa7faa85705136487d9",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "16",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 387,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "446a14457504210a5c8cd7235a2c41bdc8eaaa3bbfe49f6ada305ba6bc03763d",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "L1=R2,L2=R1,L3=R3",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 516,
+          "outputTokens": 30
+        }
+      }
+    },
+    {
+      "digest": "e37f8e4794c53811594fc7d48dfeb824f27527469fbcb95d0c42921ca06cdb60",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Columbia",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 333,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "20cbaffa814220fceafcc5b15a258f42c9da39065dfb1f44bfe43828d7bad0ae",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "supported"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 392,
+          "outputTokens": 45
+        }
+      }
+    },
+    {
+      "digest": "c218cc0c1ce3e645a67b8aa66ec1fa38b4d8e4888f64ae476150e077ee486d26",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "s2,s3,s1,s4",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 527,
+          "outputTokens": 23
+        }
+      }
+    },
+    {
+      "digest": "977d0b068b38813af076fce712bcf356ff8980125a902ce40ff0ce932981390c",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "20",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 442,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "44a17e7fa7768fbd6732c3ca7aa65e23a1c6f71d85b67a0f0404ac6ce97748ca",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "United States flag",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 342,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "d5e29a78ebd1f203d8ef80d52336efe2506c15c0c07128a56c300e258b22c01f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "1961",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 392,
+          "outputTokens": 17
         }
       }
     }

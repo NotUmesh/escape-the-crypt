@@ -15,7 +15,7 @@ export { buildRetryNote } from './concept-extraction-prompt';
 export const GENERATION_PROMPT_VERSION = 'generation-v2';
 
 /** Lock types the P3 generator can ask for (Req 14.9). Samples-only types are never requested. */
-export const DEFAULT_ALLOWED_LOCK_TYPES: readonly LockType[] = ['rune-cipher', 'seance-board'];
+export const DEFAULT_ALLOWED_LOCK_TYPES: readonly LockType[] = ['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads', 'cursed-object', 'combination-dial'];
 
 /**
  * "Generated only when" rules. Code vetoes in P3 are the Code_Checks and the release-status

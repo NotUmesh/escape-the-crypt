@@ -158,4 +158,17 @@ describe('no final-test-set references (Req 9.5)', () => {
       .map(rel);
     expect(offenders).toEqual([]);
   });
+
+  it('the scan covers the Phase 5 acceptance test and the Phase 5 lock check tests', () => {
+    const scanned = new Set(allFiles.map(rel));
+    for (const name of [
+      'phase5-acceptance.test.ts',
+      'locks/bone-ordering-checks.test.ts',
+      'locks/bound-threads-checks.test.ts',
+      'locks/cursed-object-checks.test.ts',
+      'locks/combination-dial-checks.test.ts',
+    ]) {
+      expect(scanned.has(name), `${name} is not scanned for final-test-set references`).toBe(true);
+    }
+  });
 });

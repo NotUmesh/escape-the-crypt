@@ -1,5 +1,5 @@
 {
-  "checkVersion": "2026-11-27.1",
+  "checkVersion": "2026-11-27.5",
   "entries": [
     {
       "digest": "31310be8c12022a5ea3a1224e7042b712396f155e15b8cbe72f8e8932fa75590",
@@ -99,12 +99,12 @@
       }
     },
     {
-      "digest": "65a7275ba73580f7449e6440f6e174992b85ac92420bce811b5d76581146dd75",
+      "digest": "43b3d76f4ff89a183e7c64cdea52ed3b881b35397e06fcc87df9305b34a61ba4",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: the lithosphere is broken into large slabs called tectonic plates.",
+          "justification": "The notes support a single fill-in-the-blank term: tectonic plates are the large slabs the lithosphere is broken into.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "Earth's outer shell, the lithosphere, is broken into large slabs called ______.",
@@ -117,65 +117,31 @@
                 "quote": "Earth's outer shell, the lithosphere, is broken into large slabs called tectonic plates."
               }
             ],
-            "explanation": "The quoted sentence directly states the missing term that completes the sentence.",
+            "explanation": "The notes directly name the slabs as tectonic plates.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "t",
               "length": 15
             }
           },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what are the large slabs called that make up Earth's outer shell lithosphere?",
-            "options": [
-              {
-                "id": "A",
-                "text": "tectonic plates",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_f03456069c54_1",
-                  "quote": "Earth's outer shell, the lithosphere, is broken into large slabs called tectonic plates."
-                }
-              },
-              {
-                "id": "B",
-                "text": "asthenosphere",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_f03456069c54_1",
-                  "quote": "The plates float on the asthenosphere, a hotter, softer layer of the mantle that can flow very slowly."
-                }
-              },
-              {
-                "id": "C",
-                "text": "crust",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_f03456069c54_1",
-                  "quote": "The lithosphere includes the crust and the rigid top layer of the mantle."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "Only tectonic plates are identified as the large slabs; the other options are different layers named in the notes."
-          }
+          "alternate": null
         },
         "usage": {
-          "inputTokens": 1205,
-          "outputTokens": 380
+          "inputTokens": 2735,
+          "outputTokens": 156
         }
       }
     },
     {
-      "digest": "94f6f2406fd0b0a293150e66fa41c357f966aaa61c14ea2e11865db7a65c6041",
+      "digest": "cb5579f9105b8228d5576508a2e269912ad1c6e621fa2aeaacf75e13387315df",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: tectonic plates float on the asthenosphere, and the concept label matches that sentence exactly.",
+          "justification": "The notes support a single fill-in-the-blank fact: tectonic plates float on the asthenosphere.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "Plates move on the ______",
+            "prompt": "Plates move on the ______.",
             "answer": "asthenosphere",
             "aliases": [],
             "caseSensitive": false,
@@ -185,20 +151,20 @@
                 "quote": "The plates float on the asthenosphere"
               }
             ],
-            "explanation": "The notes say tectonic plates float on the asthenosphere.",
+            "explanation": "The notes directly state that the plates float on the asthenosphere, so that term completes the sentence.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "a",
-              "length": 13
+              "length": 12
             }
           },
           "alternate": {
             "lockType": "seance-board",
-            "prompt": "According to your notes, what layer do tectonic plates float on?",
+            "prompt": "According to your notes, what layer do the plates float on?",
             "options": [
               {
-                "id": "a",
-                "text": "the asthenosphere",
+                "id": "A",
+                "text": "asthenosphere",
                 "label": "supported",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_1",
@@ -206,8 +172,8 @@
                 }
               },
               {
-                "id": "b",
-                "text": "the crust",
+                "id": "B",
+                "text": "crust",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_1",
@@ -215,100 +181,81 @@
                 }
               },
               {
-                "id": "c",
-                "text": "the core",
+                "id": "C",
+                "text": "outer core",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_1",
-                  "quote": "The plates float on the asthenosphere"
+                  "quote": "Earth's outer shell, the lithosphere, is broken into large slabs called tectonic plates"
                 }
               }
             ],
-            "answer": "a",
-            "explanation": "Only the asthenosphere is stated as the layer the plates float on; the crust is part of the lithosphere, not the floating layer."
+            "answer": "A",
+            "explanation": "Only asthenosphere is stated as the layer the plates float on; the other options are contradicted by the notes."
           }
         },
         "usage": {
-          "inputTokens": 1206,
-          "outputTokens": 339
+          "inputTokens": 2736,
+          "outputTokens": 341
         }
       }
     },
     {
-      "digest": "b176869a8e51187eac9528abcd6854178586cb050e020c2db4261e8dc60f51a2",
+      "digest": "f99b521c3b81b3e6e147e98666c41ccbb873bd90e42387b8e344efa2b11db335",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: the supercontinent name Pangaea. A seance-board is unnecessary because the concept is best tested as a direct term recall.",
+          "justification": "The notes support a single numeric fact that can be asked as a combination-dial question: the approximate time when Pangaea existed. No other lock type fits better than a number question.",
           "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "About 200 million years ago, the continents were joined in a single supercontinent called ______.",
-            "answer": "Pangaea",
-            "aliases": [],
-            "caseSensitive": true,
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, about how many million years ago were the continents joined in Pangaea?",
+            "answer": {
+              "kind": "exact",
+              "value": 200
+            },
+            "units": "million years",
             "evidence": [
               {
                 "chunkId": "chk_f03456069c54_2",
                 "quote": "About 200 million years ago, the continents were joined in a single supercontinent called Pangaea"
               }
             ],
-            "explanation": "The notes explicitly name the supercontinent as Pangaea.",
+            "explanation": "The notes state the time directly as about 200 million years ago."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, the continents were joined in a single supercontinent called ______.",
+            "answer": "Pangaea",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_f03456069c54_2",
+                "quote": "the continents were joined in a single supercontinent called Pangaea"
+              }
+            ],
+            "explanation": "The missing term is a short named concept stated verbatim in the notes.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "P",
-              "length": 7
+              "length": 8
             }
-          },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what was the name of the single supercontinent that existed about 200 million years ago?",
-            "options": [
-              {
-                "id": "A",
-                "text": "Pangaea",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_f03456069c54_2",
-                  "quote": "About 200 million years ago, the continents were joined in a single supercontinent called Pangaea"
-                }
-              },
-              {
-                "id": "B",
-                "text": "Laurasia",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_f03456069c54_2",
-                  "quote": "About 200 million years ago, the continents were joined in a single supercontinent called Pangaea"
-                }
-              },
-              {
-                "id": "C",
-                "text": "Gondwana",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_f03456069c54_2",
-                  "quote": "About 200 million years ago, the continents were joined in a single supercontinent called Pangaea"
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "Only Pangaea is named in the notes; the other options are not supported and are contradicted by the explicit naming of Pangaea."
           }
         },
         "usage": {
-          "inputTokens": 1209,
-          "outputTokens": 408
+          "inputTokens": 2739,
+          "outputTokens": 269
         }
       }
     },
     {
-      "digest": "7b0201d1847c40c56454ec0cd9cbe3ea09067e7961fcc8e89f29cc2a971f949e",
+      "digest": "0fcbdf9650b5cd21df8ea19fed8e112ea54ce15304e5cd833e8d44df78a087da",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: Alfred Wegener proposed continental drift in 1912. That is a short phrase that fits a rune-cipher prompt. An alternate seance-board question is also possible from the same chunk.",
+          "justification": "The notes support a single fill-in-the-blank fact: Alfred Wegener proposed the idea of continental drift in 1912. No ordering, pairing, category, or numeric question is better supported.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "In 1912, ______ proposed the idea of continental drift.",
@@ -334,7 +281,7 @@
             "options": [
               {
                 "id": "A",
-                "text": "Alfred Wegener proposed the idea of continental drift in 1912.",
+                "text": "Alfred Wegener",
                 "label": "supported",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_3",
@@ -343,48 +290,48 @@
               },
               {
                 "id": "B",
-                "text": "Charles Darwin proposed the idea of continental drift in 1912.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_f03456069c54_3",
-                  "quote": "In 1912, Alfred Wegener proposed the idea of continental drift."
-                }
-              },
-              {
-                "id": "C",
-                "text": "Alfred Wegener rejected the idea of continental drift at first.",
+                "text": "Most scientists",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_3",
                   "quote": "Most scientists rejected his idea at first because he could not explain what force moved the continents."
                 }
+              },
+              {
+                "id": "C",
+                "text": "matching fossils",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_f03456069c54_3",
+                  "quote": "He pointed to matching coastlines and matching fossils on continents that are now far apart."
+                }
               }
             ],
             "answer": "A",
-            "explanation": "The notes say Alfred Wegener proposed continental drift in 1912, and they also say most scientists rejected his idea at first."
+            "explanation": "Only Alfred Wegener is identified as the proposer; the other options are contradicted by the notes."
           }
         },
         "usage": {
-          "inputTokens": 1194,
-          "outputTokens": 426
+          "inputTokens": 2724,
+          "outputTokens": 382
         }
       }
     },
     {
-      "digest": "4322447fc163269a8a81165d6f1f0da74f608a7a1ae14d909ecabdd31aed39cc",
+      "digest": "ffdf66f1653925a51a85ebb6edb087433be24ffe2e223ac7258d59a255f69dbd",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "A seance-board fits because the notes support exactly one correct option about a plate-boundary type and contradict the others with explicit alternative facts.",
+          "justification": "Primary fits seance-board because the notes support exactly one correct type among the three boundary descriptions and contradict the others. Alternate fits cursed-object because the notes explicitly say a hotspot is not a type of plate boundary.",
           "primary": {
             "lockType": "seance-board",
-            "prompt": "According to your notes, which type of plate boundary is where plates slide past each other sideways?",
+            "prompt": "According to your notes, which type of plate boundary is where plates move apart and new crust forms as magma rises?",
             "options": [
               {
                 "id": "A",
-                "text": "Divergent boundary",
-                "label": "contradicted",
+                "text": "Divergent boundaries",
+                "label": "supported",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_4",
                   "quote": "At divergent boundaries, plates move apart and new crust forms as magma rises"
@@ -392,7 +339,7 @@
               },
               {
                 "id": "B",
-                "text": "Convergent boundary",
+                "text": "Convergent boundaries",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_4",
@@ -401,55 +348,54 @@
               },
               {
                 "id": "C",
-                "text": "Transform boundary",
-                "label": "supported",
+                "text": "Transform boundaries",
+                "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_4",
                   "quote": "At transform boundaries, plates slide past each other sideways"
                 }
-              },
-              {
-                "id": "D",
-                "text": "Hotspot",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_f03456069c54_4",
-                  "quote": "A hotspot is not a type of plate boundary"
-                }
               }
             ],
-            "answer": "C",
-            "explanation": "The notes say transform boundaries are where plates slide past each other sideways."
+            "answer": "A",
+            "explanation": "The notes directly define divergent boundaries as the type where plates move apart and new crust forms as magma rises."
           },
           "alternate": {
-            "lockType": "rune-cipher",
-            "prompt": "Scientists group plate boundaries into ______.",
-            "answer": "three types",
-            "aliases": [],
-            "caseSensitive": false,
+            "lockType": "cursed-object",
+            "prompt": "Which item is not a type of plate boundary according to your notes?",
+            "items": [
+              "Divergent boundaries",
+              "Convergent boundaries",
+              "Transform boundaries",
+              "A hotspot"
+            ],
+            "answer": "A hotspot",
+            "categoryRule": "Types of plate boundaries",
             "evidence": [
               {
                 "chunkId": "chk_f03456069c54_4",
                 "quote": "Scientists group plate boundaries into three types."
+              },
+              {
+                "chunkId": "chk_f03456069c54_4",
+                "quote": "A hotspot is not a type of plate boundary"
               }
             ],
-            "explanation": "The notes directly state the phrase that completes the sentence.",
-            "hint": null
+            "explanation": "Three items are listed as plate boundary types, while the notes explicitly exclude a hotspot."
           }
         },
         "usage": {
-          "inputTokens": 1254,
-          "outputTokens": 358
+          "inputTokens": 2784,
+          "outputTokens": 393
         }
       }
     },
     {
-      "digest": "c33733e0e42fb38d3b043c1fe3eae2fa3c5ab9c50e4c7ae043ae215cf3c2e130",
+      "digest": "69e71cde670232c340cf396703e354e31bbddaaa87ca660c33b8ac26c8d7905b",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes directly state that a hotspot is not a type of plate boundary, so a fill-in-the-blank question fits best.",
+          "justification": "The notes explicitly state that a hotspot is not a type of plate boundary, so a simple fill-in-the-blank question fits best.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "A hotspot is not a type of plate boundary: it is a plume of hot mantle rising under the middle of a ______.",
@@ -462,28 +408,24 @@
                 "quote": "A hotspot is not a type of plate boundary: it is a plume of hot mantle rising under the middle of a plate"
               }
             ],
-            "explanation": "The notes say hotspots rise under the middle of a plate, so the missing word is plate.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "p",
-              "length": 5
-            }
+            "explanation": "The notes directly define a hotspot as rising under the middle of a plate, so the missing word is plate.",
+            "hint": null
           },
           "alternate": {
             "lockType": "seance-board",
             "prompt": "According to your notes, what is a hotspot?",
             "options": [
               {
-                "id": "a",
+                "id": "A",
                 "text": "a plume of hot mantle rising under the middle of a plate",
                 "label": "supported",
                 "evidence": {
                   "chunkId": "chk_f03456069c54_4",
-                  "quote": "A hotspot is not a type of plate boundary: it is a plume of hot mantle rising under the middle of a plate"
+                  "quote": "it is a plume of hot mantle rising under the middle of a plate"
                 }
               },
               {
-                "id": "b",
+                "id": "B",
                 "text": "a type of plate boundary where plates move apart",
                 "label": "contradicted",
                 "evidence": {
@@ -492,7 +434,7 @@
                 }
               },
               {
-                "id": "c",
+                "id": "C",
                 "text": "a type of plate boundary where plates slide past each other sideways",
                 "label": "contradicted",
                 "evidence": {
@@ -501,7 +443,7 @@
                 }
               },
               {
-                "id": "d",
+                "id": "D",
                 "text": "a type of plate boundary where plates move towards each other",
                 "label": "contradicted",
                 "evidence": {
@@ -510,81 +452,140 @@
                 }
               }
             ],
-            "answer": "a",
-            "explanation": "Only option a matches the notes; the other options describe plate boundary types, which the notes distinguish from hotspots."
+            "answer": "A",
+            "explanation": "Only option A matches the notes; the other options describe plate boundary types, which the notes contrast with hotspots."
           }
         },
         "usage": {
-          "inputTokens": 1256,
-          "outputTokens": 458
+          "inputTokens": 2786,
+          "outputTokens": 437
         }
       }
     },
     {
-      "digest": "395e308ac106d4f30587cd23bc545c103edcc0da33b2cc744c8b29c06dff942d",
+      "digest": "b64865fb5f4b001c56f0f953c399b888e7700cb87ffc32e532a0f2db5ec4b9f6",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about the process and do not provide a clean 3- or 4-option contrast set.",
+          "justification": "The notes support a single fill-in-the-blank fact: the Ring of Fire is a belt of frequent earthquakes and volcanoes caused by subduction.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "When an oceanic plate meets a continental plate, ______ follows a typical order.",
+            "prompt": "According to your notes, the Ring of Fire around the Pacific Ocean is a belt of frequent earthquakes and volcanoes caused by ______.",
             "answer": "subduction",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
-                "chunkId": "chk_f03456069c54_5",
-                "quote": "When an oceanic plate meets a continental plate, subduction follows a typical order."
+                "chunkId": "chk_f03456069c54_6",
+                "quote": "The Ring of Fire around the Pacific Ocean is a belt of frequent earthquakes and volcanoes caused by subduction."
               }
             ],
-            "explanation": "The notes directly state that subduction follows a typical order in this setting.",
+            "explanation": "The notes explicitly say the Ring of Fire is caused by subduction, so that word completes the sentence.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "s",
               "length": 10
             }
           },
-          "alternate": null
-        },
-        "usage": {
-          "inputTokens": 1229,
-          "outputTokens": 160
-        }
-      }
-    },
-    {
-      "digest": "2251ae879d7241bee92b6420d4e07924a13a5f256e83fa7c9dc84a984f366c3d",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about where most earthquakes and volcanoes occur, and the exact phrase is short enough for a rune-cipher prompt.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "Most earthquakes and volcanoes occur along ______.",
-            "answer": "plate boundaries",
-            "aliases": [],
-            "caseSensitive": false,
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many kinds of natural events are described as occurring along plate boundaries?",
+            "answer": {
+              "kind": "exact",
+              "value": 2
+            },
+            "units": "kinds",
             "evidence": [
               {
                 "chunkId": "chk_f03456069c54_6",
                 "quote": "Most earthquakes and volcanoes occur along plate boundaries."
               }
             ],
-            "explanation": "The notes directly state the missing phrase that completes the sentence.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "p",
-              "length": 16
-            }
-          },
-          "alternate": null
+            "explanation": "The notes name two kinds of events: earthquakes and volcanoes."
+          }
         },
         "usage": {
-          "inputTokens": 1183,
-          "outputTokens": 147
+          "inputTokens": 2713,
+          "outputTokens": 272
+        }
+      }
+    },
+    {
+      "digest": "b7880cdcafe63ec1ae32b84845f1710203cc6231294c3d5d9b0741446a2db180",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give an explicit first/next/then/finally sequence for oceanic-continental subduction, so bone-ordering fits best. A secondary seance-board question is also valid because the notes support one correct step and contradict the others.",
+          "primary": {
+            "lockType": "bone-ordering",
+            "prompt": "In oceanic-continental subduction, put these steps in order: the sinking plate heats up as it descends into the mantle; the magma rises and can erupt to form a line of volcanoes on the continent; water released from the sinking plate helps nearby mantle rock melt into magma; the denser oceanic plate bends downward beneath the continental plate.",
+            "steps": [
+              "the denser oceanic plate bends downward beneath the continental plate",
+              "the sinking plate heats up as it descends into the mantle",
+              "water released from the sinking plate helps nearby mantle rock melt into magma",
+              "the magma rises and can erupt to form a line of volcanoes on the continent"
+            ],
+            "evidence": [
+              {
+                "chunkId": "chk_f03456069c54_5",
+                "quote": "First, the denser oceanic plate bends downward beneath the continental plate."
+              },
+              {
+                "chunkId": "chk_f03456069c54_5",
+                "quote": "Next, the sinking plate heats up as it descends into the mantle."
+              },
+              {
+                "chunkId": "chk_f03456069c54_5",
+                "quote": "Then water released from the sinking plate helps nearby mantle rock melt into magma."
+              },
+              {
+                "chunkId": "chk_f03456069c54_5",
+                "quote": "Finally, the magma rises and can erupt to form a line of volcanoes on the continent."
+              }
+            ],
+            "explanation": "The notes explicitly mark the sequence with First, Next, Then, and Finally."
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what happens first in oceanic-continental subduction?",
+            "options": [
+              {
+                "id": "A",
+                "text": "the denser oceanic plate bends downward beneath the continental plate",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_f03456069c54_5",
+                  "quote": "First, the denser oceanic plate bends downward beneath the continental plate."
+                }
+              },
+              {
+                "id": "B",
+                "text": "the magma rises and can erupt to form a line of volcanoes on the continent",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_f03456069c54_5",
+                  "quote": "Finally, the magma rises and can erupt to form a line of volcanoes on the continent."
+                }
+              },
+              {
+                "id": "C",
+                "text": "water released from the sinking plate helps nearby mantle rock melt into magma",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_f03456069c54_5",
+                  "quote": "Then water released from the sinking plate helps nearby mantle rock melt into magma."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only option A matches the first step; the other options are later steps, so they are contradicted."
+          }
+        },
+        "usage": {
+          "inputTokens": 2759,
+          "outputTokens": 602
         }
       }
     },
@@ -604,7 +605,7 @@
       }
     },
     {
-      "digest": "930c3190c1703c772c8fc26295d4c53b793245c5b78d788f7402a69bf7d6c202",
+      "digest": "12a2b4f2846c276f0c52c0e1a788c55332f7de0677d4733679de74d9fd0ee7e6",
       "origin": "recorded",
       "response": {
         "ok": true,
@@ -619,7 +620,7 @@
       }
     },
     {
-      "digest": "516a20b9210e326dcb3b1e42c586519d40a81cf6045be44d481ff4a501e12c2d",
+      "digest": "4c8fcc7d5c16b6345692e0c394891e23093f668f643a0fc58f3aafb91dc72180",
       "origin": "recorded",
       "response": {
         "ok": true,
@@ -641,51 +642,23 @@
           ]
         },
         "usage": {
-          "inputTokens": 373,
+          "inputTokens": 365,
           "outputTokens": 47
         }
       }
     },
     {
-      "digest": "68ad39949c22d3fe73ebf187b5a60f5f7852273eb9bd38aa46ef2c527fd89abf",
+      "digest": "6f99dd9c54f58c6c208b1fc0b217996dc0662c195b2df46d3bab7df19a297694",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "Pangaea",
+          "answer": "200",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 351,
-          "outputTokens": 18
-        }
-      }
-    },
-    {
-      "digest": "25cf8969fb8adb062cb283a7a1cb28d813a5af129f8076fee1436908663c68a4",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 380,
-          "outputTokens": 47
+          "inputTokens": 413,
+          "outputTokens": 16
         }
       }
     },
@@ -705,82 +678,22 @@
       }
     },
     {
-      "digest": "61357fbef0bd988fcb46de67eade512f18f686ebf14bb3c16ab6055ce2de6f87",
+      "digest": "034cf64d61189544bb103728f3ac2414380cf139c4481883ac796aeae692e769",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
-              "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "c",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 368,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "377ba24ec95e6e0fa4e2ac108d4d9c69be186805a194201618d5463d3f9269bd",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "C",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "supported"
-            },
-            {
-              "optionId": "D",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 432,
-          "outputTokens": 58
-        }
-      }
-    },
-    {
-      "digest": "d078b6280d6bc41f1a44fd0dbc690d4435494e380b7f63c480e41a0175edd868",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "three types",
+          "answer": "Pangaea",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 387,
-          "outputTokens": 17
+          "inputTokens": 349,
+          "outputTokens": 18
         }
       }
     },
     {
-      "digest": "40808ad1ee10c4de91fd6a2ae6bf7630219ceb0586b8860cf9dd5f5297459de6",
+      "digest": "508ddbceede7e4b305fb3fea2f743543a93b1b3ea6d4420be1aff82b1587f4d9",
       "origin": "recorded",
       "response": {
         "ok": true,
@@ -802,13 +715,116 @@
           ]
         },
         "usage": {
-          "inputTokens": 392,
+          "inputTokens": 363,
           "outputTokens": 47
         }
       }
     },
     {
-      "digest": "8748d6834229a027cef47b49c2bd0f3349765879a76e72dde9f89a1ee3a9eace",
+      "digest": "5160dfbe0200b236b00822344e2a00c3f3627db89b4468c14098b2118f3a3ad9",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 429,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "39d4810a3d504b781c8aff3564da757ef2ee81da91fb855178c571ae056c17cf",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "D",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 456,
+          "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "2d51c4eb8e38239b2af6f41cb9d910beffaa31ae23ccea7ebe5d38c8a4ea3ad6",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "s3,s2,s4,s1",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 568,
+          "outputTokens": 23
+        }
+      }
+    },
+    {
+      "digest": "d7c9cf8ad27797ae01c0401e370df6ddb90a0f1c4e0b744e805bdc07a9cfdf55",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "supported"
+            },
+            {
+              "optionId": "C",
+              "label": "supported"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 427,
+          "outputTokens": 43
+        }
+      }
+    },
+    {
+      "digest": "758adbcfde7871e54182ee9c9110fdf3610c10c95c995f4f46572ed5462fa0ec",
       "origin": "recorded",
       "response": {
         "ok": true,
@@ -817,55 +833,8 @@
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 369,
+          "inputTokens": 330,
           "outputTokens": 17
-        }
-      }
-    },
-    {
-      "digest": "44f0776ffdc4ace66b270040ee1624459caf13b99479c0277c91e2d96f98193f",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "plate boundaries",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 313,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
-      "digest": "bd784320ef15107e0af7e84c849ec408be19dcafc6270aa3f6ed570bb7620d1a",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
-              "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "c",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "d",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 456,
-          "outputTokens": 58
         }
       }
     }

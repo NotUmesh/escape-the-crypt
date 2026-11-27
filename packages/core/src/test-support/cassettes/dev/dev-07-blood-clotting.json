@@ -1,5 +1,5 @@
 {
-  "checkVersion": "2026-11-27.1",
+  "checkVersion": "2026-11-27.5",
   "entries": [
     {
       "digest": "dffbbe9f7d169aaef50eab7090713ce5d404574ca59e6d3728f8edb2ecddb28b",
@@ -100,12 +100,61 @@
       }
     },
     {
-      "digest": "bb26768cda2d47b1456430e81cf36bd7a685ac465922b45826d0ca6d5ff21efb",
+      "digest": "fedecf054adfd1612d4a8f3a09e331cbeb35b6e591dfd1e283ceb24c02c72da2",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: haemoglobin is the protein inside red blood cells, so a rune-cipher fits best. An alternate seance-board question is also possible from the same sentence.",
+          "justification": "The notes support a simple fill-in-the-blank about a named blood component and its role, with the exact term stated in one sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Blood is made of four main components. ______ is the pale yellow liquid part and makes up about 55 percent of blood volume.",
+            "answer": "Plasma",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_1",
+                "quote": "Plasma is the pale yellow liquid part and makes up about 55 percent of blood volume."
+              }
+            ],
+            "explanation": "The notes directly state that plasma is the pale yellow liquid part of blood and give its approximate volume share.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "P",
+              "length": 6
+            }
+          },
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, what percentage of blood volume is made up by plasma?",
+            "answer": {
+              "kind": "exact",
+              "value": 55
+            },
+            "units": "percent",
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_1",
+                "quote": "makes up about 55 percent of blood volume."
+              }
+            ],
+            "explanation": "The notes give the percentage directly as about 55 percent."
+          }
+        },
+        "usage": {
+          "inputTokens": 2748,
+          "outputTokens": 266
+        }
+      }
+    },
+    {
+      "digest": "5fce6c5cc3bed8dbc536fdc8b7752a8907e0201a7e1459a75ed80412c792c22b",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "Primary fits rune-cipher because the notes state a short phrase that completes a sentence on its own; alternate fits seance-board because the notes support one correct location for haemoglobin and contradict other locations.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "Haemoglobin is the protein inside ______ that carries oxygen.",
@@ -118,7 +167,7 @@
                 "quote": "Haemoglobin is not a separate component of blood: it is the protein inside red blood cells that carries oxygen."
               }
             ],
-            "explanation": "The notes state that haemoglobin is the protein inside red blood cells.",
+            "explanation": "The notes directly state that haemoglobin is inside red blood cells.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "r",
@@ -130,7 +179,7 @@
             "prompt": "According to your notes, where is haemoglobin found?",
             "options": [
               {
-                "id": "A",
+                "id": "a",
                 "text": "inside red blood cells",
                 "label": "supported",
                 "evidence": {
@@ -139,7 +188,7 @@
                 }
               },
               {
-                "id": "B",
+                "id": "b",
                 "text": "in plasma",
                 "label": "contradicted",
                 "evidence": {
@@ -148,7 +197,7 @@
                 }
               },
               {
-                "id": "C",
+                "id": "c",
                 "text": "in white blood cells",
                 "label": "contradicted",
                 "evidence": {
@@ -157,7 +206,7 @@
                 }
               },
               {
-                "id": "D",
+                "id": "d",
                 "text": "in platelets",
                 "label": "contradicted",
                 "evidence": {
@@ -166,177 +215,51 @@
                 }
               }
             ],
-            "answer": "A",
-            "explanation": "Only option A matches the notes; the other locations are contradicted by the blood components described."
+            "answer": "a",
+            "explanation": "The notes say haemoglobin is inside red blood cells, not plasma, white blood cells, or platelets."
           }
         },
         "usage": {
-          "inputTokens": 1224,
-          "outputTokens": 412
+          "inputTokens": 2754,
+          "outputTokens": 410
         }
       }
     },
     {
-      "digest": "4eff59a2a9f899bebeded058b64865a47d8618220e8aa03396e8baa252e29eec",
+      "digest": "4115cb2c260b8c6cf627ef98f1e030c6ff497ea4cd4b1b4eb4b439c710284db9",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about a named blood component, and the exact term is stated directly in one sentence.",
+          "justification": "The notes give an explicit fixed order for haemostasis, so a bone-ordering question fits best.",
           "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "Blood is made of four main components. ______ is the pale yellow liquid part and makes up about 55 percent of blood volume.",
-            "answer": "Plasma",
-            "aliases": [],
-            "caseSensitive": true,
-            "evidence": [
-              {
-                "chunkId": "chk_ec0022b83f1c_1",
-                "quote": "Plasma is the pale yellow liquid part and makes up about 55 percent of blood volume."
-              }
+            "lockType": "bone-ordering",
+            "prompt": "Put the haemostasis sequence in order.",
+            "steps": [
+              "vascular spasm",
+              "platelets stick to the damaged wall and to each other, forming a loose platelet plug",
+              "clotting factors in the plasma turn fibrinogen into fibrin",
+              "the clot tightens and the vessel wall is repaired"
             ],
-            "explanation": "The notes explicitly identify plasma as the pale yellow liquid part of blood and give its approximate volume share.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "P",
-              "length": 6
-            }
-          },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which blood component carries oxygen?",
-            "options": [
-              {
-                "id": "A",
-                "text": "Red blood cells carry oxygen.",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_ec0022b83f1c_1",
-                  "quote": "Red blood cells carry oxygen."
-                }
-              },
-              {
-                "id": "B",
-                "text": "White blood cells carry oxygen.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_ec0022b83f1c_1",
-                  "quote": "White blood cells fight infection."
-                }
-              },
-              {
-                "id": "C",
-                "text": "Platelets carry oxygen.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_ec0022b83f1c_1",
-                  "quote": "Platelets are small cell fragments that help blood clot."
-                }
-              },
-              {
-                "id": "D",
-                "text": "Haemoglobin is a separate component of blood.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_ec0022b83f1c_1",
-                  "quote": "Haemoglobin is not a separate component of blood:"
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes say red blood cells carry oxygen, while the other options are contradicted by the notes."
-          }
-        },
-        "usage": {
-          "inputTokens": 1218,
-          "outputTokens": 422
-        }
-      }
-    },
-    {
-      "digest": "9c732e08bb6f95dbca368fd8c7983a13da225cedee476edcf7af42ea21730a8f",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single short phrase that completes a sentence, so a rune-cipher fits best. A seance-board is not needed because the concept is directly stated rather than requiring a choice among options.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "Then clotting factors in the plasma work together to turn fibrinogen into ______.",
-            "answer": "fibrin",
-            "aliases": [],
-            "caseSensitive": false,
             "evidence": [
               {
                 "chunkId": "chk_ec0022b83f1c_2",
-                "quote": "turn fibrinogen into fibrin, which forms a mesh of threads that traps blood cells"
+                "quote": "First, the damaged vessel narrows, which is called vascular spasm"
+              },
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "Next, platelets stick to the damaged wall and to each other"
+              },
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "Then clotting factors in the plasma work together to turn fibrinogen into fibrin"
+              },
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "Finally, the clot tightens and the vessel wall is repaired"
               }
             ],
-            "explanation": "The notes say fibrinogen is turned into fibrin, and fibrin forms the mesh that traps blood cells.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "f",
-              "length": 6
-            }
-          },
-          "alternate": null
-        },
-        "usage": {
-          "inputTokens": 1262,
-          "outputTokens": 184
-        }
-      }
-    },
-    {
-      "digest": "d3cbbcdc80d18c573f07986f6321f866f2c909b3fbcaead05f47907aeee04f0e",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes give a fixed order for haemostasis, so a seance-board question can ask which step comes first and contrast it with other steps.",
-          "primary": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which step happens first in the haemostasis sequence?",
-            "options": [
-              {
-                "id": "a",
-                "text": "The damaged vessel narrows, reducing blood flow.",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_ec0022b83f1c_2",
-                  "quote": "First, the damaged vessel narrows, which is called vascular spasm, and this reduces blood flow."
-                }
-              },
-              {
-                "id": "b",
-                "text": "Platelets stick together to form a loose platelet plug.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_ec0022b83f1c_2",
-                  "quote": "Next, platelets stick to the damaged wall and to each other, forming a loose platelet plug."
-                }
-              },
-              {
-                "id": "c",
-                "text": "Clotting factors turn fibrinogen into fibrin.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_ec0022b83f1c_2",
-                  "quote": "Then clotting factors in the plasma work together to turn fibrinogen into fibrin,"
-                }
-              },
-              {
-                "id": "d",
-                "text": "The clot tightens and the vessel wall is repaired.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_ec0022b83f1c_2",
-                  "quote": "Finally, the clot tightens and the vessel wall is repaired,"
-                }
-              }
-            ],
-            "answer": "a",
-            "explanation": "The notes explicitly say the first step is vascular spasm, when the damaged vessel narrows and blood flow is reduced."
+            "explanation": "The notes explicitly list haemostasis as a fixed order with first, next, then, and finally."
           },
           "alternate": {
             "lockType": "rune-cipher",
@@ -347,10 +270,10 @@
             "evidence": [
               {
                 "chunkId": "chk_ec0022b83f1c_2",
-                "quote": "the body stops the bleeding in a fixed order called haemostasis."
+                "quote": "the body stops the bleeding in a fixed order called haemostasis"
               }
             ],
-            "explanation": "The notes name the fixed-order bleeding control process as haemostasis.",
+            "explanation": "The notes directly name the process as haemostasis, which fits a fill-in-the-blank question.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "h",
@@ -359,19 +282,98 @@
           }
         },
         "usage": {
-          "inputTokens": 1259,
-          "outputTokens": 467
+          "inputTokens": 2789,
+          "outputTokens": 379
         }
       }
     },
     {
-      "digest": "4bb23d72012f74cec06bb3cdbb0d70a08e0be50e85c8b067f072bdd918367a70",
+      "digest": "ed298522e087f971961dc3e09957b62c63a20655b7563f5a551389e10b228b83",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes give a single factual lifespan for platelets, which fits a fill-in-the-blank question; no alternate supported contradiction set is available.",
+          "justification": "Primary fits bone-ordering because the notes give a fixed sequence for haemostasis, including the fibrin step. Alternate fits rune-cipher because the notes contain a short phrase that completes a sentence on its own.",
           "primary": {
+            "lockType": "bone-ordering",
+            "prompt": "Put the steps of haemostasis in order according to your notes.",
+            "steps": [
+              "the damaged vessel narrows (vascular spasm)",
+              "platelets stick to the damaged wall and to each other, forming a loose platelet plug",
+              "clotting factors turn fibrinogen into fibrin, which forms a mesh of threads that traps blood cells",
+              "the clot tightens and the vessel wall is repaired, and the clot is later broken down"
+            ],
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "First, the damaged vessel narrows, which is called vascular spasm"
+              },
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "Next, platelets stick to the damaged wall and to each other"
+              },
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "Then clotting factors in the plasma work together to turn fibrinogen into fibrin"
+              },
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "Finally, the clot tightens and the vessel wall is repaired"
+              }
+            ],
+            "explanation": "The notes explicitly describe haemostasis as a fixed order with first, next, then, and finally."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "Then clotting factors in the plasma work together to turn fibrinogen into ______.",
+            "answer": "fibrin",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "Then clotting factors in the plasma work together to turn fibrinogen into fibrin"
+              }
+            ],
+            "explanation": "The notes state the missing term directly, and it completes the sentence on its own.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "f",
+              "length": 6
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 2792,
+          "outputTokens": 429
+        }
+      }
+    },
+    {
+      "digest": "d65722ff43144d1197f6314fcdc66cd7a3d7be1bc28c6841d5a4ccacfd1bf6ac",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state a single numeric lifespan range for platelets, so a combination-dial question fits best.",
+          "primary": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how long do platelets live?",
+            "answer": {
+              "kind": "range",
+              "min": 7,
+              "max": 10
+            },
+            "units": "days",
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_3",
+                "quote": "Platelets live for only about 7 to 10 days"
+              }
+            ],
+            "explanation": "The notes give platelet lifespan as a range of days."
+          },
+          "alternate": {
             "lockType": "rune-cipher",
             "prompt": "Platelets live for only about ______ days.",
             "answer": "7 to 10",
@@ -383,32 +385,44 @@
                 "quote": "Platelets live for only about 7 to 10 days"
               }
             ],
-            "explanation": "The notes state the platelet lifespan directly as 7 to 10 days.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "7",
-              "length": 7
-            }
-          },
-          "alternate": null
+            "explanation": "The blank is filled by the lifespan range stated in the notes.",
+            "hint": null
+          }
         },
         "usage": {
-          "inputTokens": 1189,
-          "outputTokens": 151
+          "inputTokens": 2719,
+          "outputTokens": 215
         }
       }
     },
     {
-      "digest": "852665d26e001957b0635b85a68dd98cc9a6537195a2b8413c048b1503df520c",
+      "digest": "fc8c0740e931212bea1349a6c94cfa19f340be581bfd2d229b3b586920ae05cf",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes give a single definitional fact that fits a fill-in-the-blank question, and no competing options are needed.",
+          "justification": "The notes state a single numeric range for normal platelet count, so a combination-dial question fits best.",
           "primary": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, what is the normal platelet count range in platelets per microlitre of blood?",
+            "answer": {
+              "kind": "range",
+              "min": 150000,
+              "max": 450000
+            },
+            "units": "platelets per microlitre of blood",
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_4",
+                "quote": "A normal platelet count is between 150,000 and 450,000 platelets per microlitre of blood."
+              }
+            ],
+            "explanation": "The notes give the normal platelet count as a range from 150,000 to 450,000."
+          },
+          "alternate": {
             "lockType": "rune-cipher",
-            "prompt": "A normal platelet count is between ______ platelets per microlitre of blood.",
-            "answer": "150,000 and 450,000",
+            "prompt": "A normal platelet count is between ______ and 450,000 platelets per microlitre of blood.",
+            "answer": "150,000",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
@@ -417,28 +431,27 @@
                 "quote": "A normal platelet count is between 150,000 and 450,000 platelets per microlitre of blood."
               }
             ],
-            "explanation": "The blank completes the normal platelet count range exactly as stated in the notes.",
+            "explanation": "The missing term is the lower bound of the stated normal platelet count range.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "1",
-              "length": 20
+              "length": 7
             }
-          },
-          "alternate": null
+          }
         },
         "usage": {
-          "inputTokens": 1171,
-          "outputTokens": 170
+          "inputTokens": 2701,
+          "outputTokens": 296
         }
       }
     },
     {
-      "digest": "b54f187f45ed3d52bf316f42a7ce0fd10ec677f1ec47c241ca5882aa62860f52",
+      "digest": "a7dbdc5c2a70aeb1af0a3ee357c57ec44441df553a7895e75e4dce28f3dcce1e",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about what the liver needs vitamin K to make, so a rune-cipher fits best. A seance-board is unnecessary because there is only one directly stated answer.",
+          "justification": "The notes support a single fill-in-the-blank fact about vitamin K and clotting factors, with no ordered sequence, pairings, odd-one-out category, or number to ask about.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "The liver needs ______ to make several clotting factors.",
@@ -451,7 +464,7 @@
                 "quote": "The liver needs vitamin K to make several clotting factors."
               }
             ],
-            "explanation": "The notes explicitly state that the liver needs vitamin K to make several clotting factors.",
+            "explanation": "The missing term is stated verbatim in the notes and completes the sentence on its own.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "v",
@@ -461,22 +474,22 @@
           "alternate": null
         },
         "usage": {
-          "inputTokens": 1191,
-          "outputTokens": 169
+          "inputTokens": 2721,
+          "outputTokens": 164
         }
       }
     },
     {
-      "digest": "310704c91a225ddb7558067e2c10270175b3788adea3d6b1ab03e34657c3c690",
+      "digest": "501001053a8c83e31f6fed2a54ce361bf8c457fb561af5541cbb419a67a9c4b1",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: the definition of haemophilia. A rune-cipher fits because the answer is a short phrase stated directly in one sentence.",
+          "justification": "The notes define Haemophilia as a single concept with a clear fill-in-the-blank fact, so rune-cipher fits best. No other lock type is supported by the notes.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "Haemophilia is an inherited disorder in which the blood does not clot normally because a ______ is missing or does not work properly.",
-            "answer": "clotting factor",
+            "prompt": "Haemophilia is an inherited disorder in which the blood does not clot normally because a clotting factor is ______.",
+            "answer": "missing or does not work properly",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
@@ -485,18 +498,14 @@
                 "quote": "Haemophilia is an inherited disorder in which the blood does not clot normally because a clotting factor is missing or does not work properly."
               }
             ],
-            "explanation": "The notes directly state that haemophilia involves a missing or malfunctioning clotting factor.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "c",
-              "length": 15
-            }
+            "explanation": "The notes directly state the missing phrase that completes the sentence about haemophilia.",
+            "hint": null
           },
           "alternate": null
         },
         "usage": {
-          "inputTokens": 1189,
-          "outputTokens": 197
+          "inputTokens": 2719,
+          "outputTokens": 180
         }
       }
     },
@@ -516,38 +525,6 @@
       }
     },
     {
-      "digest": "f7f5019fdcb231ce37f98c2bd2cd7798bf418e6cede2b269a368473f69842c94",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "D",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 402,
-          "outputTokens": 58
-        }
-      }
-    },
-    {
       "digest": "b511882cdae93836f31fe49c7e696a19d35ae41eccd3969ca0bda0826ea0d466",
       "origin": "recorded",
       "response": {
@@ -563,27 +540,42 @@
       }
     },
     {
-      "digest": "619a1ef1c71e515e4f85f2804b5b0e44142b709e3d432f0de98188179e240df2",
+      "digest": "5fcfa85483d4b8aa9122648e476f09b0e95a7e8585ed1d54e72f9c85e20e06c8",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "A",
+          "answer": "55",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 423,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "efa3a4d854fe2933d8c636facaf963115508afbdc0bf59d429eee296f251f2a6",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
           "optionLabels": [
             {
-              "optionId": "A",
+              "optionId": "a",
               "label": "supported"
             },
             {
-              "optionId": "B",
+              "optionId": "b",
               "label": "contradicted"
             },
             {
-              "optionId": "C",
+              "optionId": "c",
               "label": "contradicted"
             },
             {
-              "optionId": "D",
+              "optionId": "d",
               "label": "contradicted"
             }
           ]
@@ -610,34 +602,17 @@
       }
     },
     {
-      "digest": "4a01945a99ec7a43529f6896e6ceaea72da6304689d863f9fda88aca2309dbe1",
+      "digest": "ab2fa01d58f170d3f58e163232c5f01c41f88d513ea272d867bb298a914d04de",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
-              "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "supported"
-            },
-            {
-              "optionId": "c",
-              "label": "supported"
-            },
-            {
-              "optionId": "d",
-              "label": "supported"
-            }
-          ]
+          "answer": "s4,s2,s3,s1",
+          "optionLabels": null
         },
         "usage": {
-          "inputTokens": 462,
-          "outputTokens": 52
+          "inputTokens": 527,
+          "outputTokens": 23
         }
       }
     },
@@ -657,17 +632,62 @@
       }
     },
     {
-      "digest": "827327c1b63a1775f6035920147d9eab782aa96168573349fedb0fdac3ac5393",
+      "digest": "dadb21771d924d18ba7435c205ff39230f97aa5ff6e25f3fb06963c96c164074",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "150,000 and 450,000",
+          "answer": "s4,s2,s1,s3",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 314,
+          "inputTokens": 554,
           "outputTokens": 23
+        }
+      }
+    },
+    {
+      "digest": "23d79f88b764ce9d809475eb9acd6c565d62c416d644317c972e7df34951c279",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "7 to 10",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 325,
+          "outputTokens": 19
+        }
+      }
+    },
+    {
+      "digest": "1836598f1355bfaef3fa28910822b7057cae5d7d85f8172cb0200e35d8e1e3a4",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "7",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 389,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "4b39062b9206df6cce7c18ad66c1f17e34e1d450f38a521c7604c3e276354156",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "150000",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 381,
+          "outputTokens": 17
         }
       }
     },
@@ -687,17 +707,17 @@
       }
     },
     {
-      "digest": "23d79f88b764ce9d809475eb9acd6c565d62c416d644317c972e7df34951c279",
+      "digest": "fd752617da7d30d1702d97f60c27f01e62f595b7255a5628ca5e34b364d0f1f0",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "7 to 10",
+          "answer": "150,000",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 325,
-          "outputTokens": 19
+          "inputTokens": 319,
+          "outputTokens": 18
         }
       }
     }

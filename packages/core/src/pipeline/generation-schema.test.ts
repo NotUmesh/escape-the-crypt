@@ -1,4 +1,4 @@
-﻿import fc from 'fast-check';
+import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { parseAuthoringQuestion } from '../authoring/parse';
 import {
@@ -19,6 +19,8 @@ const NOTES = [
   'The nucleus stores the genetic material and controls which genes are active in the cell.',
 ].join('\n\n');
 
+/** The original two-type schema, built from an explicit list now that the default has six arms. */
+const TWO_TYPE_SCHEMA = buildGenerationResponseSchema(['rune-cipher', 'seance-board']);
 const doc = prepareDocument(NOTES);
 const quotableIds: readonly string[] = [...doc.quotableChunksByOrdinal.values()].map((c) => c.id);
 
@@ -119,7 +121,7 @@ describe('toAuthoringQuestion', () => {
 
   const runeArm: GeneratedQuestion = {
     lockType: 'rune-cipher',
-    prompt: 'According to your notes, mitochondria produce most of the cellâ€™s ____.',
+    prompt: 'According to your notes, mitochondria produce most of the cell’s ____.',
     answer: 'energy',
     aliases: [],
     caseSensitive: false,
@@ -154,7 +156,7 @@ describe('toAuthoringQuestion', () => {
     expect(result.ok && result.value).not.toHaveProperty('hint');
   });
 
-  it.each([3, 4])('translates a sÃ©ance arm with %i options', (n) => {
+  it.each([3, 4])('translates a séance arm with %i options', (n) => {
     const arm: GeneratedQuestion = {
       lockType: 'seance-board',
       prompt: 'According to your notes, what do mitochondria produce?',
@@ -211,7 +213,7 @@ describe('toAuthoringQuestion', () => {
     const withBone = buildGenerationResponseSchema(['rune-cipher', 'seance-board', 'bone-ordering']);
     expect(withBone.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(true);
     expect(withBone.safeParse({ justification: 'j', primary: { ...arm, steps: ['a', 'b'] }, alternate: null }).success).toBe(false);
-    expect(GenerationResponseSchema.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(false);
+    expect(TWO_TYPE_SCHEMA.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(false);
   });
 
   const fnv1a64 = (s: string): string => {
@@ -226,13 +228,15 @@ describe('toAuthoringQuestion', () => {
     return JSON.stringify(r.value);
   };
 
-  it('default schema JSON is byte-identical to the pre-bone-ordering build', () => {
+  it('two-type schema JSON is byte-identical to the pre-bone-ordering build', () => {
     // FNV-1a 64 of the JSON schema; its sha256 (f98697d6...9b22) was confirmed equal to the pre-bone-ordering schema at commit 38e0c61.
     const FROZEN = '3700d0814412e7e';
-    expect(fnv1a64(schemaJson(GenerationResponseSchema))).toBe(FROZEN);
+    expect(fnv1a64(schemaJson(TWO_TYPE_SCHEMA))).toBe(FROZEN);
+    expect(schemaJson(TWO_TYPE_SCHEMA)).not.toContain('bone-ordering');
+    expect(schemaJson(TWO_TYPE_SCHEMA)).not.toContain('bound-threads');
+    // The default is now all six types, so its schema is a different (wider) schema.
     expect(schemaJson(buildGenerationResponseSchema(DEFAULT_ALLOWED_LOCK_TYPES))).toBe(schemaJson(GenerationResponseSchema));
-    expect(schemaJson(GenerationResponseSchema)).not.toContain('bone-ordering');
-    expect(schemaJson(GenerationResponseSchema)).not.toContain('bound-threads');
+    expect(schemaJson(GenerationResponseSchema)).toContain('combination-dial');
   });
 
   it('offers only the allowed arms', () => {

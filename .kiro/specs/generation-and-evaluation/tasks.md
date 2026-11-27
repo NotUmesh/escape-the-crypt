@@ -1,8 +1,8 @@
-# Implementation Plan: Generation and Evaluation (Phase 1, Gate 1; Phase 5 appended)
+# Implementation Plan: Generation and Evaluation (Phase 1, Gate 1; Phases 5 and 6 appended)
 
 ## Overview
 
-This plan covers Phase 1, Phase 2 and Phase 3. Phase 1 is complete and shipped (tasks 1–10, all checked); its tasks are kept unchanged below for history. Phase 2 (Provider interface, cassettes, the interim Budget_Ledger) and Phase 3 (the rune-cipher/séance-board pipeline, room assembly, publish, and the Worker's minimal job API) are now planned as tasks 11 onward. Phase 5 (live generation, checks and room assembly for bone-ordering, bound-threads, cursed-object and combination-dial) is planned as tasks 28 to 40 and is not started. Phases 4 and 6 are still not planned here.
+This plan covers Phase 1, Phase 2 and Phase 3. Phase 1 is complete and shipped (tasks 1–10, all checked); its tasks are kept unchanged below for history. Phase 2 (Provider interface, cassettes, the interim Budget_Ledger) and Phase 3 (the rune-cipher/séance-board pipeline, room assembly, publish, and the Worker's minimal job API) are now planned as tasks 11 onward. Phase 5 (live generation, checks and room assembly for bone-ordering, bound-threads, cursed-object and combination-dial) is planned as tasks 28 to 40 and is not started. Phase 6, first round (release flags, conflict check, sufficiency; tasks 41 to 49) is planned and not started; the final-door reservation (Requirement 19) and the evaluation-driven Release_Status (Requirement 23) are not part of it. Phase 4 is still not planned here.
 
 Phase 1 order: schemas (authoring, manifest, hint type change, fixture builder) → checks → Manifest_Mapper → sample crypt → dataset acceptance → `parseNotesRecord` Zod migration.
 
@@ -800,52 +800,52 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
   - After the checkpoint passes, give the user the exact paid re-record command (all six types via `--allowed-lock-types`, through the evaluation skill with its spending cap). Do not run it; the user runs it in their own shell
 
-- [ ] 37. Phase 5: room assembly across six types
-  - [ ] 37.1 Add a six-type room assembly example
+- [x] 37. Phase 5: room assembly across six types
+  - [x] 37.1 Add a six-type room assembly example
     - Using the existing `room-assembly-heart-fixtures.ts` pattern, add a test in `pipeline/room-assembly.test.ts` that assembles one room from accepted candidates of all six Lock_Types and asserts at most one slot per type and every alternate has a different type from its primary
     - Make no change to `pipeline/room-assembly.ts` or `room-assembly-select.ts` unless the test shows a defect; if it does, stop and ask the user
     - _Requirements: 16.1, 22.8_
 
-  - [ ] 37.2 Write property tests for six-type room assembly
+  - [x] 37.2 Write property tests for six-type room assembly
     - Add an arbitrary of accepted concepts across all six Lock_Types in `packages/core/src/test-support/`, and test that for any such input the assembled `RoomSpec` has at most one lock of each type, no alternate shares its primary's type, and `validateManifestForPublish` accepts it
     - **Property 4: Manifest_Schema rejects a second slot of the same Lock_Type in one room** (re-run across all six types)
     - **Validates: Requirements 2.7**
     - **Property 28: The Manifest_Schema validates every six-Lock_Type payload and hint shape, and rejects every mismatch** (alternate type differs from primary, across all six)
     - **Validates: Requirements 16.1, 22.8**
 
-- [ ] 38. Phase 5: concurrency and budget unchanged
-  - [ ] 38.1 Write tests that concurrency stays at 4 and budget rules are unchanged
+- [x] 38. Phase 5: concurrency and budget unchanged
+  - [x] 38.1 Write tests that concurrency stays at 4 and budget rules are unchanged
     - Test only; no behaviour change. With a deferred Provider and the mock ledger, run `runRoomPipeline` over concepts that propose all six types and assert in-flight calls never exceed 4, every Provider call has a prior reservation, and every reservation is reconciled or released (the Property 17 pattern); assert no new ledger method or reservation-sizing code was introduced (the `BudgetLedger` interface keys are unchanged)
     - _Requirements: 11.6, 12.6, 22.8_
 
-- [ ] 39. Phase 5: phase-wide acceptance
-  - [ ] 39.1 Write the six-type Manifest_Schema acceptance test
+- [x] 39. Phase 5: phase-wide acceptance
+  - [x] 39.1 Write the six-type Manifest_Schema acceptance test
     - Create `packages/core/src/runtime/manifest-schema-six-types.test.ts` (keep it under ~300 lines): a manifest built with `buildManifest` over all six Lock_Types round-trips through `CryptManifestSchema`, and each type rejects a payload of another type, a missing field and a hint that does not reference its payload
     - **Property 28: The Manifest_Schema validates every six-Lock_Type payload and hint shape, and rejects every mismatch**
     - **Validates: Requirements 22.8**
 
-  - [ ] 39.2 Write the Phase 5 dataset acceptance test
+  - [x] 39.2 Write the Phase 5 dataset acceptance test
     - Create `packages/core/src/phase5-acceptance.test.ts` that reads `eval/dev/questions/*.json`, `samples/questions/*.json` and `eval/adversarial/fixtures.json` at test time, runs `runChecks` over every question of the four new types and asserts no blocking failure, and asserts every `code:*` fixture of those types fails with exactly its expected Check_ID and no other blocking id
     - Assert counts against named constants taken from the files as they stand, failing with a message that states expected and actual counts; do not edit `eval/adversarial/fixtures.json`; never reference `eval/holdout`; extend the existing no-holdout scan so it covers the new test files
     - **Property 29: Every Dev_Set and Sample_Set question of the four new types passes Code_Checks, and every `code:*` adversarial fixture of those types fails with exactly its expected Check_ID**
     - **Validates: Requirements 22.9**
 
-  - [ ] 39.3 Confirm the existing cassette end-to-end tests still pass
+  - [x] 39.3 Confirm the existing cassette end-to-end tests still pass
     - Re-run `e2e-pipeline.test.ts` and `e2e-cassette-digest.test.ts` (targeted: `pnpm exec vitest run <file>`) with the pinned options from task 28.3, and add one assertion that the pinned options, not the default, determine the recorded prompts. The default allow-list is unchanged at this point; task 39.6 re-runs both files after any widening
     - _Requirements: 12.1, 22.9_
 
-  - [ ] 39.4 Record the streaming open point and the dial hint in the build log
+  - [x] 39.4 Record the streaming open point and the dial hint in the build log
     - Append a short entry to `docs/build-log.md` recording that streaming a new room into a running game (Req 16.4, 22.10) remains deferred and unchanged by Phase 5
     - Append a second entry recording that the combination dial's `reveal-digit` hint stays unreachable for now: the mapper always produces `hintEffect: null` and `narrowHint` rejects any non-`null` dial hint (tasks 35.5, 35.7)
     - Record only; no behaviour or code change
     - _Requirements: 22.10, 22.4_
 
-  - [ ] 39.5 Check that a play panel exists for each of the four new types (read-only)
+  - [x] 39.5 Check that a play panel exists for each of the four new types (read-only)
     - Read `apps/web/src/features/**/lock-panel-registry.ts` (currently `apps/web/src/features/crypt/lock-panel-registry.ts`) and list which of `bone-ordering`, `bound-threads`, `cursed-object` and `combination-dial` have a key in `LOCK_PANELS`. Another chat is building the panels, so read the file as it is now and do not edit anything under `apps/web`
     - If any of the four panels is missing, STOP and report to the user which types are missing and which are present; the missing types must not be widened in task 39.6. Write the present and missing lists into `docs/build-log.md`
     - _Requirements: 14.9, 22.8_
 
-  - [ ] 39.6 Widen `DEFAULT_ALLOWED_LOCK_TYPES` and the worker allow-list, per type, for types with panels
+  - [x] 39.6 Widen `DEFAULT_ALLOWED_LOCK_TYPES` and the worker allow-list, per type, for types with panels
     - Precondition: task 39.5 has run and listed the present and missing panels. Generating a type the app cannot play would ship unplayable rooms, so widen only the types whose panel exists in `LOCK_PANELS`, one type at a time (all four, or a subset); if none is present, make no change
     - For each present type, add it to `DEFAULT_ALLOWED_LOCK_TYPES` in `packages/core/src/pipeline/generation-prompt.ts` and to `ALLOWED_LOCK_TYPES` in `apps/worker/src/config.ts`, and update `generation-prompt.test.ts` and the worker config test (replace the task 29.6 assertions that both equal the two original types with assertions of the exact widened lists)
     - Record in `docs/build-log.md` which types were widened and which were left out (and why: panel missing). Release_Status gating (Req 14.9, 23.5) stays in P6; no gating code here
@@ -856,6 +856,245 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
 - [ ] 40. Final checkpoint - Phase 5
   - Run `pnpm test`, `pnpm lint` (including the structure check) and `pnpm typecheck` for `packages/core` and `apps/worker`, and run the worker build (`pnpm --filter ./apps/worker build`). Ensure all pass, ask the user if questions arise.
   - CPU rule: run Vitest with `--maxWorkers=50%`. If e2e is run, first check that port 4173 is free and wait if it is busy, then run Playwright with `--workers=2`
+
+- [ ] 41. Phase 6 baseline: re-read, check for parallel work, record results, pin the new options off
+  - [ ] 41.1 Check for uncommitted work, then re-read the specs and steering
+    - First step, before anything else: run `git status --porcelain -- packages/core/src/pipeline/ packages/core/src/job-api/ apps/worker/src/config.ts apps/worker/src/start.ts apps/worker/src/http/ apps/worker/src/provider/ apps/worker/src/evaluation/`. If any file Phase 6 will edit shows an uncommitted change (modified, staged or untracked), STOP at once, list the dirty paths to the user and do nothing else; the user will get the other chat's work committed and then restart this task
+    - Only when that check is clean: re-read `.kiro/specs/generation-and-evaluation/requirements.md` (Requirements 17, 18, 23, 24, 25, 26), the "# Phase 6" part of `design.md` (including its order of work, Properties 30 to 41, Testing Strategy, File boundaries, Reconciliation items (a) to (h) and Open decisions D1 to D14), `.kiro/steering/tech.md`, `.kiro/steering/structure.md` and `.kiro/steering/evidence-and-honesty.md`. Another chat may have edited any of them: never overwrite, revert or reformat those edits, and do not edit `requirements.md` or `design.md` in Phase 6
+    - Run `git log -5 --oneline` over the paths above to confirm the parallel change there is committed. If the work is still moving, stop and ask the user. Note any difference between the live files and the design's Phase 6 snippets in `docs/build-log.md` (names and shapes only, no content)
+    - _Requirements: 17.1, 18.1, 23.5, 26.1_
+
+  - [ ] 41.2 Record baseline test, lint, typecheck and build results
+    - Run `pnpm test`, `pnpm lint` and `pnpm typecheck` for `packages/core` and `apps/worker`, the worker build (`pnpm --filter ./apps/worker build`), and the cassette tests `e2e-pipeline.test.ts` and `e2e-cassette-digest.test.ts`. Write the pass/fail counts into `docs/build-log.md` as the Phase 6 baseline. Report failures that already exist as existing failures, not as Phase 6 regressions
+    - CPU rule (checkpoint): run Vitest with `--maxWorkers=50%` (for example `pnpm exec vitest run --maxWorkers=50%`); run no Playwright suite in this task
+    - _Requirements: 26.5_
+
+  - [ ] 41.3 Declare the two new pipeline options and pin them OFF in the five existing cassette fixtures
+    - Before any behaviour lands: add `conflictCheck?: boolean` and `sufficiency?: boolean` to `PipelineOptions` in `packages/core/src/pipeline/orchestrator.ts` as declared fields that nothing reads yet (absent means off)
+    - Set both to `false` explicitly in `HUMAN_HEART_E2E_OPTIONS` (`pipeline/e2e-cassette-fixtures.ts`), in the options object that each of `bone-ordering-e2e-fixtures.ts`, `bound-threads-e2e-fixtures.ts`, `cursed-object-e2e-fixtures.ts` and `combination-dial-e2e-fixtures.ts` passes to `runRoomPipeline`, and in `HEART_SETTINGS` in `apps/worker/src/http/http-test-support.ts`, so a later change of the default cannot silently break a recorded cassette (design section 4)
+    - Re-run `e2e-pipeline.test.ts`, `e2e-cassette-digest.test.ts`, the four per-type e2e tests and the worker `job-contract.test.ts` (without `UPDATE_CONTRACT`) and confirm they pass unchanged: no cassette file, digest or golden fixture changes (check with `git status` that no file under `test-support/cassettes/` or `test-support/contract/` is modified)
+    - _Requirements: 12.1, 12.2, 17.3, 18.2_
+
+- [ ] 42. Phase 6: release flags (`DISABLED_LOCK_TYPES`)
+  - [ ] 42.1 Export the `LOCK_TYPES` constant from core
+    - In `packages/core/src/index.ts`, export the runtime constant `LOCK_TYPES` (today only the `LockType` type is exported) so the worker validates env values against the same six-type list; add a small test that it holds exactly the six Lock_Types in their canonical order
+    - _Requirements: 14.9, 23.5_
+
+  - [ ] 42.2 Implement `lock-type-flags.ts`
+    - Create `apps/worker/src/lock-type-flags.ts`, the only file that parses `DISABLED_LOCK_TYPES`: `parseDisabledLockTypes(raw: string | undefined): Result<readonly LockType[], LockTypeFlagError>` (split on commas, trim, lower-case, drop empty entries, drop duplicates; unset, empty or whitespace-only returns `[]`; any entry outside `LOCK_TYPES` returns `{ kind: 'invalid-disabled-lock-types' }` that carries no part of the input) and `effectiveLockTypes(all, disabled)` (all minus disabled in the original order; fewer than two remaining returns `{ kind: 'too-few-lock-types' }`)
+    - Open decision D1: refusing to start when fewer than two types remain is the design's default and is pending the user's decision; if the user chooses another option (refuse jobs instead, or keep rune cipher), change only the `too-few-lock-types` handling here and in task 42.3
+    - Never throw; never echo or log the raw value
+    - _Requirements: 23.5, 25.3, 25.8_
+
+  - [ ] 42.3 Wire the flag into `config.ts` and `start.ts` (learner path only)
+    - In `apps/worker/src/config.ts`, add `invalid-disabled-lock-types` and `too-few-lock-types` to `StartupError` with fixed `STARTUP_ERROR_COPY` text that names the variable `DISABLED_LOCK_TYPES` and never its value; `WorkerConfig` gains `allowedLockTypes` (the effective list) and `disabledLockTypes`. Keep the constants `ALLOWED_LOCK_TYPES` (every type this build can ask for before flags) and `EVAL_ALLOWED_LOCK_TYPES` as they are, so the existing equality assertions in `config.test.ts` still hold
+    - In `start.ts`, pass `cfg.allowedLockTypes` to `pipelineSettings` instead of the constant; learner jobs and judge jobs both use it. `start` returns the typed error without listening, and the entry point logs the error kind only. The startup log line records the count of enabled types and the names of disabled ones (closed list, not user content). Samples and the evaluation CLI do not read the flag
+    - Keep `config.ts` under ~300 lines (the flag logic stays in `lock-type-flags.ts`)
+    - _Requirements: 23.5, 14.9, 25.3, 25.8_
+
+  - [ ] 42.4 Write property test for flag parsing
+    - **Property 38: DISABLED_LOCK_TYPES parses to exactly the named set, and rejects anything else**
+    - **Validates: Requirements 25.3, 23.5**
+    - Add `disabledListArb` (subsets of the six in any order, with duplicates, surrounding spaces, empty entries and any letter case) next to the worker test, or in `packages/core/src/test-support/` if the worker can already import from there; any subset parses to exactly that subset; an entry outside the six returns the typed error and the error holds no part of the input; unset and empty return `[]`
+
+  - [ ] 42.5 Write property test for the effective set
+    - **Property 39: The effective lock-type set is all types minus the disabled ones**
+    - **Validates: Requirements 14.9, 23.5**
+    - Order preserved, no disabled type in the result, `too-few-lock-types` below two; assert `EVAL_ALLOWED_LOCK_TYPES` equals the six types whatever `DISABLED_LOCK_TYPES` holds
+
+  - [ ] 42.6 Write property test that a disabled type is never asked of the generator or published
+    - **Property 40: A disabled type is never asked of the generator or published**
+    - **Validates: Requirements 14.9, 23.5, 25.3**
+    - With a scripted generator that proposes any type as primary and alternate and a reduced `allowedLockTypes` (at least two types), the generation system prompt and response schema name no disabled type, and no question in the manifest, content or `unplacedAccepted` has a disabled `lockType`. Scripted provider and mock ledger only
+
+  - [ ] 42.7 Write config and start example tests
+    - Extend `config.test.ts`: `DISABLED_LOCK_TYPES` unset, one type, two types, an unknown entry (typed error, fixed text names the variable, the value is absent from the error), too few remaining; the existing `ALLOWED_LOCK_TYPES` and `EVAL_ALLOWED_LOCK_TYPES` equality assertions stay unchanged
+    - Extend `start.test.ts`: a startup with a disabled type passes the reduced list to `pipelineSettings` (a test that `start.ts` uses the filtered list, not the constant); a startup with an invalid value returns the typed error without listening
+    - _Requirements: 23.5, 25.3_
+
+  - [ ] 42.8 Write the evaluation-CLI and boundary tests
+    - Extend `evaluation/cli.test.ts`: the CLI ignores `DISABLED_LOCK_TYPES` (a value left in the shell cannot change a recorded digest) and `--allowed-lock-types` still works
+    - Extend `packages/core/src/boundary.test.ts` (or a worker boundary test): `lock-type-flags.ts` is the only file under `apps/worker/src` that reads `DISABLED_LOCK_TYPES`, and no file under `packages/core/src` reads an environment variable
+    - _Requirements: 23.5, 25.3_
+
+  - [ ] 42.9 Document the variable
+    - `.env.example`: this file may belong to another chat. Run `git status --porcelain -- .env.example` and re-read the file first; if it is dirty, STOP and report. Otherwise append exactly one commented line for `DISABLED_LOCK_TYPES` (comma-separated Lock_Types the learner path will not ask for; unset disables nothing) and edit nothing else in the file
+    - Append a short entry to `docs/build-log.md`: what the variable does, that on Render a change needs an environment edit and a restart, that a restart loses in-memory Jobs and resets the Interim_Ledger day counter (Requirement 28.8), that fewer than two enabled types refuses to start (D1, design default), that samples and the evaluation CLI are unaffected, and that the flag only narrows: it implements the `samples-only` state for the learner path and does not mark any type "released" or evaluated (Requirement 23 is not implemented this round; no ratings exist)
+    - If the README has a worker section and is clean in `git status`, add one line pointing to the variable; otherwise leave the README alone
+    - _Requirements: 23.5, 26.1, 26.5_
+
+- [ ] 43. Checkpoint - release flags group
+  - Ensure all tests pass, ask the user if questions arise.
+  - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
+
+- [ ] 44. Phase 6: conflict check
+  - [ ] 44.1 Widen `ProviderStage` and the run metadata (no behaviour)
+    - `packages/core/src/provider/types.ts`: `ProviderStage` gains `'conflict-check'`. Make the new key optional in `StageHandlers` in `pipeline/orchestrator-fixtures.ts`; add the stage to `PROVIDER_STAGES` and `TimedStage` in `pipeline/run-metadata.ts` so `tokens.byStage` carries a zero entry; `PipelineRunCounts` gains `conceptsTooThin`, `goodConcepts`, `conflictRoomsChecked`, `conflictRoomsUnchecked`, `conceptsExcludedByConflict`, `conflictReportsIgnored` (all zero until used); `CandidateResult` in `pipeline/candidate-outcomes.ts` gains `'conflict-rejected'`; `PipelineJobError` gains `{ kind: 'conflict-check-failed' }`
+    - Update only the tests that compare these shapes; no prompt digest of an existing stage changes. Run the cassette and worker server tests (targeted) to confirm
+    - _Requirements: 18.2, 20.3_
+
+  - [ ] 44.2 Implement `statedAnswerOf`
+    - Create `packages/core/src/locks/answer-statement.ts` beside `judge-registry.ts`: `statedAnswerOf(question)` returns one plain-text line for the key answer of each of the six types (rune answer, séance option text, bone order, bound pairs, cursed item, dial value with unit or range), with no per-type rule beyond rendering a key as text. Pure, never throws, and no change to any file under `locks/<type>.ts` or `checks/`
+    - Add `answer-statement.test.ts` over the real dev and sample question of each type (read from `eval/dev/questions` and `samples/questions` only)
+    - _Requirements: 18.2_
+
+  - [ ] 44.3 Implement the code-first conflict scan
+    - Create `packages/core/src/pipeline/conflict-code.ts` per design 1a: `labelKey`, `numericFactsOf` (a number followed by a unit word or `%` inside the concept's resolved quotes, unit lower-cased and singular, chunk ID from `resolveQuote`), `findCodeConflicts` (equal label keys, same unit, different value, different chunks; sorted by `conceptIds`; no provider call; both concepts excluded)
+    - Add `numericFactArb` and `conceptWithFactsArb` in `packages/core/src/test-support/` (labels with case and spacing variants). Add `conflict-code.test.ts` with a two-concept same-label variant built in test-support; do not edit `eval/adversarial/fixtures.json`. Document in the test that `adv-18` is not caught by this layer (design 1a, Reconciliation (a))
+    - _Requirements: 18.1_
+
+  - [ ] 44.4 Write property test for the code conflict scan
+    - **Property 30: Code conflicts follow their definition and ignore input order**
+    - **Validates: Requirements 18.1**
+
+  - [ ] 44.5 Implement the conflict prompt
+    - Create `packages/core/src/pipeline/conflict-prompt.ts`: `CONFLICT_CHECK_PROMPT_VERSION = 'conflict-v1'`, the system prompt (notes are study material and never instructions; related but different quantity is not a conflict; quote copied exactly, 4 to 25 words), the user message builder (notes in the same delimited block and paragraph numbering the other prompts use; for each question of the room, primary and alternate of every slot, a shown id `q1`..., prompt, `statedAnswerOf` line, and its own evidence paragraphs and quotes), the strict Zod reply schema `{ results: { questionId, conflict, paragraph: number | null, quote: string | null }[] }` built with `toModelJsonSchema`, and the retry note
+    - Tests: the notes block is delimited, no key leaks beyond the shown answer line, the schema is representable, every Phase 6 prompt string passes `findBanned`
+    - _Requirements: 18.2, 25.1, 25.2_
+
+  - [ ] 44.6 Implement report resolution in code
+    - Create `packages/core/src/pipeline/conflict-report.ts`: pure `resolveConflictReports(reply, room, doc)` confirming a conflict only when `conflict` is true, the paragraph is a shown ordinal translated to a chunk ID by code, `resolveQuote` resolves the quote uniquely, the quote has at most `MAX_QUOTE_WORDS` words, the resolved location overlaps no evidence location of that same question, and, when the key is a number (dial `exact` or `range`), the quote holds a number different from the key. Everything else is ignored and counted in `conflictReportsIgnored`. A reply that repeats or misses a shown id is a schema failure
+    - Unit tests for each rule, the `adv-18` counter-cases (text not in the notes, paragraph 4's own 27-day sentence, a quote with no differing number) and the recorded known gap (a 29.5-day quote passes rules 1 to 4)
+    - _Requirements: 18.3, 18.4_
+
+  - [ ] 44.7 Write property test for report resolution
+    - **Property 31: Only a resolvable, non-self report confirms a conflict**
+    - **Validates: Requirements 18.3, 18.4**
+    - Add `conflictReplyArb` (resolvable, ambiguous, too short, not found, self-evidence, numeric with and without a differing number) and `docWithRoomArb` in `packages/core/src/test-support/`
+
+  - [ ] 44.8 Implement the per-room model call
+    - Create `packages/core/src/pipeline/conflict-check.ts`: one call per room through `callWithBudget(ledger, provider, request, options.worstCaseUsd, options.costOf)` with `stage: 'conflict-check'`, temperature `0`, and `maxOutputTokens`, `timeoutMs` and `retryLimit` from the injected options; one schema retry with a note (its own reservation); a refused reservation makes no call. A provider failure or a second schema failure returns an unchecked room (fail closed, D5); a schema that cannot be built returns `schema-not-representable` with `stage: 'conflict-check'` and halts
+    - `conflict-check.test.ts` against a scripted provider with synthetic replies: clean, resolvable conflict, unresolvable quote, self-evidence quote, numeric key with no differing number, schema failure then valid, schema failure twice, provider failure, budget refusal, abort. No sizing code for reservations is added
+    - _Requirements: 18.2, 18.3, 11.6, 12.6, 12.7_
+
+  - [ ] 44.9 Add the learner-facing copy
+    - Create `packages/core/src/copy-conflict.ts` with `conflictLeftOut(title)`, `conflictPassage(n)`, `conflictNext`, `cryptSufficiency(found, needed, built, requested)` and `cryptSetAside(built, requested)` exactly as in design 1e (plural-aware, no banned wording, no new evidence label)
+    - Open decision D9: the strings are treated as messages, not Requirement 26.3 labels; pending the user's decision
+    - `copy-conflict.test.ts` and one added case in `copy-banned-words.test.ts` run every string through `findBanned`, including plural forms and empty values
+    - _Requirements: 26.1, 26.3, 18.4, 17.2_
+
+  - [ ] 44.10 Implement the conflict stage
+    - Create `packages/core/src/pipeline/conflict-stage.ts` with `ExcludedConcept`, `Passage` and `runConflictStage` per design 1c: code scan, provisional assembly with `assemble(concepts without E)` (an `empty-room` result is returned as it is), one call per provisional room under `runWithConcurrency(tasks, options.concurrency ?? DEFAULT_CONCURRENCY)` (stays 4; no task starts after `halt` or abort; results in room order), resolve in code, final assembly from the clean set `V` minus `E`, and return the provisional assembly unchanged when nothing is excluded and every room is clean
+    - Failure policy: a failed room adds nothing to `V`; if at least one room was attempted and none ended clean because of failures, return `conflict-check-failed`; otherwise publish the partial crypt with `conflictRoomsUnchecked` counted. Unplaced accepted questions stay in the bundle, never playable, not model-checked (D10); excluded concepts are removed from them
+    - Open decisions D4 (one call per provisional room, no second round) and D5 (fail closed) are the design defaults, pending the user's decision
+    - _Requirements: 18.2, 18.3, 18.4, 16.3_
+
+  - [ ] 44.11 Add the notices schema and types to core
+    - Add `PipelineNotices` (`{ excluded: ExcludedConcept[]; sufficiency: SufficiencyNotice | null }`) and an optional `notices?` on `PipelineResult`, absent (not empty) when there is nothing to report. Add the `SufficiencyNotice` interface (`goodConcepts`, `conceptsNeeded`, `requestedRooms`, `builtRooms`) to `packages/core/src/pipeline/sufficiency.ts` as a type only (task 46.1 adds the functions to the same file)
+    - In `packages/core/src/job-api/job-response-schema.ts`, add strict `ExcludedConceptSchema` and `SufficiencyNoticeSchema` and an optional `notices` on `JobBundleSchema`. `JobFailureSchema`, `JOB_FAILURE_KINDS` and `PIPELINE_STAGES` do not change. Open decision D12 (optional `notices` behind `?notices=1`) is the design default, pending the user's decision
+    - _Requirements: 29.2, 18.4, 17.2_
+
+  - [ ] 44.12 Write property test for notices
+    - **Property 41: Notices round-trip, and a bundle without notices is unchanged**
+    - **Validates: Requirements 29.2, 18.4, 17.2**
+    - Round-trip every `ExcludedConcept` list and `SufficiencyNotice` through JSON and the schema; the serialised completed body of a bundle without notices equals today's body with or without `?notices=1`. This test, not the golden file, covers the new schema until the owner updates the golden fixture (task 44.20)
+
+  - [ ] 44.13 Wire the conflict stage into the orchestrator
+    - In `packages/core/src/pipeline/orchestrator.ts`, read `options.conflictCheck` (absent means off, D3): when on, run `runConflictStage` between blind review and final assembly, report progress under the existing `assembling` stage, fill the new counts and `conflict-check` timing, mark questions of excluded concepts `conflict-rejected` in the candidate outcomes, count `goodConcepts` just before final assembly, and set `notices.excluded`. With the option off, the run is identical to today (no extra call, no `notices`). Keep the file under ~300 lines, splitting by responsibility if needed
+    - _Requirements: 18.2, 18.4, 20.3_
+
+  - [ ] 44.14 Add `?notices=1` and turn the stage on in the worker
+    - `apps/worker/src/http/routes-jobs.ts`: add `notices` to a completed body only when the request has `?notices=1` and notices exist; without the query the body is byte-identical to today's. `job-runner.ts`: `conflict-check-failed` falls to the existing `generation-failed` mapping. `start.ts`: set `conflictCheck: true` in `pipelineSettings` (D11: no env kill switch is added; pending the user's decision)
+    - Log only counts (`conflictRoomsChecked`, `conflictRoomsUnchecked`, `conceptsExcludedByConflict`), never a label, quote or passage. Responses keep `Cache-Control: private, no-store`
+    - Add `server-notices.test.ts`: `?notices=1` returns `notices` on a completed body that has them, omits them without the query, and a bundle without notices is byte-identical either way
+    - _Requirements: 29.2, 25.8, 25.9, 18.4_
+
+  - [ ] 44.15 Add the `adv-18` synthetic cassette test (`pipeline:conflict-check`)
+    - Create `pipeline/conflict-check-e2e-fixtures.ts`, `pipeline/conflict-check-e2e.test.ts` and the hand-authored cassette `packages/core/src/test-support/cassettes/conflict-check-e2e.json` (every entry `origin: 'synthetic'`, each `digest` equal to `promptDigest` of a pipeline-built request). Run the full pipeline over `eval/adversarial/notes/adv-01-moon.txt` with `conflictCheck: true`; read the notes and `adv-18` at test time and do not edit `eval/adversarial/fixtures.json`
+    - Assert: `runChecks` over `adv-18` reports no blocking failure (it passes Code_Checks, not assumed); the synthetic reply (paragraph 7, quote `One orbit of the Moon around Earth takes about 35 days.`) excludes the concept and the notice holds both passages that each resolve uniquely; the three counter-case replies from design 1g are ignored; the fixture is rejected by the conflict layer and not by Code_Checks or blind review (Requirement 24.5). The five existing cassettes are not touched
+    - _Requirements: 18.5, 24.5, 12.10_
+
+  - [ ] 44.16 Write property tests for the pipeline-level conflict behaviour
+    - **Property 32: Excluded concepts never reach the published output**
+    - **Validates: Requirements 18.4, 16.3**
+    - **Property 33: With nothing to exclude, the conflict stage changes nothing**
+    - **Validates: Requirements 18.2**
+    - Scripted providers and the mock ledger from `orchestrator-fixtures.ts` and `budget/mock-ledger.ts`; no real provider
+
+  - [ ] 44.17 Write the budget and concurrency property test and the unchanged-rules test
+    - **Property 34: Conflict calls respect the budget, concurrency and cancellation rules**
+    - **Validates: Requirements 18.2, 12.6, 12.7, 12.8, 11.6, 16.7**
+    - Test only: first attempts equal the number of provisional rooms, in-flight calls never exceed 4, a refused reservation makes no call, no call starts after abort, and the `BudgetLedger` interface keys and `DEFAULT_CONCURRENCY` (4) are unchanged and no reservation-sizing code was added
+
+  - [ ] 44.18 Extend the boundary test to the new pipeline files
+    - Extend `packages/core/src/boundary.test.ts` so `pipeline/conflict-*.ts`, `pipeline/sufficiency.ts` and `locks/answer-statement.ts` import no provider SDK, network, React or database module and read no environment variable
+    - _Requirements: 25.3, 25.4_
+
+  - [ ] 44.19 Wire the conflict check into the evaluation CLI and result file
+    - `apps/worker/src/evaluation/cli.ts`: add `--conflict-check on|off`, default `off`, passed into `PipelineOptions` by `settingsFor`, so replay of the recorded dev cassettes keeps working exactly as today. `result-file.ts`: additive fields with Zod defaults so older result files still parse: run-level `conflictCheck: boolean`, a per-note `conflict` object (counts only: rooms checked, rooms unchecked, concepts excluded, reports ignored) and `'conflict-rejected'` as a candidate `result` value. The adversarial report counts a `pipeline:conflict-check` fixture as rejected by the expected layer only when the Conflict_Checker rejects it
+    - Extend `cli.test.ts` (parse, default off, ignores `DISABLED_LOCK_TYPES`) and `result-file.test.ts` (an older file with none of the new fields still parses; the new fields round-trip). No paid call
+    - _Requirements: 20.3, 24.5, 26.5_
+
+  - [ ] 44.20 Golden contract fixture: write the expected diff, then STOP for the owner
+    - Do NOT regenerate `packages/core/src/test-support/contract/job-completed.json` and never run `UPDATE_CONTRACT=1` or any command that rewrites it (Open decision D14). Read `apps/worker/src/http/job-contract.test.ts` and run it without `UPDATE_CONTRACT` to confirm it still passes; confirm with `git status` that the fixture is unmodified
+    - Write into `docs/build-log.md` the expected diff the owner will see: a third completed-body case requested with `?notices=1` holding one excluded concept (the new `notices` object with its two passages), the existing two cases unchanged, plus the exact owner command `UPDATE_CONTRACT=1 pnpm --filter ./apps/worker exec vitest --run job-contract` followed by "review the diff, commit". Then STOP this task and tell the user the owner step is pending; do not continue past it on the owner's behalf
+    - _Requirements: 29.2, 18.4_
+
+  - [ ] 44.21 Confirm `CHECK_VERSION` is unchanged
+    - Confirm with `git diff` that no file under `packages/core/src/checks/` or `packages/core/src/locks/<type>.ts` changed in Phase 6 and that `CHECK_VERSION` is untouched (the design says no Code_Check changes). If any Code_Check or registry entry did change, bump `CHECK_VERSION` in the same change, update only the `checkVersion` field in cassette files, and record it in `docs/build-log.md`. Record the result either way
+    - _Requirements: 3.2, 3.5_
+
+- [ ] 45. Checkpoint - conflict check group
+  - Ensure all tests pass, ask the user if questions arise.
+  - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
+  - Remind the user that the golden fixture step in task 44.20 is theirs
+
+- [ ] 46. Phase 6: sufficiency
+  - [ ] 46.1 Implement the thin-concept filter and sufficiency notice
+    - Complete `packages/core/src/pipeline/sufficiency.ts` (the `SufficiencyNotice` type exists from task 44.11): `MIN_CONCEPT_SOURCE_WORDS = 12` (provisional: below the smallest gold value, rejects 0 of 58 gold concepts; ES-1 in task 46.8 may lower it; Open decision D8), `conceptSourceWords` (sum of words over the concept's distinct cited chunks), `splitThinConcepts` (kept and thin each in input order, `conceptId` unchanged), `conceptsNeeded(target)` (`rooms * locksPerRoom`) and `sufficiencyNotice(goodConcepts, target, builtRooms)` (a notice exactly when a target is present and `builtRooms < target.rooms`)
+    - Add `{ kind: 'insufficient-concepts'; found: number }` to `packages/core/src/pipeline/stage-error.ts`. Pure functions, no provider call, no change to any file under `checks/`
+    - _Requirements: 17.1, 17.2_
+
+  - [ ] 46.2 Write property test for the thin filter
+    - **Property 35: The thin-concept filter keeps exactly the concepts with enough source text**
+    - **Validates: Requirements 17.1**
+    - Add `notEnoughConceptsArb` to `packages/core/src/test-support/`; also assert the filter is idempotent on `kept`
+
+  - [ ] 46.3 Write property test for sufficiency accounting (pure half)
+    - **Property 36: Sufficiency accounting matches the rooms built**
+    - **Validates: Requirements 17.1, 17.2**
+    - This task covers `sufficiencyNotice` and `conceptsNeeded`; the pipeline half is task 46.6
+
+  - [ ] 46.4 Wire the thin filter and early stop into the orchestrator
+    - In `orchestrator.ts`, read `options.sufficiency` (absent means off, D3): right after `extractConcepts` succeeds, apply `splitThinConcepts` (count `conceptsTooThin`), then `conceptsForTarget` as today so a thin concept never takes a `maxConcepts` slot. With a `target`, fewer than `target.locksPerRoom` concepts ends the run `insufficient-concepts` before any generation call; without a `target` (legacy one-room path) there is no early stop. Fill `goodConcepts` and set `notices.sufficiency` from the built room count. Keep the file under ~300 lines
+    - _Requirements: 17.1, 17.2, 17.3_
+
+  - [ ] 46.5 Map the early stop in the worker and turn sufficiency on
+    - `apps/worker/src/http/job-runner.ts`: `mapFailure` maps `insufficient-concepts` to the existing `not-enough-material`; the job record gains a non-content `goodConcepts: number | null` set with the terminal status and `jobBody` appends the count sentence to the failure `message` (`JobFailureSchema` and `JOB_FAILURE_KINDS` unchanged). `start.ts`: set `sufficiency: true`. Log the error kind and counts only
+    - Extend worker tests: the failure kind, the count sentence, and a body without a count when `goodConcepts` is null
+    - _Requirements: 17.2, 25.8_
+
+  - [ ] 46.6 Write property test for the pipeline half of sufficiency
+    - **Property 36: Sufficiency accounting matches the rooms built** (pipeline half)
+    - **Validates: Requirements 17.1, 17.2**
+    - For any run with a target, rooms built never exceed `min(target.rooms, floor(goodConcepts / 2))`, and a run left with fewer than `locksPerRoom` concepts ends `insufficient-concepts` with zero generation and review calls (scripted provider, mock ledger)
+
+  - [ ] 46.7 Write the never-lower-a-check property test
+    - **Property 37: The gates never lower a check**
+    - **Validates: Requirements 17.3**
+    - Over the same scripted replies, the questions accepted with `sufficiency` and `conflictCheck` on are a subset of those accepted with both off, with identical Code_Check results and review verdicts. Add one example test that `MIN_QUOTE_WORDS` (4), `MAX_QUOTE_WORDS` (25) and the registry Check_ID list are unchanged by Phase 6
+
+  - [ ] 46.8 ES-1: record per-concept source words (eval/dev only, free replay)
+    - `apps/worker/src/evaluation/cli.ts`: add `--sufficiency on|off`, default `off`. `result-file.ts`: additive `sourceWords` number per concept and run-level `sufficiency: boolean`, with Zod defaults so older files parse (no concept text). Extend the CLI and result-file tests
+    - Run a free `replay` over the existing `eval/dev` cassettes (flags that reproduce the recorded runs, per the Phase 5 eval replay rule), write the distribution of `sourceWords` for concepts that produced accepted questions next to the rest into `docs/build-log.md`, and propose the floor as the largest value below the smallest source-word count of any concept that produced an accepted question (stay at 12 unless the report shows thin concepts being accepted). Do not change `MIN_CONCEPT_SOURCE_WORDS` in this task; report the proposal and ask the user
+    - Any paid run for this tuning goes only through the evaluation skill (`.kiro/skills/evaluation/`) and is run by the user in their own shell: write the command, never run `eval record`. Never read `eval/holdout`; freeze the floor before any holdout use
+    - _Requirements: 17.1, 26.5_
+
+- [ ] 47. Checkpoint - sufficiency group
+  - Ensure all tests pass, ask the user if questions arise.
+  - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
+
+- [ ] 48. Phase 6: web hand-off (no change in `apps/web`)
+  - [ ] 48.1 Write the hand-off notes for the web owner into the build log
+    - Change nothing under `apps/web` (confirm with `git status -- apps/web` before and after). Append to `docs/build-log.md` the exact notes for the web owner (Open decision D13): in `apps/web/src/features/generate/worker-client.ts` request `?progress=1&notices=1` and parse the optional `notices` with the strict schema; in `apps/web/src/features/generate/generated-crypt.ts` carry the notices with the built crypt and drop a passage whose `chunkId` is not one of the learner's chunks, as it already does for citations; in `apps/web/src/features/crypt/room-screen.tsx` show `cryptSufficiency` in place of the count-free `cryptShortened` line and list the exclusions; render passages as plain text with no `dangerouslySetInnerHTML` (Requirement 25.11); use the strings from `copy-conflict.ts`; edited PDF text keeps the citation wording "Your edited notes, originally extracted from PDF page X"
+    - Also record the owner step for the golden fixture (task 44.20) and that the web must keep working against a worker that omits `notices`
+    - _Requirements: 25.11, 17.2, 18.4, 26.1_
+
+- [ ] 49. Final checkpoint - Phase 6
+  - Run `pnpm test`, `pnpm lint` (including the structure check) and `pnpm typecheck` for `packages/core` and `apps/worker`, and run the worker build (`pnpm --filter ./apps/worker build`). Ensure all pass, ask the user if questions arise.
+  - CPU rule: run Vitest with `--maxWorkers=50%`. If e2e is run, first check that port 4173 is free and wait if it is busy, then run Playwright with `--workers=2`
+  - After it passes, give the user the exact paid re-record command for the dev set with the conflict check on, through the evaluation skill (`.kiro/skills/evaluation/`) with its cap and ledger, and do NOT run it: `pnpm --filter @escape-the-crypt/worker eval record --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <new-ledger-name.json> --conflict-check on --sufficiency off` (the user fills the values and runs it in their own shell). Estimated spend is about $0.03 at run-3 prices, an estimate and not a measurement; after the re-record the default of `--conflict-check` flips to `on` in a small follow-up
+  - Confirm the golden fixture step (task 44.20) and the web hand-off (task 48.1) are still listed as the owner's and web owner's steps
 
 ## Notes
 
@@ -875,6 +1114,14 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
 - Eval replay rule (Phase 5): until the end of Phase 5, replay of the recorded dev cassettes uses `--allowed-lock-types rune-cipher,seance-board`. Recorded dev cassettes are not re-recorded per group. One paid re-record over the dev set happens after the combination-dial group (task 36) with all six types allowed, run by the user in their own shell through the evaluation skill.
 - Requirement 30 is withdrawn (covered by G8 and Requirement 21.3), so no task references it.
 - Each task references specific requirements for traceability. Property tests validate universal correctness properties; unit tests cover fixed examples and fixtures.
+- Phase 6 (tasks 41 to 49) must not be executed until the user says so. Task 41.1 stops and reports, doing nothing else, if `git status` shows uncommitted changes in the files Phase 6 edits. `requirements.md` and `design.md` are not edited in Phase 6.
+- Phase 6 rule, golden fixture: no agent regenerates `packages/core/src/test-support/contract/job-completed.json` or runs `UPDATE_CONTRACT=1`. Task 44.20 writes the expected diff into `docs/build-log.md` and stops; the owner runs the update, reviews the diff and commits (D14).
+- Phase 6 rule, CPU: during work run targeted tests only. Run the full suites only at checkpoints (41.2, 43, 45, 47, 49) with `--maxWorkers=50%`; run e2e only at task 49, after checking that port 4173 is free, with `--workers=2`.
+- Phase 6 rule, evaluation: never read `eval/holdout`. Paid evaluation runs only through the evaluation skill (`.kiro/skills/evaluation/`), run by the user in their own shell; the agent writes the command and never runs `eval record`. Free `replay` over `eval/dev` is allowed. Tests never call a real provider; the new conflict cassette is synthetic (`origin: 'synthetic'`).
+- Phase 6 file boundaries are the same as Phase 5: lock-type logic stays in `locks/<type>.ts` (Phase 6 changes none; the one new `locks/` file is the cross-type `answer-statement.ts`); `packages/core` gets no AI SDK, database, React or environment access; `DISABLED_LOCK_TYPES` is parsed only in `apps/worker/src/lock-type-flags.ts` and `config.ts`; no file over ~300 lines; no change in `apps/web`.
+- Phase 6 does not change `CHECK_VERSION` (no Code_Check changes) and adds no Check_ID; task 44.21 confirms this and says what to do if that proves wrong.
+- Out of this round: the final-door reservation (Requirement 19) and the evaluation-driven Release_Status with ratings (Requirement 23.1 to 23.4; D2). `DISABLED_LOCK_TYPES` only narrows the learner path and never labels a type "released".
+- Open decisions needing the user's confirmation, with the design default each task is written to: D1 fewer than two enabled lock types refuses to start (task 42.2, 42.3); D2 env switch only, evaluation-driven Release_Status deferred (task 42.9 wording, no task builds it); D3 `conflictCheck` and `sufficiency` off in core, on in the worker, pinned off in existing fixtures, `--conflict-check` default off until the re-record (tasks 41.3, 44.13, 44.14, 44.19, 46.4, 46.5); D4 one call per provisional room, no second round (task 44.10); D5 a failed conflict call fails closed (tasks 44.8, 44.10); D6 code layer is Requirement 18.1 literally (task 44.3); D7 "offer a shorter run" means build the shorter crypt and state the count (tasks 46.1, 46.4, 46.5); D8 `MIN_CONCEPT_SOURCE_WORDS = 12`, provisional, tuned by ES-1 on `eval/dev` (tasks 46.1, 46.8); D9 new sentences are messages, not Requirement 26.3 labels (task 44.9); D10 unplaced accepted questions stay in the bundle, never playable, not model-checked (task 44.10); D11 no env kill switch for the conflict stage (task 44.14); D12 optional `notices` only with `?notices=1` (tasks 44.11, 44.12, 44.14); D13 web side not changed here (task 48.1); D14 golden fixture not touched (task 44.20). Confirm the decision before starting the tasks that depend on it.
 
 ## Task Dependency Graph
 
@@ -966,7 +1213,36 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
     { "id": 82, "tasks": ["39.1", "39.2", "39.3", "39.4"] },
     { "id": 83, "tasks": ["39.5"] },
     { "id": 84, "tasks": ["39.6"] },
-    { "id": 85, "tasks": ["40"] }
+    { "id": 85, "tasks": ["40"] },
+    { "id": 86, "tasks": ["41.1"] },
+    { "id": 87, "tasks": ["41.2"] },
+    { "id": 88, "tasks": ["41.3"] },
+    { "id": 89, "tasks": ["42.1"] },
+    { "id": 90, "tasks": ["42.2"] },
+    { "id": 91, "tasks": ["42.3"] },
+    { "id": 92, "tasks": ["42.4", "42.5", "42.6", "42.7"] },
+    { "id": 93, "tasks": ["42.8", "42.9"] },
+    { "id": 94, "tasks": ["43"] },
+    { "id": 95, "tasks": ["44.1"] },
+    { "id": 96, "tasks": ["44.2", "44.3", "44.9"] },
+    { "id": 97, "tasks": ["44.4", "44.5"] },
+    { "id": 98, "tasks": ["44.6"] },
+    { "id": 99, "tasks": ["44.7", "44.8"] },
+    { "id": 100, "tasks": ["44.10"] },
+    { "id": 101, "tasks": ["44.11"] },
+    { "id": 102, "tasks": ["44.12", "44.13"] },
+    { "id": 103, "tasks": ["44.14", "44.15"] },
+    { "id": 104, "tasks": ["44.16", "44.17", "44.18", "44.19"] },
+    { "id": 105, "tasks": ["44.20", "44.21"] },
+    { "id": 106, "tasks": ["45"] },
+    { "id": 107, "tasks": ["46.1"] },
+    { "id": 108, "tasks": ["46.2", "46.3"] },
+    { "id": 109, "tasks": ["46.4"] },
+    { "id": 110, "tasks": ["46.5", "46.6", "46.7"] },
+    { "id": 111, "tasks": ["46.8"] },
+    { "id": 112, "tasks": ["47"] },
+    { "id": 113, "tasks": ["48.1"] },
+    { "id": 114, "tasks": ["49"] }
   ]
 }
 ```

@@ -1,5 +1,5 @@
 {
-  "checkVersion": "2026-11-27.1",
+  "checkVersion": "2026-11-27.5",
   "entries": [
     {
       "digest": "0ffa5695c7ae6c7b5d877ccd05984eac287be32f5a657d80be4e21d74ec626ce",
@@ -65,12 +65,12 @@
       }
     },
     {
-      "digest": "0581a140be897d4731170ed15b95d1a046a3c2ccd13171f65122767860817f9d",
+      "digest": "779a875ef8fe34ef229580260ddf5955811555a954727910b20ef48379b9441f",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes give a single short definitional phrase that fits a fill-in-the-blank question, and no competing fact is needed.",
+          "justification": "The notes define a single term with a direct sentence, so a rune-cipher fill-in-the-blank fits best. No other lock type is needed.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "Feedback is information about how a learner's work compares with a ______.",
@@ -83,168 +83,100 @@
                 "quote": "Feedback is information about how a learner's work compares with a goal."
               }
             ],
-            "explanation": "The notes directly define feedback as comparing work with a goal, so the blank is goal.",
+            "explanation": "The notes state the exact missing word in one sentence.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "g",
               "length": 4
             }
           },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what does feedback compare a learner's work with?",
-            "options": [
-              {
-                "id": "A",
-                "text": "a goal",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_36ed09c55242_1",
-                  "quote": "Feedback is information about how a learner's work compares with a goal."
-                }
-              },
-              {
-                "id": "B",
-                "text": "a reward",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_36ed09c55242_1",
-                  "quote": "Researchers separate it into two kinds."
-                }
-              },
-              {
-                "id": "C",
-                "text": "a learner's personality",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_36ed09c55242_1",
-                  "quote": "Person feedback comments on the learner, for example \"you are clever\", and it says little about how to improve."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes explicitly say feedback compares work with a goal, and the other options are not stated as the comparison target."
-          }
+          "alternate": null
         },
         "usage": {
-          "inputTokens": 1251,
-          "outputTokens": 363
+          "inputTokens": 2781,
+          "outputTokens": 152
         }
       }
     },
     {
-      "digest": "651dc42531b60ac156044e562bbc09c9b64d92ab537718f2c27ddfd5ea2935fb",
+      "digest": "1704f2d635862dd8076afb49724a28ba1f30582b22451c12c04bf47eb0258f5d",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes define two contrasting kinds of feedback, so a seance-board question can ask which description matches task feedback versus person feedback.",
+          "justification": "The notes define two contrasting kinds of feedback, so a supported/contradicted choice question fits best.",
           "primary": {
             "lockType": "seance-board",
-            "prompt": "According to your notes, which description matches task feedback?",
+            "prompt": "According to your notes, which kind of feedback comments on the work itself?",
             "options": [
               {
                 "id": "A",
-                "text": "Comments on the work itself, such as pointing out a missing step in an argument.",
+                "text": "Task feedback",
                 "label": "supported",
                 "evidence": {
                   "chunkId": "chk_36ed09c55242_1",
-                  "quote": "Task feedback comments on the work itself, for example by pointing out a missing step in an argument."
+                  "quote": "Task feedback comments on the work itself"
                 }
               },
               {
                 "id": "B",
-                "text": "Comments on the learner, such as saying “you are clever,” and says little about how to improve.",
+                "text": "Person feedback",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_36ed09c55242_1",
-                  "quote": "Person feedback comments on the learner, for example \"you are clever\", and it says little about how to improve."
+                  "quote": "Person feedback comments on the learner"
                 }
               },
               {
                 "id": "C",
-                "text": "Information about how a learner's work compares with a goal.",
+                "text": "Feedback is information about how a learner's work compares with a goal",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_36ed09c55242_1",
-                  "quote": "Feedback is information about how a learner's work compares with a goal."
+                  "quote": "Feedback is information about how a learner's work compares with a goal"
                 }
               }
             ],
             "answer": "A",
-            "explanation": "Task feedback is the kind that comments on the work itself, not on the learner."
+            "explanation": "The notes explicitly say task feedback comments on the work itself, while person feedback comments on the learner."
           },
           "alternate": {
             "lockType": "rune-cipher",
-            "prompt": "Person feedback comments on the learner, for example \"you are ______\".",
-            "answer": "clever",
+            "prompt": "______ feedback comments on the learner, for example \"you are clever\".",
+            "answer": "Person",
             "aliases": [],
-            "caseSensitive": false,
+            "caseSensitive": true,
             "evidence": [
               {
                 "chunkId": "chk_36ed09c55242_1",
-                "quote": "Person feedback comments on the learner, for example \"you are clever\", and it says little about how to improve."
+                "quote": "Person feedback comments on the learner, for example \"you are clever\""
               }
             ],
-            "explanation": "The notes give the exact example phrase used for person feedback.",
+            "explanation": "The notes directly state the missing term is Person.",
             "hint": {
               "kind": "first-letter-and-length",
-              "firstLetter": "c",
+              "firstLetter": "P",
               "length": 6
             }
           }
         },
         "usage": {
-          "inputTokens": 1250,
-          "outputTokens": 410
+          "inputTokens": 2780,
+          "outputTokens": 339
         }
       }
     },
     {
-      "digest": "18fd11faea321e7d587415d06ebcd271347aab49fe568f446fe6b8612da9db39",
+      "digest": "26bc8b47654278e0975333ffb7093a1858440b14e4c969c30c991a7d17dff796",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes state the concept directly as a complete short phrase, so a rune-cipher fill-in-the-blank fits best. A seance-board is unnecessary because there is only one fact to recall.",
+          "justification": "The notes define two reward types with direct term-to-definition sentences, so a fill-in-the-blank question is the best fit.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "A well-known finding is that ______.",
-            "answer": "heavy extrinsic rewards can reduce interest",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_36ed09c55242_3",
-                "quote": "A well-known finding is that heavy extrinsic rewards can reduce interest in a task that learners already enjoy."
-              }
-            ],
-            "explanation": "The blank is filled by the exact phrase from the notes.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "h",
-              "length": 41
-            }
-          },
-          "alternate": null
-        },
-        "usage": {
-          "inputTokens": 1253,
-          "outputTokens": 169
-        }
-      }
-    },
-    {
-      "digest": "12d2decd32debabb8ad226835f0b3136d9bdcd74e6272f877a28be5202ff10b6",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes define two reward types with clear one-sentence facts, so a fill-in-the-blank rune-cipher fits best; a seance-board would be less precise here.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "A reward that comes from outside the task, such as money or a grade, is called an ______.",
-            "answer": "extrinsic reward",
+            "prompt": "A reward that comes from outside the task, such as money or a grade, is called an ______ reward.",
+            "answer": "extrinsic",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
@@ -253,11 +185,11 @@
                 "quote": "A reward that comes from outside the task, such as money or a grade, is called an extrinsic reward."
               }
             ],
-            "explanation": "The notes directly state the term that completes the sentence.",
+            "explanation": "The notes explicitly state that a reward from outside the task is an extrinsic reward.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "e",
-              "length": 16
+              "length": 10
             }
           },
           "alternate": {
@@ -266,20 +198,20 @@
             "options": [
               {
                 "id": "A",
-                "text": "intrinsic reward",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_36ed09c55242_3",
-                  "quote": "A reward that comes from the task itself, such as curiosity or enjoyment, is called an intrinsic reward."
-                }
-              },
-              {
-                "id": "B",
                 "text": "extrinsic reward",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_36ed09c55242_3",
                   "quote": "A reward that comes from outside the task, such as money or a grade, is called an extrinsic reward."
+                }
+              },
+              {
+                "id": "B",
+                "text": "intrinsic reward",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_36ed09c55242_3",
+                  "quote": "A reward that comes from the task itself, such as curiosity or enjoyment, is called an intrinsic reward."
                 }
               },
               {
@@ -292,43 +224,92 @@
                 }
               }
             ],
-            "answer": "A",
-            "explanation": "The notes say the reward from the task itself is an intrinsic reward, while extrinsic reward comes from outside the task."
+            "answer": "B",
+            "explanation": "The notes say a reward from the task itself is an intrinsic reward, while the other options are different or contradicted."
           }
         },
         "usage": {
-          "inputTokens": 1251,
-          "outputTokens": 400
+          "inputTokens": 2781,
+          "outputTokens": 396
         }
       }
     },
     {
-      "digest": "d37321d59f786d1756c7cc11390083da422f1079ff3758d02960ac138fdc2756",
+      "digest": "e486d5867aa5bdaedf18a4ef56f8fa2b9bcc9e32c3015e29f0a1e9c2225825ed",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: specific praise supports self-esteem better than vague praise.",
+          "justification": "The notes state a single short phrase that completes a sentence on its own, so a rune-cipher fill-in-the-blank fits best.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "Praise that is specific tends to support self-esteem better than praise that is ______.",
-            "answer": "vague",
+            "prompt": "A well-known finding is that ______ can reduce interest in a task that learners already enjoy.",
+            "answer": "heavy extrinsic rewards",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
-                "chunkId": "chk_36ed09c55242_4",
-                "quote": "Praise that is specific tends to support self-esteem better than praise that is vague."
+                "chunkId": "chk_36ed09c55242_3",
+                "quote": "A well-known finding is that heavy extrinsic rewards can reduce interest in a task that learners already enjoy."
               }
             ],
-            "explanation": "The notes directly state the contrast between specific praise and vague praise.",
+            "explanation": "The notes directly give the phrase that completes the sentence.",
             "hint": {
               "kind": "first-letter-and-length",
-              "firstLetter": "v",
-              "length": 5
+              "firstLetter": "h",
+              "length": 22
             }
           },
           "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what can reduce interest in a task that learners already enjoy?",
+            "options": [
+              {
+                "id": "A",
+                "text": "heavy extrinsic rewards",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_36ed09c55242_3",
+                  "quote": "A well-known finding is that heavy extrinsic rewards can reduce interest in a task that learners already enjoy."
+                }
+              },
+              {
+                "id": "B",
+                "text": "intrinsic rewards",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_36ed09c55242_3",
+                  "quote": "A reward that comes from the task itself, such as curiosity or enjoyment, is called an intrinsic reward."
+                }
+              },
+              {
+                "id": "C",
+                "text": "money or a grade",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_36ed09c55242_3",
+                  "quote": "A reward that comes from outside the task, such as money or a grade, is called an extrinsic reward."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only heavy extrinsic rewards are stated to reduce interest; the other options are different reward types."
+          }
+        },
+        "usage": {
+          "inputTokens": 2783,
+          "outputTokens": 394
+        }
+      }
+    },
+    {
+      "digest": "72c0bc9d5a64d8fa18c2ec5d6b1fcbf37df6728a5ae5d41e120c96e8567f4579",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state a direct comparison between specific and vague praise, so a seance-board question fits best with one supported option and contradicted distractors.",
+          "primary": {
             "lockType": "seance-board",
             "prompt": "According to your notes, which kind of praise tends to support self-esteem better?",
             "options": [
@@ -362,11 +343,30 @@
             ],
             "answer": "A",
             "explanation": "The notes explicitly say specific praise supports self-esteem better than vague praise."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "Praise that is ______ tends to support self-esteem better than praise that is vague.",
+            "answer": "specific",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_36ed09c55242_4",
+                "quote": "Praise that is specific tends to support self-esteem better than praise that is vague."
+              }
+            ],
+            "explanation": "The missing word is directly stated in the sentence.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "s",
+              "length": 8
+            }
           }
         },
         "usage": {
-          "inputTokens": 1238,
-          "outputTokens": 356
+          "inputTokens": 2768,
+          "outputTokens": 360
         }
       }
     },
@@ -386,146 +386,146 @@
       }
     },
     {
-      "digest": "bd43b50a922232579d7a935ed19924fd24ee95ae6c8dc1dd9b0a1c0e35df19d2",
+      "digest": "3d1c8edc7a8f66d108fad2ca0b728e34a59ac9819ee666ab1d8ccab87540c722",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 415,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "5504dbfe0571517ad0fa831a577ab89a70666673a749898555eccfa6e7d13d99",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 450,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "3ba9647378328f20d4a6ec2af882da1c40f20b350a2d33559881e8bf26ea5338",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "extrinsic reward",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 397,
-          "outputTokens": 18
-        }
-      }
-    },
-    {
-      "digest": "5c698dee30c3b13a177aa6a1ff741e5bd35199252c3c899df63d5fac98f4f8c9",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 415,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "c6631499e95bce07a9df327400eb852ef5ffeae64a289a30b10ad6cdbd2e5d22",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "clever",
+          "answer": "Person",
           "optionLabels": null
         },
         "usage": {
           "inputTokens": 389,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "61d09d607cc8a9d24f15226f38ba1c2719610761ce271a22736d62c7cf3dff67",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 424,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "4447fa7c8a61ce733b4cacbf4d5bf42aa55ebe40941a6414d52239b424a39835",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "extrinsic",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 398,
           "outputTokens": 17
         }
       }
     },
     {
-      "digest": "242031adc3b5085eec29349573e40872b280edb704913ab9ea33a43cac86a516",
+      "digest": "9b9b0abc332dd8c76f17bc76aa65c963648e5c2802570506222e85648b35ea11",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "vague",
+          "answer": "B",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "B",
+              "label": "supported"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 415,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "97862c51eb7d4b19fa23bc72ab94c37219ebae374f11f540a47806ee244b1464",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "heavy extrinsic rewards",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 394,
+          "outputTokens": 19
+        }
+      }
+    },
+    {
+      "digest": "ec6dc3961890ee412223b0e66789c96260d1e424928142d3d2bf0e30ddf3f547",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "unknown"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 420,
+          "outputTokens": 45
+        }
+      }
+    },
+    {
+      "digest": "23c08ec6f2a1babcd785b1dfff4908ac4d1fdeb03110d5d09ffb592ef7956ad6",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "specific",
           "optionLabels": null
         },
         "usage": {
           "inputTokens": 378,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
-      "digest": "c73a715ec6b9311241cf4c86315c6fd32b59db5a8c6ee20ae04138a1081ff976",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "heavy extrinsic rewards can reduce interest in a task that learners already enjoy",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 384,
-          "outputTokens": 29
+          "outputTokens": 16
         }
       }
     }

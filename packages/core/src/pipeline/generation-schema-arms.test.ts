@@ -1,8 +1,7 @@
-﻿import fc from 'fast-check';
+import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { parseAuthoringQuestion } from '../authoring/parse';
 import {
-  GenerationResponseSchema,
   buildGenerationResponseSchema,
   toAuthoringQuestion,
   type GeneratedQuestion,
@@ -18,6 +17,8 @@ const NOTES = [
   'The nucleus stores the genetic material and controls which genes are active in the cell.',
 ].join('\n\n');
 
+/** The original two-type schema, built from an explicit list now that the default has six arms. */
+const TWO_TYPE_SCHEMA = buildGenerationResponseSchema(['rune-cipher', 'seance-board']);
 const doc = prepareDocument(NOTES);
 const quotableIds: readonly string[] = [...doc.quotableChunksByOrdinal.values()].map((c) => c.id);
 const ident: QuestionIdentity = { id: 'q1', conceptId: 'c1', role: 'primary' };
@@ -58,7 +59,7 @@ describe('toAuthoringQuestion: bound-threads and cursed-object arms', () => {
     const withThreads = buildGenerationResponseSchema(['bound-threads']);
     expect(withThreads.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(true);
     expect(withThreads.safeParse({ justification: 'j', primary: { ...arm, pairs: arm.pairs.slice(0, 2) }, alternate: null }).success).toBe(false);
-    expect(GenerationResponseSchema.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(false);
+    expect(TWO_TYPE_SCHEMA.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(false);
   });
 
   it('translates a cursed-object arm, has no hint field, and rejects an unassigned chunk ID', () => {
@@ -83,8 +84,8 @@ describe('toAuthoringQuestion: bound-threads and cursed-object arms', () => {
     expect(withCursed.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(true);
     expect(withCursed.safeParse({ justification: 'j', primary: { ...arm, items: arm.items.slice(0, 3) }, alternate: null }).success).toBe(false);
     expect(withCursed.safeParse({ justification: 'j', primary: { ...arm, hint: null }, alternate: null }).success).toBe(false);
-    expect(GenerationResponseSchema.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(false);
-    expect(schemaJson(GenerationResponseSchema)).not.toContain('cursed-object');
+    expect(TWO_TYPE_SCHEMA.safeParse({ justification: 'j', primary: arm, alternate: null }).success).toBe(false);
+    expect(schemaJson(TWO_TYPE_SCHEMA)).not.toContain('cursed-object');
   });
 
 });
@@ -141,8 +142,8 @@ describe('toAuthoringQuestion: combination-dial arm', () => {
     expect(parses({ ...arm(answers[2]!), answer: { ...answers[2], expression: '100-80' } })).toBe(false);
     expect(parses({ ...arm(answers[0]!), hint: null })).toBe(false);
     expect(parses({ ...arm(answers[2]!), answer: { ...answers[2], template: 'elasticity' } })).toBe(false);
-    expect(GenerationResponseSchema.safeParse({ justification: 'j', primary: arm(answers[0]!), alternate: null }).success).toBe(false);
-    expect(schemaJson(GenerationResponseSchema)).not.toContain('combination-dial');
+    expect(TWO_TYPE_SCHEMA.safeParse({ justification: 'j', primary: arm(answers[0]!), alternate: null }).success).toBe(false);
+    expect(schemaJson(TWO_TYPE_SCHEMA)).not.toContain('combination-dial');
     expect(schemaJson(withDial)).not.toMatch(/expression|code/);
   });
 });

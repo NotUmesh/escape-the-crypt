@@ -67,6 +67,40 @@ describe('assembleRoom: two-slot assembly', () => {
   });
 });
 
+describe('assembleRoom: six-type assembly', () => {
+  const sixConcepts = (): AssemblyConcept[] => [
+    conceptC01(),
+    conceptC02(),
+    concept('hh-c03', hh('hh-q05'), hh('hh-q06')),
+    concept('hh-c04', hh('hh-q07'), hh('hh-q08')),
+    concept('hh-c05', hh('hh-q09'), hh('hh-q10')),
+    concept('hh-c06', hh('hh-q11')),
+  ];
+
+  it('places one slot per Lock_Type and no alternate shares its primary type', () => {
+    const assembly = assemble(sixConcepts());
+    const slots = slotsOf(assembly);
+    const types = slots.map((s) => s.stationType);
+    expect(types).toEqual([
+      'rune-cipher',
+      'seance-board',
+      'bone-ordering',
+      'bound-threads',
+      'cursed-object',
+      'combination-dial',
+    ]);
+    expect(new Set(types).size).toBe(types.length);
+    expect(assembly.manifest.rooms).toHaveLength(1);
+    for (const s of slots) {
+      expect(s.primaryQuestion.lockType).toBe(s.stationType);
+      if (s.alternateQuestion !== null) {
+        expect(s.alternateQuestion.lockType).not.toBe(s.primaryQuestion.lockType);
+      }
+    }
+    expect(assembly.mapperRejections).toEqual([]);
+  });
+});
+
 describe('assembleRoom: empty room', () => {
   it('is empty-room when every concept is set aside', () => {
     const result = assembleRoom({

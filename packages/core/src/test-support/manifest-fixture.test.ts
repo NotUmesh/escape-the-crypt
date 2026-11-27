@@ -92,7 +92,10 @@ describe('buildManifest', () => {
     const none = buildManifest({ hintEffects: false });
     expect(allQuestions(none).every((q) => q.hintEffect === null)).toBe(true);
     const all = buildManifest({ hintEffects: true, conceptsPerRoom: 6 });
-    expect(allQuestions(all).every((q) => q.hintEffect !== null)).toBe(true);
+    // The dial accepts no hint, so its hintEffect stays null; every other type is hinted.
+    expect(
+      allQuestions(all).every((q) => (q.lockType === 'combination-dial' ? q.hintEffect === null : q.hintEffect !== null)),
+    ).toBe(true);
   });
 
   it('gives rune ciphers a reveal-first-letter hint derived from the answer, and the check accepts it', () => {

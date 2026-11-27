@@ -61,6 +61,8 @@ export const HEART_SETTINGS: PipelineSettings = {
   worstCaseUsd: 0.01,
   costOf: () => 0.001,
   concurrency: 1,
+  // Pinned, as in HUMAN_HEART_E2E_OPTIONS: the cassette was recorded with two types, and the default is now six.
+  allowedLockTypes: ['rune-cipher', 'seance-board'],
 };
 export const HEART_PROVIDER_NAME = 'synthetic';
 

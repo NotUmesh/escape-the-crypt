@@ -13,8 +13,8 @@ Provider call for evaluation. Tests and the Worker never use it; tests replay ca
 - **Dev set only.** Tune prompts, models and verifiers on `eval/dev/` only. The runner has no
   option for any other set. Never read, tune against or summarise the final test set until the
   configuration is frozen; holdout support is added to the runner only then.
-- **Key stays in the user's shell.** `record` reads `OPENAI_API_KEY` from the environment of
-  the shell that runs it. Never write the key to a file, a command line, a log or a chat
+- **Key stays in the user's shell.** `record` reads `OPENAI_API_KEY` (or `GEMINI_API_KEY` with
+  `--provider gemini`) from the environment of the shell that runs it. Never write the key to a file, a command line, a log or a chat
   message. If the agent's shell has no key, give the user the exact command to run in their own
   shell; never ask them to paste the key.
 - **Budget first.** Every call reserves its worst case through `callWithBudget` against a capped
@@ -41,12 +41,17 @@ pnpm --filter @escape-the-crypt/worker eval replay --model <model-id> --policy b
 pnpm --filter @escape-the-crypt/worker eval replay --model <model-id> --inspect
 ```
 
+Add `--provider gemini` (record and replay; default `openai`) to run against Gemini. Use a
+billing-enabled Gemini project and a bare model ID for `--model`. Gemini cassettes go to their own
+folder per model, so a Gemini run never rewrites or replays the OpenAI cassettes.
+
 Add `--only "dev-01,dev-07"` to limit the notes (quote it in PowerShell).
 Add `--allowed-lock-types "rune-cipher,seance-board"` to choose the lock types (record and replay; default is the evaluation list in `config.ts`).
 
 ## What it writes
 
-- Cassettes: `packages/core/src/test-support/cassettes/dev/<note>.json`, `origin: recorded`.
+- Cassettes: `packages/core/src/test-support/cassettes/dev/<note>.json` (OpenAI) or
+  `packages/core/src/test-support/cassettes/dev-gemini/<model-id>/<note>.json` (Gemini), `origin: recorded`.
 - Result file: `eval/results/<date>.json` (`-2`, `-3` when taken). Run facts only: provider,
   model ID, temperature, Check_Version, Prompt_Digests, timings, tokens, cost, and per question
   the lock type, role, Check_IDs, review reason and placement. No notes text, prompts, model

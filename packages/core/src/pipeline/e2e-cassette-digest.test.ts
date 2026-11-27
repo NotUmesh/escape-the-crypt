@@ -3,6 +3,7 @@ import { parseCassetteFile } from '../cassette/types';
 import { CHECK_VERSION } from '../checks/registry';
 import {
   HUMAN_HEART_E2E_CASSETTE_PATH,
+  HUMAN_HEART_E2E_OPTIONS,
   captureHumanHeartE2e,
 } from './e2e-cassette-fixtures';
 
@@ -31,6 +32,17 @@ describe('human-heart end-to-end cassette', () => {
     expect(file.checkVersion).toBe(CHECK_VERSION);
     expect(file.entries.length).toBeGreaterThan(0);
     expect(file.entries.every((e) => e.origin === 'synthetic')).toBe(true);
+  });
+
+  it('pins allowedLockTypes in the options, so the recorded prompts do not follow the default', async () => {
+    // Literal list, independent of DEFAULT_ALLOWED_LOCK_TYPES: widening the default (task 39.6) cannot change it.
+    expect(HUMAN_HEART_E2E_OPTIONS.allowedLockTypes).toEqual(['rune-cipher', 'seance-board']);
+
+    // The pipeline run with exactly these pinned options produces digests that all exist in the cassette.
+    const recorded = new Set(loadCassette().entries.map((e) => e.digest));
+    const { entries } = await captureHumanHeartE2e();
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries.every((e) => recorded.has(e.digest))).toBe(true);
   });
 
   it('holds exactly one entry per call the pipeline makes, with matching digests and responses', async () => {

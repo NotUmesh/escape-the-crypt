@@ -2181,3 +2181,607 @@ New arbitraries (`packages/core/src/test-support/`): `boneOrderingAuthoringArb`,
 **The existing cassette end-to-end test is unaffected.** `pipeline/e2e-pipeline.test.ts` and `pipeline/e2e-cassette-digest.test.ts` pin `human-heart-e2e.json`'s cassette to the rune-cipher/séance-board-only P3 pipeline run (`stages` asserted as exactly `['concept-extraction', 'generation', 'generation', 'generation', 'review', 'review', 'review', 'review', 'review']`, with `unplacedAccepted` pinned to `['concept-3']`). Phase 5 does not regenerate or edit this cassette: it is a fixed, already-recorded fixture of a *P3-shaped* run, and widening `DEFAULT_ALLOWED_LOCK_TYPES` only changes what a **new** `generateForConcept` call would be allowed to propose — the existing cassette's entries are keyed by `promptDigest`, which embeds the system prompt text (`buildGenerationSystemPrompt(allowed)`), so if `DEFAULT_ALLOWED_LOCK_TYPES` changes (per Reconciliation (b)) **and** `e2e-cassette-fixtures.ts`'s `HUMAN_HEART_E2E_OPTIONS` does not pin its own `allowedLockTypes` explicitly, the existing cassette would go stale (its recorded digests would no longer match a freshly-built system prompt). Phase 5 implementation must therefore pin `HUMAN_HEART_E2E_OPTIONS` (or the call site that builds its `GenerationOptions`) to `allowedLockTypes: ['rune-cipher', 'seance-board']` explicitly, rather than relying on the default, so this one existing end-to-end test keeps passing unchanged regardless of which Reconciliation (b) option is chosen for the default. This is a one-line pin, not a cassette re-recording, and is called out here precisely because it is the one place a Phase 5 default change could silently break an already-passing P3 test.
 
 **CI**: no new CI job; runs under the existing `pnpm test`, `pnpm lint`, `pnpm typecheck`, exactly as P1/P2/P3 state. No new dependency: the four new checks and schemas use only `zod` (already present) and the project's own `normalise.ts`/`quote-resolver.ts` (already present).
+
+---
+
+# Phase 6
+
+## Scope of this part
+
+This part extends the design above with the first round of Phase 6: the conflict check (Requirement 18), sufficiency (Requirement 17) and per-type release flags (the operational side of Requirement 23). It adds new files and names the few existing files it touches at a named seam. The P1, P2/P3 and P5 text above is unchanged.
+
+Two things were checked in the code before writing this part, because they decide the shape of the design:
+
+- **Release_Status does not exist in code.** `samples-only` appears only in a comment in `pipeline/generation-prompt.ts`. There is no per-type status, no rating data and no Wrong_Accepted field anywhere in `packages/core/src` or `apps/worker/src`. `EvaluationResultSchema` (`apps/worker/src/evaluation/result-file.ts`) has no rating field.
+- **A room needs two different lock types.** `assembleCrypt` (`pipeline/crypt-assembly.ts`) keeps a candidate room only when `slots.length === 2`, and `RoomSpecSchema` allows at most one slot per `stationType`. So the worker (which always passes a `target`) can build no room at all with fewer than two enabled lock types. This drives the release-flag design below.
+
+**Not in scope this round:** the final-door reservation (Requirement 19). Reason: `assembleCrypt` and the runtime treat the final door as empty today (`finalDoor: { slots: [] }`), and reserving leftover concepts for it interacts with the conflict check's "only questions checked clean are published" rule, so it should be designed once the conflict stage exists. Requirement 19 stays open for a later round.
+
+## Data this part is grounded in
+
+Everything below was computed from `eval/dev/notes`, `eval/dev/questions` and the three recorded runs in `eval/results/` (`2026-11-27.json`, `2026-11-27-2.json`, `2026-11-27-3.json`). Nothing was read from `eval/holdout`. The adversarial fixture `adv-18` and its notes (`eval/adversarial/notes/adv-01-moon.txt`) were read.
+
+What the recorded data can and cannot say:
+
+- The three runs are legacy one-room runs (no `target`), so each note produced one room. They record which concepts and questions were accepted. They do not record chunk IDs, quote text or ratings.
+- Run `2026-11-27-3` (Check_Version `2026-11-27.5`) is the only six-type run. The other two allow rune cipher and séance board only.
+- **There are no human ratings in any result file.** Wrong_Accepted is therefore unknown for every type. Everything below about acceptance is a count of what the pipeline accepted, not a measure of whether it was right.
+
+Per-type outcomes in run `2026-11-27-3` (12 dev notes, 172 candidates, 132 accepted):
+
+| Lock type | Candidates | Accepted | Code-rejected | Review-rejected | Code-check IDs seen |
+| --- | --- | --- | --- | --- | --- |
+| rune-cipher | 83 | 65 | 13 | 5 | negative-question 7, answer-leak-in-prompt 5, quote-too-long 2, rune-needs-one-blank 1 |
+| seance-board | 35 | 29 | 1 | 5 | quote-not-found 1 |
+| combination-dial | 30 | 19 | 10 | 1 | number-not-in-quote 10, quote-not-found 1 (one question had both) |
+| bone-ordering | 13 | 12 | 1 | 0 | no-explicit-sequence-marker-in-quotes 1 |
+| cursed-object | 7 | 4 | 3 | 0 | needs-category-and-outside-quotes 2, negative-question 2 (one question had both) |
+| bound-threads | 4 | 3 | 1 | 0 | not-one-to-one 1 |
+
+For the dial, 10 of 30 candidates (33.3%) were rejected for `number-not-in-quote` and 19 of 30 (63.3%) were accepted. That is a rejection rate. It says the check is catching a generation weakness. It does not say how many of the 19 accepted dial questions are wrong, because none were rated.
+
+## Named seams this part uses
+
+New files (all under the size and boundary rules of the Structure steering; each has a matching test file):
+
+| File | Holds |
+| --- | --- |
+| `packages/core/src/pipeline/conflict-code.ts` | Code-first conflict scan (Req 18.1): numeric facts, label key, pairs. Pure. |
+| `packages/core/src/pipeline/conflict-prompt.ts` | `CONFLICT_CHECK_PROMPT_VERSION`, system prompt, user message builder, Zod reply schema, retry note. |
+| `packages/core/src/pipeline/conflict-report.ts` | Pure resolution of a reply: Quote_Resolver, self-evidence and numeric guards (Req 18.3). |
+| `packages/core/src/pipeline/conflict-check.ts` | One room, one model call (plus one schema retry) through `callWithBudget`. |
+| `packages/core/src/pipeline/conflict-stage.ts` | The stage: code scan, provisional assembly, per-room calls, final assembly, notices. |
+| `packages/core/src/pipeline/sufficiency.ts` | Thin-concept filter, concepts needed, sufficiency notice. Pure. |
+| `packages/core/src/locks/answer-statement.ts` | `statedAnswerOf(question)`: one plain-text line for the key answer of any of the six types. Cross-type registry file, like the existing `locks/judge-registry.ts`. |
+| `packages/core/src/copy-conflict.ts` | Learner-facing sentences for exclusions and shortened crypts. |
+| `apps/worker/src/lock-type-flags.ts` | `parseDisabledLockTypes`, `effectiveLockTypes`. The only place `DISABLED_LOCK_TYPES` is parsed. |
+
+Existing files that change, each at one named seam:
+
+1. `packages/core/src/provider/types.ts`: `ProviderStage` gains `'conflict-check'`. This is the one change that reaches other files. Known exhaustive uses: `StageHandlers = Record<ProviderStage, StageHandler>` in `pipeline/orchestrator-fixtures.ts` (make the new key optional there), and `byStage` in `pipeline/run-metadata.ts` (`PROVIDER_STAGES` gains the stage, so `tokens.byStage` carries a zero entry). No test asserts `byStage`, and no prompt digest of an existing stage changes.
+2. `packages/core/src/pipeline/stage-error.ts`: one new variant, `{ kind: 'insufficient-concepts'; found: number }`.
+3. `packages/core/src/pipeline/orchestrator.ts`: thin-concept filter and early stop after extraction, the conflict stage between review and assembly, `notices` on the result. New options `conflictCheck?: boolean` and `sufficiency?: boolean`, both off when absent (see section 4 and Open decisions).
+4. `packages/core/src/pipeline/run-metadata.ts`: `TimedStage` gains `'conflict-check'`. `PipelineRunCounts` gains `conceptsTooThin`, `goodConcepts`, `conflictRoomsChecked`, `conflictRoomsUnchecked`, `conceptsExcludedByConflict`, `conflictReportsIgnored`.
+5. `packages/core/src/pipeline/candidate-outcomes.ts`: `CandidateResult` gains `'conflict-rejected'`, so Requirement 20.3's definition of accepted (past the Conflict_Checker) can be counted.
+6. `packages/core/src/job-api/job-response-schema.ts`: additive optional `notices` on `JobBundleSchema` (see "Job contract").
+7. `packages/core/src/index.ts`: export the runtime constant `LOCK_TYPES` (today only the `LockType` type is exported), so the worker can validate env values against the same list the core uses.
+8. `apps/worker/src/config.ts`, `start.ts`: the release flags. `apps/worker/src/http/routes-jobs.ts`, `job-runner.ts`: the `?notices=1` opt-in and the `insufficient-concepts` mapping. `apps/worker/src/evaluation/cli.ts`, `result-file.ts`: the `--conflict-check` flag and an additive result field.
+
+No file under `locks/<type>.ts`, `checks/`, `mapper/` or `runtime/` changes, so **`CHECK_VERSION` is not bumped by this part** (see "CHECK_VERSION").
+
+## Architecture
+
+```mermaid
+flowchart TB
+  PREP["prepare input"] --> EXT["concept extraction\n1 model call"]
+  EXT --> THIN["thin-concept filter\ncode, no call (new)"]
+  THIN --> SPREAD["spread selection\nconceptsForTarget"]
+  SPREAD --> EARLY{"fewer than 2\nconcepts?"}
+  EARLY -- yes --> STOP["not-enough-material\nno generation spend (new)"]
+  EARLY -- no --> GEN["generation\n1 call per concept"]
+  GEN --> CODE["Code_Checks"]
+  CODE --> REV["blind review\n1 call per question"]
+  REV --> C1
+  subgraph CSG["conflict stage (new, behind conflictCheck)"]
+    direction TB
+    C1["code scan\nshared label, same unit,\ndifferent number, different chunk"] --> C2["provisional assembly\nassembleForTarget"]
+    C2 --> C3["one model call per room\nconcurrency 4, reservation first"]
+    C3 --> C4["resolve reports in code\nQuote_Resolver + guards"]
+    C4 --> C5["final assembly from\nquestions checked clean"]
+  end
+  C5 --> PUB["publish\nvalidateManifestForPublish"]
+  PUB --> OUT["PipelineResult\nmanifest, content, unplacedAccepted,\nnotices (new, optional)"]
+```
+
+The stage order is: prepare, concept extraction, thin-concept filter, spread selection, generation, Code_Checks, blind review, conflict stage, final assembly, publish. The conflict stage follows blind review because only accepted concepts can reach the learner, so only they can be left out for a conflict. It runs before the final assembly so that nothing excluded is ever mapped into a published manifest.
+
+## Components and Interfaces
+
+### 1. Conflict check (Requirement 18)
+
+**1a. Code layer** (`pipeline/conflict-code.ts`). Pure, no provider, no budget.
+
+```ts
+export interface NumericFact { readonly value: number; readonly unit: string; readonly chunkId: string; readonly quote: string }
+export interface CodeConflict {
+  readonly conceptIds: readonly [string, string];
+  readonly unit: string;
+  readonly passages: readonly [{ chunkId: string; quote: string }, { chunkId: string; quote: string }];
+}
+export function labelKey(label: string): string;                       // normaliseWithMap fold, lower case, letters and digits only
+export function numericFactsOf(concept: ExtractedConcept, doc: PreparedDocument): readonly NumericFact[];
+export function findCodeConflicts(concepts: readonly ExtractedConcept[], doc: PreparedDocument): readonly CodeConflict[];
+```
+
+- A fact is a number followed by a unit word or `%` inside one of the concept's resolved `quotes` (not the whole chunk, so unrelated numbers elsewhere in a chunk are not read). The `chunkId` is the chunk the quote resolved in (`resolveQuote`, the same lookup `quoteResolvesOnce` already uses in `concept-extraction.ts`). Units are lower-cased and folded to the singular (`days` and `day` are one unit).
+- Two concepts conflict when their `labelKey` is equal, some fact of one and some fact of the other have the same unit and different values, and the two facts are in different chunks. This is Requirement 18.1 literally. Both concepts are excluded, because neither is more trustworthy than the other.
+- The scan runs over the concepts that have at least one accepted question. Concepts that were already set aside need no notice.
+- The output is sorted by `conceptIds` and so does not depend on input order (Property 30).
+- **Honest limit.** Two concepts sharing a label is uncommon in model-extracted concepts. This layer is cheap and exact, but the model layer is the real net. `adv-18` is not caught here: it is one concept whose notes hold two numbers (27 days in paragraph 4, 35 days in paragraph 7). A test-support variant with two same-label concepts proves the code path.
+
+**1b. Model layer** (`conflict-prompt.ts`, `conflict-report.ts`, `conflict-check.ts`). One call per room, run only for rooms whose concepts the code layer did not already exclude (Requirement 18.2).
+
+The request, `stage: 'conflict-check'`, `promptVersion: CONFLICT_CHECK_PROMPT_VERSION` (`'conflict-v1'`), `temperature: 0`, `maxOutputTokens`, `timeoutMs` and `retryLimit` from the injected options, carries:
+
+- The notes as data, in the same delimited block and numbering the other prompts use (paragraph numbers are the code-assigned ordinals of `quotableChunksByOrdinal`; heading chunks are context and not quotable). The system prompt says the notes are study material and never instructions (Requirement 13.3).
+- For each question in the room, **primary and alternate of every lock slot** (at most four): a shown id (`q1`, `q2`, ...), the prompt, the key answer as one line from `statedAnswerOf(question)`, and the question's own evidence paragraphs and quotes, labelled "this is the passage that supports the answer".
+- The instruction: for each question, say whether another passage states something about the same thing that cannot be true together with the answer. Report a conflict only with a paragraph number and a quote copied exactly, 4 to 25 words. A related but different quantity is not a conflict.
+
+The conflict checker is not blind (it must see the key). That does not breach Requirement 15.3, which constrains the Blind_Reviewer only. It is a separate prompt and a separate stage.
+
+Reply schema (Zod, strict, built with `toModelJsonSchema` like the reviewer): `{ results: { questionId: string; conflict: boolean; paragraph: number | null; quote: string | null }[] }`. The reply must hold exactly one entry for each shown id. A reply that fails the schema, repeats an id or misses an id gets one retry with a note (its own reservation), then the room counts as unchecked.
+
+**Resolution in code** (`resolveConflictReports`, pure). A report with `conflict: true` confirms a conflict only when all of these hold; otherwise it is ignored and counted in `conflictReportsIgnored` (Requirement 18.3):
+
+1. The paragraph is a shown ordinal; code translates it to a chunk ID. The model never supplies offsets.
+2. `resolveQuote(doc.chunks, chunkId, quote)` resolves the quote uniquely, and the quote has at most `MAX_QUOTE_WORDS` (25) words.
+3. The resolved location does not overlap any resolved evidence location of that same question (a passage cannot contradict itself).
+4. If the question's key is a number (combination dial `exact` or `range`), the resolved quote contains a number different from the key. This keeps a numeric conflict numeric: "the notes say 35, the answer says 27" is checked in code, not trusted.
+
+Rules 1 to 3 are the whole of Requirement 18.3 plus the self-reference guard. Rule 4 is an added guard; it can only ignore more reports, never confirm more, so it cannot lower a check.
+
+A confirmed conflict excludes the whole concept (both its questions). Its notice holds two passages: the question's own evidence quote and the conflicting quote, each as `{ chunkId, quote }` where code resolved both.
+
+**1c. The stage and where it sits** (`conflict-stage.ts`).
+
+```ts
+export interface ExcludedConcept {
+  readonly conceptId: string;
+  readonly conceptTitle: string;
+  readonly source: 'code' | 'model';
+  readonly passages: readonly [Passage, Passage];
+}
+export interface Passage { readonly chunkId: string; readonly quote: string }
+
+export async function runConflictStage(input: {
+  concepts: readonly AssemblyConcept[];            // accepted questions per concept
+  extracted: readonly ExtractedConcept[];
+  doc: PreparedDocument;
+  assemble: (concepts: readonly AssemblyConcept[]) => Result<RoomAssembly, RoomAssemblyError>;
+  provider: Provider; ledger: BudgetLedger; options: PipelineOptions;
+}): Promise<Result<ConflictStageOutcome, PipelineStageError | RoomAssemblyError>>;
+```
+
+Steps, in order:
+
+1. **Code scan** over `concepts`. Excluded set `E` starts as the code-conflicting concepts.
+2. **Provisional assembly** with `assemble(concepts without E)` (this is `assembleForTarget`, pure and free). If it returns `empty-room`, return that error: there is nothing to check.
+3. **One call per provisional room**, in room order, under `runWithConcurrency(tasks, options.concurrency ?? DEFAULT_CONCURRENCY)`. `DEFAULT_CONCURRENCY` stays 4. A task starts no call once `halt` is set or the signal is aborted. Results keep room order.
+4. **Resolve** each reply in code. Clean rooms add their question IDs to the **clean set** `V`. Confirmed concepts join `E`. A room whose call failed (provider error, or schema failure after the retry) adds nothing to `V`: it is unchecked.
+5. **Final assembly** from `concepts` restricted to questions in `V`, minus `E`. When `E` is empty and every room is clean, the provisional assembly is returned as it is, so a run with no conflicts is identical to a run with the check off (Property 33).
+6. The unplaced accepted questions of the final assembly are kept in the bundle exactly as before. They are never playable, and they are not model-checked; the design records this and the bundle's existing "not playable" rule covers it.
+
+Why one pass and no second round: Requirement 18.2 says one call per room. A second round (re-assemble after an exclusion, check the new rooms) would add calls for rooms that never existed when the first calls were made. After an exclusion, the final assembly simply uses only questions already checked clean, so a room that lost a concept to a conflict may be left out and the crypt may be shorter. This is the conservative direction ("when unsure, set the question aside"). The alternative is an open decision.
+
+**Failure policy.** Budget stop and cancellation behave as in the other stages: `halt`, no further reservation, and the run ends `budget-exhausted` or `cancelled`. A provider or schema failure for one room leaves that room unchecked and out of the crypt (fail closed). If at least one room was attempted and none ended clean because of such failures, the run ends with a new `PipelineJobError` kind `conflict-check-failed` (maps to the existing learner failure `generation-failed`); otherwise a partial crypt is published and the count is in `conflictRoomsUnchecked`.
+
+**1d. Budget and concurrency.** No new ledger method and no new reservation sizing. Every attempt is one `callWithBudget(ledger, provider, request, options.worstCaseUsd, options.costOf)`: reserve first, call, reconcile or release. A refused reservation means no call.
+
+- First attempts equal the number of provisional rooms (at most `target.rooms`, so at most 4; 1 on the legacy no-target path). With one schema retry per room the worst case is 8 reservations.
+- The conflict prompt holds the whole notes block (at most 6,000 words), which is why it is larger than a review call. The existing worst-case reservation already covers it: `INPUT_TOKENS_BOUND = 6000 * 2 + 8000 = 20,000` input tokens plus `MAX_OUTPUT_TOKENS = 4096`. At the run-3 prices ($0.75 and $4.50 per million tokens) that reserves `20000 * 0.75e-6 + 4096 * 4.5e-6 = $0.0334` per call, or $0.1337 held at once with four calls in flight.
+- Expected spend is far below the reservation. A 373-word dev note is about 500 tokens of notes; with the system prompt and up to four question blocks a call is roughly 1.5k input tokens and a few hundred output tokens, about $0.0025 at run-3 prices. Against the run-3 average of $0.031 per note ($0.372 for 12 notes) that is an increase of roughly 8% per room checked. This is an estimate from run-3 token counts, not a measurement. The measured number comes from the re-record in "Cassettes and evaluation".
+
+**1e. Learner-facing copy** (`copy-conflict.ts`, plain, no banned wording; the sentences carry a what and a next step, like `renderError`).
+
+| Key | Text |
+| --- | --- |
+| `conflictLeftOut(title)` | `We left out “{title}” because two passages in your notes seem to say different things.` |
+| `conflictPassage(n)` | `Passage {n}` |
+| `conflictNext` | `Check which one you meant in your notes. If you fix them, build the crypt again to include this topic.` |
+| `cryptSufficiency(found, needed, built, requested)` | `Your notes gave us {found} {topic or topics} we could ask about. A {requested}-room crypt needs {needed}, so this crypt has {built} {room or rooms} instead.` |
+| `cryptSetAside(built, requested)` | `Some questions were set aside, so this crypt has {built} {room or rooms} instead of {requested}.` |
+
+The wording says "seem to say different things" and shows both passages, so the learner decides. It does not say which passage is right and uses none of the words on the banned list. The passage labels come from the learner's own chunks in the web app, which already builds citations (`Your edited notes, originally extracted from PDF page X` when text was edited, Requirement 4.11). These are messages, not evidence labels; no new label is added to the five in Requirement 26.3 (see Reconciliation). `copy-banned-words.test.ts` gets one added case that runs every Phase 6 string through `findBanned`.
+
+**1f. Job contract: how exclusions and sufficiency reach the learner.** Additive and opt-in, following the existing `?progress=1` precedent.
+
+- `PipelineResult` gains an optional `notices?: PipelineNotices`, `{ excluded: ExcludedConcept[]; sufficiency: SufficiencyNotice | null }`. It is **absent**, not empty, when there is nothing to report, so every existing result and test comparison is unchanged.
+- `JobBundleSchema` (strict) gains an optional `notices` with `ExcludedConceptSchema` and `SufficiencyNoticeSchema` (strict, Zod). A client built before this field parses the bundle strictly and would refuse it, so the worker adds `notices` to a completed body **only** when the request has `?notices=1` and notices exist. Without the query, the body is byte-identical to today's.
+- `JobFailureSchema`, `JOB_FAILURE_KINDS` and `PIPELINE_STAGES` do not change. The conflict stage reports progress under the existing `assembling` stage, so no new stage value reaches an older web build.
+- For a run that ends `not-enough-material`, the failure `message` string (a free string today) may state the number found: the job record gains a non-content `goodConcepts: number | null`, set with the terminal status, and `jobBody` appends the count sentence. `JobFailureSchema` is unchanged because `message` is already a string. The web shows its own copy, so the web owner decides whether to show it.
+- **Golden fixture.** The golden contract fixture is `packages/core/src/test-support/contract/job-completed.json`, written by `apps/worker/src/http/job-contract.test.ts` (`UPDATE_CONTRACT=1`) and read by `apps/web/src/features/generate/job-contract.test.tsx`. Phase 6 does **not** change it: its scenario (the human-heart cassette, conflict check off) produces no notices, and without `?notices=1` the body is unchanged. A third golden case (a completed body with `?notices=1` and one excluded concept) is added only by the owner, as a deliberate step: run `UPDATE_CONTRACT=1 pnpm --filter ./apps/worker exec vitest --run job-contract`, review the diff, commit. The implementation must never run that command or regenerate the fixture itself. Until the owner does it, the new schema is covered by its own round-trip test (Property 41), not by the golden file.
+- **Web owner.** Showing any of this needs web changes that this part does not make: `apps/web/src/features/generate/worker-client.ts` (request `?progress=1&notices=1` and parse `notices`), `apps/web/src/features/generate/generated-crypt.ts` (carry the notices with the built crypt and drop a passage whose `chunkId` is not one of the learner's chunks, as it already does for citations), and `apps/web/src/features/crypt/room-screen.tsx` (show `cryptSufficiency` in place of the count-free `cryptShortened` line, and the exclusion list). The web must not use `dangerouslySetInnerHTML`; passages are plain text (Requirement 25.11).
+
+**1g. The `pipeline:conflict-check` fixture (`adv-18`).** `adv-18` is a combination dial question: "about how many days does the Moon take to orbit Earth", answer exact 27 days, evidence paragraph 4 ("The Moon takes about 27 days to orbit Earth."). The notes also say, in paragraph 7, "One orbit of the Moon around Earth takes about 35 days." Paragraph 4 also states 29.5 days for the cycle of phases, which is a different quantity and is the reason the prompt tells the model that a related but different quantity is not a conflict. The fixture notes also carry an instruction to the quiz generator; it is treated as study material like any other text.
+
+- Code_Checks pass it. The 27 is in the resolved quote, the units are stated, the prompt is not negative. This is asserted by a test that runs `runChecks` on the fixture, not assumed.
+- The Conflict_Checker rejects it through a synthetic cassette reply for the room: `conflict: true`, paragraph 7, quote `One orbit of the Moon around Earth takes about 35 days.` The quote resolves uniquely, does not overlap paragraph 4's evidence, and holds a number (35) different from the key (27), so the concept is excluded and the notice carries both passages.
+- Counter-cases in the same test: a reply quoting text that is not in the notes is ignored (rule 2); a reply quoting paragraph 4's own 27-day sentence is ignored (rule 3); a reply quoting a passage with no number different from 27 is ignored (rule 4).
+- Known gap, recorded rather than hidden: a reply quoting the 29.5-day sentence passes rules 1 to 4 (29.5 is a number different from 27), so code cannot tell that it is a different quantity. Only the prompt wording separates them. If a real model reports it, the concept is excluded and the learner sees two passages. That error costs one question and is visible; it does not publish a wrong answer. The dev re-record (see "Cassettes and evaluation") is where the rate of such reports gets measured.
+
+### 2. Sufficiency (Requirement 17)
+
+**2a. What already exists, so nothing is duplicated.**
+
+| Existing mechanism | Where | What it does | Gap it leaves |
+| --- | --- | --- | --- |
+| Quote floors and ceilings | `checks/evidence.ts` (`MIN_QUOTE_WORDS` 4 in `quote-resolver.ts`, `MAX_QUOTE_WORDS` 25), Code_Checks `quote-too-short`, `quote-too-long`, `quote-not-found`, `quote-ambiguous` | Per quote | Says nothing about how much text the concept stands on |
+| Concept quote filtering | `filterConcepts` in `pipeline/concept-extraction.ts` (Req 13.4, 13.5) | Drops unresolved quotes and concepts left with none | A concept with one 4-word quote in a 5-word chunk survives |
+| Setup-screen length hint | `lengthAvailability`, `MIN_QUOTABLE_CHUNKS` (standard 6, long 6) in `run-length.ts`; `lengthAvailabilityForNotes` in `pipeline/notes-capacity.ts` | Switches off lengths before any model call, from the quotable chunk count | Reads no concepts; it is an estimate |
+| Concept cap | `conceptsForTarget`, `selectSpreadConcepts`, `maxConcepts = rooms * 3` | Spreads at most 9, 6 or 12 concepts over the notes | Never checks there are enough |
+| Short crypt | `assembleCrypt` builds at most `min(target.rooms, floor(concepts / 2))` rooms; the web shows `cryptShortened`; `empty-room` ends as `not-enough-material` | Handles the outcome | Runs after all generation and review spend; the message has no count of topics found |
+| Size cap | `input-too-long` (6,000 words) | Rejects oversized notes | Not about thin notes |
+
+This part adds three things and changes none of the above: a **thin-concept filter** after extraction, an **early stop** when fewer than two concepts remain, and a **count of good concepts** with a notice.
+
+**2b. What the dev data says.** Twelve dev notes (10 prose, 2 PDF-style with all-caps headings). Chunks are blank-line blocks as in `candidateSpans` (`chunker-split.ts`); a heading line is context, not a quotable chunk.
+
+| Measure | Result |
+| --- | --- |
+| Note size | 176 to 373 words (median 266); 4 to 9 quotable chunks |
+| Concepts extracted per note (all three runs, same replies) | 4 to 15; 92 in total |
+| Accepted concepts per note, run 1 / run 2 / run 3 | min 4 / 4 / 4; median 7.5 / 7 / 6.5; max 14 / 14 / 14; totals 88 / 82 / 84 |
+| Accepted share of extracted concepts | 95.7% / 89.1% / 91.3%; lowest single note 66.7% (dev-04, run 3, 6 of 9) |
+| Notes with at least 4 accepted concepts (needed for 2 rooms) | 12 / 12, 12 / 12, 12 / 12 |
+| Notes with at least 6 accepted concepts (needed for 3 rooms) | 8 / 12, 8 / 12, 7 / 12 (23 of 36) |
+| Notes with at least 8 accepted concepts (needed for 4 rooms) | 6 / 12, 3 / 12, 4 / 12 (13 of 36) |
+| Correlation of note words with accepted concepts (n = 12) | r = 0.67, 0.59, 0.51 |
+| Correlation of quotable chunks with accepted concepts (n = 12) | r = 0.42, 0.35, 0.28 |
+| Note words per extracted concept | min 17.6, p25 34.2, median 39.9, p75 41.7, max 55.3 |
+| Words in the chunks the 58 gold concepts cite (distinct chunks, summed per concept) | min 14, p10 33.7, p25 37, median 49.5, p75 69.8, max 161 |
+| Words in each of the 194 gold citations' chunks | min 13, p10 34, p25 40, median 50, p75 64, max 95 |
+| Quote words per gold question (94 questions) | min 5, p10 9, p25 11, median 16.5, p75 27, max 48 |
+| Quote words per gold concept (unique quotes, 58 concepts) | min 7, p10 9, p25 13, median 28.5, p75 37, max 63 |
+| Distinct chunks cited per gold question | 1 up to the 75th percentile (at least 75% of questions cite one chunk), maximum 3 |
+| Words per quotable chunk, prose notes (71 chunks) | min 1, p10 6, p25 29, median 39, p75 50, max 95; 10 of 71 under 12 words |
+| Words per quotable chunk, PDF-style notes (9 chunks) | min 15, median 43, max 56; none under 12 |
+
+Reading of the table:
+
+- The smallest note (176 words, dev-09) produced 9 or 10 accepted concepts, while a 298-word note (dev-02) produced 5 to 7. With n = 12 and r between 0.28 and 0.67, neither the word count nor the chunk count predicts the concept count well enough to gate on before extraction. **No pre-extraction word or chunk threshold is added.** The existing `lengthAvailability` hint is left as it is.
+- The real signal is the concept count after extraction. Accepted concepts are at most the extracted ones, so "fewer than N extracted" is a safe necessary condition: it can never stop a run that could have succeeded.
+- The dev notes contain no thin note. Every note had at least 4 accepted concepts in every run, so a run for the shortest length (4 concepts needed) was always possible in the data, and no recorded case exercises a failure. The data cannot show where the real boundary lies for very thin notes. That is stated here rather than guessed.
+- Long (8 concepts needed) is out of reach for 23 of 36 note-runs, and standard (6) for 13 of 36. These are upper bounds, because a room also needs two different lock types and no duplicate answers. So the shortened-crypt path is the common case for long and standard on short notes, and the notice must read as normal information, not as an error.
+
+**2c. Thresholds, and how each was picked.**
+
+| Threshold | Value | How it was picked | Status |
+| --- | --- | --- | --- |
+| Concepts needed per room | `target.locksPerRoom` (2) | Structural: `assembleCrypt` keeps a room only with two locks from two different concepts. Not tuned. | Fixed by the code |
+| Concepts needed for a length | `rooms * locksPerRoom` = 4 (short), 6 (standard), 8 (long) | Follows from the row above and `cryptTargetFor`. | Fixed by the code |
+| Early stop | with a `target`: fewer than `locksPerRoom` (2) concepts after the thin filter and spread selection; without a `target` (legacy one-room path, where one lock is a valid room): none | Below 2 no multi-lock room can be built (`Math.floor(n / 2) < 1`), so continuing only spends money on a run that must end `empty-room`. | Fixed by the code |
+| `MIN_CONCEPT_SOURCE_WORDS` | 12 | Chosen below the smallest gold value: smallest cited chunk 13 words, smallest gold concept source 14 words. At 12 it rejects 0 of 58 gold concepts and 0 of 194 gold citations. | **Provisional.** Gold data covers prose only and records no extracted concepts. See ES-1 |
+| Word or chunk gate before extraction | none | r between 0.28 and 0.67 on n = 12; a 176-word note out-produced a 298-word note. | Not supported by the data |
+| Evidence-word floor above the 4-word quote floor | none | The smallest gold question evidence is 5 words and the smallest gold concept evidence is 7. Any floor above 5 rejects a gold question. The 4-word floor already in `quote-too-short` is the tightest value the data supports. | Not supported by the data |
+| Chunks per accepted question | none | Gold questions cite 1 chunk (at most 3), so there is nothing above 1 to require. | Not supported by the data |
+
+`MIN_CONCEPT_SOURCE_WORDS` is a floor on the **sum of words over the concept's distinct cited chunks** (`concept.chunkIds`), not on a single chunk. A per-chunk floor of 12 would drop 10 of 71 prose chunks (14%) though none of them is cited by a gold question; the sum form needs no such cut and matches what a question about the concept can draw on. What it catches is a concept resting on a few words only, such as a title-like fragment, that still has a 4-word quote and passes every Code_Check.
+
+**ES-1 (evaluation task, run on `eval/dev` only).** Record each concept's source-word count in the dev result file as a number per concept (no text; `NoteRunSchema.concepts[]` gets an additive `sourceWords` field), report its distribution next to the concepts that produced accepted questions, and choose the floor as the largest value below the smallest source-word count of any concept that produced an accepted question. If that value is below 12 the floor drops to it; if it is above 12 the floor stays 12 unless the report shows thin concepts being accepted. The floor is then frozen before any holdout use. This task needs no paid call: the numbers come from a replay of the existing dev cassettes.
+
+**2d. Components** (`pipeline/sufficiency.ts`, pure).
+
+```ts
+export const MIN_CONCEPT_SOURCE_WORDS = 12;
+export function conceptSourceWords(concept: ExtractedConcept, doc: PreparedDocument): number;
+export function splitThinConcepts(
+  concepts: readonly ExtractedConcept[], doc: PreparedDocument,
+): { readonly kept: readonly ExtractedConcept[]; readonly thin: readonly ExtractedConcept[] };
+export function conceptsNeeded(target: CryptTarget): number;                 // rooms * locksPerRoom
+export interface SufficiencyNotice {
+  readonly goodConcepts: number; readonly conceptsNeeded: number;
+  readonly requestedRooms: number; readonly builtRooms: number;
+}
+export function sufficiencyNotice(goodConcepts: number, target: CryptTarget | undefined, builtRooms: number): SufficiencyNotice | null;
+```
+
+Where it runs in `runRoomPipeline`, behind the option `sufficiency` (see section 4): right after `extractConcepts` succeeds, `splitThinConcepts` removes thin concepts (counted in `conceptsTooThin`, concept IDs unchanged), then `conceptsForTarget` selects as today, so a thin concept never takes one of the `maxConcepts` slots. With a `target`, if the selected list has fewer than `target.locksPerRoom` concepts, the run ends `{ kind: 'insufficient-concepts', found }` before any generation call. The job runner maps that kind to the existing learner failure `not-enough-material`.
+
+**Good concepts and the message.** `goodConcepts` is the number of concepts with at least one accepted question that were not excluded by the conflict stage, counted just before final assembly and stored in `counts.goodConcepts`. `sufficiencyNotice` returns a notice exactly when a `target` is present and `builtRooms < target.rooms`. The copy then follows from the numbers: when `goodConcepts < conceptsNeeded`, `cryptSufficiency` states how many topics were found and how many the length needs; otherwise (type mix, duplicate answers or a conflict exclusion limited the rooms) `cryptSetAside` says questions were set aside. The existing `cryptShortened` line stays for web builds that do not ask for notices.
+
+**"Offer a shorter run" (Requirement 17.2).** `POST /jobs` is one request with a chosen length and no interactive step, and generation is already paid for by the time the count is known. So the shorter run is **offered by building it**: the crypt that the notes can fill, plus the notice that says how many topics were found. A learner who wants a different length starts a new job. A prompt before building is not designed; it is listed in Open decisions.
+
+**Never lower a check (Requirement 17.3).** The three additions only remove concepts or stop a run. None changes a Code_Check, a reviewer rule, a Quote rule or a threshold in `checks/`, and none adds a question. Property 37 states this as a subset relation between a run with the gates and a run without them over the same scripted replies.
+
+### 3. Release flags (`DISABLED_LOCK_TYPES`)
+
+**3a. The switch.** `DISABLED_LOCK_TYPES` is a comma-separated list of Lock_Types the worker will not ask for or publish on the learner path. Unset or empty disables nothing. It is read once at startup in `apps/worker/src/config.ts` through `lock-type-flags.ts`. Changing it on Render means an environment change and a restart, with no code deploy.
+
+```ts
+export type LockTypeFlagError =
+  | { readonly kind: 'invalid-disabled-lock-types' }   // an entry is not one of the six
+  | { readonly kind: 'too-few-lock-types' };           // fewer than two types would remain
+export function parseDisabledLockTypes(raw: string | undefined): Result<readonly LockType[], LockTypeFlagError>;
+export function effectiveLockTypes(all: readonly LockType[], disabled: readonly LockType[]): Result<readonly LockType[], LockTypeFlagError>;
+```
+
+- Parsing: split on commas, trim, lower-case, drop empty entries, remove duplicates. Every remaining entry must be in `LOCK_TYPES` (exported from core, see seam 7). Any other entry returns `invalid-disabled-lock-types`.
+- `effectiveLockTypes` returns `all` minus `disabled`, in the original order. If fewer than two remain it returns `too-few-lock-types`.
+- `StartupError` gains `invalid-disabled-lock-types` and `too-few-lock-types`, with fixed text in `STARTUP_ERROR_COPY` that names the variable and never the value (for example "DISABLED_LOCK_TYPES has an entry that is not one of the six lock types"). `start` returns the typed error and the entry point logs the error kind only. Nothing throws a string.
+- `WorkerConfig` gains `allowedLockTypes` and `disabledLockTypes`. `start.ts` passes `cfg.allowedLockTypes` to `pipelineSettings` instead of the constant. The constant `ALLOWED_LOCK_TYPES` stays as "every type this build can ask for before flags", so `config.test.ts`'s existing equality assertions still hold.
+- The startup log line records the count of enabled types and the names of disabled ones. Names come from a closed list and are not user content.
+- `.env.example` documents the variable. The README worker section gets one line.
+
+**3b. What it touches and what it does not.**
+
+| Path | Effect of `DISABLED_LOCK_TYPES` |
+| --- | --- |
+| Learner jobs (`POST /jobs`) and judge jobs (`POST /judge/jobs`) | Both use the same `pipelineSettings`, so both drop the disabled types. The generation system prompt and the schema arms are built from the allowed list (`generation-schema.ts` filters its arms by `allowed`), and `generateForConcept` already rejects a disallowed primary and drops a disallowed alternate. |
+| Sample crypts (`buildHumanHeartSampleCrypt` and the other samples in `samples/`) | Unaffected. They are built in core from authored, Human-reviewed questions and never read worker config. They keep all six types. |
+| Evaluation (`EVAL_ALLOWED_LOCK_TYPES`, `--allowed-lock-types`) | Unaffected. The CLI does not read `DISABLED_LOCK_TYPES`, so a value left in the user's shell cannot change a recorded digest. A test asserts this. |
+| Already-published crypts and stored jobs | Unaffected. The flag changes what a new job asks for. |
+| Restart | On Render the single instance restarts. Jobs and tombstones live in memory and are lost, and the Interim_Ledger resets, so the day's spend counter starts again at zero (Requirement 28.8). The provider account's monthly limit is the backstop. This is documented next to the variable. |
+
+**3c. Fewer than two types is refused at startup (decision for the user).** A room is two locks of two different types, so one enabled type builds nothing. The choices, with the one chosen:
+
+- **Refuse to start** with `too-few-lock-types` (chosen). It is loud, costs nothing, and a typo that disables nearly everything is caught at deploy time. To pause generation on purpose there is already a switch: leave `DAILY_BUDGET_USD` unset and the worker refuses jobs and reports `budget-not-configured` on `/health`.
+- Start with zero or one type. `generateForConcept` returns `null` for an empty list, so every job would spend one extraction call and end `not-enough-material`. This wastes money and shows the learner a misleading message.
+- Silently keep rune cipher. This overrides the operator's intent, and rune cipher may be what they meant to turn off.
+
+Note also that exactly two enabled types allow only rooms of that pair, and the notice will show shorter crypts more often. Three or more is the practical minimum for varied rooms; the code requires only two.
+
+**3d. Reconciliation with Requirement 23 (Release_Status).**
+
+What Requirement 23 asks: a Release_Status per Lock_Type that the last evaluation drives. `released` only when, on the Dev_Set, Wrong_Accepted is at most 5% of the rated accepted questions and at least 10 accepted questions of the type have been rated; otherwise `samples-only`, and a `samples-only` type is included only in Human-reviewed sample crypts (23.1 to 23.5).
+
+What the repository has today:
+
+- No Release_Status type, value or configuration (checked, see "Scope of this part").
+- No ratings. The result files contain accepted counts only, so Wrong_Accepted is unknown for every type, rune cipher and séance board included.
+- Every type is allowed for learners: `ALLOWED_LOCK_TYPES` (worker) and `DEFAULT_ALLOWED_LOCK_TYPES` (core) both list all six. This is the "ungated" option 1 of Phase 5's Reconciliation (b), now in effect.
+
+Consequences of reading 23.4 literally against that state:
+
+- With zero rated questions, "fewer than 10 rated accepted questions" holds for every type. All six would be `samples-only` and learners would get no crypt.
+- Even with ratings, the volume rule bites. Accepted counts in run 3 were rune cipher 65, séance board 29, combination dial 19, bone ordering 12, cursed object 4, bound threads 3. Cursed object and bound threads cannot reach 10 rated accepted questions from one dev run, whatever their quality. Bone ordering barely clears 10.
+- The 5% rule leaves no room for a wrong question at low volume: one Wrong_Accepted is 8.3% of 12, 5.3% of 19 and 5.0% of 20. With 10 to 19 rated accepted questions the rule needs zero wrong; one wrong is tolerated only from 20 rated.
+
+How the env switch relates:
+
+1. `DISABLED_LOCK_TYPES` is the **operational mechanism that implements `samples-only` for the learner path now**. A type listed there is, for learner notes, in the state Requirement 23.5 describes: it appears only in sample crypts.
+2. It does **not** compute Release_Status and does not claim a type is `released`. A type that is not listed is simply not switched off. It has not been shown to meet 23.4, and no copy, doc or UI text may call it released or evaluated until rated results exist.
+3. It can only narrow. The learner path's effective set is `all types` minus `DISABLED_LOCK_TYPES`, and when Release_Status exists it becomes minus `samples-only` as well. No variable can enable a `samples-only` type, and an environment flag cannot override an evaluation result in the permissive direction.
+4. The evaluation-driven part of Requirement 23 (a pure `releaseStatusOf(ratedStats)` in core, rating data in the result schema, and a rated dev run) is **not designed this round**, because the data it needs does not exist. It is listed in Open decisions. When it is added, its output feeds the same `effectiveLockTypes` function as one more subtraction, so the env switch needs no redesign.
+
+**The user's current evidence, stated plainly.** In run 3 the dial had 30 candidates, 19 accepted, 10 rejected for `number-not-in-quote` and 1 rejected at review. That supports turning the dial off if the 33% code-rejection rate looks too high to spend on, since each rejected candidate was paid for. It does not show that the 19 accepted dial questions are wrong or right. Only ratings can show that.
+
+### 4. Pipeline options, existing cassettes and evaluation
+
+**Why this needs care.** A recorded cassette is keyed by `promptDigest`, and a cassette test fails on a missing digest (`cassette-missing`, Requirement 12.2). The conflict stage adds a model call per room. Any existing end-to-end test that runs the pipeline with the stage on would miss that call. The five pinned fixtures also assert the exact call sequence (`e2e-pipeline.test.ts` asserts `stages` as `concept-extraction`, 3 x `generation`, 5 x `review` for `human-heart-e2e.json`). The sufficiency gates cannot add a call, but they can remove one, which would break the same assertion.
+
+**Options (both absent means off).**
+
+| Option on `PipelineOptions` | Effect | Core default | Worker (`start.ts`) | Existing pinned fixtures |
+| --- | --- | --- | --- | --- |
+| `conflictCheck?: boolean` | Runs the conflict stage (section 1) | off | on | pinned `false` explicitly |
+| `sufficiency?: boolean` | Thin-concept filter, early stop, notice (section 2) | off | on | pinned `false` explicitly |
+
+- The pins are written explicitly, even though off is the default, exactly as Phase 5 pinned `allowedLockTypes` in `HUMAN_HEART_E2E_OPTIONS`: a later change of the default then cannot silently break a recorded cassette. They go in `HUMAN_HEART_E2E_OPTIONS` (`pipeline/e2e-cassette-fixtures.ts`) and in the options object each of `bone-ordering-e2e-fixtures.ts`, `bound-threads-e2e-fixtures.ts`, `cursed-object-e2e-fixtures.ts` and `combination-dial-e2e-fixtures.ts` passes to `runRoomPipeline`. These are one-line pins. No cassette file is edited and no digest changes: with the options off, the request set is byte-for-byte what it is today.
+- `apps/worker/src/http/http-test-support.ts` builds its own `pipelineSettings` and does not set the options, so the golden contract test (real pipeline over `human-heart-e2e.json`) and every server test keep running with the stage off. Only `start.ts` turns both on for the real worker.
+- Default off in core is a decision the user should confirm (Open decisions). Default on would make every existing fixture and test that omits the option miss a call.
+
+**New tests and cassettes for the conflict path.** All use hand-authored cassette entries or scripted providers with `origin: 'synthetic'` (Requirement 12.10), so none can reach `eval/results/`.
+
+- `pipeline/conflict-check.test.ts`: the model call for one room against a scripted provider, with synthetic replies (clean, resolvable conflict, unresolvable quote, self-evidence quote, numeric key with no differing number, schema failure then valid, schema failure twice, provider failure, budget refusal, abort).
+- `pipeline/conflict-check-e2e.test.ts` with `conflict-check-e2e-fixtures.ts` and a new synthetic cassette `test-support/cassettes/conflict-check-e2e.json`: the full pipeline over the `adv-18` notes (`eval/adversarial/notes/adv-01-moon.txt`) with `conflictCheck: true`, so the conflict path has its own pinned digests. The existing five cassettes are not touched.
+- `pipeline/conflict-code.test.ts`: the code layer with a two-concept same-label variant built in test-support (the fixture file `eval/adversarial/fixtures.json` stays unchanged, Requirement 9.6).
+
+**Evaluation wiring.**
+
+- `apps/worker/src/evaluation/cli.ts` gets `--conflict-check on|off` and `--sufficiency on|off`, both default `off`, so replay of the recorded dev cassettes keeps working exactly as today. `settingsFor` passes them into `PipelineOptions`.
+- `result-file.ts` gets additive fields, all with Zod defaults so older result files still parse: `conflictCheck: boolean` and `sufficiency: boolean` at run level; `sourceWords` per concept (ES-1); a `conflict` object per note (rooms checked, rooms unchecked, concepts excluded, reports ignored: counts only); and `'conflict-rejected'` as a value of a candidate's `result`. Requirement 20.3 defines accepted as passing Code_Checks, the Blind_Reviewer and the Conflict_Checker, so a question accepted at review and then excluded by a conflict is counted `conflict-rejected`, not `accepted`. `stageTimingsMs` is already a record, so the new `conflict-check` timing needs no schema change.
+- The adversarial report counts `pipeline:conflict-check` fixtures as rejected by the expected layer only when the Conflict_Checker rejects them (Requirement 20.6, 24.5).
+
+**Replaying the dev cassettes with the conflict check on needs one more paid re-record.** With `--conflict-check on`, the 12 dev notes each need conflict-check cassette entries that do not exist yet, so replay would stop with `cassette-missing`. The re-record is run **by the user, in their own shell, through the evaluation skill** (`.kiro/skills/evaluation/`), with its cap and ledger. The agent writes the command and never runs it. Shape of the command, with the values left to the user:
+
+```
+pnpm --filter @escape-the-crypt/worker eval record --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <new-ledger-name.json> --conflict-check on --sufficiency off
+```
+
+- Spend estimate, not a measurement: run 3 shows `replayedCalls: 6` beside `liveCalls: 37` for dev-01, so record mode reuses entries that exist and calls live only for missing ones. If that holds, only the new conflict calls are live: one per note on the legacy one-room dev path, so 12 calls at about $0.0025 each is about $0.03 at run-3 prices, far under any cap. If record mode turns out to re-call more than that, the skill's ledger stops it at the cap.
+- After the re-record, the default of `--conflict-check` flips to `on` in a small follow-up, and replay without the flag then also runs the stage. Until then the default stays off.
+- `--sufficiency on` needs no re-record: it can only remove calls, so replay never misses a digest. It is still left off by default until ES-1 has frozen the floor.
+
+### 5. Final door: not in scope this round
+
+Requirement 19 is not designed here. Reason: the final door is empty in every published manifest today (`finalDoor: { slots: [] }`), and choosing leftover concepts for it has to follow the conflict stage's rule that only questions checked clean are published, so it is better designed once that stage exists.
+
+## Reconciliation with Requirements
+
+Nothing in `requirements.md` is edited. Each point below is a place where the text and the code or data differ, overlap or are silent.
+
+**(a) Req 18.1 is narrower than the conflict in `adv-18`.** 18.1 needs two concepts that share a label. `adv-18` is one question whose notes hold two numbers. The code layer therefore implements 18.1 literally, and `adv-18` is rejected by the model layer (18.2). The design does not extend 18.1 to "one concept, two numbers" in code: a same-concept scan would flag the 27-day and 29.5-day sentences of the same paragraph, which are different quantities (see the known gap in 1g).
+
+**(b) Req 18.2 says one call per room, but rooms are formed by assembly.** A room exists only after assembly, and assembly needs to know which concepts are excluded. The design assembles provisionally, makes exactly one call per provisional room, and assembles again from the questions that came back clean. The cost is that a room which loses a concept to a conflict may be left out instead of refilled. A second round of calls would refill it and break the literal "one call per room". Open decision D4.
+
+**(c) Req 18.4 says "exclude the concept"; the check runs on questions.** The design excludes the whole concept (primary and alternate), because the conflict is about the concept's fact and the alternate rests on the same notes.
+
+**(d) Req 17.1 and 17.2 say "good concepts against the chosen length" and "offer a shorter run".** "Good" is defined as a concept with at least one accepted question that the conflict stage did not exclude. "Offer" is read as "build the shorter crypt and say how many topics were found" (section 2d). The text could also mean a prompt before building; that is Open decision D7.
+
+**(e) Req 23.4 cannot be evaluated on the current data.** There are no ratings and no Wrong_Accepted counts, and two types cannot reach 10 rated accepted questions from one dev run (section 3d). Read literally, all six types are `samples-only` today, which contradicts the ungated state the code is in. Open decision D2.
+
+**(f) Req 26.3 lists the allowed user-facing labels; the new copy is sentences.** The Phase 6 strings are messages, not evidence labels, and add no label to the five. If 26.3 is read to cover every sentence the spec adds, the strings in 1e need approval. Open decision D9.
+
+**(g) Req 3.5 closes the Check_ID list and Req 3.12 tests it.** The conflict check and the sufficiency gates are pipeline stages, not Code_Checks, so no Check_ID is added and `registry.test.ts` is unchanged. This is also why the conflict stage reports through `notices` and counts, not through `CheckFailure`.
+
+**(h) Req 13.4's quote rule is reused, not changed.** Conflict quotes go through the same `resolveQuote` and the same 4 and 25 word bounds. Nothing in the quote rules is relaxed.
+
+## Open decisions
+
+Each has a recommended default. The design is written to the default.
+
+| ID | Decision | Default in this design | Alternative |
+| --- | --- | --- | --- |
+| D1 | Fewer than two enabled lock types | Refuse to start with `too-few-lock-types` | Start and refuse jobs (like a missing budget); or keep rune cipher |
+| D2 | Req 23.4 against the current ungated state and no ratings | Env switch only this round; evaluation-driven Release_Status deferred until a rated dev run exists | Add rating fields and `releaseStatusOf` now and rate the run-3 questions by hand |
+| D3 | Core default for `conflictCheck` and `sufficiency` | Off in core, on in the worker, pinned off in existing fixtures, `--conflict-check` default off until the re-record | On by default everywhere (every fixture and test that omits the option must then be re-recorded or pinned) |
+| D4 | Calls per room | One call per provisional room, then assemble from questions checked clean | A second round for refilled rooms (more calls, longer crypts after a conflict) |
+| D5 | Conflict call fails (provider error or schema failure twice) | Fail closed: that room is left out; all rooms failed gives `conflict-check-failed` | Publish unchecked (lowers the check, not recommended) |
+| D6 | Code layer scope | Req 18.1 literally: shared label, same unit, different number, different chunk | Extend to one concept with two numbers (more false positives) |
+| D7 | "Offer a shorter run" | Build the shorter crypt and state the count | Stop after extraction and ask the learner (needs an interactive step the job API does not have) |
+| D8 | `MIN_CONCEPT_SOURCE_WORDS` | 12, provisional, tuned by ES-1 on `eval/dev` only | No thin filter until ES-1 reports |
+| D9 | New sentences against Req 26.3 | Treated as messages, not labels | Add them to the approved list |
+| D10 | Unplaced accepted questions | Kept in the bundle, never playable, not model-checked; excluded concepts removed from them | Drop unplaced questions when the conflict check is on |
+| D11 | Env kill switch for the conflict stage | None: `start.ts` sets it on | `CONFLICT_CHECK=off` in the worker environment (a second flag to document and test) |
+| D12 | Notice delivery | Optional `notices` in the bundle, sent only with `?notices=1` | New contract version for every client |
+| D13 | The web side | Not changed here; the web owner makes the changes named in 1f | Include them in this phase's tasks |
+| D14 | Golden contract fixture | Not touched; the owner adds the notices case by `UPDATE_CONTRACT=1` after review | Regenerate it as part of the phase (not allowed: never a silent regeneration) |
+
+## Phase 6 decisions
+
+- **(a) `CHECK_VERSION` is not bumped.** No Code_Check, registry entry or lock-type check changes, so Requirement 3.2's trigger does not fire. The conflict prompt version (`CONFLICT_CHECK_PROMPT_VERSION`, `'conflict-v1'`) is part of every conflict request and so of its digest, and the result file records whether the stage ran. If implementation ends up touching any Code_Check or registry entry, `CHECK_VERSION` must be bumped in the same change and the cassette `checkVersion` field updated only, as in Phase 5 decision (d).
+- **(b) No new Check_ID.** See Reconciliation (g).
+- **(c) Conflict reports are claims, not facts.** Code confirms only that a quote exists, is unique, is not the question's own evidence, and (for numbers) differs. The learner copy says "seem to say different things" and shows both passages.
+- **(d) Calls are bounded in code.** At most one first attempt per provisional room and one schema retry each; concurrency stays at `DEFAULT_CONCURRENCY` (4); every attempt goes through `callWithBudget`.
+- **(e) Gates only remove.** The thin filter, the early stop and the conflict exclusion remove concepts or stop a run. None adds or edits a question.
+- **(f) Notices carry no new user content.** An excluded concept's notice holds two quotes that already exist in the learner's notes. It lives only in the job result and expires with it (Job_TTL), under `Cache-Control: private, no-store`.
+- **(g) Logging.** The worker logs counts (`conflictRoomsChecked`, `conflictRoomsUnchecked`, `conceptsExcludedByConflict`, `conceptsTooThin`) and the `insufficient-concepts` error kind. It logs no label, quote or passage.
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Prework summary (Phase 6)
+
+The pure parts of this phase are the code conflict scan, report resolution, the thin filter, the sufficiency count, flag parsing, the effective lock-type set and the notices schema. They have clear input and output behaviour over large input spaces, so they are PROPERTY. The pipeline-level criteria (18.2 call counts, 18.4 exclusion, 17.3 gates only remove) are PROPERTY over scripted providers and the mock ledger, in the pattern of Properties 17 and 21. The named adversarial fixture (18.5) and the learner copy wording are EXAMPLE. The final-door criteria (Requirement 19) are not analysed this round.
+
+### Redundancy reflection
+
+- "Unresolvable report is ignored" (18.3) and "confirmed conflict excludes the concept" (18.4) were drafted as two properties. They are different functions: 18.3 is `resolveConflictReports`, 18.4 is the whole run. Both are kept, because Property 31 can fail while 32 passes (a resolver bug that confirms too much would still publish nothing excluded).
+- "Calls never exceed reservations" and "no call after abort" for the conflict stage are the same statements as Properties 17 and 21 with one more stage. They are written once as Property 34 for the new stage instead of restating 17 and 21.
+- The three sufficiency criteria (17.1 count, 17.2 notice, 17.3 never lower) became three properties (35, 36, 37) because they test three different things: the filter, the accounting, and the relation to a run without gates.
+- Flag parsing and the effective set were kept apart (38, 39): parsing is string to set, the effective set is set to set with the minimum-two rule.
+- A property for "samples are unaffected by the flag" was dropped: samples never read worker config, so a property would test an import boundary. The boundary test below covers it.
+
+### Property 30: Code conflicts follow their definition and ignore input order
+
+For any list of concepts (labels, resolved quotes that hold number-and-unit facts, chunk IDs) over a prepared document, `findCodeConflicts` SHALL return a pair of concepts exactly when their label keys are equal and one fact of each has the same unit, a different value and a different chunk. The result, as a set, SHALL be the same for every permutation of the input, and the function SHALL make no provider call.
+
+**Validates: Requirements 18.1**
+
+### Property 31: Only a resolvable, non-self report confirms a conflict
+
+For any room, any model reply and any document, `resolveConflictReports` SHALL confirm a conflict for a question if and only if the report has `conflict: true`, a paragraph that is a shown ordinal, a quote of at most 25 words that resolves uniquely in that paragraph's chunk, a resolved location that overlaps no evidence location of that same question, and, when the question's key is a number, a number in the quote that differs from the key. Every other report SHALL be ignored and counted, and an ignored report SHALL NOT exclude a concept.
+
+**Validates: Requirements 18.3, 18.4**
+
+### Property 32: Excluded concepts never reach the published output
+
+For any scripted pipeline run with `conflictCheck` on and any model replies, no question in the manifest or in `unplacedAccepted` SHALL belong to a concept listed in `notices.excluded`; every question in the manifest SHALL have been in a room whose conflict call returned clean; and every excluded concept's notice SHALL hold two passages whose quotes each resolve uniquely in their `chunkId`.
+
+**Validates: Requirements 18.4, 16.3**
+
+### Property 33: With nothing to exclude, the conflict stage changes nothing
+
+For any pipeline run in which the code scan finds no conflict and every room's reply reports none, the manifest, content and `unplacedAccepted` with `conflictCheck` on SHALL equal those with it off, `notices` SHALL equal the notices of the run with it off (the conflict stage adds no excluded entry), and the only additional provider calls SHALL be the room checks.
+
+**Validates: Requirements 18.2**
+
+### Property 34: Conflict calls respect the budget, concurrency and cancellation rules
+
+For any scripted run with `conflictCheck` on, a mock Budget_Ledger (including refusals and fault injection) and an abort at any point, every conflict-check call SHALL be preceded by its own granted reservation and SHALL be reconciled or released; the first attempts SHALL equal the number of provisional rooms; calls in flight SHALL NOT exceed 4; no call SHALL start after the abort; a refused reservation SHALL produce no call; and the run SHALL NOT throw.
+
+**Validates: Requirements 18.2, 12.6, 12.7, 12.8, 11.6, 16.7**
+
+### Property 35: The thin-concept filter keeps exactly the concepts with enough source text
+
+For any concepts and prepared document, `splitThinConcepts` SHALL keep a concept if and only if the summed word count of its distinct cited chunks is at least `MIN_CONCEPT_SOURCE_WORDS`; `kept` and `thin` together SHALL be the input, each in input order with unchanged `conceptId` values; and applying the filter to `kept` SHALL return `kept` unchanged.
+
+**Validates: Requirements 17.1**
+
+### Property 36: Sufficiency accounting matches the rooms built
+
+For any good-concept count, any `CryptTarget` and any built room count, `sufficiencyNotice` SHALL return a notice if and only if a target is present and the built count is below `target.rooms`, and the notice SHALL carry the given good-concept count and `conceptsNeeded` equal to `rooms * locksPerRoom`. For any pipeline run with a target, the number of rooms built SHALL NOT exceed `min(target.rooms, floor(goodConcepts / 2))`, and a run left with fewer than `locksPerRoom` concepts after the thin filter and spread selection SHALL end `insufficient-concepts` with zero generation and review calls.
+
+**Validates: Requirements 17.1, 17.2**
+
+### Property 37: The gates never lower a check
+
+For any scripted replies, the set of questions accepted with `sufficiency` and `conflictCheck` on SHALL be a subset of the set accepted with both off, and every question in both sets SHALL have identical Code_Check results and an identical review verdict.
+
+**Validates: Requirements 17.3**
+
+### Property 38: DISABLED_LOCK_TYPES parses to exactly the named set, and rejects anything else
+
+For any subset of the six Lock_Types written in any order, with duplicates, surrounding spaces, empty entries and any letter case, `parseDisabledLockTypes` SHALL return exactly that subset. For any string that contains an entry outside the six, it SHALL return `invalid-disabled-lock-types`, and the returned error SHALL contain no part of the input.
+
+**Validates: Requirements 25.3, 23.5**
+
+### Property 39: The effective lock-type set is all types minus the disabled ones
+
+For any disabled subset, `effectiveLockTypes` SHALL return the six types minus the subset in their original order when at least two remain, and `too-few-lock-types` otherwise; the result SHALL contain no disabled type; and `EVAL_ALLOWED_LOCK_TYPES` SHALL equal the six types whatever `DISABLED_LOCK_TYPES` holds.
+
+**Validates: Requirements 14.9, 23.5**
+
+### Property 40: A disabled type is never asked of the generator or published
+
+For any disabled subset that leaves at least two types and a scripted generator that proposes any type as primary and as alternate, the generation system prompt and response schema SHALL name no disabled type, and no question in the manifest, the content or `unplacedAccepted` SHALL have a disabled `lockType`.
+
+**Validates: Requirements 14.9, 23.5, 25.3**
+
+### Property 41: Notices round-trip, and a bundle without notices is unchanged
+
+For any `ExcludedConcept` list and `SufficiencyNotice` value, serialising them to JSON and parsing them with the bundle's notices schema SHALL produce an equal value. For any bundle without notices, the serialised completed body SHALL equal the body produced before this part, with or without `?notices=1`.
+
+**Validates: Requirements 29.2, 18.4, 17.2**
+
+## Error Handling
+
+Every new function in `packages/core` returns a typed `Result` or a closed-set value and never throws a string. Errors carry kinds and counts only: no notes, labels, quotes, prompts or model output (Requirements 11.7, 25.8).
+
+| Situation | Typed outcome | Learner-visible result |
+| --- | --- | --- |
+| Fewer than two concepts after the thin filter and selection (with a target) | `PipelineStageError` `{ kind: 'insufficient-concepts', found }`, no generation call | `not-enough-material` (existing copy; the count sentence may be added to `message`) |
+| Provisional or final assembly finds no room | `RoomAssemblyError` `empty-room` (existing) | `not-enough-material` |
+| Budget refused before a conflict call | `budget-exhausted`, run halts like the other stages | `budget-exhausted` |
+| Abort before or during the conflict stage | `cancelled`, no new call | `cancelled` |
+| One room's conflict call fails (provider error, schema failure twice) | Room unchecked, left out, counted in `conflictRoomsUnchecked` | A shorter crypt with the `cryptSetAside` or `cryptSufficiency` notice |
+| Every attempted room failed that way | `PipelineJobError` `{ kind: 'conflict-check-failed' }` | `generation-failed` (existing copy) |
+| Model-facing schema cannot be built | `schema-not-representable` with `stage: 'conflict-check'`, halts | `generation-failed` |
+| Report with no resolvable quote, self-evidence quote, or no differing number | Ignored, counted in `conflictReportsIgnored` | None |
+| `DISABLED_LOCK_TYPES` has an unknown entry | `StartupError` `invalid-disabled-lock-types` | Worker does not start; fixed text names the variable, never the value |
+| Fewer than two types would remain enabled | `StartupError` `too-few-lock-types` | Worker does not start |
+| Notices requested by a client that did not send `?notices=1` | Field omitted | Body identical to today's |
+
+`mapFailure` in `apps/worker/src/http/job-runner.ts` gets two cases: `insufficient-concepts` to `not-enough-material`, and `conflict-check-failed` falls to its existing default `generation-failed`. `JOB_FAILURE_KINDS` does not change.
+
+## Testing Strategy
+
+PBT applies to the pure core and the flag parsing (Properties 30 to 41). It does not apply to the React side, the Render environment change, or the paid re-record, which use example tests, config tests and the evaluation skill.
+
+**Property tests.** `fast-check`, at least 100 runs each, one test per property, tagged as in earlier phases:
+
+```ts
+// Feature: generation-and-evaluation, Property 31: Only a resolvable, non-self report confirms a conflict
+test.prop([conflictReplyArb, docWithRoomArb], { numRuns: 100 })('report resolution', (reply, fixture) => { ... });
+```
+
+New arbitraries in `packages/core/src/test-support/`: `numericFactArb` and `conceptWithFactsArb` (labels with case and spacing variants, quotes that contain a number and unit, chunk IDs), `conflictReplyArb` (resolvable, ambiguous, too short, not found, self-evidence, numeric with and without a differing number), `docWithRoomArb` (synthetic chunk text paired with an accepted room, the P1 pattern of generating text alongside the question so quotes can resolve), `disabledListArb` (subsets in any order with duplicates, spaces, case and empty entries), `notEnoughConceptsArb`. Properties 32, 33, 34, 36 (pipeline half), 37 and 40 use scripted providers and the mock ledger from `orchestrator-fixtures.ts` and `budget/mock-ledger.ts`, the same machinery as Properties 17 and 21. No test calls a real provider.
+
+**Fixture and example tests.**
+
+- `adv-18`: `runChecks` over the fixture reports no blocking failure (it passes Code_Checks), and the conflict stage with the synthetic reply from 1g excludes the concept and produces a notice with both passages. The counter-cases listed in 1g are asserted next to it.
+- Requirement 24.5 (a fixture rejected by an unexpected layer is a failure) is asserted for `adv-18`: it must be rejected by the conflict layer, not by Code_Checks or blind review.
+- `copy-conflict.test.ts` and an added case in `copy-banned-words.test.ts` run every Phase 6 string through the banned-phrase list, including plural forms and empty values.
+- `config.test.ts` (extended): `DISABLED_LOCK_TYPES` unset, one type, two types, an unknown entry (typed error, fixed text, value absent from the error), too few remaining; the existing assertions that `ALLOWED_LOCK_TYPES` and `EVAL_ALLOWED_LOCK_TYPES` equal the six types stay as they are. `start.test.ts` (extended): a startup with a disabled type passes the reduced list to `pipelineSettings`, and a startup with an invalid value returns the typed error without listening.
+- `evaluation/cli.test.ts` (extended): the CLI ignores `DISABLED_LOCK_TYPES`, `--conflict-check` and `--sufficiency` parse and default to off.
+- `http/server-jobs.test.ts` or a new `server-notices.test.ts`: `?notices=1` returns `notices` on a completed body that has them, omits them without the query, and a bundle without notices is byte-identical either way.
+- `result-file.test.ts` (extended): an older result file (no new fields) still parses; the new fields round-trip.
+- A boundary test addition: `lock-type-flags.ts` is the only file under `apps/worker/src` that reads `DISABLED_LOCK_TYPES`, and `packages/core/src` reads no environment variable. The existing `packages/core/src/boundary.test.ts` already forbids provider and network imports in core; it is extended to cover the new `pipeline/conflict-*.ts` files.
+
+**The existing cassette tests must keep passing, unchanged.** `e2e-pipeline.test.ts`, `e2e-cassette-digest.test.ts`, the four per-type e2e tests, the `orchestrator-*` tests, the worker server tests and the golden contract test all run with both options off (explicit pins, section 4). A digest change in any recorded cassette, or a change to the golden fixture, is a failure of this phase. The new conflict-path cassette is separate and synthetic.
+
+**CI.** No new job and no new dependency. Everything runs under the existing `pnpm test`, `pnpm lint` and `pnpm typecheck`. The paid re-record is not part of CI.
+
+## File boundaries
+
+Same as Phase 5, restated for this part:
+
+- Lock-type logic stays only in `packages/core/src/locks/<type>.ts` and `<type>-checks.ts`. This part changes none of them. The one new file in `locks/` is the cross-type `answer-statement.ts`, which sits beside the existing cross-type `judge-registry.ts` and holds no per-type rule beyond rendering a key as a line of text.
+- `packages/core` gets no AI SDK, no database, no React and no environment access. All conflict and sufficiency logic is pure or takes the `Provider` and `BudgetLedger` as arguments.
+- Environment parsing for `DISABLED_LOCK_TYPES` is only in `apps/worker/src/lock-type-flags.ts` and `config.ts`.
+- No file over about 300 lines. `conflict-prompt.ts`, `conflict-report.ts`, `conflict-check.ts` and `conflict-stage.ts` are separate for that reason. `config.ts` is about 190 lines today and moves its flag logic into `lock-type-flags.ts`.
+- **No `apps/web` change is made by this part.** The learner can see exclusions and the topic count only after the web owner changes `apps/web/src/features/generate/worker-client.ts`, `apps/web/src/features/generate/generated-crypt.ts` and `apps/web/src/features/crypt/room-screen.tsx` as described in 1f.
+- The golden contract fixture `packages/core/src/test-support/contract/job-completed.json` is not edited by this part. Its update is the owner's deliberate step (Open decision D14).
+- Paid evaluation runs only through the evaluation skill. The agent never runs `eval record`.
+- Nothing is read from `eval/holdout`, and no number in this part comes from it.
+
+## Order of work for the separate tasks step
+
+1. `LOCK_TYPES` export, `lock-type-flags.ts`, config and start wiring, config and start tests (Properties 38 to 40's parsing half). Independent of everything else.
+2. `ProviderStage` widening and its two exhaustive uses; both options added to `PipelineOptions` and pinned off in the five existing fixtures. Run the full suite before adding any behaviour.
+3. `sufficiency.ts`, the early stop and counts (Properties 35, 36, 37).
+4. `conflict-code.ts`, `answer-statement.ts`, `conflict-prompt.ts`, `conflict-report.ts` (Properties 30, 31).
+5. `conflict-check.ts`, `conflict-stage.ts`, orchestrator wiring, synthetic cassette, `adv-18` test (Properties 32 to 34, 40).
+6. Notices: core schema, worker `?notices=1`, copy file (Property 41). Hand the web owner the list in 1f and the owner the golden fixture step.
+7. Evaluation wiring (CLI flags, result-file fields). ES-1 as a free replay. The paid re-record is run by the user.

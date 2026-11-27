@@ -26,8 +26,8 @@ import {
   PROVIDER_TIMEOUT_MS,
 } from '../config';
 import type { PipelineSettings } from '../http/job-runner';
-import { makeOpenAiProvider } from '../provider/openai-provider';
 import { openCappedLedger } from './capped-ledger';
+import { evalProviderErrorText, liveEvalProvider, parseEvalProvider } from './eval-provider';
 import { makeInspector } from './inspect';
 import { evaluationPaths, isPlainJsonName } from './paths';
 import { summarise } from './report';
@@ -126,10 +126,11 @@ function loadNotes(notesDir: string, only: string | undefined): DevNote[] {
 
 const USAGE = [
   'Usage (from the repository root):',
-  '  pnpm --filter @escape-the-crypt/worker eval record --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <name.json> [--only dev-01,dev-02] [--allowed-lock-types rune-cipher,seance-board]',
-  '  pnpm --filter @escape-the-crypt/worker eval replay --model <id> [--policy default|legacy|both] [--length short|standard|long] [--inspect [seance-board|rune-cipher]] [--only ...] [--allowed-lock-types ...]',
+  '  pnpm --filter @escape-the-crypt/worker eval record [--provider openai|gemini] --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <name.json> [--only dev-01,dev-02] [--allowed-lock-types rune-cipher,seance-board]',
+  '  pnpm --filter @escape-the-crypt/worker eval replay [--provider openai|gemini] --model <id> [--policy default|legacy|both] [--length short|standard|long] [--inspect [seance-board|rune-cipher]] [--only ...] [--allowed-lock-types ...]',
   '--allowed-lock-types takes a comma-separated list of rune-cipher, seance-board, bone-ordering, bound-threads, cursed-object, combination-dial. Default: the evaluation list in config.ts. It applies to record and replay.',
-  'record reads OPENAI_API_KEY from the environment and never writes it anywhere.',
+  '--provider openai|gemini (default openai) applies to record and replay. Gemini cassettes live in cassettes/dev-gemini/<model>/, OpenAI ones in cassettes/dev/; replay reads only its own folder.',
+  'record reads OPENAI_API_KEY or GEMINI_API_KEY from the environment and never writes it anywhere.',
 ].join('\n');
 
 /** Returns the process exit code: 0 done, 2 stopped by the budget cap, 1 usage or setup error. */
@@ -151,8 +152,16 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
     io.out(USAGE);
     return 1;
   }
+  const providerChoice = parseEvalProvider(args['provider'], modelId);
+  if (!providerChoice.ok) {
+    io.out(evalProviderErrorText(providerChoice.error));
+    io.out(USAGE);
+    return 1;
+  }
+  const providerName = providerChoice.value;
   const notes = loadNotes(paths.notesDir, args['only']);
-  const cassettePath = (note: string): string => join(paths.cassettesDir, note.replace(/\.txt$/, '.json'));
+  const cassettesDir = paths.cassettesDirFor(providerName, modelId);
+  const cassettePath = (note: string): string => join(cassettesDir, note.replace(/\.txt$/, '.json'));
   const loadCassette = (note: string): CassetteFile | null => {
     const path = cassettePath(note);
     if (!existsSync(path)) return null;
@@ -180,7 +189,7 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
         live: null,
         ledger: makeMockLedger({ dailyCapUsd: 1_000_000 }),
         settings: settingsFor(modelId, prices, lockTypes.value, length),
-        providerName: 'openai',
+        providerName,
         checkVersion: CHECK_VERSION,
         policy,
         now: io.now,
@@ -201,9 +210,9 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
     io.out(USAGE);
     return 1;
   }
-  const apiKey = env['OPENAI_API_KEY'];
-  if (apiKey === undefined || apiKey.length === 0) {
-    io.out('OPENAI_API_KEY is not set in this shell. Nothing was called.');
+  const liveChoice = liveEvalProvider(providerName, env);
+  if (!liveChoice.ok) {
+    io.out(liveChoice.message);
     return 1;
   }
   const started = io.date();
@@ -224,9 +233,9 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
   }
   const budget = capped.value;
   io.out(`Budget: cap $${budget.capUsd.toFixed(2)}, spent before $${budget.spentBeforeUsd.toFixed(4)}, remaining $${budget.remainingUsd().toFixed(4)}.`);
-  const live: Provider = makeOpenAiProvider({ apiKey });
+  const live: Provider = liveChoice.value;
   const settings = settingsFor(modelId, { inputUsdPerMTok: prices.inputUsdPerMTok, outputUsdPerMTok: prices.outputUsdPerMTok }, lockTypes.value);
-  mkdirSync(paths.cassettesDir, { recursive: true });
+  mkdirSync(cassettesDir, { recursive: true });
   const run = await runDevSet({
     notes,
     loadCassette,
@@ -234,7 +243,7 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
     live,
     ledger: budget.ledger,
     settings,
-    providerName: 'openai',
+    providerName,
     checkVersion: CHECK_VERSION,
     now: io.now,
     log: io.out,
@@ -246,7 +255,7 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
     startedAt: started.toISOString(),
     finishedAt: io.date().toISOString(),
     set: 'dev',
-    provider: 'openai',
+    provider: providerName,
     modelId,
     temperature: settings.temperature,
     checkVersion: CHECK_VERSION,

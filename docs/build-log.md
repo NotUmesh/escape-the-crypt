@@ -168,3 +168,42 @@ Haunting polish checkpoint at c1ddaee (clean worktree, Node 22.23.5):
 | vitest packages/core (--maxWorkers=50%) | 1530 (177 files) | 0 | 0 | |
 | web e2e chromium, firefox, pixel (--workers=2) | 235 | 0 | 1 | skip is crypt-hotspots "door too small for placed seals"; haunting-moments 24/24 (8 per project) |
 Not yet written: haunting-axe.e2e.ts and haunting-input.e2e.ts (tasks 9.2, 9.3), and the per-moment screenshots of Checkpoint B. Still held: QuillMark and Lantern toggle in autopsy-view.tsx and final-door.tsx, and the title routed through DeskHub (Open_Decisions 1 and 2).
+
+## Task 39.4 (open points, record only)
+- Streaming a new room into a running game (Req 16.4, 22.10) remains deferred and unchanged by Phase 5.
+- The combination dial's `reveal-digit` hint stays unreachable for now: the mapper always produces `hintEffect: null` and `narrowHint` rejects any non-`null` dial hint (tasks 35.5, 35.7).
+- Test-support finding from 39.1: `buildManifest({ hintEffects: true })` in `packages/core/src/test-support/question-payloads.ts` still emits a `reveal-digit` hint for dial questions, which the schema rejects. Left as is; noted for a follow-up.
+- Fixed: the fixture now gives combination-dial questions `hint: null` (hintEffect null), other types unchanged; `buildManifest({ hintEffects: true })` over all six types passes `CryptManifestSchema` (asserted in `manifest-schema-six-types.test.ts`, workaround removed).
+
+## Task 39.5 (play panels in LOCK_PANELS, read-only check)
+Read `apps/web/src/features/crypt/lock-panel-registry.ts` as it stands; last commit touching it: 337bc6a "Lock types phase 2: register the four panels, payloadFor, panel announcer, unknown-type fallback, registry and art tests".
+- Present: bone-ordering, bound-threads, cursed-object, combination-dial
+- Missing: none
+## Task 39.6 (allow-lists widened, per type)
+Widened in this order, one type per edit, in both `DEFAULT_ALLOWED_LOCK_TYPES` (`packages/core/src/pipeline/generation-prompt.ts`) and `ALLOWED_LOCK_TYPES` (`apps/worker/src/config.ts`): bone-ordering, bound-threads, cursed-object, combination-dial. Widened: all four. Left out: none (every panel is present in `LOCK_PANELS`, see 39.5). Both lists now equal the six types in order: rune-cipher, seance-board, bone-ordering, bound-threads, cursed-object, combination-dial.
+- Release_Status gating (Req 14.9, 23.5) stays in P6; no gating code was added.
+- Tests that relied on the old two-type default now pass the explicit list `['rune-cipher', 'seance-board']`: the frozen two-type schema hash test (hash value unchanged), the bone-ordering, bound-threads, cursed-object and combination-dial "not offered by default" assertions, and the worker `HEART_SETTINGS` (pinned like `HUMAN_HEART_E2E_OPTIONS`). No cassette, digest or golden fixture was edited.
+- The worker `cli.test.ts` replay test now replays dev-01 with all six types against the re-recorded cassette (run 2026-11-27-3, gpt-5.4-mini, temperature 0.2).
+
+## Checkpoint 40 (Phase 5 final gates)
+| Gate | Result |
+| --- | --- |
+| typecheck packages/core, apps/worker, apps/web | pass, pass, pass |
+| `pnpm lint` | ESLint: 1 error left, in `apps/worker/src/provider/scratch-keywords.test.ts` (untracked scratch file, not touched). The one in `manifest-schema-six-types.test.ts` was fixed. Structure check run on its own: pass |
+| vitest core | 181 files, 1579 tests passed, 0 failed, 0 skipped |
+| vitest worker | 23 files, 255 tests passed, 0 failed, 0 skipped |
+| vitest web | 167 files, 1329 tests passed, 0 failed, 0 skipped |
+| worker build | pass |
+| web e2e (`--workers=2`) | 229 passed, 0 failed, 7 skipped |
+
+Acceptance, run 2026-11-27-3 (gpt-5.4-mini, temperature 0.2, check version 2026-11-27.5, six types, policy promoteAlternates+dedupeAnswers). 12 of 12 dev notes published a crypt. 203 live and 44 replayed calls. Spent $0.372210 of the $2.00 cap.
+| Lock type | Candidates | Code-check rejected (Check_IDs) | Review rejected (reasons) | Accepted | Placed as lead |
+| --- | --- | --- | --- | --- | --- |
+| rune-cipher | 83 | 13 (negative-question 7, answer-leak-in-prompt 5, quote-too-long 2, rune-needs-one-blank 1) | 5 (answer-mismatch 5) | 65 | 12 |
+| seance-board | 35 | 1 (quote-not-found 1) | 5 (label-mismatch 4, unknown-label 1) | 29 | 9 |
+| bone-ordering | 13 | 1 (no-explicit-sequence-marker-in-quotes 1) | 0 | 12 | 9 |
+| bound-threads | 4 | 1 (not-one-to-one 1) | 0 | 3 | 3 |
+| cursed-object | 7 | 3 (needs-category-and-outside-quotes 2, negative-question 2) | 0 | 4 | 4 |
+| combination-dial | 30 | 10 (number-not-in-quote 10; quote-not-found 1) | 1 (answer-mismatch 1) | 19 | 7 |
+
+The result file records no wrong-accepted or correct-rejected counts against gold labels, no schema-rejection count and no time to first playable room. Per-note stage timings summed: p50 10.4 s, p90 14.3 s. Replay of the new cassettes (both policies, six types) reproduces these per-type counts and writes nothing under eval/results.

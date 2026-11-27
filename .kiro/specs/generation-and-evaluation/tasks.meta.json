@@ -55,6 +55,10 @@
     "35.7 Write property tests for combination-dial": {
       "status": "passed",
       "lastRunTimestamp": 1795803521209
+    },
+    "37.2 Write property tests for six-type room assembly": {
+      "status": "passed",
+      "lastRunTimestamp": 1795808505652
     }
   },
   "executionHistory": {
@@ -2260,6 +2264,157 @@
         "executionId": "9b1292ed-7527-40ba-9664-386b156f7829",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795804263124
+      }
+    ],
+    "37.1 Add a six-type room assembly example": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808269247
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808352568
+      }
+    ],
+    "37.2 Write property tests for six-type room assembly": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808353583
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808548864
+      }
+    ],
+    "38.1 Write tests that concurrency stays at 4 and budget rules are unchanged": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808355075
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808547564
+      }
+    ],
+    "39.1 Write the six-type Manifest_Schema acceptance test": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808356101
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808550839
+      },
+      {
+        "executionId": "b3edfbf6-38fc-4714-86ae-73435af61093",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795809753194
+      },
+      {
+        "executionId": "b3edfbf6-38fc-4714-86ae-73435af61093",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795810883777
+      }
+    ],
+    "39.2 Write the Phase 5 dataset acceptance test": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808356770
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808549359
+      }
+    ],
+    "39.4 Record the streaming open point and the dial hint in the build log": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808546354
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808599114
+      }
+    ],
+    "38. Phase 5: concurrency and budget unchanged": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808547627
+      }
+    ],
+    "37. Phase 5: room assembly across six types": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808548929
+      }
+    ],
+    "39.3 Confirm the existing cassette end-to-end tests still pass": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808551855
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808601414
+      }
+    ],
+    "39.5 Check that a play panel exists for each of the four new types (read-only)": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808552647
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808600137
+      }
+    ],
+    "39.6 Widen `DEFAULT_ALLOWED_LOCK_TYPES` and the worker allow-list, per type, for types with panels": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808618443
+      },
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808926242
+      }
+    ],
+    "39. Phase 5: phase-wide acceptance": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808926304
+      }
+    ],
+    "40. Final checkpoint - Phase 5": [
+      {
+        "executionId": "7edb6547-0e06-4679-bcfe-6cbc99822b49",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795808926868
+      },
+      {
+        "executionId": "b3edfbf6-38fc-4714-86ae-73435af61093",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795809753085
       }
     ]
   }

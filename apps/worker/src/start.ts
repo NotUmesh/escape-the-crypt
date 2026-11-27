@@ -19,7 +19,8 @@ import { createServer } from './http/server';
 import type { Logger } from './http/respond';
 import { createJobStore } from './jobs/job-store';
 import { makeJsonLogger } from './logger';
-import { makeOpenAiProvider } from './provider/openai-provider';
+import { makeGeminiProvider } from './provider/gemini-provider';
+import { makeOpenAiProvider, type ProviderLogEvent } from './provider/openai-provider';
 
 export interface StartOptions {
   readonly logger?: Logger;
@@ -56,24 +57,26 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
   const logger = opts.logger ?? makeJsonLogger();
   const now = opts.now ?? Date.now;
 
+  const providerLog = (event: ProviderLogEvent): void =>
+    logger.info({
+      event: 'provider-call',
+      provider: cfg.provider,
+      stage: event.stage,
+      modelId: event.modelId,
+      elapsedMs: event.elapsedMs,
+      inputTokens: event.inputTokens,
+      outputTokens: event.outputTokens,
+      outcome: event.outcome,
+    });
+  // Switching is manual (the PROVIDER env var); there is no automatic failover between providers.
   let provider;
   try {
-    provider = makeOpenAiProvider({
-      apiKey: cfg.apiKey,
-      now,
-      logger: (event) =>
-        logger.info({
-          event: 'provider-call',
-          stage: event.stage,
-          modelId: event.modelId,
-          elapsedMs: event.elapsedMs,
-          inputTokens: event.inputTokens,
-          outputTokens: event.outputTokens,
-          outcome: event.outcome,
-        }),
-    });
+    provider =
+      cfg.provider === 'gemini'
+        ? makeGeminiProvider({ apiKey: cfg.apiKey, now, logger: providerLog })
+        : makeOpenAiProvider({ apiKey: cfg.apiKey, now, logger: providerLog });
   } catch {
-    return fail({ kind: 'missing-api-key' });
+    return fail({ kind: cfg.provider === 'gemini' ? 'missing-gemini-api-key' : 'missing-api-key' });
   }
 
   const configured = budgetConfigured(cfg);
@@ -91,7 +94,7 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
   const server = createServer({
     jobStore,
     provider,
-    providerName: 'openai',
+    providerName: cfg.provider,
     ledger,
     pipelineSettings: {
       modelId: cfg.modelId,
@@ -133,7 +136,7 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
 
   const address = server.address();
   const port = typeof address === 'object' && address !== null ? address.port : cfg.port;
-  logger.info({ event: 'startup', note: 'listening', port, budgetConfigured: configured });
+  logger.info({ event: 'startup', note: 'listening', port, provider: cfg.provider, budgetConfigured: configured });
 
   let closing: Promise<void> | undefined;
   const close = (): Promise<void> => {

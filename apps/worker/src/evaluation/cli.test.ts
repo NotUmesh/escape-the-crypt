@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { EVAL_ALLOWED_LOCK_TYPES } from '../config';
 import { main, parseAllowedLockTypes, settingsFor, type Io } from './cli';
-import { DEV_NOTES_DIR, RESULTS_DIR } from './paths';
+import { DEV_CASSETTES_DIR, DEV_GEMINI_CASSETTES_DIR, DEV_NOTES_DIR, RESULTS_DIR, evaluationPaths } from './paths';
 
 const roots: string[] = [];
 function fakeRepo(): string {
@@ -97,7 +97,7 @@ describe('evaluation CLI', () => {
       expect(await main(['replay', '--model', 'm', '--allowed-lock-types', 'rune-cipher,seance-board'], {}, fakeRepo(), io())).toBe(0);
     });
 
-    it('replay with rune-cipher,seance-board reproduces the recorded dev-01 prompt digests', async () => {
+    it('replay with all six types reproduces the recorded dev-01 prompt digests', async () => {
       const realRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
       const replay = async (extra: readonly string[]): Promise<{ promptDigests: string[]; liveCalls: number; replayedCalls: number }> => {
         const out = io();
@@ -109,11 +109,45 @@ describe('evaluation CLI', () => {
       };
       const cassette = JSON.parse(readFileSync(join(realRoot, 'packages/core/src/test-support/cassettes/dev/dev-01-vaccines.json'), 'utf8')) as { entries: { digest: string }[] };
       const recorded = new Set(cassette.entries.map((e) => e.digest));
-      const two = await replay(['--allowed-lock-types', 'rune-cipher,seance-board']);
+      const two = await replay(['--allowed-lock-types', 'rune-cipher,seance-board,bone-ordering,bound-threads,cursed-object,combination-dial']);
       expect(two.promptDigests.length).toBeGreaterThan(0);
       expect(two.promptDigests.every((d) => recorded.has(d))).toBe(true);
       expect(two.replayedCalls).toBeGreaterThan(0);
       expect(two.liveCalls).toBe(0);
+    });
+  });
+
+  describe('--provider', () => {
+    it('record with gemini reads GEMINI_API_KEY only, and calls nothing without it', async () => {
+      const root = fakeRepo();
+      const out = io();
+      expect(await main([...RECORD, '--provider', 'gemini'], { OPENAI_API_KEY: 'sk-other' }, root, out)).toBe(1);
+      expect(out.lines).toEqual(['GEMINI_API_KEY is not set in this shell. Nothing was called.']);
+      expect(existsSync(join(root, RESULTS_DIR))).toBe(false);
+    });
+
+    it('rejects an unknown provider and a Gemini model ID that is not bare', async () => {
+      const bad = io();
+      expect(await main(['replay', '--model', 'm', '--provider', 'claude'], {}, fakeRepo(), bad)).toBe(1);
+      expect(bad.lines[0]).toBe('Unknown provider "claude"; use openai or gemini. Nothing was called.');
+      const path = io();
+      expect(await main(['replay', '--model', '../dev', '--provider', 'gemini'], {}, fakeRepo(), path)).toBe(1);
+      expect(path.lines[0]).toContain('bare model ID');
+    });
+
+    it('keeps each provider and model in its own cassette folder', () => {
+      const paths = evaluationPaths('/repo');
+      expect(paths.cassettesDirFor('openai', 'gpt-5.4-mini')).toBe(join('/repo', DEV_CASSETTES_DIR));
+      expect(paths.cassettesDirFor('gemini', 'gemini-3.8-flash')).toBe(join('/repo', DEV_GEMINI_CASSETTES_DIR, 'gemini-3.8-flash'));
+    });
+
+    it('gemini replay never reads the OpenAI cassettes, even for the same model ID', async () => {
+      const realRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
+      const out = io();
+      expect(await main(['replay', '--provider', 'gemini', '--model', 'gpt-5.4-mini', '--only', 'dev-01'], {}, realRoot, out)).toBe(0);
+      const json = out.lines.find((l) => l.startsWith('{')) ?? '{}';
+      const note = (JSON.parse(json) as { notes: { ok: boolean; liveCalls: number; replayedCalls: number }[] }).notes[0];
+      expect(note).toMatchObject({ ok: false, liveCalls: 0, replayedCalls: 0 });
     });
   });
 

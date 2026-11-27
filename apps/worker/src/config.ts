@@ -1,5 +1,6 @@
 import { MAX_EXTRACTED_WORDS, type LockType } from '@escape-the-crypt/core';
 import { parseDailyBudget, worstCaseUsd, type TokenPrices } from './budget/interim-ledger';
+import { isGeminiModelId } from './provider/gemini-provider';
 
 /**
  * Pipeline constants. The design names none of these, so they are conservative choices.
@@ -9,7 +10,7 @@ export const GENERATION_TEMPERATURE = 0.2;
 export const MAX_OUTPUT_TOKENS = 4096;
 export const PROVIDER_TIMEOUT_MS = 60_000;
 export const PROVIDER_RETRY_LIMIT = 1;
-export const ALLOWED_LOCK_TYPES: readonly LockType[] = ['rune-cipher', 'seance-board'];
+export const ALLOWED_LOCK_TYPES: readonly LockType[] = ['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads', 'cursed-object', 'combination-dial'];
 /** Lock types the evaluation CLI may request. Wider than ALLOWED_LOCK_TYPES, which the learner-notes path uses. */
 export const EVAL_ALLOWED_LOCK_TYPES: readonly LockType[] = [
   'rune-cipher',
@@ -37,24 +38,39 @@ export const INPUT_TOKENS_BOUND = MAX_EXTRACTED_WORDS * TOKENS_PER_WORD_BOUND + 
 export type Env = Readonly<Record<string, string | undefined>>;
 
 export type StartupError =
+  | { readonly kind: 'invalid-provider' }
   | { readonly kind: 'missing-api-key' }
   | { readonly kind: 'missing-web-origin' }
   | { readonly kind: 'missing-model' }
+  | { readonly kind: 'missing-gemini-api-key' }
+  | { readonly kind: 'invalid-gemini-model' }
+  | { readonly kind: 'invalid-gemini-input-price' }
+  | { readonly kind: 'invalid-gemini-output-price' }
   | { readonly kind: 'invalid-port' }
   | { readonly kind: 'invalid-job-ttl' }
   | { readonly kind: 'listen-failed' };
 
 /** Fixed, value-free text for each startup error. Env values are never included. */
 export const STARTUP_ERROR_COPY: Readonly<Record<StartupError['kind'], string>> = {
+  'invalid-provider': 'PROVIDER must be openai or gemini (unset means openai)',
   'missing-api-key': 'OPENAI_API_KEY is not set',
   'missing-web-origin': 'WEB_ORIGIN is not set',
   'missing-model': 'OPENAI_MODEL is not set',
+  'missing-gemini-api-key': 'PROVIDER is gemini but GEMINI_API_KEY is not set',
+  'invalid-gemini-model': 'PROVIDER is gemini but GEMINI_MODEL is not set or is not a bare model ID such as gemini-3.8-flash',
+  'invalid-gemini-input-price': 'PROVIDER is gemini but GEMINI_PRICE_INPUT_USD_PER_MTOK is not set or is not a positive number',
+  'invalid-gemini-output-price': 'PROVIDER is gemini but GEMINI_PRICE_OUTPUT_USD_PER_MTOK is not set or is not a positive number',
   'invalid-port': 'PORT is not a valid port number',
   'invalid-job-ttl': 'JOB_TTL_MINUTES is not a positive number',
   'listen-failed': 'the HTTP server could not listen on the configured port',
 };
 
+export const PROVIDER_NAMES = ['openai', 'gemini'] as const;
+export type ProviderName = (typeof PROVIDER_NAMES)[number];
+
 export interface WorkerConfig {
+  /** From `PROVIDER`; `openai` when unset. The key, model and prices below belong to this provider. */
+  readonly provider: ProviderName;
   readonly apiKey: string;
   readonly webOrigin: string;
   readonly modelId: string;
@@ -82,13 +98,52 @@ function positiveNumber(raw: string | undefined): number | undefined {
 
 type Parsed<T> = { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: StartupError };
 
-export function readConfig(env: Env): Parsed<WorkerConfig> {
+interface ProviderSettings {
+  readonly provider: ProviderName;
+  readonly apiKey: string;
+  readonly modelId: string;
+  readonly prices: TokenPrices | undefined;
+  readonly warnings: readonly string[];
+}
+
+/**
+ * OpenAI keeps its old rules: missing prices only refuse Jobs. Gemini is a manual fallback, so
+ * every one of its four settings is checked here and a gap stops the worker at startup.
+ * The other provider's settings are not read.
+ */
+function readProviderSettings(env: Env): Parsed<ProviderSettings> {
+  const name = present(env['PROVIDER']) ?? 'openai';
+  if (name === 'gemini') {
+    const apiKey = present(env['GEMINI_API_KEY']);
+    if (apiKey === undefined) return { ok: false, error: { kind: 'missing-gemini-api-key' } };
+    const modelId = present(env['GEMINI_MODEL']);
+    if (modelId === undefined || !isGeminiModelId(modelId)) return { ok: false, error: { kind: 'invalid-gemini-model' } };
+    const input = positiveNumber(env['GEMINI_PRICE_INPUT_USD_PER_MTOK']);
+    if (input === undefined) return { ok: false, error: { kind: 'invalid-gemini-input-price' } };
+    const output = positiveNumber(env['GEMINI_PRICE_OUTPUT_USD_PER_MTOK']);
+    if (output === undefined) return { ok: false, error: { kind: 'invalid-gemini-output-price' } };
+    return { ok: true, value: { provider: 'gemini', apiKey, modelId, prices: { inputUsdPerMTok: input, outputUsdPerMTok: output }, warnings: [] } };
+  }
+  if (name !== 'openai') return { ok: false, error: { kind: 'invalid-provider' } };
   const apiKey = present(env['OPENAI_API_KEY']);
   if (apiKey === undefined) return { ok: false, error: { kind: 'missing-api-key' } };
-  const webOrigin = present(env['WEB_ORIGIN']);
-  if (webOrigin === undefined) return { ok: false, error: { kind: 'missing-web-origin' } };
   const modelId = present(env['OPENAI_MODEL']);
   if (modelId === undefined) return { ok: false, error: { kind: 'missing-model' } };
+  const input = positiveNumber(env['PRICE_INPUT_USD_PER_MTOK']);
+  const output = positiveNumber(env['PRICE_OUTPUT_USD_PER_MTOK']);
+  const warnings: string[] = [];
+  if (input === undefined) warnings.push('PRICE_INPUT_USD_PER_MTOK');
+  if (output === undefined) warnings.push('PRICE_OUTPUT_USD_PER_MTOK');
+  const prices = input !== undefined && output !== undefined ? { inputUsdPerMTok: input, outputUsdPerMTok: output } : undefined;
+  return { ok: true, value: { provider: 'openai', apiKey, modelId, prices, warnings } };
+}
+
+export function readConfig(env: Env): Parsed<WorkerConfig> {
+  const providerSettings = readProviderSettings(env);
+  if (!providerSettings.ok) return providerSettings;
+  const { provider, apiKey, modelId, prices } = providerSettings.value;
+  const webOrigin = present(env['WEB_ORIGIN']);
+  if (webOrigin === undefined) return { ok: false, error: { kind: 'missing-web-origin' } };
 
   let port = DEFAULT_PORT;
   if (present(env['PORT']) !== undefined) {
@@ -106,20 +161,14 @@ export function readConfig(env: Env): Parsed<WorkerConfig> {
     jobTtlMinutes = parsed;
   }
 
-  const warnings: string[] = [];
   const budget = parseDailyBudget(env);
   const dailyBudgetUsd = budget.ok ? budget.value : undefined;
-  if (dailyBudgetUsd === undefined) warnings.push('DAILY_BUDGET_USD');
-
-  const input = positiveNumber(env['PRICE_INPUT_USD_PER_MTOK']);
-  const output = positiveNumber(env['PRICE_OUTPUT_USD_PER_MTOK']);
-  const prices = input !== undefined && output !== undefined ? { inputUsdPerMTok: input, outputUsdPerMTok: output } : undefined;
-  if (input === undefined) warnings.push('PRICE_INPUT_USD_PER_MTOK');
-  if (output === undefined) warnings.push('PRICE_OUTPUT_USD_PER_MTOK');
+  const warnings = [...(dailyBudgetUsd === undefined ? ['DAILY_BUDGET_USD'] : []), ...providerSettings.value.warnings];
 
   return {
     ok: true,
     value: {
+      provider,
       apiKey,
       webOrigin,
       modelId,

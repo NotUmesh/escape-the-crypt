@@ -1,5 +1,5 @@
 {
-  "checkVersion": "2026-11-27.1",
+  "checkVersion": "2026-11-27.5",
   "entries": [
     {
       "digest": "90da3bcf81458e259a8f524559a4515c5f86b2841f4bf64b3e30c6259f09f933",
@@ -111,16 +111,16 @@
       }
     },
     {
-      "digest": "32775c5e9602f1067c3333698a0484c9510e79ee5e799e91b393b979b1f432c7",
+      "digest": "282ae0555121b4482c497d2856372f074f757c35a80e43ba3842fac2e65c81b7",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about what Earth's atmosphere is, and the exact phrase is short enough for a rune-cipher question.",
+          "justification": "A rune-cipher fits because the notes state a short definition that can be tested with one blank: “Earth's atmosphere is a layer of gases held in place by gravity.”",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "Earth's atmosphere is a ______.",
-            "answer": "layer of gases held in place by gravity",
+            "prompt": "Earth's atmosphere is a layer of gases held in place by ______.",
+            "answer": "gravity",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
@@ -129,127 +129,167 @@
                 "quote": "Earth's atmosphere is a layer of gases held in place by gravity."
               }
             ],
-            "explanation": "The notes directly define Earth's atmosphere with this phrase.",
-            "hint": null
+            "explanation": "The notes directly define atmosphere as being held in place by gravity.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "g",
+              "length": 7
+            }
           },
-          "alternate": null
-        },
-        "usage": {
-          "inputTokens": 1194,
-          "outputTokens": 136
-        }
-      }
-    },
-    {
-      "digest": "fc2e84c0ebaf7cdd7ece8b4cf13d81af460f615ad75456650b6c80439c1d8809",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single factual fill-in about the main gases in Earth's atmosphere, so a rune-cipher question fits best. A seance-board would be unnecessary because there is only one clear term to recall.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "Dry air is about 78 percent ______ and about 21 percent oxygen.",
-            "answer": "nitrogen",
-            "aliases": [],
-            "caseSensitive": false,
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, what percentage of dry air is oxygen?",
+            "answer": {
+              "kind": "exact",
+              "value": 21
+            },
+            "units": "percent",
             "evidence": [
               {
                 "chunkId": "chk_38f2163ec946_1",
                 "quote": "Dry air is about 78 percent nitrogen and about 21 percent oxygen."
               }
             ],
-            "explanation": "The notes directly state that dry air is about 78 percent nitrogen.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "n",
-              "length": 8
-            }
-          },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which gas makes up about 78 percent of dry air?",
-            "options": [
-              {
-                "id": "A",
-                "text": "nitrogen",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_1",
-                  "quote": "Dry air is about 78 percent nitrogen and about 21 percent oxygen."
-                }
-              },
-              {
-                "id": "B",
-                "text": "oxygen",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_1",
-                  "quote": "Dry air is about 78 percent nitrogen and about 21 percent oxygen."
-                }
-              },
-              {
-                "id": "C",
-                "text": "argon",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_1",
-                  "quote": "Argon makes up most of the remaining 1 percent."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes say dry air is about 78 percent nitrogen, while oxygen is about 21 percent and argon is most of the remaining 1 percent."
+            "explanation": "The notes state that dry air is about 21 percent oxygen."
           }
         },
         "usage": {
-          "inputTokens": 1187,
-          "outputTokens": 382
+          "inputTokens": 2724,
+          "outputTokens": 249
         }
       }
     },
     {
-      "digest": "f4857a1a51e5ecc86514355e2b7f74aa96884138da342ae55bedc74a1a824ded",
+      "digest": "ca5e443ff636a37e1a4fdb9bb0c72579ba59ad9f1f9e52380341a682d0f3974a",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes give a single factual sequence for the five atmosphere layers, so a fill-in-the-blank question fits best. A seance-board question is less suitable because the notes mainly state one complete list rather than contrasting options.",
+          "justification": "The notes support a simple fill-in-the-blank fact about a term in atmosphere composition: argon makes up most of the remaining 1 percent. A rune-cipher fits best because the answer is a short phrase stated verbatim in one sentence.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "Scientists divide the atmosphere into five layers. Starting at the ground and going up, they are the troposphere, the stratosphere, the mesosphere, the thermosphere and the ______.",
-            "answer": "exosphere",
+            "prompt": "Dry air is about 78 percent nitrogen and about 21 percent oxygen. ______ makes up most of the remaining 1 percent.",
+            "answer": "Argon",
             "aliases": [],
-            "caseSensitive": false,
+            "caseSensitive": true,
             "evidence": [
               {
-                "chunkId": "chk_38f2163ec946_2",
-                "quote": "Scientists divide the atmosphere into five layers. Starting at the ground and going up, they are the troposphere, the stratosphere, the mesosphere, the thermosphere and the exosphere."
+                "chunkId": "chk_38f2163ec946_1",
+                "quote": "Argon makes up most of the remaining 1 percent."
               }
             ],
-            "explanation": "The notes explicitly name the fifth and final atmosphere layer as the exosphere.",
+            "explanation": "The notes directly name argon as the gas that makes up most of the remaining 1 percent of dry air.",
             "hint": {
               "kind": "first-letter-and-length",
-              "firstLetter": "e",
-              "length": 9
+              "firstLetter": "A",
+              "length": 6
             }
           },
           "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, what percentage of dry air is oxygen?",
+            "answer": {
+              "kind": "exact",
+              "value": 21
+            },
+            "units": "percent",
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_1",
+                "quote": "Dry air is about 78 percent nitrogen and about 21 percent oxygen."
+              }
+            ],
+            "explanation": "The notes state that dry air is about 21 percent oxygen."
+          }
+        },
+        "usage": {
+          "inputTokens": 2717,
+          "outputTokens": 284
+        }
+      }
+    },
+    {
+      "digest": "463f0210b11edcc3fc5c9c05a9876188dc0cfb5982f130ad010c11413fd3d82e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give an explicit ordered sequence of five atmosphere layers, so a bone-ordering question fits best.",
+          "primary": {
+            "lockType": "bone-ordering",
+            "prompt": "Put the five layers of the atmosphere in order from the ground upward.",
+            "steps": [
+              "troposphere",
+              "stratosphere",
+              "mesosphere",
+              "thermosphere",
+              "exosphere"
+            ],
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_2",
+                "quote": "Scientists divide the atmosphere into five layers."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_2",
+                "quote": "Starting at the ground and going up, they are the troposphere, the stratosphere, the mesosphere, the thermosphere and the exosphere."
+              }
+            ],
+            "explanation": "The notes explicitly list the atmosphere layers in upward order from the ground."
+          },
+          "alternate": {
+            "lockType": "cursed-object",
+            "prompt": "Which item is not a layer of the atmosphere?",
+            "items": [
+              "troposphere",
+              "stratosphere",
+              "lithosphere",
+              "mesosphere"
+            ],
+            "answer": "lithosphere",
+            "categoryRule": "layers of the atmosphere",
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_2",
+                "quote": "Scientists divide the atmosphere into five layers."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_2",
+                "quote": "The lithosphere is not a layer of the atmosphere: it is the rocky outer shell of the Earth itself."
+              }
+            ],
+            "explanation": "Three items are atmosphere layers, while the lithosphere is explicitly said not to be one."
+          }
+        },
+        "usage": {
+          "inputTokens": 2740,
+          "outputTokens": 319
+        }
+      }
+    },
+    {
+      "digest": "99dcdbae1cccf724f152e6ca0f52c3d920b9f4476caacbb9ace43f4f8127df72",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single true/false-style identification: the lithosphere is explicitly not an atmosphere layer, so a seance-board question can ask which option matches that fact. A rune-cipher or ordering/pairing format is not needed.",
+          "primary": {
             "lockType": "seance-board",
-            "prompt": "According to your notes, which layer is the fifth atmosphere layer?",
+            "prompt": "According to your notes, which is the rocky outer shell of the Earth itself?",
             "options": [
               {
-                "id": "A",
-                "text": "exosphere",
+                "id": "a",
+                "text": "The lithosphere",
                 "label": "supported",
                 "evidence": {
                   "chunkId": "chk_38f2163ec946_2",
-                  "quote": "Scientists divide the atmosphere into five layers."
+                  "quote": "The lithosphere is not a layer of the atmosphere: it is the rocky outer shell of the Earth itself."
                 }
               },
               {
-                "id": "B",
-                "text": "troposphere",
+                "id": "b",
+                "text": "The troposphere",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_38f2163ec946_2",
@@ -257,102 +297,109 @@
                 }
               },
               {
-                "id": "C",
-                "text": "lithosphere",
+                "id": "c",
+                "text": "The exosphere",
                 "label": "contradicted",
                 "evidence": {
                   "chunkId": "chk_38f2163ec946_2",
-                  "quote": "The lithosphere is not a layer of the atmosphere: it is the rocky outer shell of the Earth itself."
+                  "quote": "Starting at the ground and going up, they are the troposphere, the stratosphere, the mesosphere, the thermosphere and the exosphere."
                 }
               }
             ],
-            "answer": "A",
-            "explanation": "The notes list the atmosphere layers in order and identify the exosphere as the fifth; the lithosphere is explicitly not an atmosphere layer."
-          }
-        },
-        "usage": {
-          "inputTokens": 1210,
-          "outputTokens": 451
-        }
-      }
-    },
-    {
-      "digest": "cf78e8592cdfc73d1bae153950ada8b704de340d972cc440f51c57f72cf4a4e8",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single true/false-style question about whether the lithosphere is an atmosphere layer, and they explicitly contradict the opposite claim.",
-          "primary": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which statement is supported about the lithosphere?",
-            "options": [
-              {
-                "id": "A",
-                "text": "The lithosphere is not a layer of the atmosphere.",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_2",
-                  "quote": "The lithosphere is not a layer of the atmosphere:"
-                }
-              },
-              {
-                "id": "B",
-                "text": "The lithosphere is a layer of the atmosphere.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_2",
-                  "quote": "The lithosphere is not a layer of the atmosphere:"
-                }
-              },
-              {
-                "id": "C",
-                "text": "The lithosphere is the rocky outer shell of the Earth itself.",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_2",
-                  "quote": "it is the rocky outer shell of the Earth itself."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes directly say the lithosphere is not an atmosphere layer and identify it as Earth's rocky outer shell."
+            "answer": "a",
+            "explanation": "The notes directly say the lithosphere is the rocky outer shell of the Earth itself, not an atmosphere layer."
           },
-          "alternate": null
-        },
-        "usage": {
-          "inputTokens": 1212,
-          "outputTokens": 262
-        }
-      }
-    },
-    {
-      "digest": "4c0eb7e7f5b4c67dc8694bf1503bf7d7fd8a7218972a4c898d6aea1bcb3a3a00",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about the troposphere’s temperature trend, and a rune-cipher fits because the answer is a short phrase from one sentence.",
-          "primary": {
+          "alternate": {
             "lockType": "rune-cipher",
-            "prompt": "In the troposphere, the air usually gets ______ as you go higher.",
-            "answer": "colder",
+            "prompt": "The lithosphere is not a layer of the atmosphere; it is the rocky outer shell of the Earth ______.",
+            "answer": "itself",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
-                "chunkId": "chk_38f2163ec946_4",
-                "quote": "In the troposphere, the air usually gets colder as you go higher."
+                "chunkId": "chk_38f2163ec946_2",
+                "quote": "The lithosphere is not a layer of the atmosphere: it is the rocky outer shell of the Earth itself."
               }
             ],
-            "explanation": "The notes directly state that the air usually gets colder with increasing height in the troposphere.",
+            "explanation": "The missing word is the exact term used in the notes.",
             "hint": {
               "kind": "first-letter-and-length",
-              "firstLetter": "c",
-              "length": 6
+              "firstLetter": "i",
+              "length": 7
             }
+          }
+        },
+        "usage": {
+          "inputTokens": 2742,
+          "outputTokens": 441
+        }
+      }
+    },
+    {
+      "digest": "9aea2e59fdbd4d47f4c22c388e87966f0c76a455c407bf66417a88d1e78eb076",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact: the stratosphere contains the ozone layer.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The stratosphere contains the ______.",
+            "answer": "ozone layer",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The stratosphere contains the ozone layer"
+              }
+            ],
+            "explanation": "The notes state the missing term directly in one sentence.",
+            "hint": null
           },
           "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many atmospheric layers are named in the passage?",
+            "answer": {
+              "kind": "exact",
+              "value": 4
+            },
+            "units": "layers",
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The troposphere is where almost all weather happens."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The stratosphere contains the ozone layer"
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The mesosphere is where most meteors burn up."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The thermosphere is where auroras appear"
+              }
+            ],
+            "explanation": "The passage names four layers of the atmosphere."
+          }
+        },
+        "usage": {
+          "inputTokens": 2745,
+          "outputTokens": 279
+        }
+      }
+    },
+    {
+      "digest": "4edca78e239821611d606429455af93732923c69c79858f9888039a10c40de27",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "Primary fits a seance-board question because the notes support one correct fact about the troposphere and contradict plausible alternatives; alternate fits a combination-dial question about the stated thickness.",
+          "primary": {
             "lockType": "seance-board",
             "prompt": "According to your notes, what happens in the troposphere?",
             "options": [
@@ -385,103 +432,42 @@
               }
             ],
             "answer": "a",
-            "explanation": "Only the first option matches the notes; the other two are assigned to different layers."
-          }
-        },
-        "usage": {
-          "inputTokens": 1267,
-          "outputTokens": 376
-        }
-      }
-    },
-    {
-      "digest": "b135fc3aec68de5267a2d8651b058fc19400d1449c209bec572709cbed557828",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: the stratosphere contains the ozone layer. A rune-cipher fits because the answer is a short phrase stated directly in one sentence.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "The ______ contains the ozone layer.",
-            "answer": "stratosphere",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_38f2163ec946_3",
-                "quote": "The stratosphere contains the ozone layer"
-              }
-            ],
-            "explanation": "The notes explicitly say the stratosphere contains the ozone layer.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "s",
-              "length": 11
-            }
+            "explanation": "The notes say almost all weather happens in the troposphere, while the other choices describe different layers."
           },
           "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which layer contains the ozone layer?",
-            "options": [
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, about how thick is the troposphere on average?",
+            "answer": {
+              "kind": "exact",
+              "value": 12
+            },
+            "units": "kilometres",
+            "evidence": [
               {
-                "id": "A",
-                "text": "The stratosphere contains the ozone layer.",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_3",
-                  "quote": "The stratosphere contains the ozone layer"
-                }
-              },
-              {
-                "id": "B",
-                "text": "The troposphere contains the ozone layer.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_3",
-                  "quote": "The troposphere is where almost all weather happens"
-                }
-              },
-              {
-                "id": "C",
-                "text": "The mesosphere contains the ozone layer.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_3",
-                  "quote": "The mesosphere is where most meteors burn up"
-                }
-              },
-              {
-                "id": "D",
-                "text": "The thermosphere contains the ozone layer.",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_3",
-                  "quote": "The thermosphere is where auroras appear and where the International Space Station orbits"
-                }
+                "chunkId": "chk_38f2163ec946_4",
+                "quote": "The troposphere is about 12 kilometres thick on average"
               }
             ],
-            "answer": "A",
-            "explanation": "Only the stratosphere is stated to contain the ozone layer; the other layers are described as having different roles."
+            "explanation": "The notes state the troposphere is about 12 kilometres thick on average."
           }
         },
         "usage": {
-          "inputTokens": 1215,
-          "outputTokens": 413
+          "inputTokens": 2797,
+          "outputTokens": 358
         }
       }
     },
     {
-      "digest": "0b2a29a7e1d389f01781503d3d6c815c05dae14a9a0839815f2b7e070e0b4754",
+      "digest": "38fd0dec3a64de3b2aa1ff6c9403318dad80247d205b18202f507c733c52bbea",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single factual sentence about the mesosphere, so a rune-cipher fits best. A seance-board is unnecessary because there are no competing options to distinguish.",
+          "justification": "The notes support a single fill-in-the-blank fact: the mesosphere is where most meteors burn up.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "The mesosphere is where most ______.",
-            "answer": "meteors burn up",
+            "prompt": "The mesosphere is where most ______ burn up.",
+            "answer": "meteors",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
@@ -490,28 +476,51 @@
                 "quote": "The mesosphere is where most meteors burn up."
               }
             ],
-            "explanation": "The notes directly state that most meteors burn up in the mesosphere.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "m",
-              "length": 15
-            }
+            "explanation": "The notes state the exact term that completes the sentence.",
+            "hint": null
           },
-          "alternate": null
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many layers are named in the passage?",
+            "answer": {
+              "kind": "exact",
+              "value": 4
+            },
+            "units": "layers",
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The troposphere is where almost all weather happens."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The stratosphere contains the ozone layer"
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The mesosphere is where most meteors burn up."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The thermosphere is where auroras appear"
+              }
+            ],
+            "explanation": "The passage names four atmospheric layers."
+          }
         },
         "usage": {
-          "inputTokens": 1213,
-          "outputTokens": 154
+          "inputTokens": 2743,
+          "outputTokens": 282
         }
       }
     },
     {
-      "digest": "933717d6a059c491aba4613133d3494ae9beecd9aecc6951c72109d8027beeda",
+      "digest": "42a2bba880d3637ea1acf1d8dba7302cf7fc735c4143e46b7007feb5fdae7c5b",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about the thermosphere, and the exact phrase is stated in one sentence.",
+          "justification": "The notes support a single fill-in-the-blank fact about the thermosphere, and the exact phrase is stated verbatim in one sentence.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "The thermosphere is where auroras appear and where the ______ orbits.",
@@ -526,7 +535,7 @@
                 "quote": "The thermosphere is where auroras appear and where the International Space Station orbits."
               }
             ],
-            "explanation": "The notes directly name what orbits in the thermosphere.",
+            "explanation": "The notes directly name what orbits in the thermosphere, so the missing term is the International Space Station.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "I",
@@ -534,55 +543,64 @@
             }
           },
           "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what orbits in the thermosphere?",
-            "options": [
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many layers are described in the passage?",
+            "answer": {
+              "kind": "exact",
+              "value": 4
+            },
+            "units": "layers",
+            "evidence": [
               {
-                "id": "A",
-                "text": "International Space Station",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_3",
-                  "quote": "The thermosphere is where auroras appear and where the International Space Station orbits."
-                }
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The troposphere is where almost all weather happens."
               },
               {
-                "id": "B",
-                "text": "ozone layer",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_3",
-                  "quote": "The stratosphere contains the ozone layer, which absorbs harmful ultraviolet light from the Sun."
-                }
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The stratosphere contains the ozone layer, which absorbs harmful ultraviolet light from the Sun."
               },
               {
-                "id": "C",
-                "text": "most meteors",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_3",
-                  "quote": "The mesosphere is where most meteors burn up."
-                }
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The mesosphere is where most meteors burn up."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The thermosphere is where auroras appear and where the International Space Station orbits."
               }
             ],
-            "answer": "A",
-            "explanation": "Only the International Space Station is said to orbit in the thermosphere; the other options are assigned to different layers."
+            "explanation": "The passage names four atmospheric layers: troposphere, stratosphere, mesosphere, and thermosphere."
           }
         },
         "usage": {
-          "inputTokens": 1216,
-          "outputTokens": 366
+          "inputTokens": 2746,
+          "outputTokens": 361
         }
       }
     },
     {
-      "digest": "edda66f0172182abcda63c3fa13ce58e75d2b8f11c274445b0eee4c04232ee18",
+      "digest": "2e49b064ed4cc1468d1740b15daf4123a8c15a7aa1017a3d8b82941a7e698251",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes give one clear fact about troposphere thickness, so a rune-cipher fill-in-the-blank fits best. A seance-board is unnecessary because there is only one supported term/phrase to recall.",
+          "justification": "The notes state a single numeric fact about troposphere thickness, so a combination-dial question fits best.",
           "primary": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, about how thick is the troposphere on average?",
+            "answer": {
+              "kind": "exact",
+              "value": 12
+            },
+            "units": "kilometres",
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_4",
+                "quote": "The troposphere is about 12 kilometres thick on average"
+              }
+            ],
+            "explanation": "The notes directly give the average thickness as 12 kilometres."
+          },
+          "alternate": {
             "lockType": "rune-cipher",
             "prompt": "The troposphere is about ______ thick on average.",
             "answer": "12 kilometres",
@@ -594,62 +612,27 @@
                 "quote": "The troposphere is about 12 kilometres thick on average"
               }
             ],
-            "explanation": "The notes directly state the average thickness of the troposphere.",
+            "explanation": "This exact phrase completes the sentence from the notes.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "1",
               "length": 13
             }
-          },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what is the average thickness of the troposphere?",
-            "options": [
-              {
-                "id": "A",
-                "text": "12 kilometres",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_4",
-                  "quote": "The troposphere is about 12 kilometres thick on average"
-                }
-              },
-              {
-                "id": "B",
-                "text": "12 miles",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_4",
-                  "quote": "The troposphere is about 12 kilometres thick on average"
-                }
-              },
-              {
-                "id": "C",
-                "text": "20 kilometres",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_4",
-                  "quote": "The troposphere is about 12 kilometres thick on average"
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes say the troposphere is about 12 kilometres thick on average, so that option is supported."
           }
         },
         "usage": {
-          "inputTokens": 1187,
-          "outputTokens": 361
+          "inputTokens": 2717,
+          "outputTokens": 229
         }
       }
     },
     {
-      "digest": "e66e8686c4773cfba32d11820bf2413cbdc4f36cff7245ec71a119e8c7e6bd6f",
+      "digest": "70560685eceaf6d8831e2d48f8bbd330e3892ced525960c97e273ffb9c5cd044",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "A single short fact is stated directly in the notes, so a rune-cipher fill-in-the-blank fits best.",
+          "justification": "A rune-cipher fits because the notes give one short phrase that completes a sentence on its own: the exosphere is the outermost layer and fades into space.",
           "primary": {
             "lockType": "rune-cipher",
             "prompt": "The ______ is the outermost layer, where the atmosphere gradually fades into space.",
@@ -662,168 +645,78 @@
                 "quote": "The exosphere is the outermost layer, where the atmosphere gradually fades into space."
               }
             ],
-            "explanation": "The notes explicitly name the exosphere as the outermost layer that fades into space.",
+            "explanation": "The notes directly state that the exosphere is the outermost layer and fades into space, so the missing term is exosphere.",
             "hint": {
               "kind": "first-letter-and-length",
               "firstLetter": "e",
-              "length": 9
+              "length": 10
             }
           },
-          "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, which layer is the outermost layer where the atmosphere gradually fades into space?",
-            "options": [
-              {
-                "id": "A",
-                "text": "The exosphere",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_5",
-                  "quote": "The exosphere is the outermost layer, where the atmosphere gradually fades into space."
-                }
-              },
-              {
-                "id": "B",
-                "text": "The troposphere",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_5",
-                  "quote": "The exosphere is the outermost layer, where the atmosphere gradually fades into space."
-                }
-              },
-              {
-                "id": "C",
-                "text": "The stratosphere",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_38f2163ec946_5",
-                  "quote": "The exosphere is the outermost layer, where the atmosphere gradually fades into space."
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "Only the exosphere is identified as the outermost layer fading into space."
-          }
+          "alternate": null
         },
         "usage": {
-          "inputTokens": 1169,
-          "outputTokens": 373
+          "inputTokens": 2699,
+          "outputTokens": 175
         }
       }
     },
     {
-      "digest": "4116e2413a17ab4fc04f26b327fc993cc1d1fd7ac4d8d5291f3668617aadc51b",
+      "digest": "ec6eb1d96acb61072dd47332563fe90c318cb16938d323fecead379e75600aae",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "nitrogen",
+          "answer": "gravity",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 329,
+          "inputTokens": 327,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "16c066750bff5eaf8d841d2a64ad5b8be64e6eb16a38afbef1593eb0a7610356",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "21",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 388,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "e540c0cfc86b4579a041fc1dc42aa93a96f4f851a856d616dadc09d6f22ad29e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Argon",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 340,
           "outputTokens": 17
         }
       }
     },
     {
-      "digest": "cb1ba360078c08d4ac2fd3e7ee65882b8c3f682c0d2926ffd63b6372aa7383f6",
+      "digest": "ddd39cb35f5a9d4863507085c58dd9f5635957c7a386882177bb2b189cc381c4",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "layer of gases held in place by gravity",
+          "answer": "s1,s3,s4,s5,s2",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 320,
-          "outputTokens": 23
-        }
-      }
-    },
-    {
-      "digest": "ceb4ae25bd8a3a5f900ad189e65e969258083eeadeea7c79c0aa79a3d2dbda4e",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 352,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "ce4f9cb99871f6ae49330a835dbd010ce5ff6e95ab190eaf55f562aacbda0313",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "colder",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 329,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
-      "digest": "4d807a3f4eb8b266f4f2d8de0c5e171a9328461a711032d6fd46da0fbf1eb07d",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 372,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "5e9e497b041003b2647a43d44b5fd46e759b07337048b697b6f08fe44f7b6d55",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "stratosphere",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 345,
-          "outputTokens": 18
+          "inputTokens": 458,
+          "outputTokens": 25
         }
       }
     },
@@ -856,49 +749,60 @@
       }
     },
     {
-      "digest": "ecd5af70e0525404f80a42486ac5cb2d864674454475a65783a6bc553239c149",
+      "digest": "30cc99f2d0b35df9e7eb0e2d76138e6d247a91280d0721bf65ddddd89447cf53",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "meteors burn up",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 346,
-          "outputTokens": 19
-        }
-      }
-    },
-    {
-      "digest": "de1b361dec78c70c18689c76bf63f0c5f5e1a411f7e4d94d0541eecdf7f33d95",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
+          "answer": "a",
           "optionLabels": [
             {
-              "optionId": "A",
+              "optionId": "a",
               "label": "supported"
             },
             {
-              "optionId": "B",
+              "optionId": "b",
               "label": "contradicted"
             },
             {
-              "optionId": "C",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "D",
+              "optionId": "c",
               "label": "contradicted"
             }
           ]
         },
         "usage": {
-          "inputTokens": 402,
-          "outputTokens": 58
+          "inputTokens": 378,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "1511f1bacc39773ff1109d6b834178394703876441a0c80b82f32fcf249e41ba",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "12",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 390,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "70191ea0e9ae1c33e468362ad63194f00534dc6ec468ba876b0f186445702611",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "ozone layer",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 346,
+          "outputTokens": 18
         }
       }
     },
@@ -933,34 +837,6 @@
       }
     },
     {
-      "digest": "349ddfa65cbb29d7170e823261f705807c3267a24a7cfb1e6ade582f76ef3486",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 376,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
       "digest": "102e37cb3fc3a9958a705a0dfe6532c5c86804f4c8cd80db969582c4a52fe257",
       "origin": "recorded",
       "response": {
@@ -976,58 +852,17 @@
       }
     },
     {
-      "digest": "8ba66f9163fde5e516095af314cc8f0cdeb5416459848731996d135a896c7376",
+      "digest": "eb892b7032fbec4507afaf4e90aea7ce6655ada1e382cc6727c9d787ef58697d",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
+          "answer": "meteors",
+          "optionLabels": null
         },
         "usage": {
-          "inputTokens": 355,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
-      "digest": "81d36ea9a0e2b7d8ed1400800e0e903bbfdaba267c530fe11a888a21c58301f3",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 338,
-          "outputTokens": 47
+          "inputTokens": 348,
+          "outputTokens": 17
         }
       }
     }

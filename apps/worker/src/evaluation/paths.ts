@@ -8,11 +8,20 @@ import { join } from 'node:path';
 export const RESULTS_DIR = 'eval/results';
 export const DEV_NOTES_DIR = 'eval/dev/notes';
 export const DEV_CASSETTES_DIR = 'packages/core/src/test-support/cassettes/dev';
+/**
+ * Gemini cassettes, one folder per model: `dev-gemini/<model-id>/<note>.json`. The folder records
+ * which provider and model produced them, and replay reads only the folder for its own provider
+ * and model, so providers never mix. OpenAI keeps `dev/` unchanged.
+ */
+export const DEV_GEMINI_CASSETTES_DIR = 'packages/core/src/test-support/cassettes/dev-gemini';
 
 export interface EvaluationPaths {
   readonly resultsDir: string;
   readonly notesDir: string;
+  /** The OpenAI cassette folder. */
   readonly cassettesDir: string;
+  /** Cassette folder for one provider and model. `modelId` must already be checked for Gemini. */
+  cassettesDirFor(provider: 'openai' | 'gemini', modelId: string): string;
   /** The task's budget ledger file, inside the results folder. */
   ledgerFile(name: string): string;
 }
@@ -23,6 +32,8 @@ export function evaluationPaths(repoRoot: string): EvaluationPaths {
     resultsDir: join(repoRoot, RESULTS_DIR),
     notesDir: join(repoRoot, DEV_NOTES_DIR),
     cassettesDir: join(repoRoot, DEV_CASSETTES_DIR),
+    cassettesDirFor: (provider, modelId) =>
+      provider === 'gemini' ? join(repoRoot, DEV_GEMINI_CASSETTES_DIR, modelId) : join(repoRoot, DEV_CASSETTES_DIR),
     ledgerFile: (name) => join(repoRoot, RESULTS_DIR, name),
   };
 }
