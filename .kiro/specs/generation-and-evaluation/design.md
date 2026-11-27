@@ -1479,3 +1479,690 @@ These belong to the `room-play` spec, not to `generation-and-evaluation`; they a
 9. Synthetic cassettes: `assertRecordedOnly` keeps them out of evaluation results and metrics.
 10. Idempotency after expiry: the Tombstone keeps `idempotencyKeyHash` and `requestDigest` bound to the session hash until the 24-hour sweep. A repeated POST returns the expired job with no reservation and no Provider call, a different digest is a conflict, a different session starts its own job, and after the sweep the key is forgotten (Req 29.15).
 11. `PipelineRunMetadata` is kept. It is internal, holds no user content, and serves Req 21.3 and the cassette tests.
+
+
+---
+
+# Phase 5
+
+## Scope of this part
+
+This part extends the design above with Phase 5 (Requirement 22): live generation, checks and room assembly for the four remaining Lock_Types — `bone-ordering`, `bound-threads`, `cursed-object`, `combination-dial`. It does not cover release status (P6, Requirement 23), the conflict checker or sufficiency (P6, Requirements 17–18), the final-door reservation policy (P6, Requirement 19), metrics or the Evaluation_Skill (P4, Requirement 20). The P1, P2/P3 sections above are unchanged; this part only adds new files and flips specific `implemented` flags and prompt tables that P1–P3 already named as this phase's own seam (see P1's "Later phases attach to this without changing it," and P2/P3's component 9 note "P3 has no schema arm for those types yet").
+
+**Before writing any Phase 5 code, re-read the current state of `packages/core/src/checks/` (`types.ts`, `registry.ts`, `run-checks.ts`, `evidence.ts`, `alternate.ts`, `duplicate-answers.ts`, `leak-scan.ts`).** A parallel change is landing there while this design is written (the `duplicate-answer-in-room` check, `room-assembly-select.ts`'s promotion policy, and related registry/run-checks edits were added after this document's P2/P3 part was written and are visible in the current tree but are not reflected above). This design's code samples below match that current state as read at design time; Phase 5 implementation must re-read those files immediately before editing, rather than trusting this document's snippets verbatim, because the checks package is a live target and this design does not own it.
+
+## Named seams this part uses
+
+Phase 5 code changes exactly these existing artifacts, at the seams P1–P3 already reserved for it:
+
+1. **`packages/core/src/checks/registry.ts`** — the eight `later(...)` entries for `bone-ordering`, `bound-threads`, `cursed-object`, `combination-dial` flip from `implemented: false` to `implemented: true` (Req 3.14, 22.1–22.4). No Check_ID string changes; no other entry's `implemented` value changes. `CHECK_VERSION` is bumped (Req 3.2 — "whenever the set or behaviour of Code_Checks changes").
+2. **`packages/core/src/checks/run-checks.ts`** — `isSupported` widens from `rune-cipher | seance-board` to all six Lock_Types; `visibleTextOf` gains the three remaining arms; `runChecks`'s `if (!isSupported(question))` branch is removed (it becomes unreachable once every Lock_Type has a branch, so the `UnsupportedQuestion`/`lock-type-not-supported` path is deleted along with it — nothing names a seventh Lock_Type, so this is total, not partial).
+3. **`packages/core/src/authoring/schema.ts`** — four new discriminated-union arms (`BoneOrderingAuthoringSchema`, `BoundThreadsAuthoringSchema`, `CursedObjectAuthoringSchema`, `CombinationDialAuthoringSchema`) appended to `AuthoringQuestionSchema`'s array, exactly where P1's comment already says they go ("P5 appends ... to this array").
+4. **`packages/core/src/pipeline/generation-schema.ts`** — four new generated-response arms added to `GeneratedQuestionSchema`'s union, and `toAuthoringQuestion` gains the evidence-translation branches for `steps`/`pairs`/`items`/numeric answers, mirroring the existing rune/séance branches.
+5. **`packages/core/src/pipeline/generation-prompt.ts`** — `DEFAULT_ALLOWED_LOCK_TYPES` grows to all six Lock_Types; `LOCK_RULES` gains the four "generated only when" entries.
+6. **`packages/core/src/pipeline/blind-review-prompt.ts` / `blind-review.ts`** — `citedChunks`, `buildBlindReviewUserMessage` and `decideReview`/`hasCompleteLabels` gain branches for `steps`/`pairs`/`items`/numeric answers (no change to rune-cipher or séance-board branches).
+7. **`packages/core/src/mapper/manifest-mapper.ts`** — `evidenceParagraphs`, `mapSpec` and the hint functions gain four new branches, one per type, producing `QuestionSpec.payload` shapes that already match `bone-ordering.ts`/`bound-threads.ts`/`cursed-object.ts`/`combination-dial.ts`'s existing `*Question` judge input types and `manifest-schema.ts`'s existing (but currently dead) `HintEffectSchema` kinds `lock-first-bone`, `tie-thread`, `reveal-digit`.
+8. **`packages/core/src/runtime/manifest-schema.ts`** — `payloadSchemaFor`'s `default: return null` branch gains four real schemas (`BoneOrderingPayloadSchema`, `BoundThreadsPayloadSchema`, `CursedObjectPayloadSchema`, `CombinationDialPayloadSchema`), mirroring `RuneCipherPayloadSchema`/`SeanceBoardPayloadSchema`'s shape and the judges' existing `*Question` interfaces exactly (Req 22.8).
+9. **`packages/core/src/runtime/manifest-hints.ts`** — `narrowHint` gains the four remaining `lockType` branches (it already handles `rune-cipher`/`seance-board`; the function falls through silently for every other type today because no payload schema reaches it yet — once step 8 lands, this silent fallthrough becomes reachable and must be closed per Req 22.8).
+10. **`apps/worker/src/config.ts`** — `ALLOWED_LOCK_TYPES` grows to all six, gated as described in "Reconciliation with Requirements" item (b) below.
+
+No file outside `authoring/`, `checks/`, `locks/`, `mapper/`, `pipeline/`, `runtime/manifest-schema.ts`, `runtime/manifest-hints.ts` and `apps/worker/src/config.ts` is touched. `locks/bone-ordering.ts`, `locks/bound-threads.ts`, `locks/cursed-object.ts`, `locks/combination-dial.ts` and `locks/judge-registry.ts` (the judges) are **not modified** — they already implement the six-type `Judge` contract and already consume the payload shapes this phase's mapper now produces; Phase 5 is entirely upstream of them (schema → checks → mapper → payload), consistent with the Structure rule that a judge's correctness is independent of how a question reached the manifest.
+
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph authoring["Authoring_Schema (extended)"]
+    AQ4["4 new discriminated-union arms\nbone-ordering, bound-threads, cursed-object, combination-dial"]
+  end
+  subgraph checks["Code_Check framework (extended)"]
+    REG5["8 later(...) entries flip to implemented: true"]
+    BONE["bone-ordering checks\nstep-count, duplicate-steps,\nno-explicit-sequence-marker-in-quotes"]
+    THREAD["bound-threads checks\npair-count, not-one-to-one"]
+    CURSE["cursed-object checks\nitem-count, answer-not-an-item,\nmissing-category-rule,\nneeds-category-and-outside-quotes"]
+    DIAL["combination-dial checks\nmissing-units, number-not-in-quote,\nrange-not-in-quote, template-not-allowlisted,\ntemplate-input-not-in-quote,\ntemplate-value-mismatch,\nmodel-written-expression, dial-range-prompt"]
+  end
+  subgraph pipeline["Pipeline (extended)"]
+    GP["generation-prompt.ts:\nDEFAULT_ALLOWED_LOCK_TYPES = all 6\n+4 LOCK_RULES entries"]
+    GS["generation-schema.ts:\n+4 GeneratedQuestion arms"]
+    BR["blind-review: +4 cited-chunk /\ndecideReview branches"]
+  end
+  subgraph map["Manifest_Mapper (extended)"]
+    MM5["+4 mapSpec branches\n+3 hint functions\n(lock-first-bone, tie-thread, reveal-digit)"]
+  end
+  subgraph manifest["Manifest layer (extended)"]
+    MS5["+4 payload schemas\n+4 narrowHint branches"]
+  end
+  subgraph judges["Judges (untouched)"]
+    J["bone-ordering.ts, bound-threads.ts,\ncursed-object.ts, combination-dial.ts"]
+  end
+
+  AQ4 --> REG5
+  REG5 --> BONE
+  REG5 --> THREAD
+  REG5 --> CURSE
+  REG5 --> DIAL
+  GP --> GS
+  GS --> BONE
+  GS --> THREAD
+  GS --> CURSE
+  GS --> DIAL
+  BONE --> MM5
+  THREAD --> MM5
+  CURSE --> MM5
+  DIAL --> MM5
+  MM5 --> MS5
+  BR --> GS
+  MS5 -.validates output of.-> MM5
+  MM5 -. produces payload consumed by .-> J
+```
+
+## Components and Interfaces
+
+### 1. Bone ordering: schema, checks, prompt, review, mapper
+
+**Authoring schema** (`authoring/schema.ts`), mirroring `samples/questions/human-heart.json`'s `hh-q05` shape exactly:
+
+```ts
+const StepEvidenceRefSchema = EvidenceRefSchema; // same { paragraph, quote } shape, reused
+
+const BoneOrderingAuthoringSchema = z.strictObject({
+  id: z.string().min(1),
+  conceptId: z.string().min(1),
+  role: z.enum(['primary', 'alternate']),
+  lockType: z.literal('bone-ordering'),
+  prompt: z.string().min(1),
+  steps: z.array(z.string().min(1)).min(3).max(5), // Req 22's "3 to 5 steps"; exact count re-checked by step-count
+  evidence: z.array(StepEvidenceRefSchema).min(1),
+  explanation: z.string(),
+  hint: z.strictObject({ kind: z.literal('lock-first-bone'), boneId: z.string().min(1) }).optional(),
+  note: z.string().optional(),
+});
+```
+
+- `steps` holds the **answer order itself** (the key), matching `BoneOrderingQuestion.keyOrder` in `locks/bone-ordering.ts` — there is no separate shuffled "display order" field; the runtime shuffles `itemIds` for display (an existing room-play concern, unchanged here) and the mapper assigns one `itemId` per `steps` entry.
+- `boneId` in the optional hint names one of the generated item IDs the mapper assigns (see mapper below), not a step's text — mirroring `test-support/question-payloads.ts`'s `buildPayload('bone-ordering', ...)`, which pins the hint to `keyOrder[0]`.
+
+**Checks** (`locks/bone-ordering-checks.ts`, new sibling file per Structure's `<type>-checks.ts` allowance, kept under ~300 lines):
+
+```ts
+export function checkStepCount(q: BoneOrderingAuthoringQuestion): CheckFailure[] {
+  return q.steps.length >= 3 && q.steps.length <= 5 ? [] : [{ checkId: 'step-count', questionId: q.id }];
+}
+
+export function checkDuplicateSteps(q: BoneOrderingAuthoringQuestion): CheckFailure[] {
+  const keys = q.steps.map((s) => normaliseWithMap(s).text.toLowerCase());
+  return new Set(keys).size === keys.length ? [] : [{ checkId: 'duplicate-steps', questionId: q.id }];
+}
+
+/**
+ * At least one uniquely-resolved evidence quote must carry an explicit sequence marker:
+ * numbering ("first,", "1.", "step 1") or an explicit connective (first/then/next/finally/
+ * after that/before/once). Reuses `resolvesUniquely` exactly like `checkAnswerInQuote` does
+ * for rune cipher (Req 5.8's "resolved-quotes-only" rule, extended to this type).
+ */
+const SEQUENCE_MARKER =
+  /\b(?:first|firstly|second|secondly|third|then|next|after that|afterwards|finally|lastly|before|once|starting with|begins?|starts?)\b|(?:^|\s)\d+[.)]\s|\bstep\s*\d\b/i;
+
+export function checkNoExplicitSequenceMarkerInQuotes(
+  q: BoneOrderingAuthoringQuestion,
+  context: QuoteContext,
+): CheckFailure[] {
+  const resolved = q.evidence.filter((e) => resolvesUniquely(context, e));
+  const hasMarker = resolved.some((e) => SEQUENCE_MARKER.test(e.quote));
+  return hasMarker ? [] : [{ checkId: 'no-explicit-sequence-marker-in-quotes', questionId: q.id }];
+}
+```
+
+Probed against the dev/sample corpus (see Correctness Properties/testing evidence below): every real `bone-ordering` question's evidence contains at least one quote matching `SEQUENCE_MARKER` (the corpus consistently uses "First, ... Finally, ..." phrasing), and `adv-12` (water cycle, "the cycle has no true starting point") and `adv-24`'s own evidence quotes do **not** match the marker pattern on their own — `adv-24`'s rejection is `review:step-not-in-evidence`, not a code check, so this check must not fire on it; a check against `adv-24`'s two evidence quotes ("First, it enters the right atrium." / "Finally, it is pumped...") shows the marker check **passes** `adv-24` (it has a marker) exactly as its `expectedCatch` requires, deferring that fixture to blind review as designed.
+
+**Generation prompt rule** (`pipeline/generation-prompt.ts`, appended to `LOCK_RULES`):
+
+```ts
+'bone-ordering': [
+  'bone-ordering (put 3 to 5 steps in order): use only when the notes state an explicit sequence — numbering, or first/next/then/finally-style wording.',
+  '- steps lists the 3 to 5 items in the correct order, copied or lightly paraphrased from the notes, never reordered by you after you decide the order.',
+  '- Never use this type for a cycle or a process the notes describe as having no fixed starting point.',
+  '- At least one quote must contain the words that show the order (e.g. "first", "then", "finally", or a number).',
+].join('\n'),
+```
+
+**Blind review.** `citedChunks` and `buildBlindReviewUserMessage` (`pipeline/blind-review-prompt.ts`) gain a `bone-ordering` branch: the ordinals come from `question.evidence.map(e => e.paragraph)` (same shape as rune cipher's own branch), and the user message lists `steps` **in the question's own (shuffled-for-display) item order**, each tagged with a generated item ID, exactly as the séance branch lists `options`. `ReviewResponseSchema` is unchanged (`answer`/`optionLabels`); for `bone-ordering`, `decideReview` is extended with:
+
+```ts
+if (question.lockType === 'bone-ordering') {
+  const submitted = response.answer.split(',').map((s) => s.trim());
+  const key = question.steps; // steps IS the key order (see schema note above)
+  const isKey = submitted.length === key.length && submitted.every((s, i) => s === key[i]);
+  return isKey ? { verdict: 'passed' } : reject({ kind: 'answer-mismatch' });
+}
+```
+
+`optionLabels` is `null` for bone ordering, matching rune cipher's own rule in `hasCompleteLabels` (no options to label — the reviewer answers with a comma-joined order of the item IDs shown, re-using exactly the pattern rune cipher already uses for a non-option answer). This directly satisfies Req 15.4's "answer first, then label each option or step" only where steps *are* labelled; bone ordering has no per-step supported/contradicted judgement to make (there is nothing to label — a step is simply in or out of order), so `optionLabels: null` is the correct encoding, the same way it is for rune cipher's blank-fill answer. `adv-15` ("partially ordered steps dressed as a sequence") and `adv-24` ("step not in evidence") are both `review:*` fixtures caught here: the cassette entry for each is authored so the reviewer's own best-effort order differs from the key, tripping `answer-mismatch`.
+
+**Mapper** (`mapper/manifest-mapper.ts`):
+
+```ts
+function evidenceParagraphs(question: AuthoringQuestion): readonly number[] {
+  switch (question.lockType) {
+    case 'rune-cipher': return question.evidence.map((e) => e.paragraph);
+    case 'seance-board': return question.options.map((o) => o.evidence.paragraph);
+    case 'bone-ordering':
+    case 'cursed-object':
+    case 'combination-dial': return question.evidence.map((e) => e.paragraph);
+    case 'bound-threads': return question.pairs.map((p) => p.evidence.paragraph);
+  }
+}
+
+function boneOrderingHint(
+  q: BoneOrderingAuthoringQuestion,
+  itemIds: readonly string[],
+): Extract<HintEffectSpec, { kind: 'lock-first-bone' }> {
+  return { kind: 'lock-first-bone', boneId: itemIds[0] ?? '' };
+}
+```
+
+The mapper assigns one item ID per step, deterministically, as `` `${questionId}-step-${index}` `` (an id the learner never sees directly — the content layer shows `steps[index]`'s text) — `itemIds` for the runtime's `BoneOrderingQuestion` is this generated array in the question's own authored (shuffle-ready) order, and `keyOrder` is the same array of generated IDs reordered to match `steps`' index order (identity, since `steps` already *is* the key order — so `keyOrder === itemIds` for a freshly mapped question; the runtime, not this phase, is responsible for ever presenting `itemIds` shuffled to the learner, which is an existing room-play display concern this phase does not touch). `mapSpec`'s payload branch:
+
+```ts
+if (question.lockType === 'bone-ordering') {
+  const itemIds = question.steps.map((_, i) => `${questionId}-step-${i}`);
+  return {
+    ok: true,
+    value: {
+      questionId, lockType: 'bone-ordering',
+      payload: { itemIds, keyOrder: itemIds },
+      evidenceRefs,
+      hintEffect: boneOrderingHint(question, itemIds),
+    },
+  };
+}
+```
+
+This payload shape is exactly `BoneOrderingQuestion` from `locks/bone-ordering.ts` (`{ itemIds, keyOrder }`), so the existing judge consumes it unchanged. The content layer (`mapper/build-content.ts`) gains a branch returning `options: Object.fromEntries(itemIds.map((id, i) => [id, question.steps[i]]))` so the learner-visible step text is addressable by the same generated IDs the payload uses — matching how séance already maps `optionIds` to display text, and satisfying `CryptContentEntrySchema`'s existing `options: Record<string, string>` field without a schema change.
+
+### 2. Bound threads: schema, checks, prompt, review, mapper
+
+**Authoring schema**, mirroring `hh-q07`:
+
+```ts
+const ThreadPairAuthoringSchema = z.strictObject({
+  left: z.string().min(1),
+  right: z.string().min(1),
+  evidence: EvidenceRefSchema,
+});
+
+const BoundThreadsAuthoringSchema = z.strictObject({
+  id: z.string().min(1),
+  conceptId: z.string().min(1),
+  role: z.enum(['primary', 'alternate']),
+  lockType: z.literal('bound-threads'),
+  prompt: z.string().min(1),
+  pairs: z.array(ThreadPairAuthoringSchema).min(3).max(4), // 3 to 4 pairs; exact count re-checked by pair-count
+  explanation: z.string(),
+  hint: z.strictObject({ kind: z.literal('tie-thread'), pairIndex: z.number().int().nonnegative() }).optional(),
+  note: z.string().optional(),
+});
+```
+
+- One `evidence` ref per pair (not one shared quote for the whole question), matching `hh-q07`'s real shape where each pair cites its own sentence. `hint.pairIndex` names the pair by position rather than by generated left/right IDs, since those IDs do not exist until the mapper assigns them (the same reason `boneId` above is resolved by the mapper, not authored directly) — the mapper translates `pairIndex` into the generated `ThreadPair` tuple.
+
+**Checks** (`locks/bound-threads-checks.ts`):
+
+```ts
+export function checkPairCount(q: BoundThreadsAuthoringQuestion): CheckFailure[] {
+  return q.pairs.length >= 3 && q.pairs.length <= 4 ? [] : [{ checkId: 'pair-count', questionId: q.id }];
+}
+
+/** Strict one-to-one: every left and every right value distinct, after quote/case normalisation. */
+export function checkNotOneToOne(q: BoundThreadsAuthoringQuestion): CheckFailure[] {
+  const fold = (s: string) => normaliseWithMap(s).text.toLowerCase();
+  const lefts = q.pairs.map((p) => fold(p.left));
+  const rights = q.pairs.map((p) => fold(p.right));
+  const ok = new Set(lefts).size === lefts.length && new Set(rights).size === rights.length;
+  return ok ? [] : [{ checkId: 'not-one-to-one', questionId: q.id }];
+}
+```
+
+Each pair's own `evidence` quote is separately run through `checkQuote` (component 2 of the P1 part), exactly as séance board's option evidence is — `run-checks.ts`'s `bound-threads` branch loops `question.pairs` the same way its `seance-board` branch loops `question.options`.
+
+**Generation prompt rule:**
+
+```ts
+'bound-threads': [
+  'bound-threads (connect 3 or 4 left items to 3 or 4 right items, strictly one-to-one): use only when the notes state each pairing explicitly and no left or right item is shared between pairs.',
+  '- Each pair has its own exact quote and chunk ID that states that one pairing.',
+  '- Never propose a pairing the notes only imply or that could be matched a different valid way.',
+].join('\n'),
+```
+
+**Blind review.** `citedChunks` gains a `bound-threads` branch reading `question.pairs.map(p => p.evidence.paragraph)`. `buildBlindReviewUserMessage` lists the left items and right items **separately**, each tagged with a generated ID (mirroring how séance lists options by ID), never showing which pair is correct. `decideReview`'s new branch:
+
+```ts
+if (question.lockType === 'bound-threads') {
+  // response.answer is a JSON-encoded array of [leftId, rightId] pairs, one per line or
+  // comma-joined "leftId:rightId" tokens — the prompt instructs the exact format.
+  const submitted = parseSubmittedPairs(response.answer); // returns [] on any parse problem
+  const key = normalisedPairKeys(question.pairs); // same normalise+sort pattern as bound-threads.ts's own `normalise`
+  const isKey = pairsEqual(submitted, key);
+  return isKey ? { verdict: 'passed' } : reject({ kind: 'answer-mismatch' });
+}
+```
+
+`adv-19` ("matching with an alternative valid pairing") is the `review:*` fixture this layer exists for: its cassette entry is authored so the reviewer finds a *different* internally-consistent pairing (Armstrong flew down, not walked — the notes' wording is ambiguous about who did what), which disagrees with the authored key and trips `answer-mismatch`, exactly matching `expectedCatch`. `adv-07` ("matching that is not one-to-one") is caught earlier, by the code check `not-one-to-one`, never reaching review.
+
+**Mapper:**
+
+```ts
+if (question.lockType === 'bound-threads') {
+  const leftIds = question.pairs.map((_, i) => `${questionId}-l${i}`);
+  const rightIds = question.pairs.map((_, i) => `${questionId}-r${i}`);
+  const keyPairs: ThreadPair[] = question.pairs.map((_, i) => [leftIds[i]!, rightIds[i]!]);
+  return {
+    ok: true,
+    value: {
+      questionId, lockType: 'bound-threads',
+      payload: { leftIds, rightIds, keyPairs },
+      evidenceRefs,
+      hintEffect: question.hint ? { kind: 'tie-thread', pair: keyPairs[question.hint.pairIndex] ?? keyPairs[0]! } : null,
+    },
+  };
+}
+```
+
+This is exactly `BoundThreadsQuestion` from `locks/bound-threads.ts` (`{ leftIds, rightIds, keyPairs }`), so `judge` consumes it unchanged. `build-content.ts` gains a matching branch mapping `leftIds`/`rightIds` to `pairs[i].left`/`pairs[i].right` text, the same ID-to-display-text pattern as bone ordering above.
+
+### 3. Cursed object: schema, checks, prompt, review, mapper
+
+**Authoring schema**, mirroring `hh-q09`:
+
+```ts
+const CursedObjectAuthoringSchema = z.strictObject({
+  id: z.string().min(1),
+  conceptId: z.string().min(1),
+  role: z.enum(['primary', 'alternate']),
+  lockType: z.literal('cursed-object'),
+  prompt: z.string().min(1), // the "which one is not" framing; exempted from negative-question (Req 4.9)
+  items: z.array(z.string().min(1)).length(4), // exactly 4; re-checked by item-count for a named Check_ID
+  answer: z.string().min(1), // must equal one of `items` verbatim
+  categoryRule: z.string().min(1), // e.g. "The heart's four chambers are..."
+  evidence: z.array(EvidenceRefSchema).min(1),
+  explanation: z.string(),
+  note: z.string().optional(),
+});
+```
+
+- No `hint` field: cursed object's only hint kind, `remove-option`, is decided in code from `items`/`answer` the same way séance's `remove-option` hint is decided in code from `options`/`answer` (component 1's `seanceHint`) — not authored, matching the existing P1 rule "the Manifest_Mapper decides the ... hint in code."
+- `categoryRule` is a free-text field, not validated for content beyond non-empty (like `note`); its purpose is read by the Code_Checks (next) and by the prompt, never by the judge.
+
+**Checks** (`locks/cursed-object-checks.ts`):
+
+```ts
+export function checkItemCount(q: CursedObjectAuthoringQuestion): CheckFailure[] {
+  return q.items.length === 4 ? [] : [{ checkId: 'item-count', questionId: q.id }];
+}
+
+export function checkAnswerNotAnItem(q: CursedObjectAuthoringQuestion): CheckFailure[] {
+  return q.items.includes(q.answer) ? [] : [{ checkId: 'answer-not-an-item', questionId: q.id }];
+}
+
+/** categoryRule must be non-trivial prose, not an empty or placeholder string (schema already guards non-empty; this guards the "explicit category" requirement defensively for raw pre-schema reuse, mirroring seance-board-checks.ts's own defensive checks). */
+export function checkMissingCategoryRule(q: CursedObjectAuthoringQuestion): CheckFailure[] {
+  return q.categoryRule.trim().length >= 10 ? [] : [{ checkId: 'missing-category-rule', questionId: q.id }];
+}
+
+/**
+ * At least one uniquely-resolved quote must name the category (any of the three non-odd items,
+ * or the categoryRule's own wording) AND at least one uniquely-resolved quote must place the
+ * odd item explicitly outside the category (a negation marker near the odd item's text, or a
+ * quote that is itself about the odd item using an excluding phrase: "is not a", "unlike", etc).
+ * Reuses the same resolved-quotes-only rule as bone ordering's sequence-marker check.
+ */
+const OUTSIDE_MARKER = /\b(?:not|isn't|aren't|doesn't|unlike|rather than|outside|instead)\b/i;
+
+export function checkNeedsCategoryAndOutsideQuotes(
+  q: CursedObjectAuthoringQuestion,
+  context: QuoteContext,
+): CheckFailure[] {
+  const resolved = q.evidence.filter((e) => resolvesUniquely(context, e));
+  const others = q.items.filter((i) => i !== q.answer).map((i) => i.toLowerCase());
+  const hasCategoryQuote = resolved.some((e) =>
+    others.some((o) => e.quote.toLowerCase().includes(o)) ||
+    e.quote.toLowerCase().includes(q.categoryRule.toLowerCase().slice(0, 20)),
+  );
+  const hasOutsideQuote = resolved.some(
+    (e) => e.quote.toLowerCase().includes(q.answer.toLowerCase()) && OUTSIDE_MARKER.test(e.quote),
+  );
+  return hasCategoryQuote && hasOutsideQuote
+    ? []
+    : [{ checkId: 'needs-category-and-outside-quotes', questionId: q.id }];
+}
+```
+
+Probed against the dev/sample corpus: every real `cursed-object` question's evidence has exactly 2 quotes, one naming a category member and one excluding the odd item with a `not`/similar marker — `hh-q09`'s own evidence (`"The two upper chambers are the right atrium and the left atrium."` / `"The aorta is not a chamber of the heart"`) passes both halves. `adv-27` ("altar with three objects") fails `item-count` before this check runs. `adv-20` ("odd one out not named in the notes" — Moths is never explicitly excluded, only Grasshoppers is) is the fixture this check's "outside" half is aimed at **in spirit**, but per its `expectedCatch` of `review:odd-item-not-explicitly-outside`, it is deliberately authored to still pass the code check (its evidence happens to mention "Moths" in a quote that is not itself exclusionary, so a naive substring check could over-fire) — the code check is intentionally conservative (it only requires *some* outside-marker quote mentioning the answer, which `adv-20`'s wording about Grasshoppers, not Moths, does not satisfy either) — **this is flagged as a borderline case**: see "Reconciliation with Requirements" item (c) below for a precise statement of what passes and what the fixture actually tests, since getting this exactly right against the live `adv-20` fixture needs one targeted unit test with the fixture's real text, which Phase 5 implementation must write before trusting this draft check body.
+
+**Generation prompt rule:**
+
+```ts
+'cursed-object': [
+  'cursed-object ("three of these are X. Which one is not?", with exactly 4 items): use only when the notes state the category explicitly and state, explicitly, that the odd item is outside it.',
+  '- categoryRule states the shared category in one sentence, drawn from the notes.',
+  '- answer is copied exactly from items. The prompt itself is the one allowed negative framing for this type.',
+  '- Never choose an odd item the notes only leave unmentioned; the notes must explicitly exclude it.',
+].join('\n'),
+```
+
+**Blind review.** `citedChunks` reads `question.evidence.map(e => e.paragraph)` (a question-level evidence list, like rune cipher, not per-item). `buildBlindReviewUserMessage` lists the four `items`, each tagged with a generated ID, with the category deliberately **not** stated (the reviewer must infer it from the notes, same as a real learner). `decideReview`'s new branch reuses the séance pattern: the reviewer answers with the id of the item it believes is excluded, and labels every item `supported` (in-category) or `contradicted` (the odd one) — reusing the *same* `supported`/`contradicted`/`unknown` enum and the *same* rejection rule as séance (`label-mismatch` if the answered item is not labelled `contradicted` or any other item is not `supported`), because a cursed-object question is structurally "find the one `contradicted` option among `supported` ones," the mirror image of séance's "find the one `supported` option." `adv-20` is caught here (`review:odd-item-not-explicitly-outside`): the cassette's reviewer labels "Moths" `unknown` (the notes do not explicitly exclude it), tripping the existing `unknown-label` rejection path unchanged.
+
+**Mapper:**
+
+```ts
+if (question.lockType === 'cursed-object') {
+  const optionIds = question.items.map((_, i) => `${questionId}-o${i}`);
+  const oddIndex = question.items.indexOf(question.answer);
+  const oddOneOutId = optionIds[oddIndex] ?? optionIds[0]!;
+  const removable = optionIds.find((id) => id !== oddOneOutId) ?? optionIds[0]!;
+  return {
+    ok: true,
+    value: {
+      questionId, lockType: 'cursed-object',
+      payload: { optionIds, oddOneOutId },
+      evidenceRefs,
+      hintEffect: { kind: 'remove-option', optionId: removable },
+    },
+  };
+}
+```
+
+Exactly `CursedObjectQuestion` from `locks/cursed-object.ts` (`{ optionIds, oddOneOutId }`). The hint removes one non-odd item in code, matching `test-support/question-payloads.ts`'s own `buildPayload('cursed-object', ...)` pattern (`removable = optionIds.find(o => o !== keyId)`).
+
+### 4. Combination dial: schema, checks, prompt, review, mapper
+
+**Authoring schema**, mirroring `hh-q10`/`hh-q11`/`d06-q07`/`d07-q06`:
+
+```ts
+const AllowlistedTemplateSchema = z.enum(['difference', 'percent-change']);
+
+const DialAnswerSchema = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('exact'), value: z.number() }),
+  z.strictObject({ kind: z.literal('range'), min: z.number(), max: z.number() }),
+  z.strictObject({
+    kind: z.literal('template'),
+    template: AllowlistedTemplateSchema,
+    inputs: z.array(z.number()).length(2), // both templates here take exactly two inputs
+    value: z.number(), // computed by code at generation time (component below); never trusted from the model alone
+  }),
+]);
+
+const CombinationDialAuthoringSchema = z.strictObject({
+  id: z.string().min(1),
+  conceptId: z.string().min(1),
+  role: z.enum(['primary', 'alternate']),
+  lockType: z.literal('combination-dial'),
+  prompt: z.string().min(1),
+  answer: DialAnswerSchema,
+  units: z.string().min(1), // "(no units)" is itself a valid literal string, matching the dev corpus
+  evidence: z.array(EvidenceRefSchema).min(1),
+  explanation: z.string(),
+  note: z.string().optional(),
+});
+```
+
+- No `expression` field exists anywhere in this schema (Req 14.10, 22.6): `z.strictObject` on the `template` arm rejects an unknown key like the adversarial `elasticity` fixture's `expression` field outright, at the schema layer, before any Code_Check runs — this is a second, structural line of defense behind `model-written-expression` (see checks below), matching the project's general pattern of "schema makes the invalid state unrepresentable where it can."
+- `value`/`min`/`max` are **copied numbers**, never formulas; the schema cannot express a formula (no string-typed arithmetic field exists).
+
+**Checks** (`locks/combination-dial-checks.ts`, the longest of the four — kept under ~300 lines by splitting template logic into a short pure helper the file imports from `locks/combination-dial-templates.ts`):
+
+```ts
+// locks/combination-dial-templates.ts — the two-entry template allowlist, computed in code only.
+export const ALLOWED_TEMPLATES = ['difference', 'percent-change'] as const;
+
+export function computeTemplate(template: 'difference' | 'percent-change', inputs: readonly number[]): number | null {
+  const [a, b] = inputs;
+  if (a === undefined || b === undefined) return null;
+  if (template === 'difference') return a - b;
+  if (a === 0) return null; // percent-change from zero is undefined; code rejects, never divides by zero
+  return ((b - a) / a) * 100;
+}
+```
+
+```ts
+// locks/combination-dial-checks.ts
+export function checkMissingUnits(q: CombinationDialAuthoringQuestion): CheckFailure[] {
+  return q.units.trim() !== '' ? [] : [{ checkId: 'missing-units', questionId: q.id }];
+}
+
+/** Every stated number (exact value, or range's min and max) must appear verbatim in a resolved quote. */
+export function checkNumberNotInQuote(q: CombinationDialAuthoringQuestion, context: QuoteContext): CheckFailure[] {
+  if (q.answer.kind === 'template') return []; // template inputs are checked separately below
+  const resolved = q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
+  const needed = q.answer.kind === 'exact' ? [q.answer.value] : [q.answer.min, q.answer.max];
+  const missing = needed.filter((n) => !resolved.some((quote) => numberAppearsVerbatim(quote, n)));
+  return missing.length === 0 ? [] : [{ checkId: 'number-not-in-quote', questionId: q.id }];
+}
+
+/** Req 22.7: a range answer's prompt must ask for one value ("about how many", "give a value"), not "give both endpoints" or similarly plural phrasing. */
+const RANGE_PLURAL_PROMPT = /\b(?:both|two values?|the range|minimum and maximum|lower and upper)\b/i;
+export function checkDialRangePrompt(q: CombinationDialAuthoringQuestion): CheckFailure[] {
+  if (q.answer.kind !== 'range') return [];
+  return RANGE_PLURAL_PROMPT.test(q.prompt) ? [{ checkId: 'dial-range-prompt', questionId: q.id }] : [];
+}
+
+export function checkRangeNotInQuote(q: CombinationDialAuthoringQuestion, context: QuoteContext): CheckFailure[] {
+  // Subsumed by checkNumberNotInQuote's range branch above when both endpoints are checked;
+  // kept as its own Check_ID per Req 3.5's registry list, firing on the same condition the
+  // range half of checkNumberNotInQuote detects, so the two never disagree on a given question.
+  if (q.answer.kind !== 'range') return [];
+  const resolved = q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
+  const ok = resolved.some((quote) => numberAppearsVerbatim(quote, q.answer.min) && numberAppearsVerbatim(quote, q.answer.max));
+  return ok ? [] : [{ checkId: 'range-not-in-quote', questionId: q.id }];
+}
+
+export function checkTemplateNotAllowlisted(q: CombinationDialAuthoringQuestion): CheckFailure[] {
+  if (q.answer.kind !== 'template') return [];
+  return ALLOWED_TEMPLATES.includes(q.answer.template) ? [] : [{ checkId: 'template-not-allowlisted', questionId: q.id }];
+}
+
+export function checkTemplateInputNotInQuote(q: CombinationDialAuthoringQuestion, context: QuoteContext): CheckFailure[] {
+  if (q.answer.kind !== 'template') return [];
+  const resolved = q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
+  const missing = q.answer.inputs.filter((n) => !resolved.some((quote) => numberAppearsVerbatim(quote, n)));
+  return missing.length === 0 ? [] : [{ checkId: 'template-input-not-in-quote', questionId: q.id }];
+}
+
+export function checkTemplateValueMismatch(q: CombinationDialAuthoringQuestion): CheckFailure[] {
+  if (q.answer.kind !== 'template') return [];
+  if (!ALLOWED_TEMPLATES.includes(q.answer.template)) return []; // template-not-allowlisted already covers this case
+  const computed = computeTemplate(q.answer.template, q.answer.inputs);
+  return computed !== null && Math.abs(computed - q.answer.value) < 1e-9
+    ? []
+    : [{ checkId: 'template-value-mismatch', questionId: q.id }];
+}
+
+/** Req 14.10/22.6: the authoring JSON for this type has no field that could carry an expression
+ * (no `expression`/`formula`/arbitrary-string-math field exists in CombinationDialAuthoringSchema),
+ * so this check is a defensive scan over the raw, pre-schema input only — the same reuse pattern
+ * seance-board-checks.ts's `option-not-supported-or-contradicted` already documents (run against
+ * raw model JSON before the strict schema would have already stripped the field as an unknown key). */
+export function checkModelWrittenExpression(raw: unknown, questionId: string): CheckFailure[] {
+  const hasExpressionField = isRecord(raw) && isRecord(raw['answer']) && 'expression' in raw['answer'];
+  return hasExpressionField ? [{ checkId: 'model-written-expression', questionId }] : [];
+}
+```
+
+`numberAppearsVerbatim(quote, n)` normalises thousands separators (`150,000` vs `150000`) and tolerates a written-out number word matching `test-support/question-payloads.ts`'s existing number-formatting conventions, reusing the same word-to-digit table the probe script above used to confirm every dev/sample dial question's numbers appear verbatim in their quotes (`d02-q05`: 97; `d07-q06`: 150000 and 450000 with thousands separators; `d06-q07`/`d10-q05`: template inputs 100/80 and 10/2, both present verbatim).
+
+Probed against the adversarial fixtures: `adv-08` ("model-written maths... `expression` field") fails `template-not-allowlisted` first (its `template: 'elasticity'` is not in `ALLOWED_TEMPLATES`) and *also* carries an `expression` key, which `checkModelWrittenExpression` would independently flag if ever asked to validate that one field in isolation — per the fixture's own `expectedCatch: code:template-not-allowlisted`, the test only asserts the one named Check_ID fires (consistent with how `runFixture` in `phase1-acceptance.test.ts` checks for exact equality against `[expectedCatch]`), so `checkTemplateNotAllowlisted` must run before (or its failure must not be masked by) `checkModelWrittenExpression`; `adv-09` ("number not stated in the source" — 96.5 vs the quote's 97) fails `number-not-in-quote` (96.5 does not appear verbatim, even after rounding, matching the fixture's intent that a real-world figure differing from the source value must be caught); `adv-28` ("allowlisted template, wrong value" — percent-change computed as −25 when the correct value is +20 from `difference`, or a mismatched arithmetic result for `percent-change`) fails `template-value-mismatch`, since `computeTemplate('percent-change', [100, 80])` returns `-20`, not `-25` — confirming the check function's arithmetic must exactly match the fixture's own expected rejection, which Phase 5's unit test must pin with this literal fixture.
+
+**Generation prompt rule:**
+
+```ts
+'combination-dial': [
+  'combination-dial (a number the learner types in): use only when the notes state a number verbatim, with its unit, or when two numbers in the notes can be combined with one of exactly two fixed templates: difference(a, b) or percent-change(from, to).',
+  '- For a stated number: answer.kind is "exact" (one value) or "range" (the notes give a span); value or min/max must be copied exactly from a quote. units is the unit stated in the notes, or "(no units)".',
+  '- For a computed number: answer.kind is "template", template is exactly "difference" or "percent-change", inputs are the two numbers copied from a quote, and value is the correctly computed result. Never propose any other template name. Never write a formula or an expression; use only the two allowed template names.',
+  '- If the prompt asks for a range answer, ask for one value in the range, never for both endpoints.',
+].join('\n'),
+```
+
+- This is the one Lock_Type where the model is asked to compute a number (`value` on the `template` arm) — Req 14.10/22.6 ("the model SHALL NOT compute numbers" / "code, not the model, computes") is satisfied because `checkTemplateValueMismatch` **re-computes the same value in code and rejects any mismatch**; the model's `value` is advisory exactly the way a proposed Lock_Type is advisory (G3, "code can veto, never upgrade") — a correct computation passes, an incorrect one is rejected outright, and nothing downstream (mapper, judge) ever trusts the model's arithmetic without this check having already run as a blocking Code_Check ahead of it. The `exact`/`range` arms ask for no computation at all, only copying.
+
+**Blind review.** `citedChunks` reads `question.evidence.map(e => e.paragraph)`. `buildBlindReviewUserMessage` shows the prompt and units, never the answer. `decideReview`'s new branch:
+
+```ts
+if (question.lockType === 'combination-dial') {
+  const guess = parseReviewerNumber(response.answer); // same tenths-based parse as the judge, reused from combination-dial.ts's parseTenths pattern (exported for reuse)
+  if (guess === null) return reject({ kind: 'answer-mismatch' });
+  const correct =
+    question.answer.kind === 'exact' ? guess === question.answer.value :
+    question.answer.kind === 'range' ? guess >= question.answer.min && guess <= question.answer.max :
+    guess === question.answer.value; // template: the reviewer is given no inputs, only the prompt and notes — see reconciliation (d) below for why this is the weakest of the four review branches
+  return correct ? { verdict: 'passed' } : reject({ kind: 'answer-mismatch' });
+}
+```
+
+`adv-21` ("a stated range collapsed into one exact number" — platelets live "7 to 10 days," authored as `exact: 7`) is caught here: `checkNumberNotInQuote` passes (7 does appear verbatim), so this is a `review:*` fixture by design; the reviewer, shown only the quote and no key, is expected to answer anywhere in 7–10 and the cassette is authored with a reviewer answer that is a value in range but not exactly 7 (e.g. 9), tripping `answer-mismatch` against the authored exact key of 7 — demonstrating the range-vs-exact mistake without any new check, exactly as the fixture's note describes ("8, 9 and 10 would be marked wrong"). `adv-22` ("number taken from the right sentence but the wrong unit" — 21.5 kilograms misused as hours) is caught the same way: the reviewer, given the question's stated `units: "hours"` and the actual cited quote (which is about kilograms), cannot find a sentence about hours matching 21.5 and answers the real ~2.5-hour figure from elsewhere in the notes, disagreeing with the authored key.
+
+**Mapper:**
+
+```ts
+if (question.lockType === 'combination-dial') {
+  const a = question.answer;
+  const payload: CombinationDialQuestion =
+    a.kind === 'exact' ? { kind: 'exact', exactValue: a.value, unit: question.units } :
+    a.kind === 'range' ? { kind: 'range', min: a.min, max: a.max, unit: question.units } :
+    { kind: 'exact', exactValue: a.value, unit: question.units }; // a correctly-checked template collapses to its computed value; `tolerance` is not authored in P5 (no fixture or prompt rule asks for it)
+  return {
+    ok: true,
+    value: { questionId, lockType: 'combination-dial', payload, evidenceRefs, hintEffect: null },
+  };
+}
+```
+
+`hintEffect: null` here is a **deliberate decision, not an oversight**: `test-support/question-payloads.ts`'s own `buildPayload('combination-dial', ...)` pairs this type with a `reveal-digit` hint, and `types.ts`'s `HintEffectSpec` already has a `reveal-digit` kind with a `position` field — but no authoring field, prompt rule, or check above ever produces a `position` value tied to the actual answer's digit structure, and `locks/combination-dial.ts`'s own judge comment states plainly "Hints do not affect this lock type." Given the judge already documents hints as inert for this type, mapping `hintEffect` to `null` is the correct, simplest choice; a future phase that wants a working `reveal-digit` hint for the dial would need to add a digit-revealing judge behaviour first, which is explicitly out of this phase's scope and not requested by Requirement 22. This is recorded as a decision below rather than left ambiguous.
+
+`CombinationDialQuestion`'s existing `tolerance` kind is unused by Phase 5 — no authoring field, prompt rule, or dev/sample fixture asks for it, and Requirement 22 never mentions a tolerance band, so the mapper never produces it. This matches the "generate a type only when the notes support it" rule: `tolerance` already exists for a future Lock_Type refinement, not for this phase.
+
+### 5. Room assembly: no change needed, confirmed by code reading
+
+`room-assembly-select.ts`'s `selectSlots` and `room-assembly.ts`'s `assembleRoom` are already lock-type-generic — `typeOf`, `taken: Set<LockType>`, and `toLockSlot`'s `stationType = slot.lead.mapped.spec.lockType` all read `LockType`/`QuestionSpec.lockType` without a rune/séance-specific branch anywhere in either file (confirmed by the full read above: neither file contains a `switch` or `if` keyed on a specific `lockType` string). "At most one lock of each type per room" (Req 16.1, already satisfied structurally by `RoomSpecSchema`'s `Set(...).size === lockSlots.length` refinement) and "alternates keep a different type from their primary" (`LockSlotSpecSchema`'s own refinement, plus `selectSlots`'s `usable = concept.alternate.lockType !== primary.question.lockType` check) already hold for all six types once `mapCandidate` can map all six — **no code change to `pipeline/room-assembly.ts` or `pipeline/room-assembly-select.ts` is needed for Phase 5**, only `generation-prompt.ts`'s `DEFAULT_ALLOWED_LOCK_TYPES` (named seam 5 above) needs to grow, so that `generateForConcept` actually proposes the four new types for assembly to place. Concurrency (`runWithConcurrency(..., 4)`, unchanged) and the budget rules (`callWithBudget`, unchanged — no new reservation behaviour, confirmed: no new ledger method or reservation-sizing logic is introduced by any component above) are untouched, matching the brief's "Concurrency stays at 4; the budget rules do not change."
+
+### 6. The streaming-later-rooms open point (Req 22.10)
+
+Recorded, not solved: streaming a new room into a running game remains the same open point P1 and P2/P3 already named ("Streaming a new room into a running game (Req 16.4, 22.10) — explicitly deferred past this spec"). Phase 5 generates more Lock_Types for the same single pre-run one-room crypt Phase 3 already builds; it does not change when or how rooms are published, so this point carries forward unchanged into whichever later spec picks up multi-room or mid-run generation.
+
+## Reconciliation with Requirements
+
+This subsection lists where the brief's instructions and the existing Requirement 22/14/3 text (and the current code) differ, overlap ambiguously, or are silent. Nothing in `requirements.md` is edited to resolve these; they are recorded here for the user to confirm.
+
+**(a) Combination dial "reuses answer-not-in-quote."** The brief's wording ("Code checks it (reuse the existing answer-not-in-quote logic/idea)") is reused only as an **idea** — the actual Check_ID used is `number-not-in-quote` (and, for a range, also `range-not-in-quote`), both already named in Req 3.5 and Req 22.4, and both already registered with `implemented: false` in the current `checks/registry.ts` (read directly above: `later('number-not-in-quote', 'combination-dial')`, `later('range-not-in-quote', 'combination-dial')`). `answer-not-in-quote` itself is scoped to `['rune-cipher']` only in the current registry and is never reused verbatim for the dial — its *logic* (checking that a stated value appears in a resolved quote, via `resolvesUniquely`/`checkQuote`'s same resolved-quotes-only rule) is what `checkNumberNotInQuote` borrows, matching component 4 above. This is not a conflict with Req 22.4 — it is simply a terminology clarification: the brief's "reuse" is architectural reuse of a pattern, not reuse of the Check_ID string, and the design above follows the requirement's literal Check_ID list, not the brief's shorthand.
+
+**(b) Interaction between `DEFAULT_ALLOWED_LOCK_TYPES` and Release_Status (Req 14.9, 23.5) — flagged as a decision needed from the user.** Req 14.9 states a Lock_Type whose Release_Status is `samples-only` must never be asked of the Generator for learner notes; Req 23 (P6) is where Release_Status itself is computed, configured and enforced, and does not exist yet — there is no `Release_Status` field, type or configuration value anywhere in the current codebase (confirmed: no match for `Release_Status`/`ReleaseStatus`/`samples-only` outside `requirements.md`, `design.md`'s own glossary line, and `tasks.md`). If Phase 5 widens `DEFAULT_ALLOWED_LOCK_TYPES` (named seam 5, and `apps/worker/src/config.ts`'s `ALLOWED_LOCK_TYPES`, named seam 10) to all six types **before** P6 ships Release_Status, every learner's generated crypt could immediately receive bone-ordering/bound-threads/cursed-object/combination-dial questions with no release gate at all — which is exactly the state Req 14.9/23.5 says must not happen for a type that later turns out to be `samples-only`. The requirements text is **silent** on sequencing: Requirement 22 (P5) says only "WHEN P5 is complete, THE Code_Checks SHALL pass every Dev_Set and Sample_Set question" (22.9) and says nothing about whether P5's own `DEFAULT_ALLOWED_LOCK_TYPES` change should happen before or after P6 lands a real gate. Two options, neither chosen by this design without the user's input:
+  - **Option 1 (ungated):** widen `DEFAULT_ALLOWED_LOCK_TYPES`/`ALLOWED_LOCK_TYPES` to all six now, accepting that every type is "provisionally released" until P6 adds the real Release_Status gate — consistent with the fact that Code_Checks, blind review and room assembly are themselves the quality gate for *this* phase, and Req 23's Dev_Set rating process is a separate, later measurement of how well that gate performed in practice, not a precondition for shipping the checks at all.
+  - **Option 2 (gated):** keep `DEFAULT_ALLOWED_LOCK_TYPES`/`ALLOWED_LOCK_TYPES` at `['rune-cipher', 'seance-board']` through the end of P5, and defer the widening itself to P6, bundled with the Release_Status work, so the two "generator may propose this type" signals (the allow-list and Release_Status) land together and the allow-list is never briefly wider than Release_Status would permit.
+
+  This design's components above are written to make Option 1 the default (Req 22's own acceptance criteria 22.1–22.9 are otherwise fully satisfied either way, since they are about Code_Checks and the Manifest_Schema, not about what the pipeline chooses to request), but flags this explicitly: **the user should confirm which option P5's implementation should take** before `generation-prompt.ts`'s `DEFAULT_ALLOWED_LOCK_TYPES` or `apps/worker/src/config.ts`'s `ALLOWED_LOCK_TYPES` is actually edited.
+
+**(c) Per-type counts vs. existing Check_IDs and judge/mapper shapes.** The brief's stated counts (bone ordering 3–5 steps, bound threads 3–4 pairs, cursed object 4 items) match the dev/sample corpus exactly (confirmed by the probe script above: bone-ordering steps are 4 or 5 across the corpus — never 3, though the schema allows 3 per the brief's stated floor; bound-threads pairs are 3 or 4; cursed-object items are always exactly 4) and match the registered Check_IDs' names (`step-count`, `pair-count`, `item-count`) one-to-one — there is no mismatch to reconcile for the count checks themselves. Two narrower points the user should be aware of:
+  - `checkNeedsCategoryAndOutsideQuotes` (component 3) is, by the design's own admission above, a conservative heuristic that may not perfectly separate `adv-20`'s "the odd item is never explicitly excluded" case from a true positive on the first pass — Phase 5 implementation must write the fixture-literal unit test for `adv-20` before trusting the heuristic's substring/marker logic as drafted here, and may need to tighten the "outside quote" half (e.g. requiring the outside-marker quote to mention the specific odd item by name rather than any marker near any mention of it).
+  - The judges' existing `CombinationDialQuestion` has a `tolerance` kind the mapper does not produce (see component 4's closing note) and `BoneOrderingSubmission`/`BoundThreadsSubmission`/`CursedObjectSubmission` all already match the mapper's output shapes exactly with no changes needed to the judges — this was `confirmed by direct code reading, not assumed.
+
+**(d) Existing hint-effect shapes for the four types.** `types.ts`'s `HintEffectSpec` already has all three remaining kinds (`lock-first-bone`, `tie-thread`, `reveal-digit`), and `test-support/question-payloads.ts` already builds example payloads pairing each Lock_Type with a plausible hint — but `runtime/manifest-hints.ts`'s `narrowHint` function **only handles `rune-cipher` and `seance-board` today** (confirmed by direct reading above: the function returns silently, with no validation at all, for any other `lockType`). This is not a conflict with any requirement text (Requirement 2's criteria 13–19, read above, only ever mention `reveal-first-letter` and the two existing types by name — the four remaining hint kinds were apparently added to `types.ts` and the schema's `HintEffectSchema` ahead of their own requirement text, as placeholders for this phase), but it is a real gap this design closes at named seam 9: `narrowHint` gains `lock-first-bone` (boneId must be one of `payload.itemIds`), `tie-thread` (pair must be one of `payload.keyPairs`, as an unordered membership check matching `bound-threads.ts`'s own `normalise`/`pairKey` pattern), and `reveal-digit` is **intentionally left unreachable** for `combination-dial`, consistent with component 4's decision that the mapper never emits a `reveal-digit` hint for this phase — so `narrowHint`'s `combination-dial` branch should reject any non-`null` hint outright (mirroring how rune-cipher's branch rejects anything that is not its one allowed kind), not silently accept one, closing the schema's silent fallthrough without inventing a working `reveal-digit` judge behaviour this phase does not need.
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Prework summary (Phase 5)
+
+Requirement 22's criteria are a direct extension of P1's own Requirement 3/4/5/6 pattern (schema validity, Code_Check correctness against the registry and the adversarial fixtures) plus a repeat of P2/P3's generation/review/mapper shape for four more types. Following P1's own prework treatment of structurally-identical criteria (Req 3.9, 3.10 — order-independence and idempotence over a room's questions — were already written as universal properties covering *any* Lock_Type, so they already cover the four new types without restatement): 22.1–22.4 (checks exist and reject the stated shape problems) are PROPERTY, generalizing P1's Property pattern for `answer-not-in-quote` etc. to the four new per-type check sets. 22.5/22.6/22.7 (the template allowlist, no model-computed numbers, the range-prompt rule) are PROPERTY — each is a universal "for all template/range inputs" statement over a small but non-trivial input space (two template names, arbitrary numeric pairs). 22.8 (Manifest_Schema validates all six types' payload and hint shapes) is PROPERTY, extending P1's own manifest round-trip property (Req 2.11, already in the P1 part above) to the four new payload shapes. 22.9 (passes every Dev_Set/Sample_Set question, fails every `code:*` fixture with exactly its Check_ID) is EXAMPLE/INTEGRATION against the fixed, named fixture set — exactly the same classification P1 gave its own `9.1`–`9.8` criteria over the same corpus. 22.10 (the streaming open point) is not testable; it is a documentation obligation, already satisfied by component 6 above.
+
+### Redundancy reflection
+
+- `checkStepCount`/`checkPairCount`/`checkItemCount` (three separate properties by name) are a single shape — "a count outside [min, max] fails with the type's named Check_ID, a count inside passes" — parameterized by type. Rather than three near-identical properties, Property 22 below is written once, generalized over the three (min, max, Check_ID) triples, following the same consolidation P1's own reflection used for the Authoring_Schema's structural per-arm guarantees.
+- `checkNumberNotInQuote` and `checkRangeNotInQuote` were drafted as two properties; per component 4's own note, the range half of `checkNumberNotInQuote` and all of `checkRangeNotInQuote` fire on the same underlying condition (an endpoint missing from every resolved quote), so Property 23 covers both Check_IDs' shared condition in one statement, rather than asserting the same fact twice under two different Check_ID labels.
+- `checkTemplateNotAllowlisted` and `checkTemplateValueMismatch` are kept as two separate properties (24 and 25): the first is a closed-set membership check with no arithmetic, the second is an arithmetic re-computation that only makes sense once a template is known to be in the allowlist — they are logically sequential, not redundant, mirroring P2/P3's own reflection that kept Prompt_Digest's two determinism/sensitivity facets as one property but kept 12.6/12.7 (mechanism) and 12.8 (emergent invariant) as separate ones when the relationship was sequential rather than restated.
+- A property for "bound-threads strict one-to-one" and a property for "cursed-object exactly one odd item" were considered together, since both are a kind of injectivity/uniqueness constraint — kept separate (Property 23-adjacent numbering below, Properties 26/22) because the two constrain different data shapes (a matching's two columns vs. a single answer's membership) and a single combined statement would blur which Check_ID each half validates, unlike the earlier count-check consolidation, where all three really were the same shape.
+- The room-assembly properties (at most one lock per type, alternate differs in type) are **not restated** here: per component 5's own finding, `selectSlots`/`assembleRoom` already satisfy these generically via `RoomSpecSchema`'s existing refinement and `LockSlotSpecSchema`'s existing refinement, both already covered by the P2/P3 part's own property work over those schemas, extended automatically to all six `LockType` values the moment the registry's `enum(LOCK_TYPES)` covers them (it already does, from P1).
+
+### Property 22: Count checks reject out-of-range counts and accept in-range counts
+
+For all questions of Lock_Type `bone-ordering`, `bound-threads` or `cursed-object` and any candidate count of steps, pairs or items, the type's count Check_ID (`step-count`, `pair-count`, `item-count` respectively) SHALL fail exactly when the count is outside that type's allowed range (3–5, 3–4, exactly 4 respectively) and SHALL NOT fail when the count is inside it.
+
+**Validates: Requirements 22.1, 22.2, 22.3**
+
+### Property 23: A stated number or range endpoint not present in any resolved quote is always rejected
+
+For any combination-dial question with an `exact` or `range` answer and any resolved evidence quote set, `number-not-in-quote` (for an `exact` answer or either range endpoint) and `range-not-in-quote` (for a `range` answer) SHALL fail if and only if the corresponding value does not appear verbatim in any uniquely-resolved quote.
+
+**Validates: Requirements 22.4**
+
+### Property 24: Only the two allowlisted templates are ever accepted
+
+For any combination-dial question with a `template` answer and any template name, `template-not-allowlisted` SHALL fail if and only if the name is not `difference` or `percent-change`.
+
+**Validates: Requirements 22.5**
+
+### Property 25: A template's computed value must match code's own computation
+
+For any combination-dial question with a `template` answer whose template is allowlisted, and any pair of numeric inputs, `template-value-mismatch` SHALL fail if and only if the authored `value` differs from `computeTemplate(template, inputs)` by more than a negligible floating-point tolerance, and the model's own `value` is never trusted when this check has not run.
+
+**Validates: Requirements 22.5, 22.6**
+
+### Property 26: Bound threads are rejected unless every left and every right item is distinct
+
+For any bound-threads question and any assignment of left and right item text, `not-one-to-one` SHALL fail if and only if some left text or some right text is repeated (after quote/case normalisation) across the question's pairs.
+
+**Validates: Requirements 22.2**
+
+### Property 27: A range answer's prompt never asks for more than one value
+
+For any combination-dial question with a `range` answer and any prompt text, `dial-range-prompt` SHALL fail if and only if the prompt asks for more than one value (matches the plural/both-endpoints phrasing pattern).
+
+**Validates: Requirements 22.7**
+
+### Property 28: The Manifest_Schema validates every six-Lock_Type payload and hint shape, and rejects every mismatch
+
+For all `QuestionSpec` values of any of the six Lock_Types, `CryptManifestSchema` SHALL accept the value if and only if its `payload` matches that Lock_Type's payload schema and its `hintEffect` is `null` or one of that Lock_Type's narrowed hint kinds with a valid reference into the payload (an item, pair or option the payload actually contains).
+
+**Validates: Requirements 22.8**
+
+### Property 29: Every Dev_Set and Sample_Set question of the four new types passes Code_Checks, and every `code:*` adversarial fixture of those types fails with exactly its expected Check_ID
+
+For every question of Lock_Type `bone-ordering`, `bound-threads`, `cursed-object` or `combination-dial` in `eval/dev/questions/*.json` or `samples/questions/*.json`, `runChecks` SHALL report no blocking failure; and for every `eval/adversarial/fixtures.json` fixture of those four types whose `expectedCatch` starts with `code:`, `runChecks` SHALL report exactly the one Check_ID named after that prefix.
+
+**Validates: Requirements 22.9**
+
+## Error Handling
+
+Every new check function returns `readonly CheckFailure[]` (empty on success), matching the existing P1 convention (`CheckFailure` carries `checkId` and `questionId`, never thrown) — no new error union is introduced for the checks themselves. The mapper's four new branches reuse `MapperError`'s existing `'check-failed'` and `'hint-mismatch'` kinds unchanged (no new `MapperError` variant; a bone-ordering/bound-threads/cursed-object/combination-dial question that fails a blocking check already surfaces as `{ kind: 'check-failed', checkId }` through the existing branch in `mapSpec`, since that branch is type-generic already). The generation and blind-review stages' existing `PipelineStageError`/`ReviewRejection` unions (`schema-rejected`, `answer-mismatch`, `unknown-label`, `label-mismatch`, `blocking-check`, etc., all already defined in `pipeline/stage-error.ts` and `pipeline/blind-review.ts`) need no new variant either: every rejection path a new type can take was already named generically (not per-Lock_Type) by P2/P3. No function in this phase logs notes text, prompt text, model output or the key, matching Req 25.8 and the security rule, exactly as the equivalent P2/P3 functions already do — nothing in Phase 5 touches logging.
+
+## Testing Strategy
+
+**Unit and example tests** (one file per component, matching Structure's one-file-per-lock-type convention, kept under ~300 lines; new `<type>-checks.test.ts` files sit beside each new `<type>-checks.ts`, per Req 3.11):
+
+- `authoring/schema.test.ts` — four new discriminated-union arms parse the real `hh-q05`/`hh-q07`/`hh-q09`/`hh-q10`/`hh-q11` fixtures (and the matching dev-set fixtures) unchanged; a `template` answer with an extra `expression` key is rejected by the schema itself (not just the Code_Check), confirming the structural defense named in component 4.
+- `locks/bone-ordering-checks.test.ts`, `locks/bound-threads-checks.test.ts`, `locks/cursed-object-checks.test.ts`, `locks/combination-dial-checks.test.ts` — one example per Check_ID using the real adversarial fixture it is named for (`adv-07`, `adv-08`, `adv-09`, `adv-12`, `adv-26`, `adv-27`, `adv-28`), asserting the exact single-Check_ID result the same way `rune-cipher-checks.test.ts` and `seance-board-checks.test.ts` already do; a full pass example per type using the matching dev/sample question (`hh-q05`, `hh-q07`, `hh-q09`, `hh-q10`, `hh-q11`).
+- `checks/registry.test.ts` — extended (not replaced): the existing literal Req 3.5 Check_ID list stays exact; a new assertion that all eight Phase 5 ids now have `implemented: true` (Req 3.14's second half, "every Check_ID scoped to the four later types is explicitly marked not implemented yet... until P5" — this test flips to asserting the opposite once Phase 5 lands, and a comment marks the change as deliberate, not a silent drift).
+- `checks/run-checks.test.ts` — a dedicated test that `runChecks` on a `bone-ordering`/`bound-threads`/`cursed-object`/`combination-dial` question **never** returns `lock-type-not-supported` once Phase 5 lands (the inverse of P1's own assertion that it always did), and that the `UnsupportedQuestion` type and branch are gone (a compile-time check via `@ts-expect-error` on an attempt to construct one, if the type is kept for backward test-fixture compatibility, or simply absent if removed outright).
+- `pipeline/generation-schema.test.ts` — extended with the four new arms' "parses as AuthoringQuestion after id/role/conceptId attachment" shared test, matching P2/P3's existing pattern exactly.
+- `pipeline/generation-prompt.test.ts` — the four new `LOCK_RULES` entries are present in `buildGenerationSystemPrompt(DEFAULT_ALLOWED_LOCK_TYPES)`'s output; `DEFAULT_ALLOWED_LOCK_TYPES` equals all six Lock_Types, or equals the P3 pair, depending on which Reconciliation (b) option the user picks — the test asserts whichever was decided, not both.
+- `pipeline/blind-review.test.ts` — extended with the `review:*` fixtures for the four new types (`adv-15`, `adv-19`, `adv-20`, `adv-21`, `adv-22`, `adv-24`) via cassette, each asserted `'rejected'` with the stated reason, matching P2/P3's existing pattern for `adv-06`/`adv-10`/`adv-25`.
+- `mapper/manifest-mapper.test.ts` — extended with one full-mapping example per new type (using `hh-q05`/`hh-q07`/`hh-q09`/`hh-q10`), asserting the produced payload exactly matches the corresponding judge's `*Question` input shape (`BoneOrderingQuestion`/`BoundThreadsQuestion`/`CursedObjectQuestion`/`CombinationDialQuestion`), and that feeding that payload into the real judge with the fixture's own correct submission returns `'correct'` — an end-to-end mapper-to-judge example, not just a shape assertion.
+- `runtime/manifest-schema.test.ts`, `runtime/manifest-hint-narrowing.test.ts` — extended with the four new payload schemas and `narrowHint` branches: one accept example and one reject example per type, plus the `combination-dial` + non-null-hint rejection named in component 6/Reconciliation (d).
+- `pipeline/room-assembly.test.ts` — one new end-to-end example assembling a room with at least one lock of a Phase 5 type (reusing `room-assembly-heart-fixtures.ts`'s pattern, extended with a `bone-ordering` or `cursed-object` concept), confirming no code change was needed in `room-assembly.ts`/`room-assembly-select.ts` by having the existing generic selection logic place it correctly.
+
+**Property tests**: `fast-check`, minimum 100 iterations, tagged the same way as Phase 1/2/3's:
+
+```ts
+// Feature: generation-and-evaluation, Property 22: Count checks reject out-of-range counts and accept in-range counts
+test.prop([stepCountArb(), pairCountArb(), itemCountArb()], { numRuns: 100 })('count checks', (...) => { ... });
+```
+
+New arbitraries (`packages/core/src/test-support/`): `boneOrderingAuthoringArb`, `boundThreadsAuthoringArb`, `cursedObjectAuthoringArb`, `combinationDialAuthoringArb` (one per type, generating synthetic chunk text alongside the question the same way `authoringQuestionArb` already does for rune/séance, per the existing P1 pattern of pairing a generator with synthetic source text so quotes can resolve); `templateInputArb` (pairs of numbers, including a zero first input to exercise `percent-change`'s divide-by-zero rejection); `rangeArb` (ordered min/max pairs).
+
+**Cassette tests**: one new cassette-driven test per Lock_Type (`pipeline/generation-bone-ordering.test.ts` or folded into the existing `pipeline/generation.test.ts`/`pipeline/blind-review.test.ts` files if they stay under ~300 lines with the addition), each exercising one full generate-then-review cycle for that type using a small hand-authored synthetic cassette entry (following the existing "hand-authored, `origin: 'synthetic'`" pattern from P2/P3's `cassette/cassette-provider.test.ts`), so Phase 5 does not require any new cassette-recording tooling.
+
+**The existing cassette end-to-end test is unaffected.** `pipeline/e2e-pipeline.test.ts` and `pipeline/e2e-cassette-digest.test.ts` pin `human-heart-e2e.json`'s cassette to the rune-cipher/séance-board-only P3 pipeline run (`stages` asserted as exactly `['concept-extraction', 'generation', 'generation', 'generation', 'review', 'review', 'review', 'review', 'review']`, with `unplacedAccepted` pinned to `['concept-3']`). Phase 5 does not regenerate or edit this cassette: it is a fixed, already-recorded fixture of a *P3-shaped* run, and widening `DEFAULT_ALLOWED_LOCK_TYPES` only changes what a **new** `generateForConcept` call would be allowed to propose — the existing cassette's entries are keyed by `promptDigest`, which embeds the system prompt text (`buildGenerationSystemPrompt(allowed)`), so if `DEFAULT_ALLOWED_LOCK_TYPES` changes (per Reconciliation (b)) **and** `e2e-cassette-fixtures.ts`'s `HUMAN_HEART_E2E_OPTIONS` does not pin its own `allowedLockTypes` explicitly, the existing cassette would go stale (its recorded digests would no longer match a freshly-built system prompt). Phase 5 implementation must therefore pin `HUMAN_HEART_E2E_OPTIONS` (or the call site that builds its `GenerationOptions`) to `allowedLockTypes: ['rune-cipher', 'seance-board']` explicitly, rather than relying on the default, so this one existing end-to-end test keeps passing unchanged regardless of which Reconciliation (b) option is chosen for the default. This is a one-line pin, not a cassette re-recording, and is called out here precisely because it is the one place a Phase 5 default change could silently break an already-passing P3 test.
+
+**CI**: no new CI job; runs under the existing `pnpm test`, `pnpm lint`, `pnpm typecheck`, exactly as P1/P2/P3 state. No new dependency: the four new checks and schemas use only `zod` (already present) and the project's own `normalise.ts`/`quote-resolver.ts` (already present).
