@@ -14,6 +14,7 @@ import type { GhostItem } from './ghost-list';
 import { HotspotButton } from './hotspot-button';
 import { useLantern } from './lantern-context';
 import { LockLayer, lightImageFile, shouldDrawFlame } from './lock-layer';
+import { momentsForStage } from './motion-moments';
 import { chooseBlock, isPhoneViewport, layoutScene } from './scene-layout';
 import type { SceneLayout } from './scene-layout';
 import type { SceneFile } from './scene-types';
@@ -96,6 +97,11 @@ export function ArtStage({
   );
   const ctx: ArtContext = { artRoom, directory: layout.directory, frame: layout.frame, failed, onFail };
   const effects = artEffectsFrom(notices);
+  // Which moments are playing, for tests and styles to read. Derived from the notices and what is drawn.
+  const moments = momentsForStage(notices, {
+    litSlotIds: new Set(slots.filter((s) => s.candleLit).map((s) => s.slotId)),
+    pendingConceptIds: new Set(ghosts.map((g) => g.conceptId)),
+  });
   const doorAnimates = cleared && roomId !== undefined && effects.clearedRooms.has(roomId);
   const litCount = slots.filter((s) => shouldDrawFlame(s.status, s.candleLit)).length;
   const stageStyle = {
@@ -118,6 +124,7 @@ export function ArtStage({
       data-lantern={lantern ? 'true' : 'false'}
       data-parallax={reducedMotion ? 'off' : 'on'}
       data-reduced-motion={reducedMotion ? 'true' : 'false'}
+      data-moment={moments.length === 0 ? undefined : moments.map((m) => m.kind).join(' ')}
       style={stageStyle}
     >
       <ArtImage ctx={ctx} layer="background" file="background.webp" srcSet={backgroundSrcSet} />
