@@ -3,6 +3,7 @@ import { runeCipherChecks } from '../locks/rune-cipher-checks';
 import { checkSeanceBoard } from '../locks/seance-board-checks';
 import type { Chunk } from '../types';
 import { checkAlternate, checkMaxOneAlternate } from './alternate';
+import { answerKeysOfAuthoring, duplicateAnswerScan } from './duplicate-answers';
 import { checkBannedPhrase, checkNegativeQuestion, checkQuote } from './evidence';
 import { leakScanRoom, type LeakScanRoomEntry } from './leak-scan';
 import type { CheckFailure } from './types';
@@ -141,7 +142,7 @@ export function runChecks(input: RunChecksInput): readonly CheckFailure[] {
 
 /**
  * Runs `runChecks` for every question of a room (siblings derived from `conceptId`)
- * plus the room-level Leak_Scan. The result is sorted by question ID then Check_ID,
+ * plus the room-level Leak_Scan and duplicate-answer scan. The result is sorted by question ID then Check_ID,
  * so it does not depend on the order of `questions`.
  */
 export function runRoomChecks(
@@ -159,5 +160,10 @@ export function runRoomChecks(
     visibleText: visibleTextOf(q),
   }));
   failures.push(...leakScanRoom(entries));
+  failures.push(
+    ...duplicateAnswerScan(
+      questions.map((q) => ({ conceptId: q.conceptId, questionId: q.id, keys: answerKeysOfAuthoring(q) })),
+    ),
+  );
   return sortFailures(dedupe(failures));
 }

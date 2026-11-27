@@ -1,0 +1,450 @@
+{
+  "checkVersion": "2026-11-27.1",
+  "entries": [
+    {
+      "digest": "e9f2ee18db116bd4e753ff03a1fd448bdaa924e058082ada57d0fd39e0f75ace",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "sleep aids learning through memory consolidation",
+              "chunkIds": [
+                "chk_086e3ef6bbaa_1"
+              ],
+              "quotes": [
+                "Sleep is a well-known aid to learning",
+                "the brain replays recent experiences",
+                "This replay is thought to help move new information into long-term storage",
+                "The process is called memory consolidation"
+              ]
+            },
+            {
+              "label": "sleep stages occur in a fixed order",
+              "chunkIds": [
+                "chk_086e3ef6bbaa_3",
+                "chk_086e3ef6bbaa_4"
+              ],
+              "quotes": [
+                "A night of sleep moves through four stages in a fixed order",
+                "1. Light sleep, when the body begins to relax.",
+                "2. Deeper sleep, when heart rate and breathing slow down.",
+                "3. Slow-wave sleep, the deepest stage, when the brain is hardest to wake.",
+                "4. REM sleep, when most vivid dreams occur."
+              ]
+            },
+            {
+              "label": "sleep affects recall of studied material",
+              "chunkIds": [
+                "chk_086e3ef6bbaa_6",
+                "chk_086e3ef6bbaa_7"
+              ],
+              "quotes": [
+                "volunteers who slept for eight hours recalled more word pairs",
+                "than volunteers who stayed awake",
+                "The effect is strongest for facts that were studied just before bed"
+              ]
+            },
+            {
+              "label": "recommended sleep duration by age",
+              "chunkIds": [
+                "chk_086e3ef6bbaa_7"
+              ],
+              "quotes": [
+                "Adults need about seven to nine hours of sleep",
+                "teenagers need about eight to ten hours"
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 573,
+          "outputTokens": 306
+        }
+      }
+    },
+    {
+      "digest": "2ef2973e6d5ab679805ed90e463df5ba0d151442c81c0dcded5b09c0d339ec4b",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank term: the process by which sleep helps move new information into long-term storage is named directly.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The process is called ______.",
+            "answer": "memory consolidation",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_086e3ef6bbaa_1",
+                "quote": "The process is called memory consolidation."
+              }
+            ],
+            "explanation": "The notes explicitly name the process that sleep uses to help move new information into long-term storage.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 20
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1246,
+          "outputTokens": 145
+        }
+      }
+    },
+    {
+      "digest": "903b7aa1e1d153b4b41af85c7937b7b1b05d9cbf6371866308f79394d92f8944",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes explicitly state the concept and list the stages in order, so a rune-cipher fits best. A seance-board is unnecessary because there is only one direct term to recall.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "A night of sleep moves through four stages in a ______.",
+            "answer": "fixed order",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_086e3ef6bbaa_3",
+                "quote": "A night of sleep moves through four stages in a fixed order."
+              }
+            ],
+            "explanation": "The notes say the stages occur in a fixed order.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "f",
+              "length": 11
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what describes how a night of sleep moves through its stages?",
+            "options": [
+              {
+                "id": "a",
+                "text": "fixed order",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_3",
+                  "quote": "A night of sleep moves through four stages in a fixed order."
+                }
+              },
+              {
+                "id": "b",
+                "text": "random order",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_3",
+                  "quote": "A night of sleep moves through four stages in a fixed order."
+                }
+              },
+              {
+                "id": "c",
+                "text": "no order at all",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_3",
+                  "quote": "A night of sleep moves through four stages in a fixed order."
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes say sleep stages move through four stages in a fixed order."
+          }
+        },
+        "usage": {
+          "inputTokens": 1270,
+          "outputTokens": 357
+        }
+      }
+    },
+    {
+      "digest": "24d4410f78f7bad7d15ea60d41b4ac8da7f0d23bf37a7bf73b68eca11940e70e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single factual claim about sleep improving recall, so a seance-board question fits best. A rune-cipher would require a single missing term, which is not the case here.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what happens to recall of studied material after eight hours of sleep?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Volunteers who slept for eight hours recalled more word pairs than volunteers who stayed awake.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_6",
+                  "quote": "volunteers who slept for eight hours recalled more word pairs than volunteers who stayed awake"
+                }
+              },
+              {
+                "id": "B",
+                "text": "Volunteers who stayed awake recalled more word pairs than volunteers who slept for eight hours.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_6",
+                  "quote": "volunteers who slept for eight hours recalled more word pairs than volunteers who stayed awake"
+                }
+              },
+              {
+                "id": "C",
+                "text": "Sleep had no effect on recall of word pairs.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_6",
+                  "quote": "volunteers who slept for eight hours recalled more word pairs than volunteers who stayed awake"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes say the sleeping volunteers recalled more word pairs than the awake volunteers."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "In one well-known experiment, volunteers who slept for eight hours recalled more ______ than volunteers who stayed awake.",
+            "answer": "word pairs",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_086e3ef6bbaa_6",
+                "quote": "volunteers who slept for eight hours recalled more word pairs than volunteers who stayed awake"
+              }
+            ],
+            "explanation": "The missing phrase is directly stated in the experiment result.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "w",
+              "length": 10
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 1281,
+          "outputTokens": 415
+        }
+      }
+    },
+    {
+      "digest": "49d2ff6ba06b6406e7d02f4fbaeb8a3f639ffa020f8ecb0f0c3b1a242d5c3e6f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give one clear fact with two age-based sleep ranges, so a fill-in-the-blank question fits best.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Adults need about ______ of sleep.",
+            "answer": "seven to nine hours",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_086e3ef6bbaa_7",
+                "quote": "Adults need about seven to nine hours of sleep"
+              }
+            ],
+            "explanation": "The notes state the adult recommended sleep duration directly.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "s",
+              "length": 19
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, how much sleep do teenagers need?",
+            "options": [
+              {
+                "id": "A",
+                "text": "about eight to ten hours",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_7",
+                  "quote": "teenagers need about eight to ten hours"
+                }
+              },
+              {
+                "id": "B",
+                "text": "about seven to nine hours",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_7",
+                  "quote": "Adults need about seven to nine hours of sleep"
+                }
+              },
+              {
+                "id": "C",
+                "text": "about six to eight hours",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_086e3ef6bbaa_7",
+                  "quote": "teenagers need about eight to ten hours"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes explicitly say teenagers need about eight to ten hours, and the other options conflict with that."
+          }
+        },
+        "usage": {
+          "inputTokens": 1214,
+          "outputTokens": 330
+        }
+      }
+    },
+    {
+      "digest": "7a265515afc0285e6436c659b8c0e398c6a0896261f875e299073961930fc319",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "memory consolidation",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 376,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "fc2178570e0753e20013940111f7b266f6375f15845aa959168dbfe03d630260",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "fixed order",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 336,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "a125157440460028fb75b79cd1856a7ceae047c3af0603d9c26244635a6fccb1",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 366,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "06eeaf865c7819cd984a0920a483d265e0fdafa07674f838db5a03d0128c7189",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "word pairs",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 380,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "269c14d021dc86f532d6e138cdf6c571c9a449da7de7d5e0b34258971120b246",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 433,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "c90a5bf2b8fd4482114bf7e96c3d848e526bf21b55d91cb5076a08cad74ae38b",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "seven to nine hours",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 346,
+          "outputTokens": 19
+        }
+      }
+    },
+    {
+      "digest": "d432b712d5bc59837eedf8b1ff47cc280551c708476681fe0aae23fbadfbbd20",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 383,
+          "outputTokens": 47
+        }
+      }
+    }
+  ]
+}

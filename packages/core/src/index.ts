@@ -118,6 +118,20 @@ export type {
   TimedStage,
 } from './pipeline/run-metadata';
 export type { RecordedCall } from './pipeline/recording-provider';
+export type {
+  CandidateOutcome,
+  CandidateResult,
+  ConceptGenerationOutcome,
+  GenerationOutcome,
+  Placement,
+  RunOutcomes,
+} from './pipeline/candidate-outcomes';
+export { DEFAULT_ASSEMBLY_POLICY, LEGACY_ASSEMBLY_POLICY } from './pipeline/room-assembly';
+export type { AssemblyPolicy } from './pipeline/room-assembly';
+export { answerKey, duplicateAnswerScan, keyedSpec } from './checks/duplicate-answers';
+export type { KeyedAnswer } from './checks/duplicate-answers';
+export { CHECK_VERSION } from './checks/registry';
+export { promptDigest } from './provider/prompt-digest';
 export { toModelJsonSchema } from './provider/model-json-schema';
 export type { ModelJsonSchema, ModelJsonSchemaError } from './provider/model-json-schema';
 export type {

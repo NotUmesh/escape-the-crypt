@@ -1,25 +1,23 @@
-import type { AuthoringQuestion } from '../authoring/schema';
 import { visibleTextOf } from '../checks/run-checks';
 import { leakScanRoom, type LeakScanRoomEntry } from '../checks/leak-scan';
 import type { CryptContent, CryptContentEntry } from '../mapper/crypt-content';
-import {
-  mapAuthoringQuestionToSpec,
-  type MapperError,
-  type MappedQuestion,
-} from '../mapper/manifest-mapper';
+import { mapAuthoringQuestionToSpec, type MapperError } from '../mapper/manifest-mapper';
 import type { CryptManifest, LockSlotSpec, QuestionSpec } from '../runtime/manifest-types';
 import { validateManifestForPublish, type PublishManifestError } from '../runtime/publish-manifest';
 import type { LockType, Result } from '../types';
 import { toDocumentChunkMaps, type PreparedDocument } from './prepare-input';
+import {
+  DEFAULT_ASSEMBLY_POLICY,
+  selectSlots,
+  type AssemblyConcept,
+  type AssemblyPolicy,
+  type Candidate,
+  type Role,
+  type Slot,
+} from './room-assembly-select';
 
-/** One extracted concept with its accepted questions (past Code_Checks and blind review). */
-export interface AssemblyConcept {
-  readonly conceptId: string;
-  /** The concept title shown to the learner. */
-  readonly label: string;
-  readonly primary: AuthoringQuestion | null;
-  readonly alternate: AuthoringQuestion | null;
-}
+export type { AssemblyConcept, AssemblyPolicy } from './room-assembly-select';
+export { DEFAULT_ASSEMBLY_POLICY, LEGACY_ASSEMBLY_POLICY } from './room-assembly-select';
 
 export interface RoomAssemblyInput {
   /** Deterministic from the caller's inputs, e.g. the document digest. */
@@ -27,6 +25,8 @@ export interface RoomAssemblyInput {
   readonly document: PreparedDocument;
   /** In extraction order. */
   readonly concepts: readonly AssemblyConcept[];
+  /** Default DEFAULT_ASSEMBLY_POLICY. */
+  readonly policy?: AssemblyPolicy;
 }
 
 /** An accepted question that did not get a room slot. Never published. */
@@ -40,7 +40,7 @@ export interface UnplacedAccepted {
 /** A question the mapper refused. The question is set aside, never published. */
 export interface MapperRejection {
   readonly conceptId: string;
-  readonly role: 'primary' | 'alternate';
+  readonly role: Role;
   readonly error: MapperError;
 }
 
@@ -51,31 +51,22 @@ export interface RoomAssembly {
   readonly mapperRejections: readonly MapperRejection[];
   /** Concepts removed from the room by the Leak_Scan. They are not in `unplacedAccepted`. */
   readonly leakDroppedConceptIds: readonly string[];
+  /** Questions left out by duplicate-answer-in-room. They are not in `unplacedAccepted`. */
+  readonly duplicateSkipped: readonly { readonly conceptId: string; readonly role: Role }[];
 }
 
 export type RoomAssemblyError = { readonly kind: 'empty-room' } | PublishManifestError;
 
-interface Candidate {
-  readonly question: AuthoringQuestion;
-  readonly mapped: MappedQuestion;
-}
-
-interface Slot {
-  readonly conceptId: string;
-  readonly title: string;
-  readonly primary: Candidate;
-  readonly alternate: Candidate | null;
-}
-
 const ROOM_ID = 'room-1';
 
 function mapCandidate(
-  question: AuthoringQuestion,
   concept: AssemblyConcept,
-  role: 'primary' | 'alternate',
+  role: Role,
   input: RoomAssemblyInput,
   rejections: MapperRejection[],
 ): Candidate | null {
+  const question = role === 'primary' ? concept.primary : concept.alternate;
+  if (question === null) return null;
   const questionId = `${concept.conceptId}-${role}`;
   if (question.conceptId !== concept.conceptId) {
     const error: MapperError = {
@@ -96,13 +87,13 @@ function mapCandidate(
     rejections.push({ conceptId: concept.conceptId, role, error: mapped.error });
     return null;
   }
-  return { question, mapped: mapped.value };
+  return { role, question, mapped: mapped.value };
 }
 
 function entriesOf(slots: readonly Slot[]): readonly LeakScanRoomEntry[] {
   const entries: LeakScanRoomEntry[] = [];
   for (const slot of slots) {
-    for (const c of [slot.primary, slot.alternate]) {
+    for (const c of [slot.lead, slot.alternate]) {
       if (c === null) continue;
       entries.push({
         conceptId: slot.conceptId,
@@ -115,12 +106,12 @@ function entriesOf(slots: readonly Slot[]): readonly LeakScanRoomEntry[] {
 }
 
 /**
- * Handles one leaking question. A leaking alternate is removed. A leaking primary is replaced by
+ * Handles one leaking question. A leaking alternate is removed. A leaking lead is replaced by
  * the slot's alternate when that alternate's type is free in the room, else the concept is dropped.
  */
 function resolveLeak(slots: readonly Slot[], questionId: string): readonly Slot[] {
   const index = slots.findIndex(
-    (s) => s.primary.question.id === questionId || s.alternate?.question.id === questionId,
+    (s) => s.lead.question.id === questionId || s.alternate?.question.id === questionId,
   );
   const slot = slots[index];
   if (slot === undefined) return [];
@@ -129,9 +120,9 @@ function resolveLeak(slots: readonly Slot[], questionId: string): readonly Slot[
     return slots.map((s, i) => (i === index ? { ...s, alternate: null } : s));
   }
   const alt = slot.alternate;
-  const typeTaken = (t: LockType): boolean => rest.some((s) => s.primary.mapped.spec.lockType === t);
+  const typeTaken = (t: LockType): boolean => rest.some((s) => s.lead.mapped.spec.lockType === t);
   if (alt !== null && !typeTaken(alt.mapped.spec.lockType)) {
-    return slots.map((s, i) => (i === index ? { ...s, primary: alt, alternate: null } : s));
+    return slots.map((s, i) => (i === index ? { ...s, lead: alt, alternate: null } : s));
   }
   return rest;
 }
@@ -149,59 +140,65 @@ function removeLeaks(initial: readonly Slot[]): readonly Slot[] {
 }
 
 function toLockSlot(slot: Slot): LockSlotSpec {
-  const stationType = slot.primary.mapped.spec.lockType;
+  const stationType = slot.lead.mapped.spec.lockType;
   return {
     slotId: `slot-${stationType}`,
     stationType,
     conceptId: slot.conceptId,
-    primaryQuestion: slot.primary.mapped.spec,
+    primaryQuestion: slot.lead.mapped.spec,
     alternateQuestion: slot.alternate?.mapped.spec ?? null,
   };
 }
 
 /**
- * Builds the one-room crypt: at most one slot per lock type, the first accepted primary of each
- * type in extraction order taking it. Leak_Scan swaps or drops until clean. The final door is
- * always empty. Pure and total; never throws.
+ * Builds the one-room crypt: at most one slot per lock type, chosen by `selectSlots` (accepted
+ * primaries first, then accepted alternates for lock types still free; no two concepts share an
+ * answer). Leak_Scan swaps or drops until clean. The final door is always empty. Pure and total;
+ * never throws.
  */
 export function assembleRoom(input: RoomAssemblyInput): Result<RoomAssembly, RoomAssemblyError> {
   const rejections: MapperRejection[] = [];
-  const seenConcepts = new Set<string>();
-  const placed: Slot[] = [];
-  const unplacedCandidates: { concept: AssemblyConcept; candidate: Candidate }[] = [];
-  const takenTypes = new Set<LockType>();
+  // Mapped once per question across all passes, so a mapper rejection is recorded once.
+  const mappedCache = new Map<string, Candidate | null>();
+  const deps = {
+    map: (concept: AssemblyConcept, role: Role): Candidate | null => {
+      const key = `${concept.conceptId}\u0000${role}`;
+      if (!mappedCache.has(key)) mappedCache.set(key, mapCandidate(concept, role, input, rejections));
+      return mappedCache.get(key) ?? null;
+    },
+    leaks: (slots: readonly Slot[]): boolean => leakScanRoom(entriesOf(slots)).length > 0,
+  };
+  const policy = input.policy ?? DEFAULT_ASSEMBLY_POLICY;
 
-  for (const concept of input.concepts) {
-    if (seenConcepts.has(concept.conceptId)) continue;
-    seenConcepts.add(concept.conceptId);
-    // A concept without an accepted primary is not eligible; its alternate is not promoted.
-    if (concept.primary === null) continue;
-    const primary = mapCandidate(concept.primary, concept, 'primary', input, rejections);
-    if (primary === null) continue;
-    const type = primary.mapped.spec.lockType;
-    if (takenTypes.has(type)) {
-      unplacedCandidates.push({ concept, candidate: primary });
-      continue;
-    }
-    takenTypes.add(type);
-    let alternate: Candidate | null = null;
-    if (concept.alternate !== null && concept.alternate.lockType !== concept.primary.lockType) {
-      alternate = mapCandidate(concept.alternate, concept, 'alternate', input, rejections);
-    }
-    placed.push({ conceptId: concept.conceptId, title: concept.label, primary, alternate });
+  // A concept the Leak_Scan drops frees its lock type. Select again without it, so another
+  // accepted question can take the type, until no concept is dropped. Each pass drops at least one
+  // concept, so this ends.
+  const leakDropped = new Set<string>();
+  let selection = selectSlots(input.concepts, deps, policy);
+  let slots = removeLeaks(selection.slots);
+  for (let pass = 0; pass < input.concepts.length; pass += 1) {
+    const kept = new Set(slots.map((s) => s.conceptId));
+    const dropped = selection.slots.map((s) => s.conceptId).filter((id) => !kept.has(id));
+    if (dropped.length === 0 || !policy.promoteAlternates) break;
+    for (const id of dropped) leakDropped.add(id);
+    selection = selectSlots(input.concepts.filter((c) => !leakDropped.has(c.conceptId)), deps, policy);
+    slots = removeLeaks(selection.slots);
   }
-
-  const slots = removeLeaks(placed);
+  if (!policy.promoteAlternates) {
+    const kept = new Set(slots.map((s) => s.conceptId));
+    for (const s of selection.slots) if (!kept.has(s.conceptId)) leakDropped.add(s.conceptId);
+  }
   if (slots.length === 0) return { ok: false, error: { kind: 'empty-room' } };
 
-  const keptIds = new Set(slots.map((s) => s.conceptId));
-  const leakDroppedConceptIds = placed.map((s) => s.conceptId).filter((id) => !keptIds.has(id));
+  const leakDroppedConceptIds = input.concepts
+    .map((c) => c.conceptId)
+    .filter((id, i, all) => leakDropped.has(id) && all.indexOf(id) === i);
 
   const questions: Record<string, CryptContentEntry> = {};
   const concepts: Record<string, { title: string }> = {};
   for (const slot of slots) {
     concepts[slot.conceptId] = { title: slot.title };
-    for (const c of [slot.primary, slot.alternate]) {
+    for (const c of [slot.lead, slot.alternate]) {
       if (c !== null) questions[c.mapped.spec.questionId] = c.mapped.content;
     }
   }
@@ -218,7 +215,7 @@ export function assembleRoom(input: RoomAssemblyInput): Result<RoomAssembly, Roo
     value: {
       manifest: published.value,
       content: { questions, concepts },
-      unplacedAccepted: unplacedCandidates.map(({ concept, candidate }) => ({
+      unplacedAccepted: selection.unplaced.map(({ concept, candidate }) => ({
         conceptId: concept.conceptId,
         conceptTitle: concept.label,
         question: candidate.mapped.spec,
@@ -226,6 +223,7 @@ export function assembleRoom(input: RoomAssemblyInput): Result<RoomAssembly, Roo
       })),
       mapperRejections: rejections,
       leakDroppedConceptIds,
+      duplicateSkipped: selection.duplicateSkipped,
     },
   };
 }

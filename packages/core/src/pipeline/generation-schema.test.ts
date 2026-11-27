@@ -118,10 +118,12 @@ describe('toAuthoringQuestion', () => {
     expect(result.value).toMatchObject(ident);
   });
 
-  it('keeps a non-null rune hint', () => {
+  it('drops a rune hint, right or wrong: the mapper computes it from the answer', () => {
+    // Mitochondria has 12 letters: this hint is wrong on both fields, and must not reach the mapper.
     const hint = { kind: 'first-letter-and-length' as const, firstLetter: 'e', length: 6 };
     const result = toAuthoringQuestion({ ...runeArm, hint }, ident, doc);
-    expect(result.ok && result.value.lockType === 'rune-cipher' && result.value.hint).toEqual(hint);
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.value).not.toHaveProperty('hint');
   });
 
   it.each([3, 4])('translates a séance arm with %i options', (n) => {

@@ -23,8 +23,9 @@ const coreSrc = here.replace(/\/[^/]*$/, '');
 const repoRoot = coreSrc.replace(/\/packages\/core\/src$/, '');
 const workerSrc = `${repoRoot}/apps/worker/src`;
 
-// P4 extends this deliberately with its results-writer path. Empty in P2/P3.
-const ALLOWLIST: readonly string[] = [];
+// P4 extends this deliberately with its results-writer path: the Evaluation_Skill's path module,
+// relative to apps/worker/src. Every other P2/P3 file stays out of the results folder.
+const ALLOWLIST: readonly string[] = ['evaluation/paths.ts'];
 
 const FORBIDDEN = [
   ['eval', 'results'].join('/'),
@@ -71,7 +72,7 @@ describe('no writes to the evaluation results folder (Req 12.10, 21.3)', () => {
     expect(offenders(workerFiles, workerSrc)).toEqual([]);
   });
 
-  it('the allowlist stays empty in P2/P3 (P4 changes it)', () => {
-    expect(ALLOWLIST).toEqual([]);
+  it('the allowlist holds only the P4 Evaluation_Skill path module', () => {
+    expect(ALLOWLIST).toEqual(['evaluation/paths.ts']);
   });
 });

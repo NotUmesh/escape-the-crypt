@@ -109,8 +109,13 @@ export function toAuthoringQuestion(
   if (generated.lockType === 'rune-cipher') {
     const evidence = collect(generated.evidence, (e) => evidenceOf(doc, e));
     if (!evidence.ok) return evidence;
+    // The model's hint is not used. The mapper always computes the first-letter hint from the
+    // answer (Requirement 6.8), so a miscounted length would only cost a good question its slot
+    // (it failed the mapper's hint-mismatch rule, 6.11, on 13 of 78 accepted rune questions in the
+    // first dev-set run). Hand-written authoring questions still get that rule.
     const { hint, ...rest } = generated;
-    candidate = { ...rest, ...identity, evidence: evidence.value, ...(hint ? { hint } : {}) };
+    void hint;
+    candidate = { ...rest, ...identity, evidence: evidence.value };
   } else {
     const options = collect(generated.options, (o) => {
       const ev = evidenceOf(doc, o.evidence);

@@ -1,0 +1,440 @@
+{
+  "checkVersion": "2026-11-27.1",
+  "entries": [
+    {
+      "digest": "1afe34e678eb4c33e6afa9538db01af29d9d28f146a32c732194fed2e631cf21",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Butterfly complete metamorphosis",
+              "chunkIds": [
+                "chk_5a282a67dbbb_1"
+              ],
+              "quotes": [
+                "Butterflies go through complete metamorphosis, which has four stages.",
+                "First, an adult female lays an egg, usually on a plant the young will eat.",
+                "Next, a larva, called a caterpillar, hatches and spends most of its time eating and growing.",
+                "Then the caterpillar forms a pupa, which in butterflies is called a chrysalis, and its body is rebuilt inside.",
+                "Finally, an adult butterfly emerges, ready to find a mate and start the cycle again."
+              ]
+            },
+            {
+              "label": "Jobs of each life stage",
+              "chunkIds": [
+                "chk_5a282a67dbbb_2"
+              ],
+              "quotes": [
+                "Each stage has a different main job.",
+                "The egg protects the developing embryo.",
+                "The caterpillar's job is to eat and store energy.",
+                "The pupa is where the body is reorganised into the adult form.",
+                "The adult's job is to reproduce and spread to new places."
+              ]
+            },
+            {
+              "label": "Caterpillar moulting",
+              "chunkIds": [
+                "chk_5a282a67dbbb_3"
+              ],
+              "quotes": [
+                "A caterpillar grows so quickly that it must shed its skin several times, a process called moulting.",
+                "Most caterpillars moult about five times before they become a pupa."
+              ]
+            },
+            {
+              "label": "Insects with complete metamorphosis",
+              "chunkIds": [
+                "chk_5a282a67dbbb_4"
+              ],
+              "quotes": [
+                "Insects that go through complete metamorphosis covered in these notes include butterflies, beetles, flies and bees.",
+                "Grasshoppers do not: they go through incomplete metamorphosis, with only three stages, egg, nymph and adult, and the young look like small adults."
+              ]
+            },
+            {
+              "label": "Monarch butterfly migration",
+              "chunkIds": [
+                "chk_5a282a67dbbb_5"
+              ],
+              "quotes": [
+                "Some monarch butterflies migrate up to about 4,800 kilometres between Canada and Mexico each year."
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 608,
+          "outputTokens": 422
+        }
+      }
+    },
+    {
+      "digest": "4598f3c13e8b5091177cd017efc57314e7b9d0bc670995a0c22f8c063842dcf9",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define a single named process with a clear four-stage sequence, so a rune-cipher fill-in-the-blank fits best. A seance-board question is unnecessary because there is only one directly supported fact to test.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Butterflies go through ______, which has four stages.",
+            "answer": "complete metamorphosis",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_5a282a67dbbb_1",
+                "quote": "Butterflies go through complete metamorphosis, which has four stages."
+              }
+            ],
+            "explanation": "The notes explicitly say butterflies go through complete metamorphosis.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "c",
+              "length": 21
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1247,
+          "outputTokens": 168
+        }
+      }
+    },
+    {
+      "digest": "50163e3b9a9acac2502b01ecdf534c301c3ef0b5306f924e78fd34882f6eafba",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about one life stage’s job, and the answer is a short phrase copied directly from the text.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The caterpillar's job is to ______.",
+            "answer": "eat and store energy",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_5a282a67dbbb_2",
+                "quote": "The caterpillar's job is to eat and store energy."
+              }
+            ],
+            "explanation": "The notes state the caterpillar's job exactly as the missing phrase.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "e",
+              "length": 20
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what is the adult's job?",
+            "options": [
+              {
+                "id": "A",
+                "text": "reproduce and spread to new places",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_5a282a67dbbb_2",
+                  "quote": "The adult's job is to reproduce and spread to new places."
+                }
+              },
+              {
+                "id": "B",
+                "text": "eat and store energy",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_5a282a67dbbb_2",
+                  "quote": "The caterpillar's job is to eat and store energy."
+                }
+              },
+              {
+                "id": "C",
+                "text": "protect the developing embryo",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_5a282a67dbbb_2",
+                  "quote": "The egg protects the developing embryo."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only the adult's job is stated as reproduce and spread to new places; the other options describe different life stages."
+          }
+        },
+        "usage": {
+          "inputTokens": 1204,
+          "outputTokens": 356
+        }
+      }
+    },
+    {
+      "digest": "3468d0d47f85a65c6cbe41f4664f3cb0f3b9a93eea5cab66312198d7be382e6f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in term: the group of insects that go through complete metamorphosis, with no need for multiple-choice options.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Insects with complete metamorphosis include ______.",
+            "answer": "butterflies, beetles, flies and bees",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_5a282a67dbbb_4",
+                "quote": "Insects that go through complete metamorphosis covered in these notes include butterflies, beetles, flies and bees."
+              }
+            ],
+            "explanation": "The notes directly list the insects that go through complete metamorphosis.",
+            "hint": null
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1208,
+          "outputTokens": 153
+        }
+      }
+    },
+    {
+      "digest": "443a1e6d1177676f364851b212359af8d0ef3fa6cfcf83bff089d4054c87ea1c",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact: the process name for shedding skin is stated directly and can be asked as one missing term.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "A caterpillar grows so quickly that it must shed its skin several times, a process called ______.",
+            "answer": "moulting",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_5a282a67dbbb_3",
+                "quote": "a process called moulting"
+              }
+            ],
+            "explanation": "The notes explicitly name the process as moulting.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 9
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what is the process called when a caterpillar sheds its skin several times?",
+            "options": [
+              {
+                "id": "A",
+                "text": "moulting",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_5a282a67dbbb_3",
+                  "quote": "a process called moulting"
+                }
+              },
+              {
+                "id": "B",
+                "text": "metamorphosis",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_5a282a67dbbb_3",
+                  "quote": "a process called moulting"
+                }
+              },
+              {
+                "id": "C",
+                "text": "hibernation",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_5a282a67dbbb_3",
+                  "quote": "a process called moulting"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes name the process as moulting, so that option is supported and the others are contradicted."
+          }
+        },
+        "usage": {
+          "inputTokens": 1185,
+          "outputTokens": 338
+        }
+      }
+    },
+    {
+      "digest": "fde06dac62ee5033cd149aa0b17f3f99080745d7393edae2e7a10b4a952c8f04",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single factual term/phrase that can be turned into a fill-in-the-blank question: the migration distance of monarch butterflies. A rune-cipher fits because the answer is a short phrase copied from the notes, and no competing option set is needed.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Some monarch butterflies migrate up to about ______ between Canada and Mexico each year.",
+            "answer": "4,800 kilometres",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_5a282a67dbbb_5",
+                "quote": "Some monarch butterflies migrate up to about 4,800 kilometres between Canada and Mexico each year."
+              }
+            ],
+            "explanation": "The notes state the migration distance directly, so the blank should be filled with the exact phrase from the sentence.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "4",
+              "length": 17
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1166,
+          "outputTokens": 196
+        }
+      }
+    },
+    {
+      "digest": "991b2d12239a640da82bbb5a7bed7c44fa771bb923b607cc4371bfff2c97c3ea",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "complete metamorphosis",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 383,
+          "outputTokens": 19
+        }
+      }
+    },
+    {
+      "digest": "601e71133b20fa1c222a311f96d79708d6ae929c9a4d23f204263ee645e3892f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "eat and store energy",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 338,
+          "outputTokens": 19
+        }
+      }
+    },
+    {
+      "digest": "8e4bd5ac9ae9fd180044c4dd7ea4f82471b10c63564b1c9a98aab571056c5ac3",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "moulting",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 331,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "f0656131ef1c66db60484021d606ec455ca5b20a62dd6f367d2a586cb8f6c7b2",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 372,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "bc372ceb6452fe0eb8139ca7cae15e0c426d9781a9288aeffd475b8816830cc4",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 356,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "2d40267d33ff8ad0ecd7c354df90f3cdf60931f49d82d7e18a5561b9134b366f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "4,800 kilometres",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 308,
+          "outputTokens": 19
+        }
+      }
+    },
+    {
+      "digest": "c27c666109b7acb58d06807ad7966c6a27f4a0709b3f307d2a142d1dc5ae516a",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "butterflies, beetles, flies and bees",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 341,
+          "outputTokens": 25
+        }
+      }
+    }
+  ]
+}

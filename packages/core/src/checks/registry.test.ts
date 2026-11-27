@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { chunkDocument } from '../chunker';
 import type { Chunk } from '../types';
+import { duplicateAnswerCase } from '../test-support/duplicate-answer-case';
 import { CHECK_REGISTRY, CHECK_VERSION } from './registry';
 import {
   runChecks,
@@ -16,7 +17,7 @@ const REQ_3_5_CHECK_IDS: readonly string[] = [
   'quote-not-found', 'quote-ambiguous', 'quote-too-short',
   'quote-too-long', 'unknown-paragraph/chunk', 'missing-according-to-your-notes',
   'negative-question', 'banned-phrase', 'answer-not-in-quote',
-  'rune-needs-one-blank', 'answer-leak-in-prompt', 'answer-leak-in-room',
+  'rune-needs-one-blank', 'answer-leak-in-prompt', 'answer-leak-in-room', 'duplicate-answer-in-room',
   'option-count', 'option-not-supported-or-contradicted', 'option-without-evidence',
   'not-exactly-one-supported', 'key-not-the-supported-option', 'duplicate-options',
   'step-count', 'duplicate-steps', 'no-explicit-sequence-marker-in-quotes',
@@ -45,7 +46,7 @@ describe('check registry', () => {
     expect(registryIds).toHaveLength(REQ_3_5_CHECK_IDS.length);
   });
 
-  it('exposes CHECK_VERSION 2026-11-25.1', () => expect(CHECK_VERSION).toBe('2026-11-25.1'));
+  it('exposes CHECK_VERSION 2026-11-27.1', () => expect(CHECK_VERSION).toBe('2026-11-27.1'));
 
   it('marks only alternate-off-concept as advisory', () => {
     const advisory = CHECK_REGISTRY.filter((r) => r.severity === 'advisory').map((r) => r.id);
@@ -172,6 +173,7 @@ function synth(questions: readonly CheckableQuestion[]): readonly CheckFailure[]
 }
 
 const SYNTHETIC_CASES: Partial<Record<CheckId, () => readonly CheckFailure[]>> = {
+  'duplicate-answer-in-room': duplicateAnswerCase,
   'quote-too-long': () =>
     synth([
       rune({

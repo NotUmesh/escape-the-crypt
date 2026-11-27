@@ -7,11 +7,13 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/index.js",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "eval": "esbuild src/evaluation/cli.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/evaluation.js --log-level=warning && node dist/evaluation.js"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "esbuild": "0.28.2",
+    "fast-check": "^4.11.0",
     "vitest": "^4.1.12"
   },
   "dependencies": {

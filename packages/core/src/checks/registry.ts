@@ -1,7 +1,7 @@
 import type { CheckRegistration } from './types';
 
 /** Change whenever the set or behaviour of Code_Checks changes. */
-export const CHECK_VERSION = '2026-11-25.1';
+export const CHECK_VERSION = '2026-11-27.1';
 
 const shared = (id: CheckRegistration['id']): CheckRegistration => ({
   id,
@@ -46,6 +46,8 @@ export const CHECK_REGISTRY: readonly CheckRegistration[] = [
   rune('answer-not-in-quote'),
   rune('answer-leak-in-prompt'),
   rune('answer-leak-in-room'),
+  // Room-level, like the Leak_Scan: two concepts in one crypt never share an answer.
+  shared('duplicate-answer-in-room'),
   seance('missing-according-to-your-notes'),
   seance('option-count'),
   seance('duplicate-options'),

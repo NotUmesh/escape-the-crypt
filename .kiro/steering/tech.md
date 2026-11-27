@@ -29,4 +29,5 @@ inclusion: always
 
 ## Commands
 - `pnpm install` · `pnpm dev` · `pnpm test` · `pnpm lint` · `pnpm typecheck` · `pnpm e2e`
+- `pnpm --filter @escape-the-crypt/worker eval record|replay ...`: the evaluation skill (`.kiro/skills/evaluation/`); `record` spends money, `replay` is free
 (Keep this list accurate as scripts are added.)

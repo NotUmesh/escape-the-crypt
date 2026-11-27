@@ -1,5 +1,5 @@
 {
-  "checkVersion": "2026-11-25.1",
+  "checkVersion": "2026-11-27.1",
   "entries": [
     {
       "digest": "578fcb38ab1e1b194234f9b5938d2aa1b80dce6c0afcccbb72fcc786782d163b",
@@ -46,7 +46,7 @@
       }
     },
     {
-      "digest": "1f377dcf04e9dc11b00bfac8eb61d25ce6fc471e36003e2646660ce61844582e",
+      "digest": "a9688b587ca3cfb7c3bdc66530d7a693a336ba01d3e2452ab63770dd5b62f886",
       "origin": "synthetic",
       "response": {
         "ok": true,
@@ -116,7 +116,7 @@
       }
     },
     {
-      "digest": "f47206384c19a3fd5a6cc9e0acd00e094f5a8f8ff9a704bc7e77ff74b0843ee7",
+      "digest": "46cfe5ef2eeb9a3b266fde5366fcd3889e7948765b05161acbde6ea3cf473165",
       "origin": "synthetic",
       "response": {
         "ok": true,
@@ -189,7 +189,7 @@
       }
     },
     {
-      "digest": "a425eb6545261276d6fb79035e5531f5091a47ed4d39bbaa170a1e0ab1558960",
+      "digest": "5b41328f365344238f5019e8589adcfe5ca8cb43f8668d3b0985152298fecfcd",
       "origin": "synthetic",
       "response": {
         "ok": true,

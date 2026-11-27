@@ -198,6 +198,19 @@ describe('generation prompt', () => {
     expect(system.replace('Never give character offsets', '')).not.toMatch(/offset/i);
   });
 
+  it('tells the model what a séance distractor and its quote must be (generation-v2)', async () => {
+    const { system } = await requestFor();
+    // Each contradicted option quotes the passage that contradicts it, never the supported one.
+    expect(system).toMatch(/quote is the passage that contradicts it/);
+    expect(system).toMatch(/Never reuse the supported option's quote/);
+    expect(system).toMatch(/Never label an option contradicted when the notes also state it as true/);
+    // The stem names what is asked; order questions are not séance questions.
+    expect(system).toMatch(/Never ask "which statement is supported"/);
+    expect(system).toMatch(/Do not ask about order or position/);
+    // The limits the checks enforce, stated up front.
+    expect(system).toMatch(/26 words or more, or of 3 words or fewer, is rejected/);
+    expect(system).toMatch(/capital letters exactly as in the notes/);
+  });
   it('offers only the allowed types', async () => {
     const { system } = await requestFor({ ...OPTIONS, allowedLockTypes: ['rune-cipher'] });
     expect(system).toContain('rune-cipher');

@@ -1,12 +1,19 @@
 import type { AuthoringQuestion } from '../authoring/schema';
 import type { BudgetLedger } from '../budget/types';
-import { CHECK_REGISTRY, CHECK_VERSION } from '../checks/registry';
-import { runChecks } from '../checks/run-checks';
+import { CHECK_VERSION } from '../checks/registry';
 import type { CryptContent } from '../mapper/crypt-content';
 import type { Provider } from '../provider/types';
 import type { CryptManifest } from '../runtime/manifest-types';
 import type { Result } from '../types';
 import { blindReview, type ReviewVerdict } from './blind-review';
+import {
+  generationOutcome,
+  newOutcomeLog,
+  recordPlacements,
+  recordVerdict,
+  snapshotOutcomes,
+} from './candidate-outcomes';
+import { runCodeCheckStage } from './code-check-stage';
 import { extractConcepts, type ExtractedConcept } from './concept-extraction';
 import { DEFAULT_CONCURRENCY, runWithConcurrency } from './concurrency';
 import {
@@ -14,11 +21,12 @@ import {
   type GeneratedConceptQuestions,
   type GenerationOptions,
 } from './generation';
-import { prepareDocument, toEvidenceContext, type PreparedDocument } from './prepare-input';
+import { prepareDocument, type PreparedDocument } from './prepare-input';
 import { recordCalls } from './recording-provider';
 import {
   assembleRoom,
   type AssemblyConcept,
+  type AssemblyPolicy,
   type RoomAssemblyError,
   type UnplacedAccepted,
 } from './room-assembly';
@@ -56,6 +64,8 @@ export interface PipelineOptions extends GenerationOptions {
    * ends as cancelled. Calls already in flight are not aborted and are never given this signal.
    */
   readonly signal?: AbortSignalLike;
+  /** Room assembly policy. Default DEFAULT_ASSEMBLY_POLICY; the legacy one is for ablations. */
+  readonly assemblyPolicy?: AssemblyPolicy;
 }
 
 export interface PipelineResult {
@@ -74,10 +84,6 @@ export interface PipelineJobFailure {
   readonly error: PipelineJobError;
   readonly metadata: PipelineRunMetadata;
 }
-
-const BLOCKING_IDS: ReadonlySet<string> = new Set(
-  CHECK_REGISTRY.filter((r) => r.severity !== 'advisory').map((r) => r.id),
-);
 
 interface Candidate {
   readonly conceptIndex: number;
@@ -111,6 +117,7 @@ export async function runRoomPipeline(
   const limit = options.concurrency ?? DEFAULT_CONCURRENCY;
   const recorder = recordCalls(options.provider, now, options.costOf);
   const counts = newCounts();
+  const outcomes = newOutcomeLog();
   const timings = Object.fromEntries(TIMED_STAGES.map((s) => [s, 0])) as Record<TimedStage, number>;
   const metadata = (): PipelineRunMetadata =>
     buildRunMetadata({
@@ -122,6 +129,7 @@ export async function runRoomPipeline(
       costUsd: recorder.costUsd(),
       stageTimingsMs: timings,
       counts,
+      outcomes: snapshotOutcomes(outcomes),
     });
   const fail = (error: PipelineJobError): Result<PipelineResult, PipelineJobFailure> => ({
     ok: false,
@@ -184,6 +192,11 @@ export async function runRoomPipeline(
   const candidates: Candidate[] = [];
   generated.forEach((outcome, conceptIndex) => {
     const slot = outcome.ok ? outcome.value : SKIPPED;
+    outcomes.concepts.push({
+      conceptIndex,
+      conceptId: concepts[conceptIndex]?.conceptId ?? '',
+      generation: generationOutcome(slot),
+    });
     if (slot.skipped || !slot.value.ok) {
       if (!slot.skipped && !slot.value.ok && slot.value.error.kind === 'schema-rejected') {
         counts.schemaRejected += 1;
@@ -201,23 +214,10 @@ export async function runRoomPipeline(
   counts.candidates = candidates.length;
 
   // Code_Checks, once per question. Blind review is only asked about questions that pass.
-  const survivors = await timed('code-checks', () => {
-    const evidence = toEvidenceContext(doc);
-    return candidates.filter((c) => {
-      const siblings = candidates
-        .filter((o) => o.conceptIndex === c.conceptIndex && o !== c)
-        .map((o) => o.question);
-      const ids = new Set(
-        runChecks({ question: c.question, siblings, ...evidence })
-          .filter((f) => BLOCKING_IDS.has(f.checkId))
-          .map((f) => f.checkId),
-      );
-      if (ids.size === 0) return true;
-      for (const id of ids) counts.codeCheckRejections[id] = (counts.codeCheckRejections[id] ?? 0) + 1;
-      counts.discarded += 1;
-      return false;
-    });
-  });
+  const conceptIdOf = (i: number): string => concepts[i]?.conceptId ?? '';
+  const survivors = await timed('code-checks', () =>
+    runCodeCheckStage(candidates, doc, conceptIdOf, counts, outcomes),
+  );
 
   // Blind review: one task per surviving question, primary and alternate separately.
   const reviewed = await timed('review', () =>
@@ -244,6 +244,7 @@ export async function runRoomPipeline(
     if (outcome === undefined || (outcome.ok && outcome.value.skipped)) return;
     // A task that rejected despite the never-throws contract sets only its question aside.
     const verdict: ReviewVerdict | null = outcome.ok && !outcome.value.skipped ? outcome.value.value : null;
+    recordVerdict(outcomes, c, verdict);
     if (verdict?.verdict === 'passed') {
       counts.accepted += 1;
       const row = accepted[c.conceptIndex];
@@ -272,9 +273,15 @@ export async function runRoomPipeline(
     alternate: accepted[i]?.[1] ?? null,
   }));
   const assembled = await timed('assembly', () =>
-    assembleRoom({ manifestId: manifestIdOf(doc), document: doc, concepts: assemblyConcepts }),
+    assembleRoom({
+      manifestId: manifestIdOf(doc),
+      document: doc,
+      concepts: assemblyConcepts,
+      ...(options.assemblyPolicy === undefined ? {} : { policy: options.assemblyPolicy }),
+    }),
   );
   if (!assembled.ok) return fail(assembled.error);
+  recordPlacements(outcomes, assembled.value);
   counts.mapperRejected = assembled.value.mapperRejections.length;
   counts.leakDroppedConcepts = assembled.value.leakDroppedConceptIds.length;
 

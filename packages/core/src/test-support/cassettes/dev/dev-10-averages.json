@@ -1,0 +1,505 @@
+{
+  "checkVersion": "2026-11-27.1",
+  "entries": [
+    {
+      "digest": "d1e04b24953e2035210d5f9b6fba5384a7392efce6fb5964abe1d14b5cbd2de5",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Measures of central tendency and spread",
+              "chunkIds": [
+                "chk_ebad88095b1d_1"
+              ],
+              "quotes": [
+                "the mean, the median and the mode",
+                "The range is not a measure of central tendency",
+                "it is a measure of spread"
+              ]
+            },
+            {
+              "label": "Mean, median, mode, and range definitions",
+              "chunkIds": [
+                "chk_ebad88095b1d_2"
+              ],
+              "quotes": [
+                "The mean is the sum of all the values divided by the number of values",
+                "The median is the middle value when the data are put in order",
+                "The mode is the value that appears most often",
+                "The range is the largest value minus the smallest value"
+              ]
+            },
+            {
+              "label": "How to find the median",
+              "chunkIds": [
+                "chk_ebad88095b1d_3"
+              ],
+              "quotes": [
+                "First, put the values in order from smallest to largest",
+                "if the count is odd, pick the middle value",
+                "if the count is even, take the mean of the two middle values"
+              ]
+            },
+            {
+              "label": "Outliers affect the mean more than the median",
+              "chunkIds": [
+                "chk_ebad88095b1d_5"
+              ],
+              "quotes": [
+                "The mean is affected strongly by outliers",
+                "the value 10 pulls the mean above the median",
+                "The median is often a better summary when data contain outliers"
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 607,
+          "outputTokens": 279
+        }
+      }
+    },
+    {
+      "digest": "c296bac6e0026d2299f2eb5e34f05d6fe2a456137f7c3de524dd4edf72e022dc",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact: range is a measure of spread, not central tendency. A rune-cipher fits because the answer is a short phrase that completes one sentence on its own.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The range is a measure of ______.",
+            "answer": "spread",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ebad88095b1d_1",
+                "quote": "The range is not a measure of central tendency: it is a measure of spread"
+              }
+            ],
+            "explanation": "The notes explicitly say the range is a measure of spread.",
+            "hint": null
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what is the range a measure of?",
+            "options": [
+              {
+                "id": "a",
+                "text": "spread",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_1",
+                  "quote": "it is a measure of spread"
+                }
+              },
+              {
+                "id": "b",
+                "text": "central tendency",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_1",
+                  "quote": "The range is not a measure of central tendency"
+                }
+              },
+              {
+                "id": "c",
+                "text": "the middle of a set of data",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_1",
+                  "quote": "which describe the middle of a set of data"
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes say range measures spread and explicitly say it is not a measure of central tendency."
+          }
+        },
+        "usage": {
+          "inputTokens": 1204,
+          "outputTokens": 334
+        }
+      }
+    },
+    {
+      "digest": "5412bcb200948cb8c67ed9c4638763c24d9442c581170df838f6257955d51436",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define four terms in one sentence, so a fill-in-the-blank question is the best fit; a seance-board would be awkward because there are multiple correct facts rather than one unique option.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The mean is the sum of all the values divided by the number of values. The median is the ______ when the data are put in order.",
+            "answer": "middle value",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ebad88095b1d_2",
+                "quote": "The median is the middle value when the data are put in order."
+              }
+            ],
+            "explanation": "The notes directly state the definition of median, and the blank completes that sentence.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 12
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what is the definition of the mode?",
+            "options": [
+              {
+                "id": "A",
+                "text": "The value that appears most often",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_2",
+                  "quote": "The mode is the value that appears most often."
+                }
+              },
+              {
+                "id": "B",
+                "text": "The middle value when the data are put in order",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_2",
+                  "quote": "The median is the middle value when the data are put in order."
+                }
+              },
+              {
+                "id": "C",
+                "text": "The largest value minus the smallest value",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_2",
+                  "quote": "The range is the largest value minus the smallest value."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only option A matches the notes' definition of mode; the other options are definitions of different statistics."
+          }
+        },
+        "usage": {
+          "inputTokens": 1204,
+          "outputTokens": 397
+        }
+      }
+    },
+    {
+      "digest": "006565ea57da08b7be3ff1821ad681cff8822df6641e22430e051df3b93fb6cc",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a single step-by-step procedure, so a fill-in-the-blank question fits best; a seance-board would be awkward because the concept is a process rather than one discrete fact.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "To find the median, first ______.",
+            "answer": "put the values in order from smallest to largest",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ebad88095b1d_3",
+                "quote": "First, put the values in order from smallest to largest."
+              }
+            ],
+            "explanation": "The notes state this as the first step in finding the median.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "p",
+              "length": 46
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what is the first step to find the median?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Put the values in order from smallest to largest.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_3",
+                  "quote": "First, put the values in order from smallest to largest."
+                }
+              },
+              {
+                "id": "B",
+                "text": "Count how many values there are first.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_3",
+                  "quote": "Next, count how many values there are."
+                }
+              },
+              {
+                "id": "C",
+                "text": "Take the mean of the two middle values first.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_3",
+                  "quote": "Finally, if the count is even, take the mean of the two middle values."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes explicitly say the first step is to put the values in order from smallest to largest."
+          }
+        },
+        "usage": {
+          "inputTokens": 1211,
+          "outputTokens": 383
+        }
+      }
+    },
+    {
+      "digest": "297f49b4a1c213932f81bbbe8d8cba25066056ad14ceff74d555802714716c21",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes directly support a fill-in-the-blank fact about how outliers affect the mean versus the median, and the concept is stated in one sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Outliers affect the ______ more than the median.",
+            "answer": "mean",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ebad88095b1d_5",
+                "quote": "The mean is affected strongly by outliers, which are values far from the rest."
+              }
+            ],
+            "explanation": "The notes say the mean is affected strongly by outliers, while the median is a better summary when data contain outliers.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 4
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which statistic is affected strongly by outliers?",
+            "options": [
+              {
+                "id": "a",
+                "text": "mean",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_5",
+                  "quote": "The mean is affected strongly by outliers, which are values far from the rest."
+                }
+              },
+              {
+                "id": "b",
+                "text": "median",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_5",
+                  "quote": "The median is often a better summary when data contain outliers."
+                }
+              },
+              {
+                "id": "c",
+                "text": "mode",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ebad88095b1d_5",
+                  "quote": "The mean is affected strongly by outliers, which are values far from the rest."
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes explicitly state that the mean is affected strongly by outliers, and they contrast this with the median."
+          }
+        },
+        "usage": {
+          "inputTokens": 1198,
+          "outputTokens": 375
+        }
+      }
+    },
+    {
+      "digest": "628a5af250dccdd66636835980c47e4bbe77f76f3d1c6bf4449d1abdfba02123",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "spread",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 336,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "d589b5ee46a5a7e93959291ca1837fc6794da203e091cc0ec76bf1766429c803",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 368,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "ce5573a2a6db955bed5c5cd575f14c0ed3be69ab41bce60da38aed5ceec161b5",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "middle value",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 354,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "e6715196f15a452ccb8031d4a54ad81c56a9cd8ce6402f4d29105d4f106007f6",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 378,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "b3317db469d7e8d756a73c04a5f24a99d5124e429ddba72a519905ac893b5552",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "put the values in order from smallest to largest",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 344,
+          "outputTokens": 24
+        }
+      }
+    },
+    {
+      "digest": "404455b7e0b32677b770518623c23457f6622b0804f199fad55233c29b2c57f1",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 393,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "d51b2a69431a9604f63652fe0a9b98a4c02e77456d665d394ade28e504745382",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 353,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "155b0ab8c09f5dd2bc299e42e5297e1ed5845332c2b1db82099ab603c1b8f9e9",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "mean",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 329,
+          "outputTokens": 16
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1333 @@
+{
+  "checkVersion": "2026-11-27.1",
+  "entries": [
+    {
+      "digest": "78e913939a8f2e8e399012d91435335df73e5986c0edf619ccf207ed59ec68d2",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Vaccines prepare the immune system before infection",
+              "chunkIds": [
+                "chk_862271b08b29_1"
+              ],
+              "quotes": [
+                "A vaccine prepares the immune system to recognise a germ before a real infection happens.",
+                "showing the body an antigen"
+              ]
+            },
+            {
+              "label": "Antigens are foreign molecules recognized by the immune system",
+              "chunkIds": [
+                "chk_862271b08b29_1"
+              ],
+              "quotes": [
+                "an antigen, which is a molecule the immune system can recognise as foreign.",
+                "Most antigens used in vaccines are proteins or sugars"
+              ]
+            },
+            {
+              "label": "B cells make antibodies",
+              "chunkIds": [
+                "chk_862271b08b29_2"
+              ],
+              "quotes": [
+                "B cells produce antibodies, which are proteins that attach to a specific antigen",
+                "mark it for destruction"
+              ]
+            },
+            {
+              "label": "Helper and killer T cells have different roles",
+              "chunkIds": [
+                "chk_862271b08b29_2"
+              ],
+              "quotes": [
+                "helper T cells coordinate the response by sending chemical signals",
+                "killer T cells destroy body cells that have already been infected"
+              ]
+            },
+            {
+              "label": "Antigen-presenting cells display antigens to T cells",
+              "chunkIds": [
+                "chk_862271b08b29_2"
+              ],
+              "quotes": [
+                "Antigen-presenting cells, such as dendritic cells, capture antigens and display them to T cells."
+              ]
+            },
+            {
+              "label": "Steps of the immune response after vaccination",
+              "chunkIds": [
+                "chk_862271b08b29_3"
+              ],
+              "quotes": [
+                "After vaccination, the response follows a set order.",
+                "First, the vaccine introduces the antigen into the body.",
+                "Finally, some B and T cells remain as memory cells"
+              ]
+            },
+            {
+              "label": "Memory cells provide a faster later response",
+              "chunkIds": [
+                "chk_862271b08b29_3"
+              ],
+              "quotes": [
+                "some B and T cells remain as memory cells, ready to respond quickly to the same germ later."
+              ]
+            },
+            {
+              "label": "Protection takes about two weeks and may need a booster",
+              "chunkIds": [
+                "chk_862271b08b29_4"
+              ],
+              "quotes": [
+                "It usually takes about two weeks after vaccination for the body to build protection.",
+                "Some vaccines need a second dose, called a booster"
+              ]
+            },
+            {
+              "label": "Main vaccine types",
+              "chunkIds": [
+                "chk_862271b08b29_5"
+              ],
+              "quotes": [
+                "There are four main types of vaccine covered in these notes: live-attenuated vaccines, inactivated vaccines, subunit vaccines and mRNA vaccines."
+              ]
+            },
+            {
+              "label": "Live-attenuated vaccines contain weakened germs",
+              "chunkIds": [
+                "chk_862271b08b29_5"
+              ],
+              "quotes": [
+                "Live-attenuated vaccines contain a weakened form of the germ."
+              ]
+            },
+            {
+              "label": "Inactivated vaccines contain killed germs",
+              "chunkIds": [
+                "chk_862271b08b29_5"
+              ],
+              "quotes": [
+                "Inactivated vaccines contain a germ that has been killed."
+              ]
+            },
+            {
+              "label": "Subunit vaccines contain selected pieces of the germ",
+              "chunkIds": [
+                "chk_862271b08b29_5"
+              ],
+              "quotes": [
+                "Subunit vaccines contain only selected pieces of the germ, such as one protein."
+              ]
+            },
+            {
+              "label": "mRNA vaccines instruct cells to make a harmless piece of protein",
+              "chunkIds": [
+                "chk_862271b08b29_5"
+              ],
+              "quotes": [
+                "mRNA vaccines contain instructions that tell the body's own cells to make a harmless piece of the germ's protein."
+              ]
+            },
+            {
+              "label": "Antibiotics are not vaccines",
+              "chunkIds": [
+                "chk_862271b08b29_5"
+              ],
+              "quotes": [
+                "Antibiotics are not vaccines at all: they are medicines that kill bacteria or stop them from growing"
+              ]
+            },
+            {
+              "label": "Herd immunity protects people who cannot be vaccinated",
+              "chunkIds": [
+                "chk_862271b08b29_6"
+              ],
+              "quotes": [
+                "When enough people in a community are immune, a germ struggles to spread from person to person.",
+                "This indirect protection is called herd immunity"
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 786,
+          "outputTokens": 787
+        }
+      }
+    },
+    {
+      "digest": "e3fe9df3b1548e44889d3853a63ba56235a914bde9f81b67977ee702bb79cc34",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank term: antigen is defined as a molecule the immune system can recognise as foreign. A seance-board question is not needed because the concept is a direct term-definition match.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "An ______ is a molecule the immune system can recognise as foreign.",
+            "answer": "antigen",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_1",
+                "quote": "an antigen, which is a molecule the immune system can recognise as foreign"
+              }
+            ],
+            "explanation": "The notes directly define antigen with this wording.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "a",
+              "length": 7
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1211,
+          "outputTokens": 163
+        }
+      }
+    },
+    {
+      "digest": "3ca10999d4a19ed311dd53a35a5c35c59a78052fc11f439a414f221c9b426ddd",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about what a vaccine does before infection, and the exact phrase is short enough for rune-cipher. A seance-board is unnecessary because there is only one clear term to recall.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "A vaccine prepares the immune system to recognise a germ before a real infection ______.",
+            "answer": "happens",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_1",
+                "quote": "A vaccine prepares the immune system to recognise a germ before a real infection happens."
+              }
+            ],
+            "explanation": "The notes state the full sentence, and the missing word is the final term that completes it.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "h",
+              "length": 7
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what does a vaccine prepare the immune system to do before a real infection happens?",
+            "options": [
+              {
+                "id": "A",
+                "text": "recognise a germ",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_1",
+                  "quote": "A vaccine prepares the immune system to recognise a germ before a real infection happens."
+                }
+              },
+              {
+                "id": "B",
+                "text": "cause a real infection",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_1",
+                  "quote": "before a real infection happens"
+                }
+              },
+              {
+                "id": "C",
+                "text": "destroy all antigens immediately",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_1",
+                  "quote": "It does this by showing the body an antigen"
+                }
+              },
+              {
+                "id": "D",
+                "text": "ignore foreign molecules",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_1",
+                  "quote": "which is a molecule the immune system can recognise as foreign"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes say vaccines prepare the immune system to recognise a germ before infection; the other options conflict with that description."
+          }
+        },
+        "usage": {
+          "inputTokens": 1209,
+          "outputTokens": 436
+        }
+      }
+    },
+    {
+      "digest": "170a9eaa644dc052b83bb161c06e6c5d1026fec391abe304fe4ac121dec3e198",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single short fact that can be tested as a fill-in-the-blank: B cells produce antibodies.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "B cells ______ antibodies.",
+            "answer": "produce",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_2",
+                "quote": "B cells produce antibodies"
+              }
+            ],
+            "explanation": "The notes state the exact relationship between B cells and antibodies.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "p",
+              "length": 7
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what do B cells do?",
+            "options": [
+              {
+                "id": "A",
+                "text": "B cells produce antibodies.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_2",
+                  "quote": "B cells produce antibodies"
+                }
+              },
+              {
+                "id": "B",
+                "text": "B cells destroy body cells that have already been infected.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_2",
+                  "quote": "killer T cells destroy body cells that have already been infected"
+                }
+              },
+              {
+                "id": "C",
+                "text": "B cells coordinate the response by sending chemical signals.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_2",
+                  "quote": "helper T cells coordinate the response by sending chemical signals"
+                }
+              },
+              {
+                "id": "D",
+                "text": "B cells capture antigens and display them to T cells.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_2",
+                  "quote": "Antigen-presenting cells, such as dendritic cells, capture antigens and display them to T cells"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only the first option matches the notes; the others describe different cell types."
+          }
+        },
+        "usage": {
+          "inputTokens": 1233,
+          "outputTokens": 386
+        }
+      }
+    },
+    {
+      "digest": "253fa32b06bdf24755935e726466997cda5927779d39c48444f3fb365b120f11",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single factual contrast between helper and killer T cells, so a seance-board question fits best. A rune-cipher is not suitable because the concept is a relationship, not a single missing term.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which role belongs to helper T cells?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Helper T cells coordinate the response by sending chemical signals.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_2",
+                  "quote": "helper T cells coordinate the response by sending chemical signals"
+                }
+              },
+              {
+                "id": "B",
+                "text": "Helper T cells destroy body cells that have already been infected.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_2",
+                  "quote": "killer T cells destroy body cells that have already been infected"
+                }
+              },
+              {
+                "id": "C",
+                "text": "Helper T cells produce antibodies.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_2",
+                  "quote": "B cells produce antibodies, which are proteins"
+                }
+              },
+              {
+                "id": "D",
+                "text": "Helper T cells capture antigens and display them to T cells.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_2",
+                  "quote": "Antigen-presenting cells, such as dendritic cells, capture antigens and display them to T cells"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes say helper T cells coordinate the response by sending chemical signals, while killer T cells destroy infected body cells."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "T cells come in two main kinds: helper T cells coordinate the response by sending chemical signals, and ______ destroy body cells that have already been infected.",
+            "answer": "killer T cells",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_2",
+                "quote": "killer T cells destroy body cells that have already been infected"
+              }
+            ],
+            "explanation": "The blank is the other T-cell type named in the notes.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "k",
+              "length": 15
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 1237,
+          "outputTokens": 458
+        }
+      }
+    },
+    {
+      "digest": "57855f8cad3b9f8a034f5d8b129827d024104b87935523186e098118f0296f6f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single factual statement that can be turned into a fill-in-the-blank question, and the exact phrase is short enough for rune-cipher.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Antigen-presenting cells, such as dendritic cells, capture antigens and display them to ______.",
+            "answer": "T cells",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_2",
+                "quote": "Antigen-presenting cells, such as dendritic cells, capture antigens and display them to T cells."
+              }
+            ],
+            "explanation": "The notes explicitly say antigen-presenting cells display antigens to T cells.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "T",
+              "length": 7
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1240,
+          "outputTokens": 173
+        }
+      }
+    },
+    {
+      "digest": "2451f4be930e8b4c2913e1eaf9dd83b1ce3d6ea610aa6ee71dd9c3e55977db16",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a clear ordered sequence, so a seance-board question fits best; the alternate can be a rune-cipher for the final step phrase.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what happens fourth in the steps of the immune response after vaccination?",
+            "options": [
+              {
+                "id": "A",
+                "text": "The B cells release antibodies that match the antigen.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_3",
+                  "quote": "Fourth, the B cells release antibodies that match the antigen."
+                }
+              },
+              {
+                "id": "B",
+                "text": "The vaccine introduces the antigen into the body.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_3",
+                  "quote": "First, the vaccine introduces the antigen into the body."
+                }
+              },
+              {
+                "id": "C",
+                "text": "Some B and T cells remain as memory cells.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_3",
+                  "quote": "Finally, some B and T cells remain as memory cells, ready to respond quickly to the same germ later."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes explicitly say the fourth step is that B cells release antibodies that match the antigen."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "After vaccination, the response follows a set order. Finally, some B and T cells remain as ______.",
+            "answer": "memory cells",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_3",
+                "quote": "Finally, some B and T cells remain as memory cells, ready to respond quickly to the same germ later."
+              }
+            ],
+            "explanation": "The notes directly name the final cells as memory cells.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 13
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 1236,
+          "outputTokens": 394
+        }
+      }
+    },
+    {
+      "digest": "d63c77ea4c66f6f205a13a7e4f07923a6c3e6127406891d22c90a24a956c9d0e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about memory cells and do not provide enough contrasting options for a multiple-choice question.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Finally, some B and T cells remain as ______, ready to respond quickly to the same germ later.",
+            "answer": "memory cells",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_3",
+                "quote": "Finally, some B and T cells remain as memory cells, ready to respond quickly to the same germ later."
+              }
+            ],
+            "explanation": "The notes state that some B and T cells remain as memory cells and are ready to respond quickly later.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 12
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1236,
+          "outputTokens": 174
+        }
+      }
+    },
+    {
+      "digest": "a3010ab5a3f6ded7d19da9edfef7de68d0d79fc915b41c6ed991c7e6ef113ae8",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about how long protection takes and mention a booster, so a rune-cipher fits best.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "It usually takes about ______ after vaccination for the body to build protection.",
+            "answer": "two weeks",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_4",
+                "quote": "It usually takes about two weeks after vaccination for the body to build protection."
+              }
+            ],
+            "explanation": "The notes state the exact time needed for protection to build after vaccination.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "t",
+              "length": 9
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, how long does it usually take after vaccination for the body to build protection?",
+            "options": [
+              {
+                "id": "A",
+                "text": "about two weeks",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_4",
+                  "quote": "It usually takes about two weeks after vaccination for the body to build protection."
+                }
+              },
+              {
+                "id": "B",
+                "text": "about two months",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_4",
+                  "quote": "It usually takes about two weeks after vaccination for the body to build protection."
+                }
+              },
+              {
+                "id": "C",
+                "text": "immediately after vaccination",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_4",
+                  "quote": "It usually takes about two weeks after vaccination for the body to build protection."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only 'about two weeks' is supported; the other options conflict with the stated timeframe."
+          }
+        },
+        "usage": {
+          "inputTokens": 1194,
+          "outputTokens": 367
+        }
+      }
+    },
+    {
+      "digest": "d26c7d53af3c52af337feb9de95d90e9372669e8cc725ef01dc18292fc8531a6",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes list exactly four main vaccine types, so a fill-in-the-blank question fits best.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "There are four main types of vaccine covered in these notes: live-attenuated vaccines, inactivated vaccines, subunit vaccines and ______.",
+            "answer": "mRNA vaccines",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_5",
+                "quote": "There are four main types of vaccine covered in these notes: live-attenuated vaccines, inactivated vaccines, subunit vaccines and mRNA vaccines."
+              }
+            ],
+            "explanation": "The missing term is the fourth vaccine type named in the notes.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 12
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which vaccine type contains instructions that tell the body's own cells to make a harmless piece of the germ's protein?",
+            "options": [
+              {
+                "id": "A",
+                "text": "mRNA vaccines",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_5",
+                  "quote": "mRNA vaccines contain instructions that tell the body's own cells to make a harmless piece of the germ's protein."
+                }
+              },
+              {
+                "id": "B",
+                "text": "Live-attenuated vaccines",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_5",
+                  "quote": "Live-attenuated vaccines contain a weakened form of the germ."
+                }
+              },
+              {
+                "id": "C",
+                "text": "Inactivated vaccines",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_5",
+                  "quote": "Inactivated vaccines contain a germ that has been killed."
+                }
+              },
+              {
+                "id": "D",
+                "text": "Subunit vaccines",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_5",
+                  "quote": "Subunit vaccines contain only selected pieces of the germ, such as one protein."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only mRNA vaccines are described as containing instructions that tell the body's own cells to make a harmless piece of the germ's protein."
+          }
+        },
+        "usage": {
+          "inputTokens": 1267,
+          "outputTokens": 457
+        }
+      }
+    },
+    {
+      "digest": "fb4057f8682653553e46eb24a08ee4c155dd0aa2407701b1b339a0c848ebd2d4",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "A rune-cipher fits because the notes give one exact short phrase that completes the concept sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Live-attenuated vaccines contain ______.",
+            "answer": "a weakened form of the germ",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_5",
+                "quote": "Live-attenuated vaccines contain a weakened form of the germ."
+              }
+            ],
+            "explanation": "The notes directly state the missing phrase for live-attenuated vaccines.",
+            "hint": null
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1272,
+          "outputTokens": 126
+        }
+      }
+    },
+    {
+      "digest": "100c09b1f8887ba90da95dd24ccba5d880903891d7d7c55c53b011d640c4f708",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes directly state the concept as a short phrase that completes a sentence, so a rune-cipher fits best. A seance-board is unnecessary because there is only one exact fact to recall.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Inactivated vaccines contain ______.",
+            "answer": "a germ that has been killed",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_5",
+                "quote": "Inactivated vaccines contain a germ that has been killed."
+              }
+            ],
+            "explanation": "The notes explicitly say inactivated vaccines contain a germ that has been killed.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "a",
+              "length": 27
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1270,
+          "outputTokens": 158
+        }
+      }
+    },
+    {
+      "digest": "7605efa8fbe850a25761a265989184de35570dabd6175149187f8f4e0a4e5241",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a single exact phrase that fits a fill-in-the-blank question, and no competing option set is needed.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Subunit vaccines contain only selected pieces of the germ, such as one ______.",
+            "answer": "protein",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_5",
+                "quote": "Subunit vaccines contain only selected pieces of the germ, such as one protein."
+              }
+            ],
+            "explanation": "The notes explicitly say subunit vaccines contain selected pieces of the germ, such as one protein.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "p",
+              "length": 7
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1273,
+          "outputTokens": 158
+        }
+      }
+    },
+    {
+      "digest": "9dd823e9ee335867c53bc50b7d7f58ceb50d4381165293bea90f75e971260516",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes directly state the concept as a complete sentence, so a rune-cipher fill-in-the-blank fits best. No alternate question is needed because the same evidence could also support a seance-board, but the prompt is more naturally a term-completion item.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "mRNA vaccines contain instructions that tell the body's own cells to make a harmless piece of the germ's ______.",
+            "answer": "protein",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_5",
+                "quote": "mRNA vaccines contain instructions that tell the body's own cells to make a harmless piece of the germ's protein."
+              }
+            ],
+            "explanation": "The missing word is the exact term used in the notes to complete the sentence.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "p",
+              "length": 7
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1276,
+          "outputTokens": 195
+        }
+      }
+    },
+    {
+      "digest": "2c5c074ab890af4f0485ed4f9a4cadefab6a16bcf2797e765c79d10fb9e365f6",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about the term and its effect, so a rune-cipher fits best. A seance-board is unnecessary because there is only one directly stated concept to test.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "When enough people in a community are immune, a germ struggles to spread from person to person. This indirect protection is called ______.",
+            "answer": "herd immunity",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_6",
+                "quote": "This indirect protection is called herd immunity"
+              }
+            ],
+            "explanation": "The notes explicitly name the indirect protection as herd immunity.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "h",
+              "length": 13
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1196,
+          "outputTokens": 171
+        }
+      }
+    },
+    {
+      "digest": "2aa48f00438c668896d18893d84eb6db3e0cceaf32991bec0e84b07277d2a315",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes directly state that antibiotics are not vaccines and explain what antibiotics are, so a fill-in-the-blank question fits best.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Antibiotics are not ______.",
+            "answer": "vaccines",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_5",
+                "quote": "Antibiotics are not vaccines at all"
+              }
+            ],
+            "explanation": "The notes explicitly say antibiotics are not vaccines.",
+            "hint": null
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what are antibiotics not?",
+            "options": [
+              {
+                "id": "a",
+                "text": "vaccines",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_5",
+                  "quote": "Antibiotics are not vaccines at all"
+                }
+              },
+              {
+                "id": "b",
+                "text": "medicines that kill bacteria",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_5",
+                  "quote": "they are medicines that kill bacteria or stop them from growing"
+                }
+              },
+              {
+                "id": "c",
+                "text": "subunit vaccines",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_862271b08b29_5",
+                  "quote": "Subunit vaccines contain only selected pieces of the germ"
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "Only the first option matches the notes; the others describe different things."
+          }
+        },
+        "usage": {
+          "inputTokens": 1269,
+          "outputTokens": 301
+        }
+      }
+    },
+    {
+      "digest": "63e972230ba32209852044c3c0121585d09f0e4928d48d7e8af08bab7bcddb5e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "happens",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 347,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "64d85e25e7bf58a1745c7ea72316df60813e755669ea72cb1bc84d01ceaed98f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "antigen",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 344,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "07fb6e5af7f2b6773ba888053a9712ded556f67471f3cd54bf4b189dbc0d3235",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "D",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 389,
+          "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "52a5320065bbff47cc6d55422f4ad274b878a47d8015d5ba34e46d4eceafb954",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "produce",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 364,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "9edff237be0d1224239832cb94b7bfa0524f09f8376da2af9b562bf90da3aefb",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "D",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 426,
+          "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "0cee25bc880daf090325cb8559ae1dcc3ca18c4bd4fd41f19568b51e07fb0e61",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "D",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 432,
+          "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "d01cb9b30fcf0a44a1cf1b069abb345452c8c744545e733e31f6ac317bb0fc6a",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "T cells",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 380,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "36db9cad904bc2e2fcfee47028ab5fc7ad4f8ef6b964956bb9f6c69a0467086f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "killer T cells",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 389,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "1710fd6418142d6a27df06b15193305be05a0917505a9dee59d8feabc1f82053",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 420,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "29ccb09655d41de97189a5cc9dfffc516525f556e771f219538c9181d001d6d2",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "memory cells",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 380,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "d92165e59caf2337a5a11b51b0ae292968b0d4c172a295cce8f2b94f1273deb2",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "two weeks",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 328,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "7522cf193db53b9944010d86c2adf8d8803a4b44ee21ba903e827d9b55e26840",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "memory cells",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 380,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "2d42b61c635d112fe7ae76b7948ad4bde6b024b1da3ad0a89c7d4f5ffe12c134",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "mRNA vaccines",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 422,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "4f80cb7c9867065877babd1d0f4c6056238e8ac81393cd1300cde7320bb98d33",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 360,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "9068db5a1840e759f5c0a9fdc9607e379ea37b56a1c4b273ec8eb80b09897026",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "D",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 457,
+          "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "d880aeac1f2b1b65dfb03b7b96a7e21c170900d7f49331cf377cc39c84e79b19",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a weakened form of the germ",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 402,
+          "outputTokens": 21
+        }
+      }
+    },
+    {
+      "digest": "73e96302dc7a875be875f4f1f8d424b571b1c5351bd9423dce17a17b80fdb141",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "protein",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 410,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "c2c651de5bba6a6f44bbbcd9de05fc713f929783f2d7afc974b15313d2745c91",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "protein",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 416,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "74104a8c557476904c73a4f80485f776e8191a83c2295ea88741951d7a9e23d0",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "herd immunity",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 344,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "20c91f12165ce1cab1c5cc3b6855a8f47eb5cf9dea00261d69a72adec09b24de",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a germ that has been killed",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 400,
+          "outputTokens": 21
+        }
+      }
+    }
+  ]
+}

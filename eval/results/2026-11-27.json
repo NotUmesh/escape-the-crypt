@@ -1,0 +1,3078 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-11-27T11-46-45-014Z-record",
+  "startedAt": "2026-11-27T11:46:45.014Z",
+  "finishedAt": "2026-11-27T11:50:09.146Z",
+  "set": "dev",
+  "provider": "openai",
+  "modelId": "gpt-5.4-mini",
+  "temperature": 0.2,
+  "checkVersion": "2026-11-27.1",
+  "assemblyPolicy": {
+    "promoteAlternates": true,
+    "dedupeAnswers": true
+  },
+  "prices": {
+    "inputUsdPerMTok": 0.75,
+    "outputUsdPerMTok": 4.5
+  },
+  "budget": {
+    "capUsd": 1.2,
+    "spentBeforeUsd": 0,
+    "spentThisRunUsd": 0.330291,
+    "reservationRefused": false
+  },
+  "stopped": "completed",
+  "notes": [
+    {
+      "note": "dev-01-vaccines.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "78e913939a8f2e8e399012d91435335df73e5986c0edf619ccf207ed59ec68d2",
+        "943d4333e14086ece2733a0e7d509197255e9e63cc423b82968336dad16b52b2",
+        "062b580eda58c61af1622fb6b0b7a49818cca799150a0ea551210819f8e61c32",
+        "052a41e1b076f46d2ba8fd0d434af1722fdb43ad83fb65aabddca8e68bd47285",
+        "08f6d21188f16f38ed1e1f043c301a2cf4c98add39ce16bc2620c9176515c6d4",
+        "449af05ffd2d7a48c34159822718e4097cbcbcdb0a68346ceb7dc83daa5908f3",
+        "80728d977873be99ac7b3281ae33e700a29f9afea81081d102baa9c76ab1282a",
+        "e13d348b0abce5e233f736437a8803c549bfb99258af04be529a49463317d97a",
+        "91eb735542fe79b3ddf990faefc38a6b66e5804443dba62150d7f38dc7418521",
+        "e75a608d54a6e4154851be0933cf4ab29361ca529693004289bb5ab557bc6e06",
+        "70a4f3a91ba83430dd48a5264c47f970a8b2bd5a9a15975e686706b2616f4248",
+        "a3cf3bde4cc5beaa754cd0bbe46a4508167ae3a790389b886c4ff0b88630c629",
+        "3737b8fdbb025d8bcee7c5d28428a6763a3214913cb4821434c9dc30b131107b",
+        "bb0a10b1c255f9e9cf6573822fed454e9aa58993ad3689f5e0e629a59438dd16",
+        "a6b4f648b2b34f1b96724cabdf4682d6310ac80271b1af11c4928c727c35ef08",
+        "e4cf1cb03a35306048e09a49061d8d4df06769fc309a5855a20a90b2790ab130",
+        "63e972230ba32209852044c3c0121585d09f0e4928d48d7e8af08bab7bcddb5e",
+        "000f4fb7d5daf585a231ea6c804beb7f7828cb72cd0ce40c4fb63c9233500605",
+        "8ad4a29946f9c043b4b66b19911d48d9be2b256d3d14a556d7e1d0fa7ad274f4",
+        "521169720c5e5f97e4eca7a4667037d83f8697b4c5c33b8334f32d72318075ae",
+        "ac77c79da52c1e2d465b179af087397c69b023524176b385b36bc70b99c8ce05",
+        "56188ed8804d0173d96e093940f006f0a5d2fca314eccfe1a64a5dc117693a9b",
+        "4ac52310a0de92685bd613d0cd45acec6f1430780511f48671191882b05ef1dc",
+        "266220b85944415144881bccc42119ee7a31cbc7ab585ec7eebf31bc9aa2e409",
+        "d01cb9b30fcf0a44a1cf1b069abb345452c8c744545e733e31f6ac317bb0fc6a",
+        "f111e5fe00960048e9b1c425429b1e3f8874b05a75422ca8c4a7a675d692bf46",
+        "a49325a6938cd06a1ec3b2494a2a42b83f7f3ab41946b6135a722cb72b2ccfce",
+        "31a88a1dd6793f20e322dc413ec4581d891c67b5017af062ebcb7bc8bc94c019",
+        "29ccb09655d41de97189a5cc9dfffc516525f556e771f219538c9181d001d6d2",
+        "a5112030219d4889dd7e6fe1391a81684983bb8d02d01d096c95e0bf845bf3b7",
+        "d92165e59caf2337a5a11b51b0ae292968b0d4c172a295cce8f2b94f1273deb2",
+        "126033cc469b06421b7832024ece88fe35a6b2811ff831771018f0ebe3493fe6",
+        "2d42b61c635d112fe7ae76b7948ad4bde6b024b1da3ad0a89c7d4f5ffe12c134",
+        "e355e8b2dbc897dc73d5ce1345cdb9e0e5113b092cab4fc6ccfb185905f4a4e6",
+        "cca47c6d2208c78185657ed91bc8eb7a86d14f33d8a8e8b032b889d5364802d2",
+        "8492dac2f0f96953598a0ea47fa6d113ea06aac872d812a0db2c479c4b9de963",
+        "ce53c8ec4a64a58bcd2102561bf1a0ac14e81a5e8018c88db71300b51e39ac9b",
+        "fd71ebf0f1cb5cfaf2cf76684d8e5a6125c38eb31f6294e47a36c236a0ddb452",
+        "73e96302dc7a875be875f4f1f8d424b571b1c5351bd9423dce17a17b80fdb141",
+        "92cbf67e4fd2601469907b165e4242f689a66ce08016c8fa9a1eedde6d6de565",
+        "c2c651de5bba6a6f44bbbcd9de05fc713f929783f2d7afc974b15313d2745c91",
+        "7a8f65d67a2cc05b2d2613a2994cace3feecd6f7c5a96d7ba41ba5d16dadb188",
+        "175db5f2694c0f5bed18baabfc03ae8b912639bafd844c3fc3c18e8cde8aa48d",
+        "74104a8c557476904c73a4f80485f776e8191a83c2295ea88741951d7a9e23d0",
+        "320a7610d56fa82bbabadde553585c408a3b61192b721ae84ec956ed2d06724e"
+      ],
+      "liveCalls": 45,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 1.9827000000000226,
+        "concept-extraction": 4238.9632,
+        "generation": 17050.197200000002,
+        "code-checks": 11.240799999999581,
+        "review": 13739.184699999998,
+        "assembly": 10.228100000000268
+      },
+      "tokens": {
+        "inputTokens": 28464,
+        "outputTokens": 7789
+      },
+      "costUsd": 0.0563985,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 9,
+          "conceptId": "concept-10",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 10,
+          "conceptId": "concept-11",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 11,
+          "conceptId": "concept-12",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 12,
+          "conceptId": "concept-13",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 13,
+          "conceptId": "concept-14",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 14,
+          "conceptId": "concept-15",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "primary",
+          "lockType": "seance-board",
+          "result": "review-rejected",
+          "checkIds": [],
+          "reviewReason": "label-mismatch",
+          "placement": null
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "alternate",
+          "lockType": "rune-cipher",
+          "result": "review-rejected",
+          "checkIds": [],
+          "reviewReason": "answer-mismatch",
+          "placement": null
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "review-rejected",
+          "checkIds": [],
+          "reviewReason": "label-mismatch",
+          "placement": null
+        },
+        {
+          "conceptIndex": 9,
+          "conceptId": "concept-10",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 9,
+          "conceptId": "concept-10",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 10,
+          "conceptId": "concept-11",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 10,
+          "conceptId": "concept-11",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 11,
+          "conceptId": "concept-12",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 11,
+          "conceptId": "concept-12",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 12,
+          "conceptId": "concept-13",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 12,
+          "conceptId": "concept-13",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 13,
+          "conceptId": "concept-14",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "negative-question"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 13,
+          "conceptId": "concept-14",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 14,
+          "conceptId": "concept-15",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 14,
+          "conceptId": "concept-15",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {
+        "negative-question": 1
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-primary",
+            "alternateQuestionId": "concept-1-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-3",
+            "primaryQuestionId": "concept-3-alternate",
+            "alternateQuestionId": "concept-3-primary"
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-02-water-cycle.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "377f5d6734b31ddb5ab1fa3084502c050c7873206eecf81c3b745b9d129f2d7b",
+        "bde0bdef39be6b43f1aa5b15ddd69f59fbda429d0c4f9c04ef70f24c6b65fdd4",
+        "6801c2074b2962597631394c83c37615c053fe6a5bf6ece55cd47347a0422c73",
+        "db7dd810ac6f3e338d1a47212a0a6848a4682b7c49c80fcbdbb1cbc8908b2284",
+        "c4f4d3d094d6f815248b0f1f0c743467a03d4e77a4316178f29f10a585041a42",
+        "747761085791a460a766c4e2b2aea1d5d404f1165acaf6d343f543127b29e1f0",
+        "6affe8c376163e5a8b293c0cd1ea2a571d9246016681f21bdf0e99755511152a",
+        "07cdc60e6bfab0b13e21247b12445b462da5b837c50ae140ba92d1d341f48124",
+        "c8a2319556f392a0405d06d51ed70c1da2c95db5ed494b1048a075fb78ef8d76",
+        "51299c7234c28f092c4cdda6a97b59a8a70b7203108c1a81ff128c28d1daf729",
+        "0a0a2051601629d838e99bc2a67473381d5228b9c7ae0fde42d40899ef28323c",
+        "abf5f518e3e18f444c1b2092e5ea523b502b17a5c8a5e2fe162d33d1bcaa92dd",
+        "28f14eb179817b26d4d8c8ed5dddc28c7e52e213a902f5e5c0f97d3bcb1ff566",
+        "520b6b0bc27ff13fce7de6b70c12a7fb1d89c97ef1b55feb28775d50f43cccd2",
+        "703cf82da94a84f5c0ececc86e93e9e03a52df01e3ac4c23af75f3a4ded364a0",
+        "9cbe4ad8fa56ae2882a9e161c37cf568f9a5180700bdf09e008f457fa56ed2b7",
+        "fb58cfdd4be466d22349bf498a0d27338092d050fd943e8ce09286e91de5594e",
+        "4321cf65f8224d61ca34079342d07f0f427ce3a5dc6b4625908a47ee1ebd4ddd",
+        "cdff11e94c108e91b44d992e290939b0dcae99b58db2a189204ef35e098e9d86",
+        "1c8662dec939b257a7997d791c516b1b46d41c9958247093fd0c326f07e206c9"
+      ],
+      "liveCalls": 20,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.3728999999948428,
+        "concept-extraction": 1989.8394999999946,
+        "generation": 6969.2456999999995,
+        "code-checks": 2.9199999999982538,
+        "review": 5944.252100000005,
+        "assembly": 2.7186000000001513
+      },
+      "tokens": {
+        "inputTokens": 12232,
+        "outputTokens": 3289
+      },
+      "costUsd": 0.02397450000000001,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "quote-too-long"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        }
+      ],
+      "codeCheckRejections": {
+        "quote-too-long": 1
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-primary",
+            "alternateQuestionId": "concept-1-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-3",
+            "primaryQuestionId": "concept-3-primary",
+            "alternateQuestionId": "concept-3-alternate"
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-03-photosynthesis.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "2ade33cb8268d79d79e92d986476dc7ad9fbd2df25e7ec0ab9edde0c7e24bdb6",
+        "57982ec42b808bd34f5b2a91a9d97b19b79a34dcd1b075ea1d21a288454c2f3f",
+        "f1861bbdc0d8b7f5538528f51a5103280950acc89a88ec7cd1dc1939e539d657",
+        "5d903661ae51b006094051a8cad40478b8200cdddddec7d8604f9b5f3efe1d4e",
+        "65ef4c04bf209c36b0ae5c259f2638c0a9ec532fa11207b076dfa20e0b3fe163",
+        "c96eb33a727118fae4f6d94842d33a94d15bc8b91c891d10e71f4f243c367459",
+        "08f1d6758e825358a9aa049bf145495bc4815fef5222a500166d63c57b9e1d27",
+        "aeaa7e895e192df33deeef715481ab2f5fa659020a1ac8fa16ec3a6e9853945d",
+        "82991a893e8f6a6ac8e2a4a7ca2cee9e3890fee5309c022d9eb89c8ab432f927",
+        "30ee47c0c0393fb73189f7bbd18a3a767472f58715398d37e74431a5ac90af90",
+        "6a9d603b6247a007003882b5721965ff2a73208d0890a54f5888028e8ac99843",
+        "8305de36870977cee9d2bd17f29822dc98baf294bd6ffe7fda4447df5fe12926",
+        "54806c7818c1cfdf65840397ea2886ef8fd49c1993704c8044d9cfc32d1252c9",
+        "407dd220e820d7faef3318484bd238b48d3c5c6297613c1758f071a7fe60d4a2",
+        "07006d7646b406a7044a3f8f9a3d6f4ef3041b1c85d647dd5c5f02de07182826",
+        "670cf703afa5c09ac8c9bbff858e43a117b0bc7d6e1208ad9427543deb66b65d",
+        "09827dec02af75e5c7915c3e2ed3d1857ba3f9cf6b86e76ebac59fb82d6301ff",
+        "333de2beea7427ec198f5df66e2f00c5e98ba705eb66183aad990f0aa0ce021b",
+        "7982ced4bad00f7242aeb77477aed7e2f47256c13af46873d737065698480a45",
+        "dd65f0b30f1bebed43e45ebbe35c15e11c4bce2b9a340d58220beb512df6cf2e",
+        "4a6f4ca0bea19bdd5deaf9ce2394e238101f52ad08843b4f56bdf279058b88b7",
+        "f7347f1e58e6d072e597c7c5621902e20e61fa6ca82eb1164b24d6e3faad38c6"
+      ],
+      "liveCalls": 22,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.2378000000026077,
+        "concept-extraction": 2330.5504999999976,
+        "generation": 8848.777799999996,
+        "code-checks": 3.771999999997206,
+        "review": 5872.365300000005,
+        "assembly": 2.6165000000037253
+      },
+      "tokens": {
+        "inputTokens": 14605,
+        "outputTokens": 4413
+      },
+      "costUsd": 0.030812250000000006,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "quote-too-short"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "quote-too-short"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "answer-not-in-quote"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "review-rejected",
+          "checkIds": [],
+          "reviewReason": "answer-mismatch",
+          "placement": null
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "quote-too-long"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "review-rejected",
+          "checkIds": [],
+          "reviewReason": "answer-mismatch",
+          "placement": null
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {
+        "quote-too-short": 2,
+        "answer-not-in-quote": 1,
+        "quote-too-long": 1
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-primary",
+            "alternateQuestionId": null
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-3",
+            "primaryQuestionId": "concept-3-alternate",
+            "alternateQuestionId": null
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-04-apollo-11.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "bebc3271e2cbc744d83bfc821f0b39a040e18ce0e62f91df4e188576b3904d45",
+        "9c1358696abf687d94cac63d21bc3f7e91ec13998086532d497e915507bac8e9",
+        "d2ba5b5895e15a5c34d913ce6231db95ef3271c52228afe9c2e0e4a7026cd539",
+        "16bb3bc91c2d407d65aaf775f4acc57dd581805c855a459ce80d31d860d1edbb",
+        "b2cf4cf92e28b07f302da015e36b3a4b3ff83096621233e00bff4ad5467e2088",
+        "7d586943b82f16a8bd5c152247b4f58da98e169bdbf245174a215fcb2a9b3cce",
+        "51f73d6551e40ed222389ec7f608d507e2aa9c0802d194d92c07712ba4611092",
+        "bf37f2b243a9e526a86e669de747cd0e80c964af515a0174f14ee67e6a8de2e1",
+        "bbfd3dbae973a4c56f0d470f2e03873ca4cf7fe830365519262053fda03f3efa",
+        "6e3d2a83f0e1d65b56eb3a3457ab685f66dcf925affc2eb28fe995dee76c2f30",
+        "6e373db3e6436d983eaf1f99323f684c1bb7029d2c5b689406a09cab3ee7f404",
+        "7adec0e818da4d03452b04b35609e97005309ea8690fbf40989dff809beb71ce",
+        "d13655a3b23ebd412c258e29f8312cea9b7acad1650e2d5fa28e5869ed9d2270",
+        "0b74a004e609df8fc26ca0205ac1bac499e3955f5cd31268a9652b5855a3d528",
+        "11feef90c0fed64b8c75daae03be31dbd1c30c0950cf9598b5681ed26bde8915",
+        "0c670f94d53063a5f3881bab132777143f5ec657f50021764524d586fa942b47",
+        "5419c8b4df9600aab7e60e6e7e8e915029187b4e6869fb36ba0d95f0d9682e88",
+        "e37f8e4794c53811594fc7d48dfeb824f27527469fbcb95d0c42921ca06cdb60",
+        "4bc534cdd5b0ff28d6ff4a2b68c20075b7364ac3fb3499fbe2cb780f355e71f3",
+        "3f65a9683f7f0a46f7abcc6ed45fe7e3bfcaf4fc45073be80f7395462d2cec21",
+        "82b1c1f7b03156233e0f52a036ce8a220a45067fad50e514a1ac71632ab38625",
+        "e410a2e045f393e3ff9ef3012b835e03255e67724a1ab5459022567e4b237413",
+        "e75f9e68a24b4cbface9991859ce88377c9b136f1ccd7cae49896dd757b6aaaf",
+        "6fbb06b0966d24970aa320cfd551ffcd8bc599b05376c27c3352633c43fac549"
+      ],
+      "liveCalls": 24,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.12149999999382999,
+        "concept-extraction": 3209.5363999999972,
+        "generation": 9368.403900000005,
+        "code-checks": 4.628899999996065,
+        "review": 6995.49470000001,
+        "assembly": 2.7669000000023516
+      },
+      "tokens": {
+        "inputTokens": 15173,
+        "outputTokens": 4404
+      },
+      "costUsd": 0.03119775,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "review-rejected",
+          "checkIds": [],
+          "reviewReason": "answer-mismatch",
+          "placement": null
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "negative-question"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "primary",
+          "lockType": "seance-board",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "quote-too-long"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "alternate",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "quote-too-long"
+          ],
+          "reviewReason": null,
+          "placement": null
+        }
+      ],
+      "codeCheckRejections": {
+        "negative-question": 1,
+        "quote-too-long": 2
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-primary",
+            "alternateQuestionId": "concept-1-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-4",
+            "primaryQuestionId": "concept-4-primary",
+            "alternateQuestionId": null
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-05-plate-tectonics.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "31310be8c12022a5ea3a1224e7042b712396f155e15b8cbe72f8e8932fa75590",
+        "de6e9911cffa475649d81474d405197ff20a16eb6685cc9ae2e1497d3500461f",
+        "7b56a51476d531c8bd0a6325e25f3b60a15d5ffbbb2ddfcf8772975c877242e5",
+        "7683c9eb38379a24bd6efc2fe9534d8eee4b21601f2923f1d7adb01b06f86981",
+        "ec243608cb339c4cdbb1facf1b771b20e4a357fca6669da0688f850992862d62",
+        "5917a273c8972f9de2b3e5f9cee2a0cb85e96cdcde4ba57cb97d3bda82477b6f",
+        "0fb79e6f6e81de8957b440b7e092daadff249f0c71f636cda4572c1d0eb186f6",
+        "4f1078351a73405ceabd55933b8b2a8bdf7de577922f0da59b498abc0d5415d7",
+        "14a0830762f309a063997c9bbeafcb639ded17d5aaf409f4b39ca37aabf3b5e1",
+        "001af934f12a8bf2176b0e190736a997c15a26d93a5b3a4cf73a623c1d0f4371",
+        "415ffd3119eb03063282305b273cdefae9c1631c266c8e6a017347c37c8a5e9c",
+        "be297933a82a3d76a2d1e2f7c6647f656f3648d144aa6428c764d6fefcd9fb59",
+        "21fea82030eaecdfd6cf62e1e48d6c667c669ad1baa8d37736bafc432df619b7",
+        "68ad39949c22d3fe73ebf187b5a60f5f7852273eb9bd38aa46ef2c527fd89abf",
+        "a4f841eb4f4bf495fc1c31c7dfc4d99dfd7810bd27fbb41bf327faed93ade535",
+        "be7aac0c258d093945dfeaf14102ce0b18b203ae46ae462ad67cfb7634b19a5c",
+        "d078b6280d6bc41f1a44fd0dbc690d4435494e380b7f63c480e41a0175edd868",
+        "661274e2b47639d036d6ec74346e590d059fa2c66d77cb670976af92ceec6233",
+        "21eea5fc1ab5e4bc23dec2dfcb6c9a6d4e60d4d25e5d9b25d022ebf85f8d4823",
+        "42a606ad5627bceb7693501be4881df376f22a2947e79bc3d9f813c81bab8a63",
+        "8748d6834229a027cef47b49c2bd0f3349765879a76e72dde9f89a1ee3a9eace",
+        "44f0776ffdc4ace66b270040ee1624459caf13b99479c0277c91e2d96f98193f",
+        "71b89a5ce5c3a88a4af1cebbfeabf58bdb36406b59b3890fc96a1e29a70e76d8"
+      ],
+      "liveCalls": 23,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.10410000001138542,
+        "concept-extraction": 2053.845000000001,
+        "generation": 8003.148700000005,
+        "code-checks": 4.427800000004936,
+        "review": 7278.4216000000015,
+        "assembly": 3.6105999999999767
+      },
+      "tokens": {
+        "inputTokens": 14394,
+        "outputTokens": 4083
+      },
+      "costUsd": 0.029168999999999997,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "review-rejected",
+          "checkIds": [],
+          "reviewReason": "answer-mismatch",
+          "placement": null
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "answer-leak-in-prompt",
+            "negative-question"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "primary",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "alternate",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {
+        "answer-leak-in-prompt": 1,
+        "negative-question": 1
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-primary",
+            "alternateQuestionId": "concept-1-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-7",
+            "primaryQuestionId": "concept-7-primary",
+            "alternateQuestionId": "concept-7-alternate"
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-06-supply-demand.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "bedfb4f279f3b85ec11da55ff63fe02d0713bcdd4ee9e14316342cc3137cfdc5",
+        "3ed78f7403717a833db995cae7bfc21b1092db7c6c8f987bef3347524a88ea42",
+        "94c8f3de848780bafe140d0db5b6ec86231fcd3008cf3d2ffaeb2cf3884d7541",
+        "0fcb615d0105a8d81f50f0ab0b7e9074c8832a1426a7970b375fe50f227c2a4b",
+        "699ff77306df086c59e4948b1144d9bfa95d927c3f4a4945d213c2e62358f583",
+        "73fe85ee301d1cd0b1a2da48613823c054668256aaef9c3a04f8a1b2241bfc5d",
+        "6af9f1a5934d3d65cbff6705ec6f13f598b8985ad4f54844ca189351e6fcdc44",
+        "ff5b23792e0f3e634aa6f8f93e46f1ab739e09e32eb81943567519ae07fc0cfa",
+        "019e17fc9e3ee4bde9a987b4e515fe27a1ced0a644e4b53692dd4b3215df8299",
+        "00312837c19c200a5beb67317f65876c0dcec67f6d0b8ed597639bf05273f98e",
+        "49c2dfa57a0fabf7eda9d48e704b43a3d956ce88b61ac60213962633fdd5ee28",
+        "33172f005d538f0526df7ec2043325f4574298ea6baa9f28495c879eff4c975c",
+        "56a4ce3f4b6d607df698e6b878a32c726da9043ae629a21b35aee80af09210f7",
+        "07251c13b6c5fea29ec125e436c6bdbd864ceb6f24364fc3eb900f2b6537c74d",
+        "a4f776886cb1c93a2619595228aa792216c09fb566ed86272292610f4362c8ea",
+        "b7a10f1ca73851b9764ebd32f3c2df1925ab042068d25536989af5e8d32610f3",
+        "1887da66ce99a1be769fefebdebed37d6881d11a2a973bfe615ea3e26aff6bb8",
+        "50132b2bad6276dbb4b8fc7b587317da9cc7dd19b70ef1c9486df17c782939c1",
+        "4941a08f21e3d7c16603f22d80f7f14ca7168f40c7d520ab35e65711443793db",
+        "2e52eb822ed0e63288ead1cad79b497a1d35e5a38261c0a8b185b01796afc168",
+        "cbd56e4ed7078b78bf6f320b9358bdafb2300f5c0ca0a74f3064e0362a949c85",
+        "253de9624a0032b4efea467bdd6493eb70652c8808596b5120dfb4bf0e22bb22"
+      ],
+      "liveCalls": 22,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.10850000000209548,
+        "concept-extraction": 1969.2733000000007,
+        "generation": 7547.595000000001,
+        "code-checks": 2.8038000000087777,
+        "review": 6285.616699999999,
+        "assembly": 2.077900000003865
+      },
+      "tokens": {
+        "inputTokens": 13583,
+        "outputTokens": 3490
+      },
+      "costUsd": 0.025892249999999995,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "answer-leak-in-prompt"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "review-rejected",
+          "checkIds": [],
+          "reviewReason": "label-mismatch",
+          "placement": null
+        }
+      ],
+      "codeCheckRejections": {
+        "answer-leak-in-prompt": 1
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-primary",
+            "alternateQuestionId": "concept-1-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-3",
+            "primaryQuestionId": "concept-3-alternate",
+            "alternateQuestionId": "concept-3-primary"
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-07-blood-clotting.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "dffbbe9f7d169aaef50eab7090713ce5d404574ca59e6d3728f8edb2ecddb28b",
+        "41fec15a744899d1a2373ba84c848e7aafa8c8a9ce29685fa45d3211cd9f2592",
+        "c768736b17b3ca08a56e7e2edbbe451636d818b092b6d586310cec339ec1e011",
+        "8438b7c72f8ec2a74c32761d8051b34ae627421bf46d8945e153c972b5fc44ec",
+        "0701b228952bac19a879b70a1b968bc7912e9dbb79eb05316983a2cd15dc5dfc",
+        "633ed221ef48080f59e5ad57c9e7d5779048ceef13f04d01f1274b486b88e494",
+        "2739b2b91f87e37152d85b64b0f1373f75f315467f71dc65a4ac71aedebeed4c",
+        "be618c910ec93fc68fe9ded37e799dda7bf495adcec5aa994476da1aae940964",
+        "d21d5b398c9d63066516d954290168bf1012696b5a989adfa1cacb47776dede8",
+        "86de517e057412368cd95dad8d522aefeb29ddde2617cfec41fd123ce744f967",
+        "4c2fe435523d4d9447b81a5c2567c900364b34654fd06b6d199a2c5e2af7c79a",
+        "7cb823c5de4c31d0209803e49a3779b0336f89862909a1759b1de45b6a303b2b",
+        "3c865bc784b53370646a8dc2fe42dc1c4c2759d77057f36a2167e2f2c1ace209",
+        "9f2eefbeab02a40eb8ac81d763b52527cd6bf4c60a4ec613ab401544af191116",
+        "c533aefef5ebbe6637f17c853259047e63444457f3ec29b24bb4fc0f742fc4f9",
+        "35252a572f09646e45c9adce853611017d647cf5c3a37cc5a5125feafaa7aa9f",
+        "59782b1814dae5e06e8b0026aa590b42a8750239d869cc1d8fcf6afc2771656d",
+        "3000dc6fbc4e8f9e55f07e92e49c5cf34855797a2c4d49f00f6b77ac8ca59256",
+        "05697f786bffe134a92cfbb3f4709723bf23f3d8081825f5f739148bb33995d1",
+        "827327c1b63a1775f6035920147d9eab782aa96168573349fedb0fdac3ac5393",
+        "f9b27da9fa57f22eb512efa0af9df71457a905ba74e26651fc6b479c9fa4f1c8",
+        "1430bb8c78093c662237f97d303a51fe5e4c19b73d67eed250472af4ce0daf09",
+        "cfb618d19eee0e855f72ebcc6b725171cfddff66d461a0f728700741a2b95205",
+        "21e28acebdffdc9ee580d8c6e3e6b55b8495c827bb2f0c10c14b04edb48dd063"
+      ],
+      "liveCalls": 24,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.09090000001015142,
+        "concept-extraction": 2045.4927000000025,
+        "generation": 10239.001499999998,
+        "code-checks": 4.177100000000792,
+        "review": 6755.0088000000105,
+        "assembly": 3.7307000000146218
+      },
+      "tokens": {
+        "inputTokens": 14678,
+        "outputTokens": 4395
+      },
+      "costUsd": 0.03078599999999999,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "negative-question"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {
+        "negative-question": 1
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-2",
+            "primaryQuestionId": "concept-2-primary",
+            "alternateQuestionId": "concept-2-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-alternate",
+            "alternateQuestionId": null
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-08-butterfly-life-cycle.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "1afe34e678eb4c33e6afa9538db01af29d9d28f146a32c732194fed2e631cf21",
+        "dbb921904bab46f28bb19572860aba241becba9913bc99a64ede40dedf96ce79",
+        "e2e1344b73147142226ec38fdd48a7330fc086c59b1145ee8646d05f17154bec",
+        "e92ef604f0a3cbc1e98443e874d945a1a90f0e454f0281cbdef8d9a244f5df91",
+        "bbd3b2bba8e6a9f64365e6e9f6e588b4fe04171a73303105fcde847aa792183a",
+        "f0c73bb6eb7689cba94a099c8677879f37afb3fabbbe93721e2ef15e74944083",
+        "991b2d12239a640da82bbb5a7bed7c44fa771bb923b607cc4371bfff2c97c3ea",
+        "bc83fd12a4c157a9f345234b0a9a0183fc54c258cfd92ec3ba85d046f4cf9ca3",
+        "4b51236410c86f60f508fbbb7028d2494fd820fb3178b3c7776f83afe2e257ab",
+        "8e4bd5ac9ae9fd180044c4dd7ea4f82471b10c63564b1c9a98aab571056c5ac3",
+        "7ea1042693b04bd100ee0742da02fc43e5521f902fa8175b800384f02b59487b",
+        "b52061a10d117b308808200a18fdfd7e7901092ff4d9eb0383c2513f84359077",
+        "147b0d7e2e12556e51c5d7ad90571d7dbe6437b7bfb109791e1b0997ff2d5f95",
+        "2d40267d33ff8ad0ecd7c354df90f3cdf60931f49d82d7e18a5561b9134b366f",
+        "87740d696b28357de5f00dff63aca8a9f8848fc16b8bac0686e1a9ff9684ac3d"
+      ],
+      "liveCalls": 15,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.10940000001573935,
+        "concept-extraction": 2007.828999999998,
+        "generation": 6011.896600000007,
+        "code-checks": 1.9438000000081956,
+        "review": 4505.471499999985,
+        "assembly": 2.2747999999846797
+      },
+      "tokens": {
+        "inputTokens": 8962,
+        "outputTokens": 2518
+      },
+      "costUsd": 0.018052500000000003,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {},
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-2",
+            "primaryQuestionId": "concept-2-primary",
+            "alternateQuestionId": "concept-2-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-3",
+            "primaryQuestionId": "concept-3-alternate",
+            "alternateQuestionId": "concept-3-primary"
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-09-atmosphere-layers.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "90da3bcf81458e259a8f524559a4515c5f86b2841f4bf64b3e30c6259f09f933",
+        "b01cf9f5ebc83ff3a4e8376585163f526363a599652647e5d0dd65c0be36ea30",
+        "d23cbf375d411edf35168a538c66ef87146c4768a3621ee5f93a4c0f7f951a82",
+        "d4dc8d4a1f797b7c969dd9b4db6c392919f98fed1dce271a934623c616e2c411",
+        "1c62907a875971a7c3a8019479f53095035cc10ad58e768acc0b91fb66e9adff",
+        "c3ca6b85c6f79169dcaf8a63af101312fe3b5217b944ee2f62a8b7bfbd92d5fe",
+        "41ea9008038623fda1aa10346afe6413b7e002364e1a75fd0d76aedb8db6930e",
+        "47f898f5ed65f3add737b996e96bdb15d7ebb966862b25f491735a44df2cb5dc",
+        "aa9c713aac66c7bf82fdffd4260b183c631cbfd7847333dea1dca75dac711a93",
+        "cf4f4d09444cdf766570498097a75434f8ad1a602571e9c639fea65603b3e34a",
+        "b2464947234e13facfa2a94e84ca06902e9754d7dabd20cc242563ffc3f6ce7d",
+        "ec6eb1d96acb61072dd47332563fe90c318cb16938d323fecead379e75600aae",
+        "955021ad0973f1d42eb568f8a4d98980e9a2439c06a6c65e26aa0551f48fce5b",
+        "4116e2413a17ab4fc04f26b327fc993cc1d1fd7ac4d8d5291f3668617aadc51b",
+        "4d5ef02a0b7132a514f16f3c3c79fd1b7fef5b4d3d97b03f8d5966e10bf287e9",
+        "87ed3f1dbbc381aef0f15519e3b6415ea976ff14458d93e50abeabf137f5feca",
+        "0ea1f70eb74af0b581d81b45e7f855bff84a4796ba993d4c4d2f77cc30c85d02",
+        "ce4f9cb99871f6ae49330a835dbd010ce5ff6e95ab190eaf55f562aacbda0313",
+        "9322d7d3d77d9cc976f1655cba6bc4a5621870b4e8f4e571aea85c99e5afc0fd",
+        "5e9e497b041003b2647a43d44b5fd46e759b07337048b697b6f08fe44f7b6d55",
+        "54949dad9748d0e8fb14955dc8b0dc3a8a54fef062f6941aa5d099934afcbca1",
+        "ecd5af70e0525404f80a42486ac5cb2d864674454475a65783a6bc553239c149",
+        "0c409ea67de532783837bbdd86165183c3fb12113cae9fc07210fe2bef80f008",
+        "82b478c9cd7272f5587c65a01ffef8274fa1ddca16a0b63488bcecb51f704c0b",
+        "41e7bc539206813cc6231c785a1706d4e11c8d59d85e35eb8377eebea3ca08a6",
+        "e153c8a1086ea2a6cdef6fbd99da9ba9294d579e92aa1a79dec22819bce9ebce",
+        "b4d728201027edf58da8bf3eeb74db27478f5a5f778e0e4e60a4e0e185625aad",
+        "102e37cb3fc3a9958a705a0dfe6532c5c86804f4c8cd80db969582c4a52fe257",
+        "fc915b15f6e5fac99b3f866e3227698260ec293cc64019abe4a9787206dde847"
+      ],
+      "liveCalls": 29,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.09320000000298023,
+        "concept-extraction": 2259.883999999991,
+        "generation": 9957.0864,
+        "code-checks": 3.8990000000048894,
+        "review": 8680.935099999973,
+        "assembly": 3.1132999999972526
+      },
+      "tokens": {
+        "inputTokens": 17316,
+        "outputTokens": 4901
+      },
+      "costUsd": 0.0350415,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 9,
+          "conceptId": "concept-10",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "seance-board",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "quote-not-found"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "negative-question"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 5,
+          "conceptId": "concept-6",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 6,
+          "conceptId": "concept-7",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 7,
+          "conceptId": "concept-8",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 8,
+          "conceptId": "concept-9",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 9,
+          "conceptId": "concept-10",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 9,
+          "conceptId": "concept-10",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {
+        "quote-not-found": 1,
+        "negative-question": 1
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-primary",
+            "alternateQuestionId": "concept-1-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-2",
+            "primaryQuestionId": "concept-2-alternate",
+            "alternateQuestionId": "concept-2-primary"
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-10-averages.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "d1e04b24953e2035210d5f9b6fba5384a7392efce6fb5964abe1d14b5cbd2de5",
+        "1c1f3ea1c92fe2fee9517d7e523d6c1eaedb7cd3edaec1e933189e4b677bf491",
+        "8add703f72686232f926feb7d99679e01740ae1bc9118414af38920cf5263452",
+        "e3eadcfd64cdc78b243eaa51066dcf715523b4b4de7b0c45983dbeebe5e486eb",
+        "fd25b5ceed9203038a434d69327d2e9eb5026bcb55ea2d72cc00c3d5ade1e999",
+        "a804f5f45eafc13544751b5ec7c85fc468f31767b7bf64186b869b99d74277c7",
+        "34855a401fea3f86727d441327bf3f31477fa1785b574745cc6f72a6070e9b78",
+        "d03081e7eb97ff7003bbdca1bf3dfa5098d60cd2a2c2a59a4c5527a64dd5d72f",
+        "48d8ababb09da8d4fc0fc3fcc0d6224d08ebb1a86b471ad181ce4e46bad91dfd",
+        "ae5b69a7a754ce55ae9cf6880f5ed8d4738a66c65367e047b3c526637b846036",
+        "80376b9042b0b82dd8fa2f1001765b5934c4bc2c9b12da469d2535b0436fd8c5",
+        "dcd72a062baff18fcb9330e8daf2baa5e3522a8f6c51aba02093a834fbfe7a76"
+      ],
+      "liveCalls": 12,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.1038000000116881,
+        "concept-extraction": 1476.784799999994,
+        "generation": 4589.526299999998,
+        "code-checks": 1.993400000006659,
+        "review": 3452.965899999981,
+        "assembly": 1.8604000000050291
+      },
+      "tokens": {
+        "inputTokens": 7323,
+        "outputTokens": 2174
+      },
+      "costUsd": 0.015275250000000002,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "code-check-rejected",
+          "checkIds": [
+            "negative-question"
+          ],
+          "reviewReason": null,
+          "placement": null
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {
+        "negative-question": 1
+      },
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-2",
+            "primaryQuestionId": "concept-2-primary",
+            "alternateQuestionId": "concept-2-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-3",
+            "primaryQuestionId": "concept-3-alternate",
+            "alternateQuestionId": null
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-11-pdf-sleep-and-memory.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "e9f2ee18db116bd4e753ff03a1fd448bdaa924e058082ada57d0fd39e0f75ace",
+        "a3cd81b1317ea127d8e387a5062c1f6e758aba2adfc463b31663046de6033bb4",
+        "07328535ffecfb9fce5f83be02b1dac9f7fc4226a266a4cf01ca0980bd0b90df",
+        "ba8a7e593fbfe72992ef99c149b5f9ccb83412078dac79a0384e03a9adbfbc52",
+        "2a49591cf5c436f18ccc00ea6aeb35118cff841ca768e86fb807c591fd6f5c6c",
+        "7a265515afc0285e6436c659b8c0e398c6a0896261f875e299073961930fc319",
+        "581b1ec75b818b284ec6bf25391030462442daf7954f3240971ad7d17552c1fe",
+        "fc2178570e0753e20013940111f7b266f6375f15845aa959168dbfe03d630260",
+        "06eeaf865c7819cd984a0920a483d265e0fdafa07674f838db5a03d0128c7189",
+        "99c45f654e27b3e0722071dd6e532d906f0c83d5a5de253aa809a9a9c82740ef",
+        "8936c409fc7c94008df6d649260af148c5d52522cfe65d0cfc0fcd4a3a51427d",
+        "9b8b4ff17e2be85f294a5225ef2b08fa23beb5596d75318ac67936bd91bd8b7c"
+      ],
+      "liveCalls": 12,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.525999999983469,
+        "concept-extraction": 1617.4526999999944,
+        "generation": 4085.4787999999826,
+        "code-checks": 1.592000000004191,
+        "review": 3706.9755000000005,
+        "assembly": 1.1679000000003725
+      },
+      "tokens": {
+        "inputTokens": 7648,
+        "outputTokens": 1885
+      },
+      "costUsd": 0.0142185,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {},
+      "room": {
+        "slots": [
+          {
+            "stationType": "rune-cipher",
+            "conceptId": "concept-1",
+            "primaryQuestionId": "concept-1-primary",
+            "alternateQuestionId": "concept-1-alternate"
+          },
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-3",
+            "primaryQuestionId": "concept-3-alternate",
+            "alternateQuestionId": "concept-3-primary"
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    },
+    {
+      "note": "dev-12-pdf-feedback-and-motivation.txt",
+      "ok": true,
+      "errorKind": null,
+      "promptDigests": [
+        "0ffa5695c7ae6c7b5d877ccd05984eac287be32f5a657d80be4e21d74ec626ce",
+        "2bf8770c53d7c70d2bc1bb73f8370797e7da5bba90ce2b8ab5a901abeadd368a",
+        "910397080cfb7153fd2c7613c9b7f5f7a5a7d64128abd9aab0d34fb4d41a6cde",
+        "31070c5b6774f73571a0042fab10ad245fd058412c42c2167d1e29053aa4ef95",
+        "5d6d27f408d2df8b7e20087acbef885dad81081b0c136d6b80da910adead21e0",
+        "c08f62d6ef18b275d4d17e51e2b554bfdd8d7d4342e5acb7e89118b9e2a7c4b7",
+        "ea1d9254d54a0baba65d4e7102df707fcbea74fb5637fc0ff902129fcb3ae2ab",
+        "60e3cf5d2d78f40d4cc4c7721df40fc0fd36690411be87e8409ce51ffd8df336",
+        "4bd6c01b0d2aa21729d44872c489e707eddc3a62a45f1d9fbc810a38ee63276d",
+        "0ab85c6a0c0cb52927b493c9f842688490ce5883217939f5d1c15200c38fb18c",
+        "3ba9647378328f20d4a6ec2af882da1c40f20b350a2d33559881e8bf26ea5338",
+        "f78c310ca2d046171dca0cc739952f747accc72e2cb7592ee96dfa9b476bb442",
+        "97862c51eb7d4b19fa23bc72ab94c37219ebae374f11f540a47806ee244b1464",
+        "410d3b077821a79ebda97902ba77a3f713fbdbc54772bbf98fdf0568f572c242",
+        "242031adc3b5085eec29349573e40872b280edb704913ab9ea33a43cac86a516",
+        "9e2fae903d5c01c1dfdc3d2a19ddf815717f8b67a25176245e204bf644a5c792"
+      ],
+      "liveCalls": 16,
+      "replayedCalls": 0,
+      "stageTimingsMs": {
+        "prepare": 0.13750000001164153,
+        "concept-extraction": 1930.6841999999888,
+        "generation": 5995.7212,
+        "code-checks": 2.6745999999984633,
+        "review": 5002.142599999992,
+        "assembly": 2.4734999999927823
+      },
+      "tokens": {
+        "inputTokens": 10058,
+        "outputTokens": 2629
+      },
+      "costUsd": 0.019374,
+      "concepts": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "generation": "questions"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "generation": "questions"
+        }
+      ],
+      "candidates": [
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "leak-dropped"
+        },
+        {
+          "conceptIndex": 0,
+          "conceptId": "concept-1",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "leak-dropped"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "primary",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-lead"
+        },
+        {
+          "conceptIndex": 1,
+          "conceptId": "concept-2",
+          "role": "alternate",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "slot-alternate"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 2,
+          "conceptId": "concept-3",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "mapper-rejected"
+        },
+        {
+          "conceptIndex": 3,
+          "conceptId": "concept-4",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "primary",
+          "lockType": "rune-cipher",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "unplaced"
+        },
+        {
+          "conceptIndex": 4,
+          "conceptId": "concept-5",
+          "role": "alternate",
+          "lockType": "seance-board",
+          "result": "accepted",
+          "checkIds": [],
+          "reviewReason": null,
+          "placement": "not-placed"
+        }
+      ],
+      "codeCheckRejections": {},
+      "room": {
+        "slots": [
+          {
+            "stationType": "seance-board",
+            "conceptId": "concept-2",
+            "primaryQuestionId": "concept-2-primary",
+            "alternateQuestionId": "concept-2-alternate"
+          }
+        ],
+        "duplicateAnswers": 0
+      }
+    }
+  ]
+}

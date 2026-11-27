@@ -13,6 +13,7 @@ export type CheckId =
   | 'rune-needs-one-blank'
   | 'answer-leak-in-prompt'
   | 'answer-leak-in-room'
+  | 'duplicate-answer-in-room'
   | 'option-count'
   | 'option-not-supported-or-contradicted'
   | 'option-without-evidence'

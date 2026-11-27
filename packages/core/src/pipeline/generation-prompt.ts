@@ -12,7 +12,7 @@ import type { PreparedDocument } from './prepare-input';
 export { buildRetryNote } from './concept-extraction-prompt';
 
 /** Bumped whenever the wording of the system prompt or the user-message template changes. */
-export const GENERATION_PROMPT_VERSION = 'generation-v1';
+export const GENERATION_PROMPT_VERSION = 'generation-v2';
 
 /** Lock types the P3 generator can ask for (Req 14.9). Samples-only types are never requested. */
 export const DEFAULT_ALLOWED_LOCK_TYPES: readonly LockType[] = ['rune-cipher', 'seance-board'];
@@ -30,9 +30,12 @@ const LOCK_RULES: Readonly<Partial<Record<LockType, string>>> = {
   ].join('\n'),
   'seance-board': [
     'seance-board (choose from 3 or 4 options): use only when the notes support exactly one correct option and contradict each of the others.',
-    '- The prompt starts with "According to your notes". No negative questions.',
+    '- The prompt starts with "According to your notes" and says what is asked (a term, number, place or cause). Never ask "which statement is supported". No negative questions.',
+    '- Do not ask about order or position (first, third, next, last). Every option must be a claim that is true or false on its own.',
     '- Every option is labelled supported or contradicted and carries its own exact quote and chunk ID.',
+    '- A contradicted option\'s quote is the passage that contradicts it: the sentence that gives the different fact. If the notes have no such passage, do not write that option. Never label an option contradicted when the notes also state it as true. Never reuse the supported option\'s quote for another option.',
     '- Exactly one option is supported; answer is that option\'s id. Never write an option that is merely "not mentioned".',
+    '- Each quote is one sentence or one clause of 4 to 25 words. A quote of 26 words or more, or of 3 words or fewer, is rejected: quote only the part that carries the fact, with capital letters exactly as in the notes.',
   ].join('\n'),
 };
 

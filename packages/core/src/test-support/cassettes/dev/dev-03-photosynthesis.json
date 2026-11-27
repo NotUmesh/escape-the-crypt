@@ -1,0 +1,959 @@
+{
+  "checkVersion": "2026-11-27.1",
+  "entries": [
+    {
+      "digest": "2ade33cb8268d79d79e92d986476dc7ad9fbd2df25e7ec0ab9edde0c7e24bdb6",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Photosynthesis definition",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_1"
+              ],
+              "quotes": [
+                "Photosynthesis is the process plants, algae and some bacteria use to turn light energy into chemical energy stored in sugar."
+              ]
+            },
+            {
+              "label": "Chloroplasts and chlorophyll",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_1"
+              ],
+              "quotes": [
+                "In plants it takes place inside chloroplasts, which are small structures found mostly in the cells of leaves.",
+                "Chloroplasts contain chlorophyll, a green pigment that absorbs red and blue light and reflects green light"
+              ]
+            },
+            {
+              "label": "Photosynthesis inputs and outputs",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_2"
+              ],
+              "quotes": [
+                "The process needs three inputs: carbon dioxide from the air, water from the soil, and light from the Sun.",
+                "It produces two outputs: glucose, a sugar the plant uses for energy and growth, and oxygen, which is released into the air."
+              ]
+            },
+            {
+              "label": "Overall photosynthesis equation",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_3"
+              ],
+              "quotes": [
+                "6 molecules of carbon dioxide and 6 molecules of water produce one molecule of glucose and 6 molecules of oxygen.",
+                "Glucose has the formula C6H12O6."
+              ]
+            },
+            {
+              "label": "Two stages of photosynthesis",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_4"
+              ],
+              "quotes": [
+                "Photosynthesis happens in two stages.",
+                "The light-dependent reactions take place in the thylakoid membranes",
+                "The light-independent reactions, also called the Calvin cycle, take place in the stroma"
+              ]
+            },
+            {
+              "label": "Light-dependent reactions sequence",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_5"
+              ],
+              "quotes": [
+                "First, chlorophyll absorbs light energy.",
+                "Next, that energy is used to split water molecules, which releases oxygen.",
+                "Then the energy is stored in two carrier molecules, ATP and NADPH."
+              ]
+            },
+            {
+              "label": "Calvin cycle uses ATP and NADPH",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_5"
+              ],
+              "quotes": [
+                "ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide."
+              ]
+            },
+            {
+              "label": "Photosynthesis and respiration compared",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_6"
+              ],
+              "quotes": [
+                "Photosynthesis and cellular respiration are linked but different.",
+                "Photosynthesis stores energy in glucose and releases oxygen.",
+                "Cellular respiration, which happens in the mitochondria of both plants and animals, breaks glucose down to release energy"
+              ]
+            },
+            {
+              "label": "Factors affecting photosynthesis rate",
+              "chunkIds": [
+                "chk_a2d4d1f7c9c3_7"
+              ],
+              "quotes": [
+                "The rate of photosynthesis depends on light intensity, the amount of carbon dioxide and the temperature.",
+                "If any one of these is in short supply, it limits how fast the whole process can run."
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 804,
+          "outputTokens": 634
+        }
+      }
+    },
+    {
+      "digest": "bc916738e9faed90e2b7942fb13d580d102825a41cc7a351a465b86342f3d67e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "A single fill-in-the-blank question fits because the notes state one short phrase that completes a sentence about chloroplasts and chlorophyll.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Chloroplasts contain ______.",
+            "answer": "chlorophyll",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_1",
+                "quote": "Chloroplasts contain chlorophyll"
+              }
+            ],
+            "explanation": "The notes directly say chloroplasts contain chlorophyll.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "c",
+              "length": 11
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what pigment do chloroplasts contain?",
+            "options": [
+              {
+                "id": "a",
+                "text": "chlorophyll",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_1",
+                  "quote": "Chloroplasts contain chlorophyll, a green pigment"
+                }
+              },
+              {
+                "id": "b",
+                "text": "carotene",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_1",
+                  "quote": "Chlorophyll, a green pigment that absorbs red and blue light"
+                }
+              },
+              {
+                "id": "c",
+                "text": "melanin",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_1",
+                  "quote": "Chloroplasts contain chlorophyll, a green pigment"
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes explicitly identify chlorophyll as the pigment in chloroplasts, while the other options are not supported and conflict with the stated pigment."
+          }
+        },
+        "usage": {
+          "inputTokens": 1227,
+          "outputTokens": 358
+        }
+      }
+    },
+    {
+      "digest": "5705eb2d8420a8dddfefbe01b8417f321ba72d29c40470d879b99808192a025c",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a single definitional sentence for the concept, so a rune-cipher fill-in-the-blank fits best. A seance-board would be unnecessary because there is only one supported fact to test.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Photosynthesis is the process plants, algae and some bacteria use to turn light energy into ______.",
+            "answer": "chemical energy stored in sugar",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_1",
+                "quote": "Photosynthesis is the process plants, algae and some bacteria use to turn light energy into chemical energy stored in sugar."
+              }
+            ],
+            "explanation": "The notes directly define photosynthesis as turning light energy into chemical energy stored in sugar.",
+            "hint": null
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what does photosynthesis turn light energy into?",
+            "options": [
+              {
+                "id": "a",
+                "text": "chemical energy stored in sugar",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_1",
+                  "quote": "turn light energy into chemical energy stored in sugar"
+                }
+              },
+              {
+                "id": "b",
+                "text": "heat energy stored in starch",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_1",
+                  "quote": "turn light energy into chemical energy stored in sugar"
+                }
+              },
+              {
+                "id": "c",
+                "text": "electrical energy stored in cells",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_1",
+                  "quote": "turn light energy into chemical energy stored in sugar"
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "Only option a matches the definition given in the notes."
+          }
+        },
+        "usage": {
+          "inputTokens": 1224,
+          "outputTokens": 379
+        }
+      }
+    },
+    {
+      "digest": "a16c538660b837a517ebc9d47524c41734f45cb39af2a7672179528710c17dc8",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about the outputs of photosynthesis, which is a short phrase stated directly in one sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Photosynthesis produces two outputs: glucose and ______.",
+            "answer": "oxygen",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_2",
+                "quote": "It produces two outputs: glucose, a sugar the plant uses for energy and growth, and oxygen, which is released into the air."
+              }
+            ],
+            "explanation": "The notes explicitly say photosynthesis produces glucose and oxygen; the blank asks for the second output.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "o",
+              "length": 6
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what is released into the air during photosynthesis?",
+            "options": [
+              {
+                "id": "a",
+                "text": "oxygen",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_2",
+                  "quote": "oxygen, which is released into the air."
+                }
+              },
+              {
+                "id": "b",
+                "text": "carbon dioxide",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_2",
+                  "quote": "Carbon dioxide enters the leaf through tiny pores called stomata."
+                }
+              },
+              {
+                "id": "c",
+                "text": "water",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_2",
+                  "quote": "water from the soil"
+                }
+              },
+              {
+                "id": "d",
+                "text": "glucose",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_2",
+                  "quote": "It produces two outputs: glucose, a sugar the plant uses for energy and growth, and oxygen, which is released into the air."
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes say oxygen is released into the air, while the other options are either inputs or the other output."
+          }
+        },
+        "usage": {
+          "inputTokens": 1215,
+          "outputTokens": 440
+        }
+      }
+    },
+    {
+      "digest": "acde590108bb67c825293d022830b30ad09dee95006179b6b40f9ad77c9128f3",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a single complete equation statement, so a rune-cipher fill-in-the-blank fits best. A seance-board is unnecessary because there is only one directly stated fact to test.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The overall equation shows that 6 molecules of carbon dioxide and 6 molecules of water produce one molecule of ______ and 6 molecules of oxygen.",
+            "answer": "glucose",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_3",
+                "quote": "The overall equation shows that 6 molecules of carbon dioxide and 6 molecules of water produce one molecule of glucose and 6 molecules of oxygen."
+              }
+            ],
+            "explanation": "The notes state that glucose is the product in the overall photosynthesis equation.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "g",
+              "length": 7
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what molecule is produced in the overall photosynthesis equation?",
+            "options": [
+              {
+                "id": "A",
+                "text": "glucose",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_3",
+                  "quote": "produce one molecule of glucose and 6 molecules of oxygen."
+                }
+              },
+              {
+                "id": "B",
+                "text": "carbon dioxide",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_3",
+                  "quote": "6 molecules of carbon dioxide and 6 molecules of water produce one molecule of glucose"
+                }
+              },
+              {
+                "id": "C",
+                "text": "water",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_3",
+                  "quote": "6 molecules of carbon dioxide and 6 molecules of water produce one molecule of glucose"
+                }
+              },
+              {
+                "id": "D",
+                "text": "oxygen",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_3",
+                  "quote": "and 6 molecules of oxygen."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes say glucose is produced, while carbon dioxide and water are reactants and oxygen is also a product."
+          }
+        },
+        "usage": {
+          "inputTokens": 1193,
+          "outputTokens": 468
+        }
+      }
+    },
+    {
+      "digest": "80c747801bbc833afa6c7d04fdca9ee6eee2445085f56e22e4b51aff81406731",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a single fixed sequence, so a fill-in-the-blank question fits best; the sequence can be tested with one missing term from the quoted order.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The light-dependent stage runs in a fixed sequence. First, chlorophyll absorbs light energy. Next, that energy is used to split water molecules, which releases oxygen. Then the energy is stored in two carrier molecules, ______. Finally, ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide.",
+            "answer": "ATP and NADPH",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_5",
+                "quote": "Then the energy is stored in two carrier molecules, ATP and NADPH."
+              }
+            ],
+            "explanation": "The blank completes the sentence naming the two carrier molecules stored during the light-dependent reactions.",
+            "hint": null
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1225,
+          "outputTokens": 210
+        }
+      }
+    },
+    {
+      "digest": "484e01c98d1d379c42e1753f6fef02bdabc03355f1a070583b0db180557a33d2",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about the two stages of photosynthesis and provide the exact term names.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Photosynthesis happens in two stages: the light-dependent reactions and the ______.",
+            "answer": "light-independent reactions",
+            "aliases": [
+              "Calvin cycle"
+            ],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_4",
+                "quote": "Photosynthesis happens in two stages."
+              },
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_4",
+                "quote": "The light-independent reactions, also called the Calvin cycle"
+              }
+            ],
+            "explanation": "The notes name the second stage of photosynthesis as the light-independent reactions, also called the Calvin cycle.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "l",
+              "length": 25
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what are the two stages of photosynthesis?",
+            "options": [
+              {
+                "id": "A",
+                "text": "light-dependent reactions and light-independent reactions",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_4",
+                  "quote": "Photosynthesis happens in two stages."
+                }
+              },
+              {
+                "id": "B",
+                "text": "light-dependent reactions and cellular respiration",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_4",
+                  "quote": "The light-independent reactions, also called the Calvin cycle"
+                }
+              },
+              {
+                "id": "C",
+                "text": "glycolysis and the Calvin cycle",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_4",
+                  "quote": "Photosynthesis happens in two stages."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes explicitly say photosynthesis happens in two stages and name them as the light-dependent reactions and the light-independent reactions."
+          }
+        },
+        "usage": {
+          "inputTokens": 1211,
+          "outputTokens": 409
+        }
+      }
+    },
+    {
+      "digest": "684270257dc7d7f4ad85ff9f262e3a5b1de2a21b60d59c47efeea2298112d089",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact: the Calvin cycle uses ATP and NADPH. A rune-cipher fits because the answer is a short phrase that completes one sentence on its own.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The Calvin cycle uses ______.",
+            "answer": "ATP and NADPH",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_5",
+                "quote": "the Calvin cycle uses them to build glucose from carbon dioxide"
+              }
+            ],
+            "explanation": "The notes say ATP and NADPH move to the stroma, where the Calvin cycle uses them.",
+            "hint": null
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what does the Calvin cycle use?",
+            "options": [
+              {
+                "id": "a",
+                "text": "ATP and NADPH",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_5",
+                  "quote": "the Calvin cycle uses them to build glucose from carbon dioxide"
+                }
+              },
+              {
+                "id": "b",
+                "text": "oxygen and water",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_5",
+                  "quote": "split water molecules, which releases oxygen"
+                }
+              },
+              {
+                "id": "c",
+                "text": "carbon dioxide and light energy",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_5",
+                  "quote": "ATP and NADPH move to the stroma, where the Calvin cycle uses them"
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "Only ATP and NADPH are stated as the molecules the Calvin cycle uses."
+          }
+        },
+        "usage": {
+          "inputTokens": 1228,
+          "outputTokens": 360
+        }
+      }
+    },
+    {
+      "digest": "89d2e349b2d0bc185b327b0c64b88ceaf4f9992536801276f73e2300f330488d",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single clear fill-in-the-blank fact about what photosynthesis stores energy in, and the answer is a short phrase from one sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Photosynthesis stores energy in ______.",
+            "answer": "glucose",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_6",
+                "quote": "Photosynthesis stores energy in glucose and releases oxygen."
+              }
+            ],
+            "explanation": "The notes directly state that photosynthesis stores energy in glucose.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "g",
+              "length": 7
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, where does cellular respiration happen?",
+            "options": [
+              {
+                "id": "a",
+                "text": "in the mitochondria of both plants and animals",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_6",
+                  "quote": "Cellular respiration, which happens in the mitochondria of both plants and animals"
+                }
+              },
+              {
+                "id": "b",
+                "text": "in the chloroplasts of both plants and animals",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_6",
+                  "quote": "Cellular respiration, which happens in the mitochondria of both plants and animals"
+                }
+              },
+              {
+                "id": "c",
+                "text": "only in plants",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_6",
+                  "quote": "Cellular respiration, which happens in the mitochondria of both plants and animals"
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes say cellular respiration happens in the mitochondria of both plants and animals, which contradicts the other options."
+          }
+        },
+        "usage": {
+          "inputTokens": 1213,
+          "outputTokens": 383
+        }
+      }
+    },
+    {
+      "digest": "987f2cc6ecfc015302d825bb7ffb8b78573092a43a21fa678097142f23a29d8a",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single factual statement about factors affecting photosynthesis rate, so a seance-board question fits best. A rune-cipher is not suitable because the concept is a list rather than one term or short phrase.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what factors affect the rate of photosynthesis?",
+            "options": [
+              {
+                "id": "a",
+                "text": "Light intensity, carbon dioxide amount, and temperature",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_7",
+                  "quote": "The rate of photosynthesis depends on light intensity, the amount of carbon dioxide and the temperature."
+                }
+              },
+              {
+                "id": "b",
+                "text": "Only light intensity",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_7",
+                  "quote": "The rate of photosynthesis depends on light intensity, the amount of carbon dioxide and the temperature."
+                }
+              },
+              {
+                "id": "c",
+                "text": "Only temperature",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_a2d4d1f7c9c3_7",
+                  "quote": "The rate of photosynthesis depends on light intensity, the amount of carbon dioxide and the temperature."
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes explicitly list three factors: light intensity, carbon dioxide amount, and temperature."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "The rate of photosynthesis depends on ______.",
+            "answer": "light intensity, the amount of carbon dioxide and the temperature",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_7",
+                "quote": "The rate of photosynthesis depends on light intensity, the amount of carbon dioxide and the temperature."
+              }
+            ],
+            "explanation": "The notes give the exact phrase completing the sentence.",
+            "hint": null
+          }
+        },
+        "usage": {
+          "inputTokens": 1192,
+          "outputTokens": 400
+        }
+      }
+    },
+    {
+      "digest": "6a9d603b6247a007003882b5721965ff2a73208d0890a54f5888028e8ac99843",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "chemical energy stored in sugar",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 370,
+          "outputTokens": 20
+        }
+      }
+    },
+    {
+      "digest": "6dbf39ca28706773c26703fd4fbf6233b17f57b38617a7e50913b2e1411f3724",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "oxygen",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 350,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "54806c7818c1cfdf65840397ea2886ef8fd49c1993704c8044d9cfc32d1252c9",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "glucose",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 348,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "32103854f59b43d0ded6cdcf0623529856fe553f57f7d4fb354960eead6a1c87",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 397,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "3ff895d67bd32e8014ddd25d8d87c4a7b89908409b106703219f4381c955fafb",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "light-independent reactions, also called the Calvin cycle",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 351,
+          "outputTokens": 24
+        }
+      }
+    },
+    {
+      "digest": "ad38ffe87e55f58de65d4d65b91cf4126fa32831e9b39a47b05ceb22dbecb692",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "D",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 362,
+          "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "41079c234d5a44b9ff748565a89e979104ae2f71a70ed9e7aa561effb9ac6750",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 386,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "363cfc688d8bf0da98c2f18c9bf73b7c6a42a8310ea2d0d6e762772f2f007242",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "glucose",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 345,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "a4d30a96b05b9f82335214f35949c12fc4a77067864a532872fe83c3b416f575",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 392,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "4d2d146e5ff6c4e79746dfe6e0cf7f7a24865640000307ebf0ae054ef4c0973d",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 362,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "4a6f4ca0bea19bdd5deaf9ce2394e238101f52ad08843b4f56bdf279058b88b7",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "light intensity, the amount of carbon dioxide, and the temperature",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 326,
+          "outputTokens": 27
+        }
+      }
+    },
+    {
+      "digest": "8fcb12f84e247830b424247109b8b15f37d65f45c1d94cd07f992efa7c449e54",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 388,
+          "outputTokens": 47
+        }
+      }
+    }
+  ]
+}

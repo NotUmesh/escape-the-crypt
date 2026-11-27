@@ -1,4 +1,5 @@
 import type { ProviderStage } from '../provider/types';
+import type { RunOutcomes } from './candidate-outcomes';
 import type { RecordedCall } from './recording-provider';
 
 /** Pipeline phases that get a timing, in run order. */
@@ -82,6 +83,8 @@ export interface PipelineRunMetadata {
   };
   readonly costUsd: number;
   readonly counts: PipelineRunCounts;
+  /** Per concept and per question: lock type, role, Check_IDs, review reason, placement. */
+  readonly outcomes: RunOutcomes;
 }
 
 export interface MetadataInput {
@@ -93,6 +96,7 @@ export interface MetadataInput {
   readonly costUsd: number;
   readonly stageTimingsMs: Readonly<Record<TimedStage, number>>;
   readonly counts: PipelineRunCounts;
+  readonly outcomes: RunOutcomes;
 }
 
 const PROVIDER_STAGES: readonly ProviderStage[] = ['concept-extraction', 'generation', 'review'];
@@ -123,5 +127,9 @@ export function buildRunMetadata(input: MetadataInput): PipelineRunMetadata {
     tokens: { ...total, byStage },
     costUsd: input.costUsd,
     counts: { ...input.counts, codeCheckRejections: { ...input.counts.codeCheckRejections } },
+    outcomes: {
+      concepts: input.outcomes.concepts.map((c) => ({ ...c })),
+      candidates: input.outcomes.candidates.map((c) => ({ ...c, checkIds: [...c.checkIds] })),
+    },
   };
 }

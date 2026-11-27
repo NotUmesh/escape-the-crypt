@@ -9,7 +9,12 @@ import {
   heart,
   hh,
 } from './room-assembly-heart-fixtures';
-import { assembleRoom, type AssemblyConcept, type RoomAssembly } from './room-assembly';
+import {
+  LEGACY_ASSEMBLY_POLICY,
+  assembleRoom,
+  type AssemblyConcept,
+  type RoomAssembly,
+} from './room-assembly';
 
 function assemble(concepts: readonly AssemblyConcept[]): RoomAssembly {
   const result = assembleRoom({ manifestId: 'm-1', document: heart, concepts });
@@ -67,7 +72,17 @@ describe('assembleRoom: empty room', () => {
     const result = assembleRoom({
       manifestId: 'm-1',
       document: heart,
+      concepts: [concept('hh-c01', null), concept('hh-c02', null)],
+    });
+    expect(result).toEqual({ ok: false, error: { kind: 'empty-room' } });
+  });
+
+  it('is empty-room under the legacy policy when only an alternate was accepted', () => {
+    const result = assembleRoom({
+      manifestId: 'm-1',
+      document: heart,
       concepts: [concept('hh-c01', null, hh('hh-q02')), concept('hh-c02', null)],
+      policy: LEGACY_ASSEMBLY_POLICY,
     });
     expect(result).toEqual({ ok: false, error: { kind: 'empty-room' } });
   });
@@ -122,8 +137,9 @@ describe('assembleRoom: unplaced accepted concepts', () => {
     expect(assembly.content.concepts['hh-c07']).toBeUndefined();
   });
 
-  it('does not try the alternate type of an unplaced concept', () => {
-    // hh-c07's alternate is a séance question and the séance slot is free, yet it stays out.
+  it('does not promote an alternate that would make the Leak_Scan fail', () => {
+    // hh-c07's séance alternate is free to take the séance slot, but its text contains hh-c01's rune
+    // answer ("atrioventricular"). Promoting it would cost the room its rune slot, so it stays out.
     expect(slotsOf(assembly).map((s) => s.stationType)).toEqual(['rune-cipher']);
   });
 });

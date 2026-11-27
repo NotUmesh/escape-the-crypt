@@ -1,0 +1,867 @@
+{
+  "checkVersion": "2026-11-27.1",
+  "entries": [
+    {
+      "digest": "bedfb4f279f3b85ec11da55ff63fe02d0713bcdd4ee9e14316342cc3137cfdc5",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "law of demand and law of supply",
+              "chunkIds": [
+                "chk_11d6507268cd_1"
+              ],
+              "quotes": [
+                "The law of demand says that, other things being equal, when the price of a good rises, the quantity demanded falls.",
+                "The law of supply says that when the price of a good rises, the quantity supplied rises"
+              ]
+            },
+            {
+              "label": "market equilibrium",
+              "chunkIds": [
+                "chk_11d6507268cd_2"
+              ],
+              "quotes": [
+                "The market equilibrium is the price at which the quantity demanded equals the quantity supplied.",
+                "At this price there is no pressure for the price to change."
+              ]
+            },
+            {
+              "label": "shortage and surplus",
+              "chunkIds": [
+                "chk_11d6507268cd_3"
+              ],
+              "quotes": [
+                "If the price is set below equilibrium, buyers want more than sellers offer, which creates a shortage.",
+                "If the price is set above equilibrium, sellers offer more than buyers want, which creates a surplus."
+              ]
+            },
+            {
+              "label": "price changes move along demand curve",
+              "chunkIds": [
+                "chk_11d6507268cd_5"
+              ],
+              "quotes": [
+                "A change in price moves the market along the demand curve.",
+                "A change in anything else that affects buyers shifts the whole curve."
+              ]
+            },
+            {
+              "label": "demand shifters",
+              "chunkIds": [
+                "chk_11d6507268cd_5"
+              ],
+              "quotes": [
+                "These notes list three demand shifters: income, consumer preferences and the prices of related goods."
+              ]
+            },
+            {
+              "label": "substitutes and complements",
+              "chunkIds": [
+                "chk_11d6507268cd_6"
+              ],
+              "quotes": [
+                "Substitutes are goods used in place of each other, such as tea and coffee: when coffee becomes more expensive, demand for tea rises.",
+                "Complements are goods used together, such as printers and ink cartridges: when printers become cheaper, demand for ink cartridges rises."
+              ]
+            },
+            {
+              "label": "price ceiling and price floor",
+              "chunkIds": [
+                "chk_11d6507268cd_7"
+              ],
+              "quotes": [
+                "A price ceiling is a legal maximum price, such as rent control; if it is set below equilibrium, it causes a shortage.",
+                "A price floor is a legal minimum price, such as a minimum wage; if it is set above equilibrium, it causes a surplus."
+              ]
+            },
+            {
+              "label": "prices as signals",
+              "chunkIds": [
+                "chk_11d6507268cd_8"
+              ],
+              "quotes": [
+                "Prices act as signals.",
+                "A rising price tells producers to make more and tells buyers to look for alternatives"
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 750,
+          "outputTokens": 511
+        }
+      }
+    },
+    {
+      "digest": "f5ace016158c2685d4f39e7911bde1f7ac11d4a6adf86d4c8dcb1bbf42e175e4",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define a single term with a direct one-sentence definition, so a rune-cipher fill-in-the-blank fits best.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The market equilibrium is the price at which the quantity demanded equals the quantity supplied. At this price there is no pressure for the price to change. The market equilibrium is the price at which the quantity demanded equals the quantity supplied, and there is no pressure for the price to ______.",
+            "answer": "change",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_2",
+                "quote": "The market equilibrium is the price at which the quantity demanded equals the quantity supplied."
+              },
+              {
+                "chunkId": "chk_11d6507268cd_2",
+                "quote": "At this price there is no pressure for the price to change."
+              }
+            ],
+            "explanation": "The notes state that market equilibrium is the price where quantity demanded equals quantity supplied, and that there is no pressure for the price to change.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "c",
+              "length": 6
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1174,
+          "outputTokens": 239
+        }
+      }
+    },
+    {
+      "digest": "aa0bf15e3dca7e7bb7fed873aa0ddbf31c07c22ff237472810ad080459c23242",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about the law of demand and law of supply, and the concept is stated directly in one sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The law of demand says that, other things being equal, when the price of a good rises, the quantity demanded ______.",
+            "answer": "falls",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_1",
+                "quote": "The law of demand says that, other things being equal, when the price of a good rises, the quantity demanded falls."
+              }
+            ],
+            "explanation": "The notes directly state that when price rises, quantity demanded falls.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "f",
+              "length": 5
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what happens to the quantity demanded when the price of a good rises?",
+            "options": [
+              {
+                "id": "A",
+                "text": "The quantity demanded falls.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_1",
+                  "quote": "when the price of a good rises, the quantity demanded falls."
+                }
+              },
+              {
+                "id": "B",
+                "text": "The quantity demanded rises.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_1",
+                  "quote": "when the price of a good rises, the quantity demanded falls."
+                }
+              },
+              {
+                "id": "C",
+                "text": "The quantity demanded stays the same.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_1",
+                  "quote": "when the price of a good rises, the quantity demanded falls."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes explicitly say that when price rises, quantity demanded falls."
+          }
+        },
+        "usage": {
+          "inputTokens": 1203,
+          "outputTokens": 380
+        }
+      }
+    },
+    {
+      "digest": "e1ba7c8b977c3a2f93e7b8b0c987d3a6abeabfb8136330eb26e68fb1412726d4",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single concept with a clear definition contrast, so a seance-board question fits best; a rune-cipher would require one exact term or short phrase, but the concept is a paired idea.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what happens when the price is set above equilibrium?",
+            "options": [
+              {
+                "id": "a",
+                "text": "Sellers offer more than buyers want, which creates a surplus.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_3",
+                  "quote": "If the price is set above equilibrium, sellers offer more than buyers want, which creates a surplus."
+                }
+              },
+              {
+                "id": "b",
+                "text": "Buyers want more than sellers offer, which creates a shortage.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_3",
+                  "quote": "If the price is set below equilibrium, buyers want more than sellers offer, which creates a shortage."
+                }
+              },
+              {
+                "id": "c",
+                "text": "Buyers and sellers want the same amount, which creates equilibrium.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_3",
+                  "quote": "If the price is set above equilibrium, sellers offer more than buyers want, which creates a surplus."
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes say that above equilibrium, sellers offer more than buyers want, creating a surplus."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "If the price is set below equilibrium, buyers want more than sellers offer, which creates a ______.",
+            "answer": "shortage",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_3",
+                "quote": "If the price is set below equilibrium, buyers want more than sellers offer, which creates a shortage."
+              }
+            ],
+            "explanation": "The missing term is the outcome named in the notes for prices below equilibrium.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "s",
+              "length": 8
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 1186,
+          "outputTokens": 428
+        }
+      }
+    },
+    {
+      "digest": "44b93df54b201638387ab8bafc0fd75db19d4728564aa24560c8f8d68fe7e1e5",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state a single definitional fact that fits a fill-in-the-blank question exactly: a change in price moves the market along the demand curve.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "A change in price moves the market along the ______.",
+            "answer": "demand curve",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_5",
+                "quote": "A change in price moves the market along the demand curve."
+              }
+            ],
+            "explanation": "The notes directly say that price changes move the market along the demand curve.",
+            "hint": null
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what does a change in price move the market along?",
+            "options": [
+              {
+                "id": "a",
+                "text": "the demand curve",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "A change in price moves the market along the demand curve."
+                }
+              },
+              {
+                "id": "b",
+                "text": "the supply curve",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "The cost of producing the good is not a demand shifter; it affects supply."
+                }
+              },
+              {
+                "id": "c",
+                "text": "the whole curve",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "A change in anything else that affects buyers shifts the whole curve."
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "Only the demand curve is stated as the path moved along by a price change; the other options are contradicted by the notes."
+          }
+        },
+        "usage": {
+          "inputTokens": 1211,
+          "outputTokens": 350
+        }
+      }
+    },
+    {
+      "digest": "be585654e069b9b5071460ffb9fb1c78a9cbfba512df30af2488b44a241020e7",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define one concept with two named terms, so a seance-board question can ask which term matches a described relationship between goods.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which term describes goods used in place of each other, such as tea and coffee?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Substitutes",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_6",
+                  "quote": "Substitutes are goods used in place of each other, such as tea and coffee"
+                }
+              },
+              {
+                "id": "B",
+                "text": "Complements",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_6",
+                  "quote": "Complements are goods used together, such as printers and ink cartridges"
+                }
+              },
+              {
+                "id": "C",
+                "text": "Related goods",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_6",
+                  "quote": "Related goods come in two kinds"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes say substitutes are goods used in place of each other, while complements are used together."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "Related goods come in two kinds. ______ are goods used together, such as printers and ink cartridges.",
+            "answer": "Complements",
+            "aliases": [],
+            "caseSensitive": true,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_6",
+                "quote": "Complements are goods used together, such as printers and ink cartridges"
+              }
+            ],
+            "explanation": "The blank is filled by the term defined as goods used together.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "C",
+              "length": 11
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 1207,
+          "outputTokens": 359
+        }
+      }
+    },
+    {
+      "digest": "a68d9855e17995f691b31c09020884b10bc2653de5456630279d0a752435456b",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define the three demand shifters directly, so a fill-in-the-blank question fits best. A seance-board question is less suitable because the concept is a list rather than a single supported option.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "These notes list three demand shifters: income, consumer preferences, and the prices of related goods. The cost of producing the good is not a ______.",
+            "answer": "demand shifter",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_5",
+                "quote": "These notes list three demand shifters: income, consumer preferences and the prices of related goods."
+              },
+              {
+                "chunkId": "chk_11d6507268cd_5",
+                "quote": "The cost of producing the good is not a demand shifter; it affects supply."
+              }
+            ],
+            "explanation": "The notes explicitly say the cost of producing the good is not a demand shifter.",
+            "hint": null
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which factor is a demand shifter?",
+            "options": [
+              {
+                "id": "a",
+                "text": "income",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "These notes list three demand shifters: income, consumer preferences and the prices of related goods."
+                }
+              },
+              {
+                "id": "b",
+                "text": "the cost of producing the good",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "The cost of producing the good is not a demand shifter; it affects supply."
+                }
+              },
+              {
+                "id": "c",
+                "text": "supply",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "it affects supply."
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "Income is listed as a demand shifter, while the cost of producing the good is explicitly not one and instead affects supply."
+          }
+        },
+        "usage": {
+          "inputTokens": 1209,
+          "outputTokens": 423
+        }
+      }
+    },
+    {
+      "digest": "380ee57e9337eb2b8bc84500424ca7ab94134437edff02890240a970b56f79ef",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define two related terms, so a seance-board question can ask which term matches a described policy; the other lock type is also possible as a fill-in-the-blank for one definition.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which term is a legal maximum price set below equilibrium that causes a shortage?",
+            "options": [
+              {
+                "id": "A",
+                "text": "price ceiling",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_7",
+                  "quote": "A price ceiling is a legal maximum price, such as rent control; if it is set below equilibrium, it causes a shortage."
+                }
+              },
+              {
+                "id": "B",
+                "text": "price floor",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_7",
+                  "quote": "A price floor is a legal minimum price, such as a minimum wage; if it is set above equilibrium, it causes a surplus."
+                }
+              },
+              {
+                "id": "C",
+                "text": "equilibrium price",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_7",
+                  "quote": "Governments sometimes control prices."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes explicitly say a price ceiling is a legal maximum price set below equilibrium that causes a shortage."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "A price ceiling is a legal ______ price.",
+            "answer": "maximum",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_7",
+                "quote": "A price ceiling is a legal maximum price, such as rent control; if it is set below equilibrium, it causes a shortage."
+              }
+            ],
+            "explanation": "The notes directly define price ceiling as a legal maximum price.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 7
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 1207,
+          "outputTokens": 394
+        }
+      }
+    },
+    {
+      "digest": "adbc5cbe41192584590fc216cf1098d1f59f05f841e8fdcf60e056b2c3bad719",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes directly state the concept as a short phrase, so a rune-cipher fill-in-the-blank fits best. A seance-board is unnecessary because there is only one clear term to recall.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "______ act as signals.",
+            "answer": "Prices",
+            "aliases": [],
+            "caseSensitive": true,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_8",
+                "quote": "Prices act as signals."
+              }
+            ],
+            "explanation": "The notes say this exact phrase, so the blank is filled with the quoted term.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "P",
+              "length": 6
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what do prices act as?",
+            "options": [
+              {
+                "id": "a",
+                "text": "signals",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_8",
+                  "quote": "Prices act as signals."
+                }
+              },
+              {
+                "id": "b",
+                "text": "barriers",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_8",
+                  "quote": "Prices act as signals."
+                }
+              },
+              {
+                "id": "c",
+                "text": "taxes",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_8",
+                  "quote": "Prices act as signals."
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes explicitly say prices act as signals, and the other options are not supported by the quoted sentence."
+          }
+        },
+        "usage": {
+          "inputTokens": 1175,
+          "outputTokens": 320
+        }
+      }
+    },
+    {
+      "digest": "00312837c19c200a5beb67317f65876c0dcec67f6d0b8ed597639bf05273f98e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "falls",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 351,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "3fdacf0e0d0991258255cc778ec4368acf5629fc706edc34237d7b3d962de42e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 378,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "33172f005d538f0526df7ec2043325f4574298ea6baa9f28495c879eff4c975c",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "shortage",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 333,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "07251c13b6c5fea29ec125e436c6bdbd864ceb6f24364fc3eb900f2b6537c74d",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "demand curve",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 346,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "422327d8f9b22a20baaeece33fef430d6038ca6f7166eda48f18c41b51c5b3f2",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 376,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "a6bf2c6b3e59d91e612ecb9778a1c8959fa5371f913ecc6cd6cb099c8cf5f3be",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 377,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "54be79600b7768fff2ed673c3aaa97b79cace31a55cd13defb626c24d829df00",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 380,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "9599a03ff7ae26cf9c5bba00480863eb390e5d6e0226c1a80ae975cd7f8e69be",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 375,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "5588773717ccbaff04bbf57731755a13b955290d5fc3113dfa9365fd317250ce",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Complements",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 354,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "cbd56e4ed7078b78bf6f320b9358bdafb2300f5c0ca0a74f3064e0362a949c85",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Prices",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 307,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "2c9053f732165efb276c8d45db97acaa74fb10dcc6e4720a6c6a36ddf865d72e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "maximum",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 341,
+          "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "e25930361f2ff04c0169d1d0127a0af57e77b2a172d58df929df7d09bf6fdb58",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 333,
+          "outputTokens": 47
+        }
+      }
+    }
+  ]
+}

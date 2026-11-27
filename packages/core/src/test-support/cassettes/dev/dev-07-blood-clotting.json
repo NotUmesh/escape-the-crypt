@@ -1,0 +1,705 @@
+{
+  "checkVersion": "2026-11-27.1",
+  "entries": [
+    {
+      "digest": "dffbbe9f7d169aaef50eab7090713ce5d404574ca59e6d3728f8edb2ecddb28b",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Blood components",
+              "chunkIds": [
+                "chk_ec0022b83f1c_1"
+              ],
+              "quotes": [
+                "Blood is made of four main components.",
+                "Plasma is the pale yellow liquid part",
+                "Red blood cells carry oxygen.",
+                "White blood cells fight infection.",
+                "Platelets are small cell fragments that help blood clot."
+              ]
+            },
+            {
+              "label": "Haemoglobin is inside red blood cells",
+              "chunkIds": [
+                "chk_ec0022b83f1c_1"
+              ],
+              "quotes": [
+                "Haemoglobin is not a separate component of blood:",
+                "it is the protein inside red blood cells that carries oxygen."
+              ]
+            },
+            {
+              "label": "Haemostasis sequence",
+              "chunkIds": [
+                "chk_ec0022b83f1c_2"
+              ],
+              "quotes": [
+                "the body stops the bleeding in a fixed order called haemostasis.",
+                "First, the damaged vessel narrows, which is called vascular spasm,",
+                "Next, platelets stick to the damaged wall and to each other,",
+                "Then clotting factors in the plasma work together to turn fibrinogen into fibrin,",
+                "Finally, the clot tightens and the vessel wall is repaired,"
+              ]
+            },
+            {
+              "label": "Fibrin mesh traps blood cells",
+              "chunkIds": [
+                "chk_ec0022b83f1c_2"
+              ],
+              "quotes": [
+                "fibrin, which forms a mesh of threads that traps blood cells."
+              ]
+            },
+            {
+              "label": "Platelet lifespan",
+              "chunkIds": [
+                "chk_ec0022b83f1c_3"
+              ],
+              "quotes": [
+                "Platelets live for only about 7 to 10 days,",
+                "so the body makes new ones all the time."
+              ]
+            },
+            {
+              "label": "Normal platelet count",
+              "chunkIds": [
+                "chk_ec0022b83f1c_4"
+              ],
+              "quotes": [
+                "A normal platelet count is between 150,000 and 450,000 platelets per microlitre of blood."
+              ]
+            },
+            {
+              "label": "Vitamin K and clotting factors",
+              "chunkIds": [
+                "chk_ec0022b83f1c_5"
+              ],
+              "quotes": [
+                "The liver needs vitamin K to make several clotting factors."
+              ]
+            },
+            {
+              "label": "Haemophilia",
+              "chunkIds": [
+                "chk_ec0022b83f1c_5"
+              ],
+              "quotes": [
+                "Haemophilia is an inherited disorder in which the blood does not clot normally",
+                "because a clotting factor is missing or does not work properly."
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 630,
+          "outputTokens": 480
+        }
+      }
+    },
+    {
+      "digest": "bb26768cda2d47b1456430e81cf36bd7a685ac465922b45826d0ca6d5ff21efb",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact: haemoglobin is the protein inside red blood cells, so a rune-cipher fits best. An alternate seance-board question is also possible from the same sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Haemoglobin is the protein inside ______ that carries oxygen.",
+            "answer": "red blood cells",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_1",
+                "quote": "Haemoglobin is not a separate component of blood: it is the protein inside red blood cells that carries oxygen."
+              }
+            ],
+            "explanation": "The notes state that haemoglobin is the protein inside red blood cells.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "r",
+              "length": 15
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, where is haemoglobin found?",
+            "options": [
+              {
+                "id": "A",
+                "text": "inside red blood cells",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_1",
+                  "quote": "it is the protein inside red blood cells that carries oxygen"
+                }
+              },
+              {
+                "id": "B",
+                "text": "in plasma",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_1",
+                  "quote": "Plasma is the pale yellow liquid part"
+                }
+              },
+              {
+                "id": "C",
+                "text": "in white blood cells",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_1",
+                  "quote": "White blood cells fight infection"
+                }
+              },
+              {
+                "id": "D",
+                "text": "in platelets",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_1",
+                  "quote": "Platelets are small cell fragments that help blood clot"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only option A matches the notes; the other locations are contradicted by the blood components described."
+          }
+        },
+        "usage": {
+          "inputTokens": 1224,
+          "outputTokens": 412
+        }
+      }
+    },
+    {
+      "digest": "4eff59a2a9f899bebeded058b64865a47d8618220e8aa03396e8baa252e29eec",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about a named blood component, and the exact term is stated directly in one sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Blood is made of four main components. ______ is the pale yellow liquid part and makes up about 55 percent of blood volume.",
+            "answer": "Plasma",
+            "aliases": [],
+            "caseSensitive": true,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_1",
+                "quote": "Plasma is the pale yellow liquid part and makes up about 55 percent of blood volume."
+              }
+            ],
+            "explanation": "The notes explicitly identify plasma as the pale yellow liquid part of blood and give its approximate volume share.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "P",
+              "length": 6
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which blood component carries oxygen?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Red blood cells carry oxygen.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_1",
+                  "quote": "Red blood cells carry oxygen."
+                }
+              },
+              {
+                "id": "B",
+                "text": "White blood cells carry oxygen.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_1",
+                  "quote": "White blood cells fight infection."
+                }
+              },
+              {
+                "id": "C",
+                "text": "Platelets carry oxygen.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_1",
+                  "quote": "Platelets are small cell fragments that help blood clot."
+                }
+              },
+              {
+                "id": "D",
+                "text": "Haemoglobin is a separate component of blood.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_1",
+                  "quote": "Haemoglobin is not a separate component of blood:"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes say red blood cells carry oxygen, while the other options are contradicted by the notes."
+          }
+        },
+        "usage": {
+          "inputTokens": 1218,
+          "outputTokens": 422
+        }
+      }
+    },
+    {
+      "digest": "9c732e08bb6f95dbca368fd8c7983a13da225cedee476edcf7af42ea21730a8f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single short phrase that completes a sentence, so a rune-cipher fits best. A seance-board is not needed because the concept is directly stated rather than requiring a choice among options.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Then clotting factors in the plasma work together to turn fibrinogen into ______.",
+            "answer": "fibrin",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "turn fibrinogen into fibrin, which forms a mesh of threads that traps blood cells"
+              }
+            ],
+            "explanation": "The notes say fibrinogen is turned into fibrin, and fibrin forms the mesh that traps blood cells.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "f",
+              "length": 6
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1262,
+          "outputTokens": 184
+        }
+      }
+    },
+    {
+      "digest": "d3cbbcdc80d18c573f07986f6321f866f2c909b3fbcaead05f47907aeee04f0e",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a fixed order for haemostasis, so a seance-board question can ask which step comes first and contrast it with other steps.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, which step happens first in the haemostasis sequence?",
+            "options": [
+              {
+                "id": "a",
+                "text": "The damaged vessel narrows, reducing blood flow.",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_2",
+                  "quote": "First, the damaged vessel narrows, which is called vascular spasm, and this reduces blood flow."
+                }
+              },
+              {
+                "id": "b",
+                "text": "Platelets stick together to form a loose platelet plug.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_2",
+                  "quote": "Next, platelets stick to the damaged wall and to each other, forming a loose platelet plug."
+                }
+              },
+              {
+                "id": "c",
+                "text": "Clotting factors turn fibrinogen into fibrin.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_2",
+                  "quote": "Then clotting factors in the plasma work together to turn fibrinogen into fibrin,"
+                }
+              },
+              {
+                "id": "d",
+                "text": "The clot tightens and the vessel wall is repaired.",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_ec0022b83f1c_2",
+                  "quote": "Finally, the clot tightens and the vessel wall is repaired,"
+                }
+              }
+            ],
+            "answer": "a",
+            "explanation": "The notes explicitly say the first step is vascular spasm, when the damaged vessel narrows and blood flow is reduced."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "When a blood vessel is cut, the body stops the bleeding in a fixed order called ______.",
+            "answer": "haemostasis",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_2",
+                "quote": "the body stops the bleeding in a fixed order called haemostasis."
+              }
+            ],
+            "explanation": "The notes name the fixed-order bleeding control process as haemostasis.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "h",
+              "length": 11
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 1259,
+          "outputTokens": 467
+        }
+      }
+    },
+    {
+      "digest": "4bb23d72012f74cec06bb3cdbb0d70a08e0be50e85c8b067f072bdd918367a70",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a single factual lifespan for platelets, which fits a fill-in-the-blank question; no alternate supported contradiction set is available.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Platelets live for only about ______ days.",
+            "answer": "7 to 10",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_3",
+                "quote": "Platelets live for only about 7 to 10 days"
+              }
+            ],
+            "explanation": "The notes state the platelet lifespan directly as 7 to 10 days.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "7",
+              "length": 7
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1189,
+          "outputTokens": 151
+        }
+      }
+    },
+    {
+      "digest": "852665d26e001957b0635b85a68dd98cc9a6537195a2b8413c048b1503df520c",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give a single definitional fact that fits a fill-in-the-blank question, and no competing options are needed.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "A normal platelet count is between ______ platelets per microlitre of blood.",
+            "answer": "150,000 and 450,000",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_4",
+                "quote": "A normal platelet count is between 150,000 and 450,000 platelets per microlitre of blood."
+              }
+            ],
+            "explanation": "The blank completes the normal platelet count range exactly as stated in the notes.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "1",
+              "length": 20
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1171,
+          "outputTokens": 170
+        }
+      }
+    },
+    {
+      "digest": "b54f187f45ed3d52bf316f42a7ce0fd10ec677f1ec47c241ca5882aa62860f52",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about what the liver needs vitamin K to make, so a rune-cipher fits best. A seance-board is unnecessary because there is only one directly stated answer.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The liver needs ______ to make several clotting factors.",
+            "answer": "vitamin K",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_5",
+                "quote": "The liver needs vitamin K to make several clotting factors."
+              }
+            ],
+            "explanation": "The notes explicitly state that the liver needs vitamin K to make several clotting factors.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "v",
+              "length": 9
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1191,
+          "outputTokens": 169
+        }
+      }
+    },
+    {
+      "digest": "310704c91a225ddb7558067e2c10270175b3788adea3d6b1ab03e34657c3c690",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact: the definition of haemophilia. A rune-cipher fits because the answer is a short phrase stated directly in one sentence.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "Haemophilia is an inherited disorder in which the blood does not clot normally because a ______ is missing or does not work properly.",
+            "answer": "clotting factor",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ec0022b83f1c_5",
+                "quote": "Haemophilia is an inherited disorder in which the blood does not clot normally because a clotting factor is missing or does not work properly."
+              }
+            ],
+            "explanation": "The notes directly state that haemophilia involves a missing or malfunctioning clotting factor.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "c",
+              "length": 15
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 1189,
+          "outputTokens": 197
+        }
+      }
+    },
+    {
+      "digest": "c20fdff1e3d829dd8e813e75215a5ff718cef39c91a426f74e61c31a0cb29dea",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Plasma",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 372,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "f7f5019fdcb231ce37f98c2bd2cd7798bf418e6cede2b269a368473f69842c94",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "D",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 402,
+          "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "b511882cdae93836f31fe49c7e696a19d35ae41eccd3969ca0bda0826ea0d466",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "red blood cells",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 358,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "619a1ef1c71e515e4f85f2804b5b0e44142b709e3d432f0de98188179e240df2",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "D",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 392,
+          "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "9f2eefbeab02a40eb8ac81d763b52527cd6bf4c60a4ec613ab401544af191116",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "haemostasis",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 404,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "4a01945a99ec7a43529f6896e6ceaea72da6304689d863f9fda88aca2309dbe1",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "supported"
+            },
+            {
+              "optionId": "c",
+              "label": "supported"
+            },
+            {
+              "optionId": "d",
+              "label": "supported"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 462,
+          "outputTokens": 52
+        }
+      }
+    },
+    {
+      "digest": "95b46c680e77a7da1667c3ce7bef734b9869984671b2ee69fcfaa689e3401b4b",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "fibrin",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 402,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "827327c1b63a1775f6035920147d9eab782aa96168573349fedb0fdac3ac5393",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "150,000 and 450,000",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 314,
+          "outputTokens": 23
+        }
+      }
+    },
+    {
+      "digest": "1430bb8c78093c662237f97d303a51fe5e4c19b73d67eed250472af4ce0daf09",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "vitamin K",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 326,
+          "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "23d79f88b764ce9d809475eb9acd6c565d62c416d644317c972e7df34951c279",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "7 to 10",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 325,
+          "outputTokens": 19
+        }
+      }
+    }
+  ]
+}
