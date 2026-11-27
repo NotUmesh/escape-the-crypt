@@ -1,15 +1,10 @@
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
-import type { PipelineResult } from '@escape-the-crypt/core';
+﻿import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import type { JobFailureKindName, JobStatusName, PipelineResult } from '@escape-the-crypt/core';
 
 /** `cancelling` is non-terminal: cancel was requested and the pipeline has not returned yet. */
-export type JobStatus = 'queued' | 'running' | 'cancelling' | 'completed' | 'failed' | 'cancelled';
-export type JobFailureKind =
-  | 'budget-exhausted'
-  | 'not-enough-material'
-  | 'generation-failed'
-  | 'cancelled'
-  | 'expired';
-
+export type JobStatus = JobStatusName;
+/** Defined in core's job-response-schema, so the response schema and the store cannot drift apart. */
+export type JobFailureKind = JobFailureKindName;
 /** Tombstone_TTL: fixed, not configurable. */
 export const TOMBSTONE_TTL_MS = 24 * 60 * 60 * 1000;
 /** Default Job_TTL: 30 minutes after the terminal status. */

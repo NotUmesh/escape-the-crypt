@@ -1,5 +1,5 @@
-import { parseCryptBundle, z } from '@escape-the-crypt/core';
-import type { CryptBundle, GenerationFailureKind, Result } from '@escape-the-crypt/core';
+import { JobAckResponseSchema, JobStatusResponseSchema, parseCryptBundle } from '@escape-the-crypt/core';
+import type { CryptBundle, GenerationFailureKind, JobAckResponse, JobStatusResponse, Result } from '@escape-the-crypt/core';
 
 /** Worker job states the client hands back. No response body ever travels in an error. */
 export type JobState =
@@ -10,12 +10,12 @@ export type JobState =
   | { readonly kind: 'cancelled' }
   | { readonly kind: 'expired' };
 
-export type WorkerStatusName = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled' | 'expired';
+/** What POST /jobs reports: any job status, or expired for a swept job. */
+export type WorkerStatusName = JobAckResponse['status'];
 
 export type InvalidResponseReason =
   | 'not-json'
   | 'schema'
-  | 'unknown-failure'
   | 'bundle';
 
 /** Kinds and status codes only. */
@@ -53,58 +53,39 @@ export interface WorkerClientOptions {
   readonly timeoutMs: number;
 }
 
-const STATUS_NAMES = ['queued', 'running', 'completed', 'failed', 'cancelled', 'expired'] as const;
-const StatusSchema = z.enum(STATUS_NAMES);
-
-const StartResponseSchema = z.object({ jobId: z.string().min(1), status: StatusSchema });
-
-const GetResponseSchema = z.object({
-  status: StatusSchema,
-  failure: z.string().optional(),
-  manifest: z.unknown().optional(),
-  content: z.unknown().optional(),
-});
-
-const KNOWN_FAILURES: readonly GenerationFailureKind[] = [
-  'expired',
-  'budget-exhausted',
-  'not-enough-material',
-  'generation-failed',
-];
-
 function invalid(reason: InvalidResponseReason, bundleErrorKind?: string): WorkerError {
   return bundleErrorKind === undefined
     ? { kind: 'invalid-response', reason }
     : { kind: 'invalid-response', reason, bundleErrorKind };
 }
-
 function fail<T>(error: WorkerError): WorkerResult<T> {
   return { ok: false, error };
 }
-
-function toJobState(body: z.infer<typeof GetResponseSchema>): WorkerResult<JobState> {
+/**
+ * Maps a parsed `GET /jobs/:id` body to a state. `cancelling` reads as `running`: it is not
+ * terminal, so polling goes on until the worker reports `cancelled`. The worker's
+ * `failure.message` is never read; the app shows its own copy for each kind.
+ */
+function toJobState(body: JobStatusResponse): WorkerResult<JobState> {
   switch (body.status) {
     case 'queued':
     case 'running':
-    case 'cancelled':
     case 'expired':
+    case 'cancelled':
       return { ok: true, value: { kind: body.status } };
-    case 'failed': {
-      if (body.failure === undefined) return fail(invalid('schema'));
-      if (body.failure === 'cancelled') return { ok: true, value: { kind: 'cancelled' } };
-      const known = KNOWN_FAILURES.find((kind) => kind === body.failure);
-      if (known === undefined) return fail(invalid('unknown-failure'));
-      return { ok: true, value: { kind: 'failed', failure: known } };
-    }
+    case 'cancelling':
+      return { ok: true, value: { kind: 'running' } };
+    case 'failed':
+      if (body.failure.kind === 'cancelled') return { ok: true, value: { kind: 'cancelled' } };
+      return { ok: true, value: { kind: 'failed', failure: body.failure.kind } };
     case 'completed': {
-      const parsed = parseCryptBundle({ manifest: body.manifest, content: body.content });
+      // The schema checked the shape; this is the deeper gate (publish checks, content cross-check).
+      const parsed = parseCryptBundle({ manifest: body.bundle.manifest, content: body.bundle.content });
       if (!parsed.ok) return fail(invalid('bundle', parsed.error.kind));
       return { ok: true, value: { kind: 'completed', bundle: parsed.value } };
     }
   }
-}
-
-/** A client for the generation worker. Never throws; never logs; no cookies are sent. */
+}/** A client for the generation worker. Never throws; never logs; no cookies are sent. */
 export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
   const { origin, fetchImpl, sessionToken, timeoutMs } = options;
 
@@ -161,7 +142,7 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
           body: JSON.stringify({ notesText, runLength: 'short' }),
         },
         (json) => {
-          const parsed = StartResponseSchema.safeParse(json);
+          const parsed = JobAckResponseSchema.safeParse(json);
           if (!parsed.success) return fail(invalid('schema'));
           return { ok: true, value: { jobId: parsed.data.jobId, status: parsed.data.status } };
         },
@@ -172,7 +153,7 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
         `/jobs/${encodeURIComponent(jobId)}`,
         { method: 'GET', headers: { 'X-Session-Token': sessionToken } },
         (json) => {
-          const parsed = GetResponseSchema.safeParse(json);
+          const parsed = JobStatusResponseSchema.safeParse(json);
           if (!parsed.success) return fail(invalid('schema'));
           return toJobState(parsed.data);
         },

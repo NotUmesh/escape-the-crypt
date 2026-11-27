@@ -3,7 +3,8 @@ import { fileURLToPath } from 'node:url';
 import type { Page, Route } from '@playwright/test';
 import { buildHumanHeartSampleCrypt } from '@escape-the-crypt/core';
 import { FAKE_WORKER_ORIGIN } from '../playwright.config';
-import type { GenerationFailureKind, HumanHeartQuestionsFile } from '@escape-the-crypt/core';
+import type { HumanHeartQuestionsFile, JobErrorResponse, JobFailureKindName } from '@escape-the-crypt/core';
+import { ackBody, completedBody as completedStatusBody, failureBody, plainBody } from '../src/test-support/worker-bodies';
 
 /** The origin playwright.config.ts gives the e2e build as VITE_WORKER_URL. Nothing listens there. */
 export const WORKER_ORIGIN = FAKE_WORKER_ORIGIN;
@@ -15,9 +16,9 @@ export const SAMPLE_NOTES = readFileSync(`${SAMPLES}human-heart.txt`, 'utf8');
 
 /** What the fake answers to one `GET /jobs/:id`. */
 export type FakeStep =
-  | { readonly status: 'queued' | 'running' | 'expired' }
+  | { readonly status: 'queued' | 'running' | 'cancelling' | 'expired' }
   | { readonly status: 'completed' }
-  | { readonly status: 'failed'; readonly failure: GenerationFailureKind | 'cancelled' };
+  | { readonly status: 'failed' | 'cancelled'; readonly failure: JobFailureKindName };
 
 export interface SeenRequest {
   readonly method: string;
@@ -40,12 +41,15 @@ const CORS = {
   'Access-Control-Max-Age': '600',
 };
 
+/** The worker's 404 body (sendError). */
+const NOT_FOUND = JSON.stringify({ error: 'not-found', message: 'Nothing is here.' } satisfies JobErrorResponse);
+
 /** A completed worker response built from the notes text the app posted, so chunk IDs match. */
 function completedBody(notesText: string): string {
   const file = JSON.parse(readFileSync(`${SAMPLES}questions/human-heart.json`, 'utf8')) as HumanHeartQuestionsFile;
   const built = buildHumanHeartSampleCrypt(notesText, file);
   if (!built.ok) throw new Error(`fake bundle failed: ${built.error.kind}`);
-  return JSON.stringify({ status: 'completed', manifest: built.value.manifest, content: built.value.content });
+  return JSON.stringify(completedStatusBody({ manifest: built.value.manifest, content: built.value.content }));
 }
 
 /**
@@ -74,26 +78,29 @@ export async function installFakeWorker(page: Page, steps: readonly FakeStep[]):
         typeof parsed === 'object' && parsed !== null && 'notesText' in parsed && typeof parsed.notesText === 'string'
           ? parsed.notesText
           : '';
-      await json(route, 202, JSON.stringify({ jobId: 'job-1', status: 'queued' }));
+      await json(route, 202, JSON.stringify(ackBody('queued')));
       return;
     }
     if (request.method() === 'GET' && path === '/jobs/job-1') {
       const step = steps[Math.min(getCount, steps.length - 1)];
       getCount += 1;
       if (step === undefined) {
-        await json(route, 404, '{}');
+        await json(route, 404, NOT_FOUND);
       } else if (step.status === 'completed') {
         await json(route, 200, completedBody(postedNotes));
+      } else if (step.status === 'failed' || step.status === 'cancelled') {
+        await json(route, 200, JSON.stringify(failureBody(step.status, step.failure)));
       } else {
-        await json(route, 200, JSON.stringify(step));
+        await json(route, 200, JSON.stringify(plainBody(step.status)));
       }
       return;
     }
     if (request.method() === 'DELETE' && path.startsWith('/jobs/')) {
-      await route.fulfill({ status: 204, headers: CORS });
+      // The worker answers a DELETE with JSON, never 204. A running job goes to cancelling.
+      await json(route, 202, JSON.stringify(ackBody('cancelling')));
       return;
     }
-    await json(route, 404, '{}');
+    await json(route, 404, NOT_FOUND);
   });
   return { seen, preflights: () => preflightCount };
 }

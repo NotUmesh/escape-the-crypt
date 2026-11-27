@@ -147,3 +147,25 @@ export type {
 } from './cassette/types';
 export { assertRecordedOnly } from './cassette/recorded-only';
 export type { SyntheticCassetteInEvaluationError } from './cassette/recorded-only';
+export {
+  JOB_STATUSES,
+  JOB_FAILURE_KINDS,
+  JobStatusNameSchema,
+  JobFailureKindSchema,
+  JobAckStatusSchema,
+  UnplacedAcceptedSchema,
+  JobBundleSchema,
+  JobFailureSchema,
+  JobStatusResponseSchema,
+  JobAckResponseSchema,
+  JobErrorResponseSchema,
+} from './job-api/job-response-schema';
+export type {
+  JobStatusName,
+  JobFailureKindName,
+  JobBundle,
+  JobFailureBody,
+  JobStatusResponse,
+  JobAckResponse,
+  JobErrorResponse,
+} from './job-api/job-response-schema';

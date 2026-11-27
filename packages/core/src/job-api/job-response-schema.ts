@@ -1,0 +1,82 @@
+﻿import { z } from '../zod';
+import { CryptContentEntrySchema, CryptContentSchema } from '../mapper/crypt-content';
+import { CryptManifestSchema, QuestionSpecSchema } from '../runtime/manifest-schema';
+
+/**
+ * The worker's HTTP bodies, as one contract for the worker (which builds them) and the web
+ * client (which parses them). Every object is strict, so a new or renamed field fails on
+ * both sides at once.
+ */
+
+/** Job statuses a `Job` can hold. `cancelling` is not terminal. */
+export const JOB_STATUSES = ['queued', 'running', 'cancelling', 'completed', 'failed', 'cancelled'] as const;
+export const JobStatusNameSchema = z.enum(JOB_STATUSES);
+export type JobStatusName = z.infer<typeof JobStatusNameSchema>;
+
+/** Statuses a response can carry: the job statuses plus the content-free tombstone. */
+export const JobAckStatusSchema = z.enum([...JOB_STATUSES, 'expired']);
+
+export const JOB_FAILURE_KINDS = [
+  'budget-exhausted',
+  'not-enough-material',
+  'generation-failed',
+  'cancelled',
+  'expired',
+] as const;
+export const JobFailureKindSchema = z.enum(JOB_FAILURE_KINDS);
+export type JobFailureKindName = z.infer<typeof JobFailureKindSchema>;
+
+const JobIdSchema = z.string().min(1);
+
+/**
+ * Mirrors `UnplacedAccepted` in `pipeline/room-assembly.ts`: an accepted question the room had
+ * no slot for. `QuestionSpecSchema` only admits the lock types the manifest supports. That is
+ * the same set the mapper emits, and a type outside it would fail the manifest check too.
+ */
+export const UnplacedAcceptedSchema = z.strictObject({
+  conceptId: z.string().min(1),
+  conceptTitle: z.string(),
+  question: QuestionSpecSchema,
+  content: CryptContentEntrySchema,
+});
+
+export const JobBundleSchema = z.strictObject({
+  manifest: CryptManifestSchema,
+  content: CryptContentSchema,
+  unplacedAccepted: z.array(UnplacedAcceptedSchema),
+});
+
+/** `message` is the worker's plain-language copy. The web shows its own copy instead. */
+export const JobFailureSchema = z.strictObject({ kind: JobFailureKindSchema, message: z.string() });
+
+/** `GET /jobs/:id`. */
+export const JobStatusResponseSchema = z.discriminatedUnion('status', [
+  z.strictObject({ jobId: JobIdSchema, status: z.literal('queued') }),
+  z.strictObject({ jobId: JobIdSchema, status: z.literal('running') }),
+  z.strictObject({ jobId: JobIdSchema, status: z.literal('cancelling') }),
+  z.strictObject({ jobId: JobIdSchema, status: z.literal('completed'), bundle: JobBundleSchema }),
+  z.strictObject({ jobId: JobIdSchema, status: z.literal('failed'), failure: JobFailureSchema }),
+  z.strictObject({ jobId: JobIdSchema, status: z.literal('cancelled'), failure: JobFailureSchema }),
+  z.strictObject({ jobId: JobIdSchema, status: z.literal('expired') }),
+]);
+
+/** `POST /jobs` (202 or 200) and `DELETE /jobs/:id` (202 or 200). Never carries a bundle. */
+export const JobAckResponseSchema = z.strictObject({ jobId: JobIdSchema, status: JobAckStatusSchema });
+
+/** The body `sendError` writes for every 4xx and 5xx. `error` is a closed-set kind. */
+export const JobErrorResponseSchema = z.strictObject({ error: z.string().min(1), message: z.string() });
+
+/** Zod infers mutable arrays; the worker holds readonly ones. Normalise the inferred side. */
+type DeepReadonly<T> = T extends readonly (infer U)[]
+  ? T extends readonly [unknown, ...unknown[]]
+    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+    : readonly DeepReadonly<U>[]
+  : T extends object
+    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+    : T;
+
+export type JobBundle = DeepReadonly<z.infer<typeof JobBundleSchema>>;
+export type JobFailureBody = DeepReadonly<z.infer<typeof JobFailureSchema>>;
+export type JobStatusResponse = DeepReadonly<z.infer<typeof JobStatusResponseSchema>>;
+export type JobAckResponse = DeepReadonly<z.infer<typeof JobAckResponseSchema>>;
+export type JobErrorResponse = DeepReadonly<z.infer<typeof JobErrorResponseSchema>>;

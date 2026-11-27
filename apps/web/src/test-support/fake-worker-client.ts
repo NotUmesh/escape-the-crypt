@@ -1,3 +1,4 @@
+import { ackBody } from './worker-bodies';
 import type { JobState, StartedJob, WorkerClient, WorkerError, WorkerResult } from '../features/generate/worker-client';
 
 export interface FakeWorker {
@@ -36,7 +37,7 @@ export function fakeWorker(polls: readonly PollStep[], starts: readonly StartSte
       const step = next(starts, startKeys.length);
       startKeys.push(key);
       startTexts.push(notesText);
-      return Promise.resolve(step === 'ok' ? { ok: true, value: { jobId: 'job-1', status: 'queued' } } : { ok: false, error: step });
+      return Promise.resolve(step === 'ok' ? { ok: true, value: ackBody('queued') } : { ok: false, error: step });
     },
     getJob(jobId): Promise<WorkerResult<JobState>> {
       const step = next(polls, pollLog.length);

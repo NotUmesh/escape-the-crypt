@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { checkWordCount, countWords, z } from '@escape-the-crypt/core';
+import type { JobAckResponse, JobStatusResponse } from '@escape-the-crypt/core';
 import { requestDigest, sha256Hex, type Job, type JobStore, type JobView } from '../jobs/job-store';
 import { readBody } from './body';
 import { ERROR_COPY, FAILURE_COPY, type ErrorKind } from './copy';
@@ -49,6 +50,10 @@ function sessionToken(req: IncomingMessage): string | null {
   return token !== null && SESSION_TOKEN_PATTERN.test(token) ? token : null;
 }
 
+/** The body of POST /jobs and DELETE /jobs/:id: a status, never a bundle. */
+function ack(jobId: string, status: JobAckResponse['status']): JobAckResponse {
+  return { jobId, status };
+}
 export async function handleCreateJob(
   req: IncomingMessage,
   res: ServerResponse,
@@ -92,13 +97,13 @@ export async function handleCreateJob(
   });
   switch (created.kind) {
     case 'new':
-      sendJson(res, outcome, 202, { jobId: created.job.id, status: created.job.status });
+      sendJson(res, outcome, 202, ack(created.job.id, created.job.status));
       void runJob(deps, created.job);
       return;
     case 'replay':
-      return sendJson(res, outcome, 200, { jobId: created.job.id, status: created.job.status });
+      return sendJson(res, outcome, 200, ack(created.job.id, created.job.status));
     case 'replay-expired':
-      return sendJson(res, outcome, 200, { jobId: created.jobId, status: 'expired' });
+      return sendJson(res, outcome, 200, ack(created.jobId, 'expired'));
     case 'conflict':
       return fail(res, outcome, 409, 'idempotency-conflict');
     case 'session-busy':
@@ -108,20 +113,24 @@ export async function handleCreateJob(
   }
 }
 
-function jobBody(job: Job): Record<string, unknown> {
+function jobBody(job: Job): JobStatusResponse {
   if (job.status === 'completed' && job.result !== null) {
     const { manifest, content, unplacedAccepted } = job.result;
     return { jobId: job.id, status: 'completed', bundle: { manifest, content, unplacedAccepted } };
   }
-  if (job.status === 'cancelling') return { jobId: job.id, status: 'cancelling' };
   if (job.status === 'failed' || job.status === 'cancelled') {
     const kind = job.failure ?? (job.status === 'cancelled' ? 'cancelled' : 'generation-failed');
     return { jobId: job.id, status: job.status, failure: { kind, message: FAILURE_COPY[kind] } };
   }
+  if (job.status === 'completed') {
+    // Not reachable through the store (a completed job holds a result). The contract has no
+    // bundle-less `completed` body, so answer a failure instead.
+    const kind = 'generation-failed';
+    return { jobId: job.id, status: 'failed', failure: { kind, message: FAILURE_COPY[kind] } };
+  }
   return { jobId: job.id, status: job.status };
 }
-
-function viewBody(view: JobView): Record<string, unknown> {
+function viewBody(view: JobView): JobStatusResponse {
   return view.kind === 'expired' ? { jobId: view.jobId, status: 'expired' } : jobBody(view.job);
 }
 
@@ -159,12 +168,12 @@ export function handleDeleteJob(
     case 'cancelling':
       deps.controllers?.get(result.job.id)?.abort();
       deps.logger.info({ event: 'job-cancel-requested', route: 'DELETE /jobs/:id', status: 'cancelling' });
-      return sendJson(res, outcome, 202, { jobId: result.job.id, status: 'cancelling' });
+      return sendJson(res, outcome, 202, ack(result.job.id, 'cancelling'));
     case 'terminal':
       deps.logger.info({ event: 'job-cancel-requested', route: 'DELETE /jobs/:id', status: result.job.status });
-      return sendJson(res, outcome, 200, { jobId: result.job.id, status: result.job.status });
+      return sendJson(res, outcome, 200, ack(result.job.id, result.job.status));
     case 'expired':
       deps.logger.info({ event: 'job-cancel-requested', route: 'DELETE /jobs/:id', status: 'expired' });
-      return sendJson(res, outcome, 200, { jobId: result.jobId, status: 'expired' });
+      return sendJson(res, outcome, 200, ack(result.jobId, 'expired'));
   }
 }

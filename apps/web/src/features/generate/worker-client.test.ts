@@ -1,5 +1,7 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { buildSampleCrypt } from '../../state/sample-crypt-source';
+import { ackBody, completedBody, failureBody, plainBody } from '../../test-support/worker-bodies';
+import type { CryptBundle } from '@escape-the-crypt/core';
 import { createWorkerClient } from './worker-client';
 import type { WorkerClient } from './worker-client';
 
@@ -12,14 +14,12 @@ interface Call {
   readonly init: RequestInit;
 }
 
-let bundleJson: unknown;
-
+let bundle: CryptBundle;
 beforeAll(() => {
   const built = buildSampleCrypt();
   if (!built.ok) throw new Error(`sample crypt did not build: ${built.error.kind}`);
-  bundleJson = JSON.parse(JSON.stringify({ manifest: built.value.manifest, content: built.value.content }));
+  bundle = JSON.parse(JSON.stringify({ manifest: built.value.manifest, content: built.value.content })) as CryptBundle;
 });
-
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 }
@@ -40,7 +40,7 @@ afterEach(() => {
 
 describe('startJob', () => {
   it('posts only notesText and runLength with the token and idempotency key', async () => {
-    const { client, calls } = setup(() => jsonResponse(202, { jobId: 'job-1', status: 'queued' }));
+    const { client, calls } = setup(() => jsonResponse(202, ackBody('queued')));
     const result = await client.startJob('my notes', 'key-1');
     expect(result).toEqual({ ok: true, value: { jobId: 'job-1', status: 'queued' } });
     expect(calls).toHaveLength(1);
@@ -76,7 +76,7 @@ describe('startJob', () => {
 
 describe('getJob', () => {
   it('sends only the session token, with no body and no cookies', async () => {
-    const { client, calls } = setup(() => jsonResponse(200, { status: 'queued' }));
+    const { client, calls } = setup(() => jsonResponse(200, plainBody('queued')));
     await client.getJob('a/b c');
     const { url, init } = calls[0] as Call;
     expect(url).toBe(`${ORIGIN}/jobs/a%2Fb%20c`);
@@ -88,50 +88,54 @@ describe('getJob', () => {
     expect(init.redirect).toBe('error');
   });
 
-  it.each(['queued', 'running', 'cancelled', 'expired'] as const)('maps status %s', async (status) => {
-    const { client } = setup(() => jsonResponse(200, { status }));
+  it.each(['queued', 'running', 'expired'] as const)('maps status %s', async (status) => {
+    const { client } = setup(() => jsonResponse(200, plainBody(status)));
     expect(await client.getJob('j')).toEqual({ ok: true, value: { kind: status } });
   });
-
-  it.each(['expired', 'budget-exhausted', 'not-enough-material', 'generation-failed'] as const)(
-    'maps failure %s',
-    async (failure) => {
-      const { client } = setup(() => jsonResponse(200, { status: 'failed', failure }));
-      expect(await client.getJob('j')).toEqual({ ok: true, value: { kind: 'failed', failure } });
-    },
-  );
-
-  it('maps a worker failure of cancelled to the cancelled state', async () => {
-    const { client } = setup(() => jsonResponse(200, { status: 'failed', failure: 'cancelled' }));
+  it('reads cancelling as running, so polling continues until the worker says cancelled', async () => {
+    const { client } = setup(() => jsonResponse(200, plainBody('cancelling')));
+    expect(await client.getJob('j')).toEqual({ ok: true, value: { kind: 'running' } });
+  });
+  it('maps a cancelled job to the cancelled state', async () => {
+    const { client } = setup(() => jsonResponse(200, failureBody('cancelled', 'cancelled')));
     expect(await client.getJob('j')).toEqual({ ok: true, value: { kind: 'cancelled' } });
   });
-
-  it('treats an unknown failure string as an invalid response', async () => {
-    const { client } = setup(() => jsonResponse(200, { status: 'failed', failure: 'meteor' }));
-    expect(await client.getJob('j')).toEqual({
-      ok: false,
-      error: { kind: 'invalid-response', reason: 'unknown-failure' },
-    });
+  it.each(['expired', 'budget-exhausted', 'not-enough-material', 'generation-failed'] as const)(
+    'maps failure kind %s without carrying the worker message',
+    async (kind) => {
+      const { client } = setup(() => jsonResponse(200, failureBody('failed', kind)));
+      const result = await client.getJob('j');
+      expect(result).toEqual({ ok: true, value: { kind: 'failed', failure: kind } });
+      expect(JSON.stringify(result)).not.toContain('Worker copy');
+    },
+  );
+  it('maps a failed job whose failure kind is cancelled to the cancelled state', async () => {
+    const { client } = setup(() => jsonResponse(200, failureBody('failed', 'cancelled')));
+    expect(await client.getJob('j')).toEqual({ ok: true, value: { kind: 'cancelled' } });
   });
-
-  it('treats failed without a failure as an invalid response', async () => {
-    const { client } = setup(() => jsonResponse(200, { status: 'failed' }));
+  it.each([
+    ['a failure string', { jobId: 'j', status: 'failed', failure: 'generation-failed' }],
+    ['an unknown failure kind', { jobId: 'j', status: 'failed', failure: { kind: 'meteor', message: 'm' } }],
+    ['failed without a failure', { jobId: 'j', status: 'failed' }],
+  ])('rejects %s as a schema error', async (_name, body) => {
+    const { client } = setup(() => jsonResponse(200, body));
     expect(await client.getJob('j')).toEqual({ ok: false, error: { kind: 'invalid-response', reason: 'schema' } });
   });
-
-  it('returns the bundle for a completed job', async () => {
-    const { client } = setup(() => jsonResponse(200, { status: 'completed', ...(bundleJson as object), extra: 1 }));
+  it('returns the bundle from the worker shape for a completed job', async () => {
+    const { client } = setup(() => jsonResponse(200, completedBody(bundle)));
     const result = await client.getJob('j');
     expect(result.ok).toBe(true);
     if (!result.ok || result.value.kind !== 'completed') throw new Error('expected completed');
     expect(result.value.bundle.manifest.rooms.length).toBeGreaterThan(0);
     expect(Object.keys(result.value.bundle.content.questions).length).toBeGreaterThan(0);
   });
-
-  it('rejects a completed body that parseCryptBundle refuses, naming the kind only', async () => {
-    const { client } = setup(() =>
-      jsonResponse(200, { status: 'completed', manifest: (bundleJson as { manifest: unknown }).manifest, content: { questions: {}, concepts: {} } }),
-    );
+  it('rejects the old top-level manifest and content shape', async () => {
+    const { client } = setup(() => jsonResponse(200, { jobId: 'j', status: 'completed', ...bundle }));
+    expect(await client.getJob('j')).toEqual({ ok: false, error: { kind: 'invalid-response', reason: 'schema' } });
+  });
+  it('rejects a bundle that parseCryptBundle refuses, naming the kind only', async () => {
+    const hollow = { ...bundle, content: { questions: {}, concepts: {} } };
+    const { client } = setup(() => jsonResponse(200, completedBody(hollow)));
     const result = await client.getJob('j');
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -141,16 +145,11 @@ describe('getJob', () => {
     expect(result.error.bundleErrorKind).toBe('bundle-content-missing');
     expect(JSON.stringify(result.error)).not.toContain('questionId');
   });
-
-  it('rejects a completed body with no manifest', async () => {
-    const { client } = setup(() => jsonResponse(200, { status: 'completed' }));
-    const result = await client.getJob('j');
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toMatchObject({ kind: 'invalid-response', reason: 'bundle' });
-  });
-
-  it.each([
-    ['an unknown status', { status: 'sleeping' }],
+  it('rejects a completed body with no bundle', async () => {
+    const { client } = setup(() => jsonResponse(200, { jobId: 'j', status: 'completed' }));
+    expect(await client.getJob('j')).toEqual({ ok: false, error: { kind: 'invalid-response', reason: 'schema' } });
+  });  it.each([
+    ['an unknown status', { jobId: 'j', status: 'sleeping' }],
     ['a non-object', 'queued'],
     ['null', null],
   ])('rejects %s', async (_name, body) => {
@@ -203,7 +202,7 @@ describe('getJob', () => {
 
   it('clears the timer after a response', async () => {
     vi.useFakeTimers();
-    const { client } = setup(() => jsonResponse(200, { status: 'queued' }));
+    const { client } = setup(() => jsonResponse(200, plainBody('queued')));
     await client.getJob('j');
     expect(vi.getTimerCount()).toBe(0);
   });
