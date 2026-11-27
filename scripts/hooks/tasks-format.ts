@@ -28,9 +28,11 @@ export interface TasksViolation {
 const LOOKS_LIKE_TASK = /^\s*[-*+]\s*\[/;
 const TOP = /^- \[([ x~-])\](\*?) (\d+)\. \S/;
 const SUB = /^ {2}- \[([ x~-])\](\*?) (\d+)\.(\d+) \S/;
+const LEAF = /^ {4}- \[([ x~-])\](\*?) (\d+)\.(\d+)\.(\d+) \S/;
 const REQUIREMENT_LIST = String.raw`\d+(?:\.\d+)*(?:, \d+(?:\.\d+)*)*`;
-// Two spaces under a top-level task, four under a sub-task. "none ..." is allowed for tasks no requirement covers.
-const REQUIREMENTS = new RegExp(String.raw`^ {2}(?: {2})?- _Requirements?: (?:${REQUIREMENT_LIST}|none\b[^_]*)_$`);
+// Two spaces under a top-level task, four under a sub-task, six under a third-level task.
+// "none ..." is allowed for tasks no requirement covers.
+const REQUIREMENTS = new RegExp(String.raw`^ {2}(?: {2}){0,2}- _Requirements?: (?:${REQUIREMENT_LIST}|none\b[^_]*)_$`);
 // UTF-8 text that was decoded as Windows-1252 shows up as these sequences ("â€“" for an en dash).
 const MOJIBAKE = /Ã[\u0080-\u00BF\u0152-\u2122]|â€|Â[\u00A0-\u00BF]/;
 
@@ -51,9 +53,10 @@ export function checkTasksFormat(text: string): TasksViolation[] {
   const lines = text.split(/\r?\n/);
   const seen = new Set<string>();
   let parent: { id: number; line: number; state: string } | undefined;
+  let subParent: { key: string; line: number; state: string } | undefined;
   let previousTop = -1;
-  const openSubs = new Map<number, number>();
-  const parentLines = new Map<number, { line: number; state: string }>();
+  const openChildren = new Map<string, number>();
+  const parents = new Map<string, { line: number; state: string }>();
 
   lines.forEach((line, index) => {
     const lineNo = index + 1;
@@ -61,17 +64,21 @@ export function checkTasksFormat(text: string): TasksViolation[] {
       out.push({ line: lineNo, rule: 'encoding', message: 'garbled characters: UTF-8 text saved as Windows-1252 (for example "â€“" for a dash)' });
     }
     if (/_Requirements?/.test(line) && !REQUIREMENTS.test(line)) {
-      out.push({ line: lineNo, rule: 'requirements-line', message: 'expected "    - _Requirements: 1.2, 4.1_" (two or four spaces, numbers separated by ", ", closed by an underscore)' });
+      out.push({ line: lineNo, rule: 'requirements-line', message: 'expected "    - _Requirements: 1.2, 4.1_" (two, four or six spaces, numbers separated by ", ", closed by an underscore)' });
     }
     if (!LOOKS_LIKE_TASK.test(line)) return;
     const top = TOP.exec(line);
     const sub = SUB.exec(line);
-    if (top === null && sub === null) {
-      const indentWrong = /^( {1}| {3,})- \[[ x~-]\]\*? \d+(?:\.\d+)? /.exec(line);
+    const leaf = LEAF.exec(line);
+    if (top === null && sub === null && leaf === null) {
+      // A well-formed number at the wrong depth is an indent problem; anything else is a syntax problem.
+      const shape = /^( *)- \[[ x~-]\]\*? (?:(\d+\. )|(\d+\.\d+ )|(\d+\.\d+\.\d+ ))/.exec(line);
+      const expected = shape === null ? -1 : shape[2] !== undefined ? 0 : shape[3] !== undefined ? 2 : 4;
+      const indentWrong = shape !== null && shape[1]?.length !== expected;
       out.push({
         line: lineNo,
-        rule: indentWrong === null ? 'checkbox-syntax' : 'indent',
-        message: indentWrong === null ? syntaxHint(line) : 'a task starts at column 0 and a sub-task at exactly two spaces',
+        rule: indentWrong ? 'indent' : 'checkbox-syntax',
+        message: indentWrong ? 'a task starts at column 0, a sub-task at two spaces and a third-level task at four' : syntaxHint(line),
       });
       return;
     }
@@ -82,28 +89,41 @@ export function checkTasksFormat(text: string): TasksViolation[] {
       if (id <= previousTop) out.push({ line: lineNo, rule: 'task-order', message: `task ${id} comes after task ${previousTop}; numbers must increase` });
       previousTop = Math.max(previousTop, id);
       parent = { id, line: lineNo, state: top[1] ?? ' ' };
-      parentLines.set(id, { line: lineNo, state: top[1] ?? ' ' });
+      subParent = undefined;
+      parents.set(String(id), { line: lineNo, state: top[1] ?? ' ' });
       return;
     }
     if (sub !== null) {
       const parentId = Number(sub[3]);
-      const subId = Number(sub[4]);
-      const key = `${parentId}.${subId}`;
+      const key = `${parentId}.${Number(sub[4])}`;
       if (seen.has(key)) out.push({ line: lineNo, rule: 'duplicate-id', message: `sub-task ${key} appears twice` });
       seen.add(key);
       if (parent === undefined || parent.id !== parentId) {
         out.push({ line: lineNo, rule: 'sub-parent', message: `sub-task ${key} is not under task ${parentId}` });
+      } else if (sub[1] !== 'x') {
+        openChildren.set(String(parentId), (openChildren.get(String(parentId)) ?? 0) + 1);
       }
-      if (sub[1] !== 'x' && parent !== undefined && parent.id === parentId) {
-        openSubs.set(parentId, (openSubs.get(parentId) ?? 0) + 1);
+      subParent = { key, line: lineNo, state: sub[1] ?? ' ' };
+      parents.set(key, { line: lineNo, state: sub[1] ?? ' ' });
+      return;
+    }
+    if (leaf !== null) {
+      const parentKey = `${Number(leaf[3])}.${Number(leaf[4])}`;
+      const key = `${parentKey}.${Number(leaf[5])}`;
+      if (seen.has(key)) out.push({ line: lineNo, rule: 'duplicate-id', message: `task ${key} appears twice` });
+      seen.add(key);
+      if (subParent === undefined || subParent.key !== parentKey) {
+        out.push({ line: lineNo, rule: 'sub-parent', message: `task ${key} is not under sub-task ${parentKey}` });
+      } else if (leaf[1] !== 'x') {
+        openChildren.set(parentKey, (openChildren.get(parentKey) ?? 0) + 1);
       }
     }
   });
 
-  for (const [id, open] of openSubs) {
-    const info = parentLines.get(id);
+  for (const [key, open] of openChildren) {
+    const info = parents.get(key);
     if (info !== undefined && info.state === 'x') {
-      out.push({ line: info.line, rule: 'parent-complete', message: `task ${id} is marked done but ${open} of its sub-tasks are not` });
+      out.push({ line: info.line, rule: 'parent-complete', message: `task ${key} is marked done but ${open} of its sub-tasks are not` });
     }
   }
   if (text !== '' && !text.endsWith('\n')) {
