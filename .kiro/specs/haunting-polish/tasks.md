@@ -18,7 +18,7 @@ Rules for every task:
 ## Tasks
 
 - [ ] 1. Preflight and scope fence
-  - [ ] 1.1 Pull, read and report (read-only)
+  - [x] 1.1 Pull, read and report (read-only)
     - Run `git pull --rebase`. On a conflict, stop and report.
     - Report whether the Frozen_Files changed since this spec was written (`git log -3 --stat` over those paths).
     - Read `ghost-layer.tsx`, `art-motion.test.tsx`, `lantern-motion.test.tsx`, `crypt-css.test.ts` and `final-door.css`. Report every assertion about ghost opacity `0.85`, about `.atmosphere` `z-index`, and any test that would fail if `.atmosphere` moves to `z-index: 4`.
@@ -31,27 +31,27 @@ Rules for every task:
     - Add a self-test with a fake path list: a Frozen_File fails, an allowed CSS passes, `room-screen.tsx` fails, a new `quill-mark.tsx` passes.
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.6_
 
-- [ ] 2. Overlay layering and contrast
-  - [ ] 2.1 Move the overlay under the ghosts and back the ghost label
+- [x] 2. Overlay layering and contrast
+  - [x] 2.1 Move the overlay under the ghosts and back the ghost label
     - `atmosphere-layer.css`: `.atmosphere { z-index: 4; }`. Put the mist drift under `@media (prefers-reduced-motion: no-preference)` and keep the `reduce` hold. Add the maximum opacities as a comment.
     - `ghost-layer.css`: `.ghost-art { opacity: 1; }`, `.ghost-art::after` gets `background: var(--stone-950)` and `padding: 0 0.375rem`. Keep `pointer-events: none` and the stacking at `z-index: 5`.
     - Run `crypt-css.test.ts`, `lantern-motion.test.tsx`, `art-motion.test.tsx`, `ghost-list.test.tsx`. If an existing test fails, follow the rule above.
     - _Requirements: 2.2, 2.3, 2.4, 2.6, 2.7, 2.9_
-  - [ ] 2.2 Add `overlay-stacking.test.ts`
+  - [x] 2.2 Add `overlay-stacking.test.ts`
     - Parse `atmosphere-layer.css`, `ghost-layer.css` and `art-stage.css`. Assert: the overlay `z-index` is lower than the ghost layer and the ghost layer lower than `.art-stage__controls`; the container and each part have `pointer-events: none`; no overlay part uses an image `url()`; the overlay moves only `opacity` and `background-position`.
     - Assert the overlay's `aria-hidden` and absence in Lantern_Mode by rendering `AtmosphereLayer` and `ArtStage` (reuse the setup of `lantern-motion.test.tsx`).
     - _Requirements: 2.1, 2.2, 2.3, 2.6, 2.8, 2.11_
-  - [ ] 2.3 Add `overlay-contrast.test.ts`
+  - [x] 2.3 Add `overlay-contrast.test.ts`
     - Reuse the token parsing and ratio functions of `desk-contrast.test.ts` (copy the 20 lines; do not import from the desk feature).
     - Assert, from `tokens.css`: `--bone-50` on `--stone-950` (ghost label) and `--bone-50` on `--stone-800` (challenged note) are at least 4.5:1.
     - Negative control: read the maximum darkness and vignette opacities from `atmosphere-layer.css`, composite `--bone-50` under both over `--stone-950`, and assert the ratio is below 4.5, with a message that says why the text paints above the overlay.
     - _Requirements: 2.4, 2.5, 2.10_
 
 - [ ] 3. Candle, ghost rises and ghost laid to rest (CSS)
-  - [ ] 3.1 Candle bloom in `flame.css`
+  - [x] 3.1 Candle bloom in `flame.css`
     - Extend `flame-flare` with a drop-shadow bloom that rises and settles inside the existing 500 ms. One luminance change, no repeat. Keep the `reduce` block that sets `animation: none` and keep the static drop-shadow.
     - _Requirements: 3.1, 3.2, 3.5, 3.6, 3.7_
-  - [ ] 3.2 Ghost rise and rest in `ghost-layer.css`
+  - [x] 3.2 Ghost rise and rest in `ghost-layer.css`
     - `ghost-rise`: opacity 0 to 1 and a 16 px upward move, 800 ms ease-out, the label with the ghost. `ghost-fade`: opacity 1 to 0 with a 6 px sink, 700 ms ease-in, `forwards`. Keep the drift loop off under `reduce`, and keep `.ghost-art--leaving` instant-hidden under `reduce`.
     - No scale-up, no flash, no shake.
     - _Requirements: 4.1, 4.4, 4.6, 5.1, 5.4, 5.6_

@@ -10,7 +10,7 @@
   display: block;
   pointer-events: none;
   transform: translate(-50%, -100%);
-  opacity: 0.85;
+  opacity: 1;
 }
 .ghost-art__body {
   display: block;
@@ -36,6 +36,9 @@
   transform: translateX(-50%);
   font-family: var(--font-body);
   color: var(--bone-50);
+  /* A solid backing keeps the label at full contrast over any art. */
+  background: var(--stone-950);
+  padding: 0 0.375rem;
 }
 .ghost-art--rise {
   animation: ghost-rise 800ms ease-out;
@@ -46,19 +49,21 @@
 @keyframes ghost-rise {
   from {
     opacity: 0;
-    transform: translate(-50%, calc(-100% + 24px));
+    transform: translate(-50%, calc(-100% + 16px));
   }
   to {
-    opacity: 0.85;
+    opacity: 1;
     transform: translate(-50%, -100%);
   }
 }
 @keyframes ghost-fade {
   from {
-    opacity: 0.85;
+    opacity: 1;
+    transform: translate(-50%, -100%);
   }
   to {
     opacity: 0;
+    transform: translate(-50%, calc(-100% + 6px));
   }
 }
 @keyframes ghost-drift {
