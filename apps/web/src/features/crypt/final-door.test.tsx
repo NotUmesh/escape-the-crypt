@@ -15,6 +15,7 @@ import { useRoomBinding } from '../../state/room-binding';
 import type { RoomBinding } from '../../state/room-binding';
 import { useMount } from '../../test-support/flow-dom';
 import { sealName } from './accessible-names';
+import { failedSceneLoader, flushScene } from '../../test-support/scene-fixtures';
 import { FinalDoor } from './final-door';
 
 const SAMPLES = join(process.cwd(), '..', '..', 'samples');
@@ -38,6 +39,7 @@ function Harness(): ReactNode {
   binding = useRoomBinding(() => ({ ok: true, value: CRYPT }));
   if (binding.state === null) return null;
   return createElement(FinalDoor, {
+    loadSceneImpl: failedSceneLoader,
     state: override === null ? binding.state : override(binding.state),
     dispatch: binding.dispatch,
     assets: binding.assets,
@@ -87,10 +89,11 @@ describe('FinalDoor', () => {
     send({ type: 'startRun' });
   }
 
-  function atDoor(): void {
+  async function atDoor(): Promise<void> {
     start();
     skipAllOpen();
     send({ type: 'enterFinalDoor' });
+    await flushScene();
   }
 
   it('shows a closed door with no control while it is not available', () => {
@@ -111,8 +114,8 @@ describe('FinalDoor', () => {
     expect(binding.state?.atFinalDoor).toBe(true);
   });
 
-  it('draws one labelled seal per slot in order, broken when not open', () => {
-    atDoor();
+  it('draws one labelled seal per slot in order, broken when not open', async () => {
+    await atDoor();
     const slotCount = binding.state?.finalDoor.slots.length ?? 0;
     expect(slotCount).toBeGreaterThan(0);
     const statuses: SlotStatus[] = ['open', 'solved', 'settled', 'challenged'];
@@ -129,8 +132,8 @@ describe('FinalDoor', () => {
     });
   });
 
-  it('opens the shared question panel on the right from a seal control', () => {
-    atDoor();
+  it('opens the shared question panel on the right from a seal control', async () => {
+    await atDoor();
     const seal = mount.container.querySelector<HTMLButtonElement>('.final-door__seal-button');
     expect(seal).not.toBeNull();
     act(() => seal?.click());
@@ -142,8 +145,8 @@ describe('FinalDoor', () => {
     expect(labels).toContain(ROOM_PLAY_LABELS.challenge);
   });
 
-  it('falls back to a Skip-only panel for a type with no panel', () => {
-    atDoor();
+  it('falls back to a Skip-only panel for a type with no panel', async () => {
+    await atDoor();
     override = (state) => ({
       ...state,
       finalDoor: {

@@ -10,6 +10,7 @@ import type { RoomBinding } from '../../state/room-binding';
 import type { RoomAction } from '../../state/room-actions';
 import { buttonByText, useMount } from '../../test-support/flow-dom';
 import { RoomPanel } from './room-panel';
+import { failedSceneLoader, flushScene } from '../../test-support/scene-fixtures';
 import { RoomScreen } from './room-screen';
 
 const SAMPLES = join(process.cwd(), '..', '..', 'samples');
@@ -38,6 +39,7 @@ function Harness(): ReactNode {
     binding.dispatch(action);
   };
   return createElement(RoomScreen, {
+    loadSceneImpl: failedSceneLoader,
     state,
     dispatch,
     notices: binding.notices,
@@ -78,13 +80,14 @@ function openEvidence(container: HTMLElement): HTMLButtonElement {
 describe('Evidence_Panel in the room screen', () => {
   const mount = useMount();
 
-  function setup(): void {
+  async function setup(): Promise<void> {
     mount.render(createElement(Harness));
     act(() => binding.dispatch({ type: 'startRun' }));
+    await flushScene();
   }
 
-  it('shows the panel when the slot has evidencePanelOpen, moves focus in and hides hint, skip and challenge', () => {
-    setup();
+  it('shows the panel when the slot has evidencePanelOpen, moves focus in and hides hint, skip and challenge', async () => {
+    await setup();
     openEvidence(mount.container);
     expect(binding.state?.rooms[0]?.lockSlots[0]?.evidencePanelOpen).toBe(true);
     const panel = mount.container.querySelector('.evidence-panel');
@@ -95,8 +98,8 @@ describe('Evidence_Panel in the room screen', () => {
     for (const hidden of [ROOM_PLAY_LABELS.skip, ROOM_PLAY_LABELS.challenge]) expect(names).not.toContain(hidden);
   });
 
-  it('Continue dispatches continueEvidence, closes the panel and returns focus to the slot button', () => {
-    setup();
+  it('Continue dispatches continueEvidence, closes the panel and returns focus to the slot button', async () => {
+    await setup();
     const opener = openEvidence(mount.container);
     const slotId = binding.state?.rooms[0]?.lockSlots[0]?.slotId;
     act(() => buttonByText(mount.container, ROOM_PLAY_LABELS.continue).click());

@@ -9,11 +9,15 @@ import { announcementsFor } from './announcements';
 import { CryptErrorBoundary } from './crypt-error-boundary';
 import { AutopsyView } from './autopsy-view';
 import { FinalDoor } from './final-door';
+import { LanternProvider } from './lantern-context';
 import { LiveRegion } from './live-region';
 import { RoomPanel } from './room-panel';
 import { RoomScreen } from './room-screen';
+import type { SceneLoader } from './use-scene';
 
 export interface CryptFlowProps {
+  /** Loads each room's Scene_File. Tests inject one. */
+  readonly loadSceneImpl?: SceneLoader;
   /** Supplies the binding. Defaults to the real one; tests pass a wrapper around it. */
   readonly useBinding?: () => RoomBinding;
 }
@@ -56,7 +60,7 @@ function StartFailed({
   );
 }
 
-function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactNode {
+function CryptFlowInner({ useBinding = useRoomBinding, loadSceneImpl }: CryptFlowProps): ReactNode {
   const binding = useBinding();
   const { state, notices, phase, startError } = binding;
   const [autopsyRequested, setAutopsyRequested] = useState(false);
@@ -115,11 +119,12 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
           assets={binding.assets}
           rejection={binding.rejection}
           eventLog={binding.eventLog}
+          loadSceneImpl={loadSceneImpl}
           onEscapeEvidenceDismissed={() => setEscapeEvidenceDismissed(true)}
         />
       );
     } else {
-      view = <FinalDoor escaped onOpenAutopsy={() => setAutopsyRequested(true)} />;
+      view = <FinalDoor escaped state={state} loadSceneImpl={loadSceneImpl} onOpenAutopsy={() => setAutopsyRequested(true)} />;
     }
   } else if (state.status === 'in progress') {
     view = state.atFinalDoor ? (
@@ -135,6 +140,7 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
         state={state}
         dispatch={dispatch}
         notices={notices}
+        loadSceneImpl={loadSceneImpl}
         renderPanel={(slot, controls) =>
           binding.assets === null ? null : (
             <RoomPanel
@@ -146,6 +152,7 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
               dispatch={dispatch}
               openerRef={controls.openerRef}
               onClose={controls.onClose}
+              side={controls.side}
             />
           )
         }
@@ -171,7 +178,9 @@ function CryptFlowInner({ useBinding = useRoomBinding }: CryptFlowProps): ReactN
 export function CryptFlow(props: CryptFlowProps): ReactNode {
   return (
     <CryptErrorBoundary>
-      <CryptFlowInner {...props} />
+      <LanternProvider>
+        <CryptFlowInner {...props} />
+      </LanternProvider>
     </CryptErrorBoundary>
   );
 }

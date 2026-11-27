@@ -303,18 +303,18 @@ Every task is required. Property tests sit next to the code they test and cite t
 - [x] 13. Checkpoint - Plain playable loop complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Layered art, geometry, candles, light and motion
-  - [ ] 14.1 Add `art-room.ts` with its property test
+- [x] 14. Layered art, geometry, candles, light and motion
+  - [x] 14.1 Add `art-room.ts` with its property test
     - `artRoomForPosition(position)` returns `burial-chamber`, `library-of-bones` or `sunken-chapel` for 1, 2 and 3 and `null` otherwise; the room screen finds the position from `State.rooms` and never reads `roomId` for the art choice
     - **Property 2: The Art_Room is chosen by room position only**
     - **Validates: Requirements 7.1, 7.2, 24.3**
 
-  - [ ] 14.2 Add `scene-types.ts` and `scene-loader.ts`
+  - [x] 14.2 Add `scene-types.ts` and `scene-loader.ts`
     - Zod `SceneFile` schema mirroring section 4 of `docs/art/asset-contract.md` (`desktop`, optional `mobile`, locks, `ambientCandles`, `ghostAnchors`, `door`, `parallax`); loader returns a typed `Result`
     - Unit tests for a valid file, a missing field and a malformed file
     - _Requirements: 7.3, 23.3_
 
-  - [ ] 14.3 Add `hotspot-geometry.ts` with property tests
+  - [x] 14.3 Add `hotspot-geometry.ts` with property tests
     - `MIN_HIT_PX`, `hotspotBox`, `stackOrder`, `tabOrder` and `sealPoints(polygon, count)` as pure functions in `apps/web/src/features/crypt/hotspot-geometry.ts`; `sealPoints` intersects a horizontal scan line at the polygon's centroid height with the polygon (using the nearest height that crosses the interior when the centroid is outside a concave polygon), takes the widest interior interval and returns `count` points at fractions `(i + 1) / (count + 1)` along it
     - Write `hotspot-geometry.test.ts`: `sealPoints` returns exactly `count` points for counts 0 to 8, each inside a convex polygon and inside a concave L-shaped polygon, in left-to-right order; examples for `stackOrder` and `tabOrder` (stable, input not mutated)
     - **Property 5: A hotspot box is never smaller than 44 by 44 px**
@@ -323,52 +323,52 @@ Every task is required. Property tests sit next to the code they test and cite t
     - **Validates: Requirements 10.4, 10.5**
     - _Requirements: 19.4_
 
-  - [ ] 14.4 Add `crop-mapping.ts` with its property test
+  - [x] 14.4 Add `crop-mapping.ts` with its property test
     - `hotspotUnionBounds` and `mapCropPoint` under `object-fit: cover` centred on the union of drawn hotspots; add a unit test with fixed examples
     - **Property 7: Crop_Mapping keeps hotspot-union points inside the viewport**
     - **Validates: Requirements 11.3, 11.5, 24.4**
     - _Requirements: 11.4_
 
-  - [ ] 14.5 Add `lantern-setting.ts` with its property test
+  - [x] 14.5 Add `lantern-setting.ts` with its property test
     - `resolveLanternMode(stored, prefersReducedMotion)` plus guarded `localStorage` read and write under one key, each inside try/catch; a throwing write keeps the session value silently; nothing but the Lantern_Setting is stored
     - Unit tests for write path, throwing read, throwing write and unrecognised values
     - **Property 9: The Lantern setting falls back to the reduced-motion default**
     - **Validates: Requirements 12.3, 12.9, 12.10**
     - _Requirements: 12.8, 12.11, 12.12, 25.13_
 
-  - [ ] 14.6 Add `art-failure-log.ts`
+  - [x] 14.6 Add `art-failure-log.ts`
     - One `console.error` per distinct file per room mount, logging only the file name and error type, tracked in a `Set`
     - Unit tests for single logging and for the logged payload holding no learner content
     - _Requirements: 23.1, 23.4_
 
-  - [ ] 14.7 Build the layered stack in `lock-layer.tsx` and the room screen
+  - [x] 14.7 Build the layered stack in `lock-layer.tsx` and the room screen
     - Stack background, one Lock_Layer per drawn lock, Light_Passes, door layer and foreground at 0,0 in that order; use `background@2x.webp` on high-DPI; draw a lock only when the room has a Lock_Slot of that type; empty `alt` on every art layer; `lockImageFile` and `shouldDrawFlame` as pure functions
     - On Scene_File failure or an art `onError`, use `art-failure-log.ts`, draw nothing for that file and fall back to the simple button list of group 4 with the same accessible names
     - Table-driven tests for `lockImageFile` and `shouldDrawFlame` over every `SlotStatus`, `candleLit` and hover value; component tests for layer order, absent lock types and failure fallback
     - _Requirements: 7.3, 7.4, 7.5, 7.6, 7.7, 8.1, 8.2, 8.6, 9.1, 23.1, 23.2, 23.3_
 
-  - [ ] 14.8 Position the Hotspot_Buttons and add phone framing
+  - [x] 14.8 Position the Hotspot_Buttons and add phone framing
     - Place each native button over its `hotspot` polygon using `hotspotBox`, emit in `tabOrder`, stack by `stackOrder`; add hover and focus crossfade to the `-hover` image over 200 ms with no interaction depending on hover
     - On a Phone_Viewport use the `mobile` block when present, else crop the desktop art with `mapCropPoint` for every hotspot, candle, ambient candle, Ghost_Anchor and door coordinate, keeping every button at least 44 by 44 px
     - Component tests for order, size and crop use
     - _Requirements: 8.3, 8.4, 10.1, 10.2, 10.4, 10.5, 11.1, 11.2, 11.3, 11.6_
 
-  - [ ] 14.9 Add flames, ambient candles and light passes
+  - [x] 14.9 Add flames, ambient candles and light passes
     - Create `flame.tsx` (code-drawn gold flame, short flare then gentle flicker, no teal); ambient candles from the first frame; on a `candleLit` notice fade the Light_Pass in over about 600 ms and crossfade the lock to `-solved`; light passes composited with `plus-lighter` and a `screen` fallback; a room drawn from State with a lit candle shows flame and light at once with no animation; settled and challenged locks draw no flame and no light
     - Component tests for animated and steady-state drawing and for settled locks
     - _Requirements: 8.5, 8.6, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8_
 
-  - [ ] 14.10 Position ghosts, spirit candles, door layers and seals
+  - [x] 14.10 Position ghosts, spirit candles, door layers and seals
     - Draw ghosts at Ghost_Anchors using `assignGhostAnchors` and the crop mapping, with the rise on `ghostSpawned` and a fade on `ghostLaidToRest`; draw Spirit_Candle flames with no Light_Pass; crossfade `door-closed.webp` to `door-open.webp` and fade `light-door.webp` in on `roomCleared`; replace the plain seal list of `final-door.tsx` by seals drawn at the points returned by `sealPoints(doorPolygonInViewportPx, State.finalDoor.slots.length)` (door polygon mapped through the crop mapping), so every seal is inside the door `hotspot` polygon, with the open door (`door-open.webp`) and `light-door.webp` in the escape view; all ghost layers `pointer-events: none` and never covering controls
     - Component tests for anchor use and door transitions
     - _Requirements: 18.1, 18.2, 18.4, 18.5, 18.6, 18.10, 18.11, 19.4_
 
-  - [ ] 14.11 Add panel placement and the lock close-up
+  - [x] 14.11 Add panel placement and the lock close-up
     - Open the Question_Panel on the lock's `panelSide` (right side at the final door); show `locks/<lock>/closed.webp` behind it for an open slot and `locks/<lock>/open.webp` for a solved slot; keep the panel fully lit with text contrast of at least 4.5:1; full width on a Phone_Viewport; keep the question-text typography of task 4.4 (Crimson Pro at `1.125rem`, `1rem` on phones) in any new CSS, which `crypt-css.test.ts` from task 11.3 checks
     - Component tests for side, image and phone width
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 19.6, 22.3, 22.4_
 
-  - [ ] 14.12 Add motion, reduced motion and the lantern control
+  - [x] 14.12 Add motion, reduced motion and the lantern control
     - Parallax of a few pixels following the Scene_File `parallax` factors on pointer or tilt; with `prefers-reduced-motion: reduce` turn off parallax and flicker and make crossfades instant, and start in Lantern_Mode unless a stored setting exists; create `lantern-toggle.tsx`; in Lantern_Mode drop darkness, vignette, grain and mist overlays and show every layer fully lit; all atmosphere layers `pointer-events: none` and never covering a panel; no flashing, jump scare or screen shake
     - Component tests for reduced-motion behaviour, the toggle writing the setting and overlays removed
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.8, 12.9, 12.10_
@@ -376,32 +376,32 @@ Every task is required. Property tests sit next to the code they test and cite t
 - [ ] 15. Checkpoint - Layered art and motion
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. Art tests and reduced-motion checks
-  - [ ] 16.1 Unit test: every Scene_File file exists
+- [x] 16. Art tests and reduced-motion checks
+  - [x] 16.1 Unit test: every Scene_File file exists
     - For each Art_Room, assert every file named by its `scene.json` exists under `apps/web/public/art/rooms/<art-room>/`, and for every lock all four Lock_Layers and the Light_Pass exist
     - _Requirements: 24.1, 24.2_
 
-  - [ ] 16.2 Unit test: absent lock types draw nothing
+  - [x] 16.2 Unit test: absent lock types draw nothing
     - A lock type absent from the current room draws no Lock_Layer, Light_Pass or Hotspot_Button; the Art_Room is chosen by position and not by `roomId`
     - _Requirements: 24.3, 24.8, 7.6_
 
-  - [ ] 16.3 Playwright: hover and focus swap
+  - [x] 16.3 Playwright: hover and focus swap
     - Hovering and focusing a Hotspot_Button swaps its lock layer to the `-hover` image and back on leave and blur
     - _Requirements: 24.5, 8.3_
 
-  - [ ] 16.4 Playwright: light pass and flame on solve
+  - [x] 16.4 Playwright: light pass and flame on solve
     - Solving a lock adds its Light_Pass and Flame; a settled lock adds neither
     - _Requirements: 24.6, 8.6, 9.1, 9.2, 9.3_
 
-  - [ ] 16.5 Playwright: missing art file
+  - [x] 16.5 Playwright: missing art file
     - Route one art file to a failure; assert one console message for that file, no learner content in it, and that the game stays playable
     - _Requirements: 24.7, 23.1, 23.2, 23.4_
 
-  - [ ] 16.6 Playwright: reduced motion
+  - [x] 16.6 Playwright: reduced motion
     - With `prefers-reduced-motion: reduce` assert Lantern_Mode is on, no parallax transform or flicker animation runs and crossfades are instant
     - _Requirements: 25.6, 12.2, 12.3, 12.4_
 
-  - [ ] 16.7 Playwright: lantern setting and phone viewport
+  - [x] 16.7 Playwright: lantern setting and phone viewport
     - Assert the Lantern_Setting survives a page reload; on a Phone_Viewport assert every drawn Hotspot_Button is at least 44 by 44 px and a lock can be opened and answered
     - _Requirements: 25.8, 25.13, 11.6, 12.8, 12.9_
 

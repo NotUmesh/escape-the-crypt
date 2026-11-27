@@ -1,0 +1,21 @@
+.lantern-toggle {
+  position: relative;
+  z-index: 2;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  background: var(--stone-800);
+  color: var(--bone-50);
+  border: 1px solid var(--stone-300);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.lantern-toggle[aria-pressed='true'] {
+  border-color: var(--candle-400);
+}
+.lantern-toggle:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}

@@ -1,0 +1,42 @@
+/* The lock close-up behind the Question_Panel (Requirements 13.1 to 13.4). Colours from tokens only. */
+.lock-closeup {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  overflow: hidden;
+  background: var(--stone-950);
+}
+
+.lock-closeup[data-side='left'] {
+  justify-content: flex-start;
+}
+
+.lock-closeup__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The panel sits above the art on its own opaque surface, so it stays fully lit and readable. */
+.lock-closeup__panel {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: min(100%, 36rem);
+  padding: 1rem;
+}
+
+/* Phone_Viewport: the panel takes the full width. */
+.lock-closeup--phone .lock-closeup__panel {
+  width: 100%;
+}
+
+@media (max-aspect-ratio: 749/1000) {
+  .lock-closeup__panel {
+    width: 100%;
+  }
+}

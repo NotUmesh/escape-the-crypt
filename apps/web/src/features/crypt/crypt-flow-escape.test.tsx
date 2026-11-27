@@ -10,6 +10,7 @@ import type { RoomBinding } from '../../state/room-binding';
 import type { RoomAction } from '../../state/room-actions';
 import { buttonByText, clickButton, useMount } from '../../test-support/flow-dom';
 import { announcementsFor } from './announcements';
+import { failedSceneLoader, flushScene } from '../../test-support/scene-fixtures';
 import { CryptFlow } from './crypt-flow';
 
 vi.mock('./announcements', async (importOriginal) => {
@@ -39,7 +40,7 @@ function realBinding(): RoomBinding {
 }
 
 function flow(useBinding: () => RoomBinding = realBinding): ReactNode {
-  return createElement(CryptFlow, { useBinding });
+  return createElement(CryptFlow, { useBinding, loadSceneImpl: failedSceneLoader });
 }
 
 function send(action: RoomAction): void {
@@ -104,7 +105,8 @@ describe('CryptFlow escape evidence', () => {
       // Answer the last seal correctly through the UI.
       const slot = binding.state?.finalDoor.slots.find((s) => s.status === 'open');
       if (slot === undefined) throw new Error('no open door slot');
-      const seal = mount.container.querySelector<HTMLButtonElement>('.final-door__seal-button');
+      await flushScene();
+    const seal = mount.container.querySelector<HTMLButtonElement>('.final-door__seal-button');
       if (seal === null) throw new Error('no seal button');
       await act(async () => seal.click());
       // The last seal can be a returning question, so look through every question in the manifest.
@@ -145,7 +147,9 @@ describe('CryptFlow escape evidence', () => {
     expect(mount.container.querySelector('[data-testid="escape-view"]')).toBeNull();
     expect(document.activeElement).toBe(panel);
     // Only Continue is offered: no hint, skip, challenge or answer control.
-    expect(Array.from(mount.container.querySelectorAll('button')).map((b) => b.textContent)).toEqual([ROOM_PLAY_LABELS.continue]);
+    // The Lantern toggle is a view setting, not a play control.
+    const names = Array.from(mount.container.querySelectorAll('button')).map((b) => b.textContent);
+    expect(names.filter((n) => n !== ROOM_PLAY_LABELS.lanternToggle)).toEqual([ROOM_PLAY_LABELS.continue]);
     expect(mount.container.querySelector('input')).toBeNull();
     const escapedAnnouncement = region();
     const escapedAnnounced = (): number =>

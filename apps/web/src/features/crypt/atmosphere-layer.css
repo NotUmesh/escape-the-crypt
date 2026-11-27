@@ -1,0 +1,54 @@
+/* Atmosphere layers (Requirements 12.4, 12.6, 12.7). Colours from tokens only. Above the art, below the controls. */
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.atmosphere > span {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+/* The crypt starts cold and dark; each lit candle thins it. */
+.atmosphere__darkness {
+  background: var(--stone-950);
+  opacity: calc(0.4 - 0.25 * var(--atmosphere-lit, 0));
+}
+
+.atmosphere__vignette {
+  background: radial-gradient(ellipse at center, transparent 55%, var(--stone-950) 100%);
+  opacity: 0.6;
+}
+
+.atmosphere__grain {
+  background-image: repeating-radial-gradient(circle at 17% 32%, var(--bone-50) 0, transparent 1px, transparent 3px);
+  background-size: 7px 7px;
+  opacity: 0.04;
+}
+
+/* Slow drift only; nothing pulses or flashes. */
+.atmosphere__mist {
+  background: linear-gradient(to top, var(--spectre-300), transparent 60%);
+  background-size: 200% 100%;
+  opacity: 0.08;
+  animation: atmosphere-drift 90s linear infinite alternate;
+}
+
+@keyframes atmosphere-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere__mist {
+    animation: none;
+  }
+}

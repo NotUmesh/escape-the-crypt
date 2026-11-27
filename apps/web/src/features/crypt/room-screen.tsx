@@ -10,7 +10,16 @@ import {
 import type { LockSlotState, Outcome_Notice, ReturnSlotState, State } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
 import { doorButtonName, lockName, returnSlotName } from './accessible-names';
+import { ArtStage } from './art-stage';
+import type { Viewport } from './crop-mapping';
 import { GhostList } from './ghost-list';
+import { LockCloseUp } from './lock-closeup';
+import { panelSideFor } from './panel-side';
+import type { PanelSide } from './panel-side';
+import { LanternToggle } from './lantern-toggle';
+import { isPhoneViewport } from './scene-layout';
+import { useRoomArt } from './use-room-art';
+import type { SceneLoader } from './use-scene';
 import './room-screen.css';
 
 const NO_NOTICES: readonly Outcome_Notice[] = [];
@@ -19,6 +28,8 @@ const NO_NOTICES: readonly Outcome_Notice[] = [];
 export interface PanelControls {
   readonly openerRef: RefObject<HTMLElement | null>;
   readonly onClose: () => void;
+  /** The side the panel opens on (Requirement 13.1). */
+  readonly side: PanelSide;
 }
 
 export interface RoomScreenProps {
@@ -27,11 +38,16 @@ export interface RoomScreenProps {
   /** Fills the panel slot for the opened lock. Later tasks pass the Question_Panel here. */
   /** Notices from the latest accepted dispatch (Room_Binding). */
   readonly notices?: readonly Outcome_Notice[];
+  /** Loads the Scene_File. Tests inject one; the default fetches /art/rooms/<art-room>/scene.json. */
+  readonly loadSceneImpl?: SceneLoader;
+  /** Window size for phone framing. The real window when omitted. */
+  readonly viewport?: Viewport;
   readonly renderPanel?: (slot: LockSlotState | ReturnSlotState, controls: PanelControls) => ReactNode;
 }
 
-/** The current room as one native button per Lock_Slot, in slot order (Requirements 10.1, 10.2, 10.3). */
-export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel }: RoomScreenProps): ReactNode {
+/** The current room as one native button per Lock_Slot, in slot order (Requirements 10.1, 10.2, 10.3).
+ * While the Scene_File loads no lock button is drawn, so a click cannot land on a button that is about to be replaced. */
+export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel, loadSceneImpl, viewport }: RoomScreenProps): ReactNode {
   const [openSlotId, setOpenSlotId] = useState<string | null>(null);
   const [statusText, setStatusText] = useState<string>('');
   const openerRef = useRef<HTMLElement | null>(null);
@@ -39,6 +55,9 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel 
   const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
   const roomIndex = state.rooms.findIndex((r) => r.roomId === state.currentRoomId);
   const slots = room?.lockSlots ?? [];
+  const { artRoom, log, sceneState, drawn, plain } = useRoomArt(state, loadSceneImpl);
+  const spiritCandleCount =
+    (room?.spiritCandles.length ?? 0) + (state.atFinalDoor ? state.finalDoor.spiritCandles.length : 0);
   // A judged slot is no longer `open`, but its panel stays until the learner continues from the evidence.
   const returnSlots = room?.dueReturnSlots ?? [];
   const openSlot: LockSlotState | ReturnSlotState | undefined = [...slots, ...returnSlots].find(
@@ -78,6 +97,22 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel 
     setOpenSlotId(slot.slotId);
   }
 
+  const scene = sceneState.status === 'ready' ? sceneState.scene : null;
+  const phone = isPhoneViewport(viewport ?? { width: window.innerWidth, height: window.innerHeight });
+  let panel: ReactNode = null;
+  if (openSlot !== undefined && renderPanel !== undefined) {
+    const side = 'stationType' in openSlot ? panelSideFor(scene, openSlot.stationType, phone) : 'right';
+    const content = renderPanel(openSlot, { openerRef, onClose: close, side });
+    panel =
+      content !== null && 'stationType' in openSlot ? (
+        <LockCloseUp lockType={openSlot.stationType} solved={openSlot.status === 'solved'} side={side} phone={phone} log={log}>
+          {content}
+        </LockCloseUp>
+      ) : (
+        content
+      );
+  }
+
   return (
     <section className="room-screen" aria-labelledby="room-screen-title">
       <h2 id="room-screen-title" className="room-screen__title">
@@ -85,8 +120,25 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel 
       </h2>
       <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p>
       <p className="room-screen__hints">{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}</p>
+      <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
+      {sceneState.status === 'ready' && artRoom !== null && drawn.length > 0 ? (
+        <ArtStage
+          artRoom={artRoom}
+          scene={sceneState.scene}
+          slots={drawn}
+          cleared={room?.cleared ?? false}
+          roomId={room?.roomId}
+          log={log}
+          onActivate={activate}
+          notices={notices}
+          ghosts={state.ghosts}
+          spiritCandleCount={spiritCandleCount}
+          viewport={viewport}
+        />
+      ) : null}
+      {plain.length > 0 ? (
       <ul className="room-screen__locks">
-        {slots.map((slot) => (
+        {plain.map((slot) => (
           <li key={slot.slotId} className="room-screen__lock">
             <button
               type="button"
@@ -103,6 +155,7 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel 
           </li>
         ))}
       </ul>
+      ) : null}
       {returnSlots.length > 0 ? (
         <ul className="room-screen__returns" data-testid="return-slots">
           {returnSlots.map((slot) => {
@@ -135,15 +188,13 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel 
       ) : null}
       <GhostList
         ghosts={state.ghosts}
-        spiritCandleCount={
-          (room?.spiritCandles.length ?? 0) + (state.atFinalDoor ? state.finalDoor.spiritCandles.length : 0)
-        }
+        spiritCandleCount={spiritCandleCount}
       />
       <p className="room-screen__status" data-testid="slot-status">
         {statusText}
       </p>
       <div className="room-screen__panel-slot" data-testid="panel-slot">
-        {openSlot !== undefined && renderPanel !== undefined ? renderPanel(openSlot, { openerRef, onClose: close }) : null}
+        {panel}
       </div>
     </section>
   );

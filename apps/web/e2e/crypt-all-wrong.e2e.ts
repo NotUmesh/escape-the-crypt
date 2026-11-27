@@ -77,6 +77,8 @@ test('all answers wrong: ghosts appear, return at the final door, and the escape
     await answerWrong(page, keys);
     await expect(page.locator('.evidence-panel__result[data-result="wrong"]')).toBeVisible();
     await continueButton(page).click();
+    // Wait for the panel to close so the ghost list is read after the room has redrawn.
+    await expect(continueButton(page)).toHaveCount(0);
     if ((await page.locator('.ghost-list__ghost').count()) > 0) sawGhost = true;
   }
   // A wrong answer summons a ghost for its concept.

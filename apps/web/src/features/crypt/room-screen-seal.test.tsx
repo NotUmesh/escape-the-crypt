@@ -9,6 +9,7 @@ import { useRoomBinding } from '../../state/room-binding';
 import type { RoomBinding } from '../../state/room-binding';
 import { buttonByText, useMount } from '../../test-support/flow-dom';
 import { RoomPanel } from './room-panel';
+import { failedSceneLoader, flushScene } from '../../test-support/scene-fixtures';
 import { RoomScreen } from './room-screen';
 
 const SAMPLES = join(process.cwd(), '..', '..', 'samples');
@@ -32,6 +33,7 @@ function Harness(): ReactNode {
   const { state, assets } = binding;
   if (state === null || assets === null) return null;
   return createElement(RoomScreen, {
+    loadSceneImpl: failedSceneLoader,
     state,
     dispatch: binding.dispatch,
     notices: binding.notices,
@@ -49,9 +51,10 @@ function Harness(): ReactNode {
   });
 }
 
-function setup(mount: ReturnType<typeof useMount>): void {
+async function setup(mount: ReturnType<typeof useMount>): Promise<void> {
   mount.render(createElement(Harness));
   act(() => binding.dispatch({ type: 'startRun' }));
+  await flushScene();
 }
 
 function firstSlot(): { slotId: string; status: string; currentQuestionId: string } {
@@ -79,8 +82,8 @@ function openFirst(container: HTMLElement): HTMLButtonElement {
 describe('sealCracked in the room screen', () => {
   const mount = useMount();
 
-  it('open slot: shows the Alternate, clears the draft and focuses the panel heading', () => {
-    setup(mount);
+  it('open slot: shows the Alternate, clears the draft and focuses the panel heading', async () => {
+    await setup(mount);
     openFirst(mount.container);
     const firstQuestion = firstSlot().currentQuestionId;
     type(mount.container.querySelector('input[type="text"], input:not([type])') as HTMLInputElement, 'half-typed');
@@ -98,8 +101,8 @@ describe('sealCracked in the room screen', () => {
     for (const input of typed) expect((input as HTMLInputElement).value).toBe('');
   });
 
-  it('challenged slot: closes the panel and shows the challenged label on that lock', () => {
-    setup(mount);
+  it('challenged slot: closes the panel and shows the challenged label on that lock', async () => {
+    await setup(mount);
     const opener = openFirst(mount.container);
     act(() => buttonByText(mount.container, ROOM_PLAY_LABELS.challenge).click());
     act(() => buttonByText(mount.container, ROOM_PLAY_LABELS.challenge).click());

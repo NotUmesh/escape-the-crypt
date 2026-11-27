@@ -79,6 +79,8 @@ export async function enterCrypt(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Confirm notes' }).click();
   await page.getByRole('button', { name: ENTER_CRYPT_LABEL }).click();
   await page.locator('.room-screen').waitFor();
+  // The lock buttons appear once the Scene_File has loaded (or failed to); wait for them so callers never read an empty room.
+  await page.locator('.room-screen__lock-button').first().waitFor();
 }
 
 /** Opens the lock for a slot, then answers it by lock type. Does not press Continue. */
@@ -96,4 +98,16 @@ export async function submitAnswer(page: Page, answer: CorrectAnswer): Promise<v
     await panel.locator(`input[type="radio"][value="${answer.optionId}"]`).check();
   }
   await panel.getByRole('button', { name: ROOM_PLAY_LABELS.submitAnswer }).click();
+}
+
+/** Waits until the layered scene is drawn: the stage, its Hotspot_Buttons and every art image settled (loaded or removed after a failure). */
+export async function waitForArtStage(page: Page): Promise<void> {
+  await page.getByTestId('art-stage').waitFor();
+  await page.locator('.room-hotspot').first().waitFor();
+  await page.waitForFunction(() => Array.from(document.querySelectorAll('img.art-layer')).every((img) => (img as HTMLImageElement).complete));
+}
+
+/** A Hotspot_Button by lock type. */
+export function hotspot(page: Page, lock: LockType) {
+  return page.locator(`.room-hotspot[data-lock="${lock}"]`);
 }

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { act, createElement } from 'react';
 import type { ReactNode } from 'react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
   buildHumanHeartSampleCrypt,
   FINAL_DOOR_BUTTON_TEXT,
@@ -15,7 +15,9 @@ import type { RoomBinding } from '../../state/room-binding';
 import type { RoomAction } from '../../state/room-actions';
 import { useMount } from '../../test-support/flow-dom';
 import { lockName } from './accessible-names';
+import { failedSceneLoader, flushScene, realScene } from '../../test-support/scene-fixtures';
 import { RoomScreen } from './room-screen';
+import type { SceneLoader } from './use-scene';
 
 const SAMPLES = join(process.cwd(), '..', '..', 'samples');
 
@@ -31,6 +33,7 @@ function build(): SampleCryptResult {
 
 const CRYPT = build();
 
+let loader: SceneLoader = failedSceneLoader;
 let binding: RoomBinding;
 let dispatched: RoomAction[] = [];
 
@@ -42,16 +45,18 @@ function Harness(): ReactNode {
     binding.dispatch(action);
   };
   return createElement(RoomScreen, {
+    loadSceneImpl: loader,
     state: binding.state,
     dispatch,
     renderPanel: (slot) => createElement('div', { 'data-testid': 'panel' }, slot.slotId),
   });
 }
 
-function setup(mount: ReturnType<typeof useMount>): void {
+async function setup(mount: ReturnType<typeof useMount>): Promise<void> {
   dispatched = [];
   mount.render(createElement(Harness));
   act(() => binding.dispatch({ type: 'startRun' }));
+  await flushScene();
 }
 
 function lockButtons(container: ParentNode): HTMLButtonElement[] {
@@ -60,9 +65,34 @@ function lockButtons(container: ParentNode): HTMLButtonElement[] {
 
 describe('RoomScreen', () => {
   const mount = useMount();
+  afterEach(() => {
+    loader = failedSceneLoader;
+  });
+  it('renders no lock button while the scene loads, keeps the other controls, then the plain list on failure', async () => {
+    let settle: Parameters<ConstructorParameters<typeof Promise<Awaited<ReturnType<SceneLoader>>>>[0]>[0] = () => undefined;
+    loader = () => new Promise((resolve) => (settle = resolve));
+    await setup(mount);
+    expect(lockButtons(mount.container)).toHaveLength(0);
+    expect(mount.container.querySelector('.room-screen__locks')).toBeNull();
+    expect(mount.container.textContent).toContain(SAMPLE_CRYPT_LABEL);
+    expect(mount.container.querySelector('.room-screen__hints')).not.toBeNull();
+    settle({ ok: false, error: { kind: 'network' } });
+    await flushScene();
+    expect(lockButtons(mount.container).length).toBeGreaterThan(0);
+  });
+  it('replaces no button once the scene arrives: the first buttons are the art buttons', async () => {
+    let settle: Parameters<ConstructorParameters<typeof Promise<Awaited<ReturnType<SceneLoader>>>>[0]>[0] = () => undefined;
+    loader = () => new Promise((resolve) => (settle = resolve));
+    await setup(mount);
+    settle({ ok: true, value: realScene() });
+    await flushScene();
+    const buttons = lockButtons(mount.container);
+    expect(buttons.length).toBeGreaterThan(0);
+    for (const b of buttons) expect(b.classList.contains('room-hotspot')).toBe(true);
+  });
 
-  it('renders one native button per lock slot in slot order, named by lockName', () => {
-    setup(mount);
+  it('renders one native button per lock slot in slot order, named by lockName', async () => {
+    await setup(mount);
     const room = binding.state?.rooms.find((r) => r.roomId === binding.state?.currentRoomId);
     const expected = (room?.lockSlots ?? []).map((s) => lockName(s.stationType, s.status));
     const buttons = lockButtons(mount.container);
@@ -71,8 +101,8 @@ describe('RoomScreen', () => {
     expect(buttons.every((b) => b.tagName === 'BUTTON' && b.type === 'button')).toBe(true);
   });
 
-  it('offers the final door button only once the door is available, and it dispatches enterFinalDoor', () => {
-    setup(mount);
+  it('offers the final door button only once the door is available, and it dispatches enterFinalDoor', async () => {
+    await setup(mount);
     const doorButton = (): HTMLButtonElement | null =>
       mount.container.querySelector<HTMLButtonElement>('.room-screen__door-button');
     expect(doorButton()).toBeNull();
@@ -88,23 +118,23 @@ describe('RoomScreen', () => {
     expect(binding.state?.atFinalDoor).toBe(true);
   });
 
-  it('headlines the room with its display name by order, never the roomId', () => {
-    setup(mount);
+  it('headlines the room with its display name by order, never the roomId', async () => {
+    await setup(mount);
     const heading = mount.container.querySelector('h2')?.textContent ?? '';
     expect(binding.state?.currentRoomId).toBe('hh-room-1');
     expect(heading).toBe('Burial chamber');
     expect(heading).not.toContain('hh-room-1');
   });
 
-  it('shows the hint count and the sample-crypt label', () => {
-    setup(mount);
+  it('shows the hint count and the sample-crypt label', async () => {
+    await setup(mount);
     const text = mount.container.textContent ?? '';
     expect(text).toContain(ROOM_PLAY_LABELS.hintsLeft(binding.state?.remainingHints ?? -1));
     expect(text).toContain(SAMPLE_CRYPT_LABEL);
   });
 
-  it('opens a panel and dispatches openLock for an open slot', () => {
-    setup(mount);
+  it('opens a panel and dispatches openLock for an open slot', async () => {
+    await setup(mount);
     const first = lockButtons(mount.container)[0];
     act(() => first?.click());
     expect(dispatched).toHaveLength(1);
@@ -112,8 +142,8 @@ describe('RoomScreen', () => {
     expect(mount.container.querySelector('[data-testid="panel"]')).not.toBeNull();
   });
 
-  it('shows the challenged label and status text without dispatching for a challenged slot', () => {
-    setup(mount);
+  it('shows the challenged label and status text without dispatching for a challenged slot', async () => {
+    await setup(mount);
     const slotId = binding.state?.rooms[0]?.lockSlots[0]?.slotId ?? '';
     // The first challenge cracks the seal and brings the Alternate; the second settles the slot.
     for (let i = 0; i < 2; i += 1) {
@@ -132,8 +162,8 @@ describe('RoomScreen', () => {
     expect(mount.container.querySelector('[data-testid="panel"]')).toBeNull();
   });
 
-  it('dispatches nothing for a settled slot', () => {
-    setup(mount);
+  it('dispatches nothing for a settled slot', async () => {
+    await setup(mount);
     const slotId = binding.state?.rooms[0]?.lockSlots[0]?.slotId ?? '';
     act(() => binding.dispatch({ type: 'skip', slotId }));
     dispatched = [];

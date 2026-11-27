@@ -34,3 +34,69 @@
   outline: 2px solid var(--spectre-300);
   outline-offset: 2px;
 }
+
+/* Seals drawn on the door art: each sits on its point, inside the door hotspot (Requirement 19.4). */
+.final-door__seals--placed {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+.final-door__seal--placed {
+  position: absolute;
+  align-items: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.final-door__seal--placed .final-door__seal-button {
+  pointer-events: auto;
+}
+.final-door__seal--placed .final-door__seal-label {
+  position: absolute;
+  top: 100%;
+  width: 5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  padding: 0 0.25rem;
+  background: var(--stone-950);
+  color: var(--bone-50);
+}
+.final-door__seal--above .final-door__seal-label {
+  top: auto;
+  bottom: 100%;
+}
+.final-door__seal--placed .final-door__seal-button,
+.final-door__seal--placed [role='img'] {
+  color: var(--candle-400);
+}
+.final-door__seal--placed[data-status]:not([data-status='open']) [role='img'] {
+  color: var(--stone-300);
+}
+
+.final-door__seal--placed .final-door__seal-button {
+  display: block;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.final-door__seal--placed [role='img'] {
+  display: block;
+  width: 44px;
+  height: 44px;
+}
+.final-door__seal--placed svg {
+  display: block;
+}
+
+/* A door too small for the seals: the plain list sits over the foot of the stage. */
+.final-door__seals-fallback {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.5rem;
+  background: var(--stone-950);
+}

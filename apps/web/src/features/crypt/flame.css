@@ -1,0 +1,59 @@
+/* Code-drawn flames (Requirements 9.2, 9.6, 9.7, 18.6). Gold only, colours from tokens. */
+.flame {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+}
+.flame__body {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 0 6px var(--candle-400));
+  animation: flame-flicker 2.4s ease-in-out infinite alternate;
+}
+.flame__outer {
+  fill: var(--candle-400);
+}
+.flame__core {
+  fill: var(--bone-50);
+}
+/* A fresh flame flares once, then settles into the flicker. */
+.flame--ignite .flame__body {
+  animation:
+    flame-flare 500ms ease-out,
+    flame-flicker 2.4s ease-in-out 500ms infinite alternate;
+}
+@keyframes flame-flare {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5, 1.7);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes flame-flicker {
+  0% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(0.94, 1.06) skewX(1.5deg);
+  }
+  100% {
+    transform: scale(1.04, 0.96) skewX(-1.5deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flame__body,
+  .flame--ignite .flame__body {
+    animation: none;
+  }
+}

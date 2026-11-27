@@ -1,0 +1,163 @@
+/* The layered room (Requirements 7.4, 8.3, 10.1, 10.9, 11.2). Colours come from tokens only. */
+.art-stage {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--stone-900);
+}
+
+/* Phone_Viewport: the art is cropped to fill the screen. */
+.art-stage--phone {
+  height: 100svh;
+}
+
+.art-layer {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.art-layer--light {
+  mix-blend-mode: screen;
+}
+
+@supports (mix-blend-mode: plus-lighter) {
+  .art-layer--light {
+    mix-blend-mode: plus-lighter;
+  }
+}
+
+/* Resting and hover images crossfade over 200 ms; reduced motion makes it instant. */
+.art-layer--rest,
+.art-layer--hover {
+  transition: opacity 200ms ease;
+}
+
+.art-layer[data-shown='false'] {
+  opacity: 0;
+}
+
+.art-layer[data-shown='true'] {
+  opacity: 1;
+}
+
+/* Parallax (Requirement 12.1): a few pixels, by the Scene_File factors. Off under reduced motion (12.2).
+   The small scale keeps a shifted layer from showing the stage edge. */
+.art-stage[data-parallax='on'] .art-layer,
+.art-stage[data-parallax='on'] .art-stage__flames {
+  --parallax-factor: var(--parallax-locks, 0);
+  transform: translate(
+      calc(var(--parallax-x, 0) * var(--parallax-factor) * 6px),
+      calc(var(--parallax-y, 0) * var(--parallax-factor) * 6px)
+    )
+    scale(1.02);
+  transition: transform 150ms linear;
+}
+.art-stage[data-parallax='on'] .art-layer--rest,
+.art-stage[data-parallax='on'] .art-layer--hover {
+  transition:
+    opacity 200ms ease,
+    transform 150ms linear;
+}
+.art-stage[data-parallax='on'] .art-layer[data-layer='background'] {
+  --parallax-factor: var(--parallax-background, 0);
+}
+.art-stage[data-parallax='on'] .art-layer[data-layer='door'] {
+  --parallax-factor: var(--parallax-door, 0);
+}
+.art-stage[data-parallax='on'] .art-layer[data-layer='foreground'] {
+  --parallax-factor: var(--parallax-foreground, 0);
+}
+.art-stage[data-parallax='off'] .art-layer,
+.art-stage[data-parallax='off'] .art-stage__flames {
+  transform: none;
+}
+
+/* Lantern_Mode: every layer fully lit (Requirement 12.4). The overlays are not mounted at all. */
+.art-stage[data-lantern='true'] .art-layer {
+  filter: none;
+}
+
+.art-stage__controls {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+.room-hotspot {
+  position: absolute;
+  box-sizing: border-box;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.room-hotspot__note {
+  position: absolute;
+  pointer-events: none;
+  padding: 0.25rem 0.5rem;
+  background: var(--stone-800);
+  color: var(--bone-50);
+  font-family: var(--font-body);
+}
+
+.room-screen__lock-button.room-hotspot:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* Fresh candle and door changes fade over about 600 ms (Requirements 8.5, 9.3, 18.11). */
+.art-layer--fade-in,
+.art-layer--solve-in {
+  animation: art-fade-in 600ms ease-out;
+}
+.art-layer--fade-out,
+.art-layer--solve-out {
+  animation: art-fade-out 600ms ease-out forwards;
+}
+@keyframes art-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes art-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+/* Flames: lock flames under the foreground, ambient ones with them. */
+.art-stage__flames {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-stage[data-parallax] .art-layer,
+  .art-stage[data-parallax] .art-stage__flames {
+    transform: none;
+    transition: none;
+  }
+  .art-layer--rest,
+  .art-layer--hover {
+    transition: none;
+  }
+  .art-layer--fade-in,
+  .art-layer--solve-in {
+    animation: none;
+  }
+  .art-layer--fade-out,
+  .art-layer--solve-out {
+    animation: none;
+    opacity: 0;
+  }
+}

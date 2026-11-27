@@ -13,6 +13,7 @@ import type { HumanHeartQuestionsFile, SampleCryptResult, State } from '@escape-
 import { useRoomBinding } from '../../state/room-binding';
 import type { RoomBinding } from '../../state/room-binding';
 import { buttonByText, clickButton, useMount } from '../../test-support/flow-dom';
+import { failedSceneLoader, flushScene } from '../../test-support/scene-fixtures';
 import { CryptFlow } from './crypt-flow';
 
 const SAMPLES = join(process.cwd(), '..', '..', 'samples');
@@ -80,6 +81,7 @@ describe('honest labels on every screen', () => {
 
     mount.render(
       createElement(CryptFlow, {
+        loadSceneImpl: failedSceneLoader,
         useBinding: () => {
           binding = useRoomBinding(() => ({ ok: true, value: CRYPT }));
           return binding;
@@ -104,6 +106,7 @@ describe('honest labels on every screen', () => {
       const state = binding.state;
       const [slotId] = openSlotIds(state);
       if (state.atFinalDoor && !answeredAtDoor) {
+        await flushScene();
         const seal = mount.container.querySelector<HTMLButtonElement>('.final-door__seal-button');
         if (seal !== null) {
           await act(async () => seal.click());
