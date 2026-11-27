@@ -12,22 +12,9 @@ const WRONG_RUNE = 'zzzxq';
 const continueButton = (page: Page) => page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true });
 const liveRegion = (page: Page) => page.getByTestId('room-live-region');
 
-/**
- * Whether the live region shows `text` within `ms`. A moment's sentence must be announced. In the
- * persisted flow the notices reach `CryptFlow` one render after the State, and its announcement effect
- * has already run, so the notice sentences are dropped. Until that is fixed (it lives in
- * `crypt-flow.tsx`, outside this spec's files) a miss is recorded as an annotation and the rest of the
- * test still runs.
- */
-async function expectAnnounced(page: Page, text: string, ms = 6000): Promise<void> {
-  const shown = await liveRegion(page)
-    .filter({ hasText: text })
-    .waitFor({ timeout: ms })
-    .then(() => true)
-    .catch(() => false);
-  if (!shown) {
-    test.info().annotations.push({ type: 'known-gap', description: `live region never showed: ${text}` });
-  }
+/** The live region shows the moment's sentence. Messages queue one at a time, so wait for it. */
+async function expectAnnounced(page: Page, text: string, ms = 9000): Promise<void> {
+  await expect(liveRegion(page)).toHaveText(text, { timeout: ms });
 }
 
 /** Every question's answer, by prompt, read from the manifest (primary, Alternate and final door). */
@@ -109,7 +96,10 @@ for (const motion of ['no-preference', 'reduce'] as const) {
       if (moving) expect(name).toBe('ghost-rise');
       else expect(name).toBe('none');
       await expect(ghost).toHaveAttribute('data-return', /^[12]$/);
-      expect(await ghost.evaluate((el) => getComputedStyle(el).opacity)).toBe(moving ? await ghost.evaluate((el) => getComputedStyle(el).opacity) : '1');
+      // Still: fully drawn at once. Moving: the rise ends at full opacity within its 800 ms.
+      const opacity = () => ghost.evaluate((el) => getComputedStyle(el).opacity);
+      if (moving) await expect.poll(opacity, { timeout: 2000 }).toBe('1');
+      else expect(await opacity()).toBe('1');
       await expectAnnounced(page, ROOM_ANNOUNCEMENT_COPY.notice.ghostSpawned);
     });
 

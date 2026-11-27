@@ -11,7 +11,8 @@ import { isGenerating } from '../generate/generation-flow';
 import { resolveClient, resolveOrigin } from '../generate/generate-seams';
 import type { GenerateSeams } from '../generate/generate-seams';
 import { useGeneration } from '../generate/use-generation';
-import { announcementsFor } from './announcements';
+import { EMPTY_TRACKER, announceStep } from './announce-step';
+import type { AnnounceTracker } from './announce-step';
 import { CryptErrorBoundary } from './crypt-error-boundary';
 import { DescentLayer, useDescent } from './crypt-descent';
 import { CryptRunView } from './crypt-run-view';
@@ -53,11 +54,13 @@ export interface CryptFlowProps {
    * exists only while a run is playing, because the host's announcer covers the screens before it.
    */
   readonly renderStart?: RenderStart;
+  /** Reads the judge access code the host holds in memory. Used only when a job starts. */
+  readonly judgeCode?: () => string;
 }
 
 const NO_MESSAGES: readonly string[] = [];
 
-function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps, renderStart }: CryptFlowProps): ReactNode {
+function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps, renderStart, judgeCode }: CryptFlowProps): ReactNode {
   // Which crypt startRun builds: the generated one once it is ready, else the sample.
   const playRef = useRef<BuiltCrypt | null>(null);
   // The sample's settings are read when the run starts, so the latest difficulty choice applies.
@@ -69,7 +72,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   }, []);
   const binding = useBinding(buildCrypt);
   const origin = resolveOrigin(generate);
-  const client = useMemo(() => resolveClient(generate, origin), [generate, origin]);
+  const client = useMemo(() => resolveClient(generate, origin, judgeCode), [generate, origin, judgeCode]);
   const generation = useGeneration({
     client,
     intervalMs: generate?.intervalMs,
@@ -88,7 +91,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   const [escapeEvidenceDismissed, setEscapeEvidenceDismissed] = useState(false);
   const [messages, setMessages] = useState<readonly string[]>(NO_MESSAGES);
   const announceFromPanel = useCallback((message: string): void => setMessages([message]), []);
-  const previous = useRef<State | null>(null);
+  const previous = useRef<AnnounceTracker>(EMPTY_TRACKER);
 
   const bindingDispatch = binding.dispatch;
   const dispatch = useCallback(
@@ -97,25 +100,18 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
         setAutopsyRequested(false);
         setEscapeEvidenceDismissed(false);
         // A new run is not a step from the old State, so nothing is announced for it.
-        previous.current = null;
+        previous.current = EMPTY_TRACKER;
       }
       bindingDispatch(action);
     },
     [bindingDispatch],
   );
 
-  // Runs once per State object: an accepted dispatch gives a new State, a rejected one keeps it.
+  // A new State announces its step; notices released a render later (saved runs) are announced then.
   useEffect(() => {
-    if (state === null) {
-      previous.current = null;
-      return;
-    }
-    const before = previous.current;
-    if (before === state) return;
-    previous.current = state;
-    if (before === null) return;
-    const next = announcementsFor(before, state, notices);
-    if (next.length > 0) setMessages(next);
+    const step = announceStep(previous.current, state, notices);
+    previous.current = step.tracker;
+    if (step.messages.length > 0) setMessages(step.messages);
   }, [state, notices]);
 
   const deps = useMemo<RestoreDeps>(() => {
