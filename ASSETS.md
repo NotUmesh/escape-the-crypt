@@ -8,6 +8,7 @@ Everything in this repository's code was written in Kiro. The table below lists 
 |---|---|---|---|---|
 | Concept references (A–E sets, early crypt images) | images | ChatGPT image generation (OpenAI), prompted by the author | Output owned by the author under OpenAI's terms of use | Reference only, not shipped. Prompt log: `docs/art/generation-prompts.md` |
 | Background and object layers (crypt rooms, desk, lock objects, exit door) | images | ChatGPT image generation (OpenAI), prompted by the author | As above | Shipped in `apps/web/public/art/`. Each file is listed in the prompt log with the prompt that made it |
+| Blender decals, trim strips, and material swatches | 13 PNG textures | ChatGPT image generation (OpenAI) | As above | Generated for Blender in the adjacent design-refs workspace, under `3d/refs/`. `decal-seance-board.png`, `decal-rune-tablet-front.png`, `decal-safe-dial.png`, `decal-sigil.png`, `decal-sigil-mask.png`, `decal-door-planks.png`, `decal-tracery-panel.png`, `strip-brass-filigree.png`, `strip-stone-moulding.png`, `strip-velvet-trim.png`, `swatch-velvet-plum.png`, `swatch-leather-dark.png`, `swatch-wax.png` |
 
 All interface elements (panels, buttons, text, candles' glow, grain, vignette, ghost wisps, the sigil outline) are drawn in code, not generated.
 
