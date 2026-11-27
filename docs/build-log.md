@@ -138,7 +138,7 @@ Haunting polish: Open_Decision 4 findings (report-only audit, `outside-crypt-mot
 - dig/dig.css: `.cavern__mist` (90 s) and `.cavern__speck` (9 s) loop forever. They read as ambient loops, so they probably need to join the named allowlist, but each needs a `reduce` rule first. Not yet checked.
 - descent/descent.css: `.descent--fade` animation has no reduced-motion rule.
 - descent and start: no screen source reads `useLantern`.
-Runtime note from the selector properties: a Skipped lock queues a ghost without a `ghostSpawned` notice, so that ghost never rises on screen and has no announcement. A later correct return answer still sends `ghostLaidToRest`. Not changed here (runtime is outside this spec).
+Runtime note from the selector properties: a Skipped lock queues a return without a `ghostSpawned` notice, so no ghost rises on screen for it. This is by design: decision D3 in the room-runtime brief (skip settles the lock with no ghost visual and no penalty). Property 3 checks only that a ghost laid to rest belongs to a concept that had a ghost earlier.
 
 ## Checkpoint 36 (after task 35: combination-dial)
 
@@ -155,3 +155,7 @@ Runtime note from the selector properties: a Skipped lock queues a ghost without
 | web e2e (--workers=2) | 175 | 0 | 1 | port 4173 had no listener |
 
 Cassette and constants: e2e-pipeline, e2e-cassette-digest, bone-ordering-e2e, bound-threads-e2e, cursed-object-e2e, combination-dial-e2e and human-heart tests pass (7 files, 39 tests) with no digest edits. Only `checkVersion` changed in task 35.2 for human-heart-e2e, bone-ordering-e2e, bound-threads-e2e and cursed-object-e2e (2026-11-27.4 to 2026-11-27.5). combination-dial-e2e.json is new. The `--allowed-lock-types rune-cipher,seance-board` replay digest test in apps/worker cli.test.ts passes (12 tests in that file). CHECK_VERSION is 2026-11-27.5. DEFAULT_ALLOWED_LOCK_TYPES and ALLOWED_LOCK_TYPES are both ['rune-cipher', 'seance-board']; EVAL_ALLOWED_LOCK_TYPES and PHASE5_TEST_ALLOWED_LOCK_TYPES list all six. The registry has all 17 phase-5 Check_IDs implemented (bone-ordering 3, bound-threads 2, cursed-object 4, combination-dial 8).
+
+Haunting polish, decisions after the integration push:
+- Announcements: `usePersistedRoom` releases notices a render after the State, once the Event is written. `CryptFlow` had already handled that State and dropped them. `announce-step.ts` now announces late notices once, and has a unit test. The moment e2e asserts the sentences again.
+- Due ghost: `drawn-ghosts.ts` keeps a due ghost drawn while its return is open (room or final door). `use-placed-ghosts.ts` holds a departed ghost for 400 ms so a late `ghostLaidToRest` still starts the fade. `crypt-run-view.tsx` now passes notices to the final door, where nothing animated before.
