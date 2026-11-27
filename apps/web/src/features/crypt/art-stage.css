@@ -96,6 +96,14 @@
   cursor: pointer;
 }
 
+/* Order-independent: the plain-list button rule in room-screen.css weighs the same as `.room-hotspot`,
+   so the bundle's CSS order used to decide whether a grey box covered the art. Two classes always win. */
+.room-screen__lock-button.room-hotspot {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+}
 .room-hotspot__note {
   position: absolute;
   pointer-events: none;
