@@ -13,6 +13,7 @@ import type { RoomAssets } from '../../state/room-assets';
 import type { RoomAction } from '../../state/room-actions';
 import { lockName, returnSlotName } from './accessible-names';
 import { LockPanelContext } from './lock-panel-context';
+import { payloadOfQuestion } from './question-payload';
 import type { LockPanelContextValue } from './lock-panel-context';
 import { EvidencePanel } from './evidence-panel';
 import { QuestionControls } from './question-controls';
@@ -94,6 +95,7 @@ export function RoomPanel({
       dispatch,
       rejection,
       content: assets.content,
+      payloadFor: (_slotId, questionId) => payloadOfQuestion(state, questionId),
       answerLengthFor: (questionId) => answerLengthOf(state, questionId),
       showAnswerLength: showsRuneLetterCount(state.settings.difficulty),
       appliedHintFor: (slotId) => {

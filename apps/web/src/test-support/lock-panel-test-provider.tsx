@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { CryptContent, LockSlotState } from '@escape-the-crypt/core';
 import { LockPanelContext } from '../features/crypt/lock-panel-context';
-import { LockAnnounceContext, LockPayloadContext } from '../features/crypt/lock-panel-payload';
+import { LockAnnounceContext } from '../features/crypt/lock-panel-payload';
 import type { RoomAction } from '../state/room-actions';
 
 export interface LockPanelTestProviderProps {
@@ -26,11 +26,15 @@ export function LockPanelTestProvider({
 }: LockPanelTestProviderProps): ReactNode {
   return (
     <LockPanelContext.Provider
-      value={{ dispatch, rejection: rejection as never, content, appliedHintFor: () => appliedHint }}
+      value={{
+        dispatch,
+        rejection: rejection as never,
+        content,
+        appliedHintFor: () => appliedHint,
+        payloadFor: () => payload,
+      }}
     >
-      <LockPayloadContext.Provider value={{ payloadFor: () => payload }}>
-        <LockAnnounceContext.Provider value={announce}>{children}</LockAnnounceContext.Provider>
-      </LockPayloadContext.Provider>
+      <LockAnnounceContext.Provider value={announce}>{children}</LockAnnounceContext.Provider>
     </LockPanelContext.Provider>
   );
 }

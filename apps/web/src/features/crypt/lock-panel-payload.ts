@@ -18,11 +18,6 @@ export interface LockPayloadByType {
 }
 export type PayloadLockType = keyof LockPayloadByType;
 
-/** Where a panel finds the payload of its slot's current question. Provided around the question panel. */
-export interface LockPayloadSource {
-  readonly payloadFor: (slotId: string, questionId: string) => unknown;
-}
-export const LockPayloadContext = createContext<LockPayloadSource | null>(null);
 /** The one announcer the panels speak through. The default says nothing. */
 export const LockAnnounceContext = createContext<(message: string) => void>(() => undefined);
 export function useLockAnnounce(): (message: string) => void {
@@ -61,9 +56,9 @@ export function useLockPayload<T extends PayloadLockType>(
   questionId: string,
   type: T,
 ): LockPayloadByType[T] | null {
-  const source = useContext(LockPayloadContext);
-  if (source === null) return null;
-  const value = source.payloadFor(slotId, questionId);
+  const env = useLockPanelContext();
+  if (env === null || env.payloadFor === undefined) return null;
+  const value = env.payloadFor(slotId, questionId);
   return GUARDS[type](value) ? value : null;
 }
 

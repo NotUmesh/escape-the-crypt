@@ -17,6 +17,7 @@ import { AutopsyView } from './autopsy-view';
 import { FinalDoor } from './final-door';
 import { LanternProvider } from './lantern-context';
 import { LiveRegion } from './live-region';
+import { LockAnnounceContext } from './lock-panel-payload';
 import { RoomPanel } from './room-panel';
 import { RoomScreen } from './room-screen';
 import { ReadOnlyScreenContainer } from '../start/read-only-screen';
@@ -99,6 +100,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   // View-only flag: true once the learner closed the Evidence_Panel of the escaping answer. Holds no game state.
   const [escapeEvidenceDismissed, setEscapeEvidenceDismissed] = useState(false);
   const [messages, setMessages] = useState<readonly string[]>(NO_MESSAGES);
+  const announceFromPanel = useCallback((message: string): void => setMessages([message]), []);
   const previous = useRef<State | null>(null);
 
   const bindingDispatch = binding.dispatch;
@@ -280,7 +282,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
       {phase === 'running' && state !== null ? (
         <SaveBanner saveFailed={binding.saveFailed === true} exportSlot={exportSlotFor(binding, state, deps)} />
       ) : null}
-      {view}
+      <LockAnnounceContext.Provider value={announceFromPanel}>{view}</LockAnnounceContext.Provider>
       {isGenerating(generationState) ? null : <LiveRegion messages={messages} />}
     </>
   );

@@ -1,5 +1,9 @@
 import type { ComponentType } from 'react';
 import type { LockType } from '@escape-the-crypt/core';
+import { BoneOrderingPanel } from './bone-ordering-panel';
+import { BoundThreadsPanel } from './bound-threads-panel';
+import { CombinationDialPanel } from './combination-dial-panel';
+import { CursedObjectPanel } from './cursed-object-panel';
 import { RuneCipherPanel } from './rune-cipher-panel';
 import { SeanceBoardPanel } from './seance-board-panel';
 
@@ -12,8 +16,12 @@ export interface LockPanelProps {
 
 export type LockPanelRegistry = Readonly<Partial<Record<LockType, ComponentType<LockPanelProps>>>>;
 
-/** Tasks 5.2 and 5.3 add the rune cipher and séance board panels here. */
+/** One panel per lock type. A type string outside this table falls back to the unplayable message. */
 export const LOCK_PANELS: LockPanelRegistry = {
   'rune-cipher': RuneCipherPanel,
   'seance-board': SeanceBoardPanel,
+  'bone-ordering': BoneOrderingPanel,
+  'bound-threads': BoundThreadsPanel,
+  'combination-dial': CombinationDialPanel,
+  'cursed-object': CursedObjectPanel,
 };

@@ -61,6 +61,12 @@ describe.each(ART_ROOMS)('Art_Room %s', (artRoom) => {
     }
   });
 
+  it('lists a lock for every one of the four newer lock types', () => {
+    const listed = lockTypesOf(scene.desktop);
+    for (const type of ['bone-ordering', 'bound-threads', 'combination-dial', 'cursed-object'] as const) {
+      expect(listed, `${artRoom} lists ${type}`).toContain(type);
+    }
+  });
   it('has the mobile files too when the scene has a mobile block', () => {
     if (scene.mobile === undefined) return;
     const missing = filesNeeded('mobile', scene.mobile).filter((file) => !existsSync(join(ROOMS_DIR, artRoom, file)));

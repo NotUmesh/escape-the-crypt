@@ -106,8 +106,8 @@ describe('QuestionPanel', () => {
     expect(panel.hidden).toBe(false);
   });
 
-  it('shows the unplayable message for a type with no panel', () => {
-    mount.render(createElement(Harness, { type: 'bone-ordering' }));
+  it('shows the unplayable message for an unknown type', () => {
+    mount.render(createElement(Harness, { type: 'mystery-lock' as never }));
     expect(mount.container.textContent).toContain(ROOM_PLAY_LABELS.unplayableType);
   });
 });

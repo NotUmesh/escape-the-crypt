@@ -18,6 +18,12 @@ export interface LockPanelContextValue {
    * text. Absent in contexts that predate it (tests), which reads as no count.
    */
   readonly answerLengthFor?: (questionId: string) => number | null;
+  /**
+   * The manifest payload of a question (primary or alternate) for the four panels that build an
+   * answer from it, or null when the question is unknown. Read-only; absent in contexts that
+   * predate it (tests), which reads as no payload.
+   */
+  readonly payloadFor?: (slotId: string, questionId: string) => unknown;
   /** True when the run's difficulty shows the rune letter count from the start. */
   readonly showAnswerLength?: boolean;
 }

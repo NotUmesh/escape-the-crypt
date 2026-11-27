@@ -160,45 +160,45 @@ Rules for every task:
     - Only if the test fails, make the smallest change to `mapper/crypt-bundle-parse.ts` or `mapper/crypt-content.ts` and report it to the user.
     - _Requirements: 2.7, 2.12_
 
-- [ ] 6. Checkpoint - Phase 1
+- [x] 6. Checkpoint - Phase 1
   - Run only the targeted test files of tasks 2 to 5 (display-order, accessible-names, copy, payload hook, four interaction tests, four panel tests, manifest tests, bundle-parse test), then `pnpm typecheck` and `pnpm lint`. Confirm the structure check passes.
   - Run `git pull --rebase` immediately before committing. Ensure all tests pass, ask the user if questions arise.
   - _Requirements: 14.1, 14.6, 1.3_
 
-- [ ] 7. HOLD: wait for the user's go-ahead
+- [x] 7. HOLD: wait for the user's go-ahead
   - Ask the user, with the `user_input` tool, to confirm that the Other_Machine's multi-room play and rune letter count work is pushed.
   - Do not start task 8 or any later task, and do not edit any Shared_Panel_File, until the user says yes. If the user says it is not pushed, stop and report that Phase 2 is waiting.
   - _Requirements: 1.11, 1.14_
 
-- [ ] 8. Registry, payload access and unplayable path (Phase 2, after the go-ahead)
-  - [ ] 8.1 Pull and re-read the six shared files
+- [x] 8. Registry, payload access and unplayable path (Phase 2, after the go-ahead)
+  - [x] 8.1 Pull and re-read the six shared files
     - Run `git pull --rebase`; on a conflict, stop and report. Re-read `room-screen.tsx`, `art-room.ts`, `question-controls.tsx`, `rune-cipher-panel.tsx`, `room-panel.tsx` and `lock-panel-context.ts`, `lock-panel-registry.ts`, `question-panel.tsx` and `final-door.tsx`. Report differences from the design's assumptions and note the smallest edit each later task needs.
     - _Requirements: 1.14, 1.8_
-  - [ ] 8.2 Add `payloadFor` and switch the payload hook to it
+  - [x] 8.2 Add `payloadFor` and switch the payload hook to it
     - Add the read-only `payloadFor(slotId, questionId)` accessor to `LockPanelContextValue` in `lock-panel-context.ts`, and supply it at the single call site in `room-panel.tsx` from the manifest it already holds (primary and Alternate). Make the smallest change; leave multi-room behaviour and the rune letter count alone.
     - Make `useLockPayload` read `payloadFor` and remove `LockPayloadContext`. Update the test-support provider so it supplies `payloadFor` through the test-local `LockPanelContext` value. The panel files and their tests keep working through the provider.
     - Write a unit test that `payloadFor` returns the primary question's payload and the Alternate's payload after a seal crack, and `null` for an unknown ID.
     - _Requirements: 1.9, 1.14, 8.8_
-  - [ ] 8.3 Register the four panels in `lock-panel-registry.ts`
+  - [x] 8.3 Register the four panels in `lock-panel-registry.ts`
     - Add `'bone-ordering'`, `'bound-threads'`, `'combination-dial'` and `'cursed-object'` entries so that `LOCK_PANELS` has one panel per lock type.
     - _Requirements: 8.2, 9.1_
-  - [ ] 8.4 Remove the unplayable path for the four types and keep it for unknown types
+  - [x] 8.4 Remove the unplayable path for the four types and keep it for unknown types
     - Check `question-panel.tsx` and `final-door.tsx`: a question of any of the six types renders its Lock_Panel. `UnplayablePanel`, `ROOM_PLAY_LABELS.unplayableType` and the fallback branch stay for a type string that is not a key of the registry. Edit only if the re-read shows a type-specific branch.
     - Add a unit test that renders an Unknown_Type in the Room_Screen and in the final door and finds the Unplayable_Panel message and its Skip button.
     - _Requirements: 9.2, 9.3, 9.4, 9.5_
-  - [ ] 8.5 Write the registry-completeness test
+  - [x] 8.5 Write the registry-completeness test
     - In `lock-panel-registry.test.ts`, assert that `Object.keys(LOCK_PANELS).sort()` equals `[...LOCK_TYPES].sort()`.
     - _Requirements: 9.1, 9.6_
-  - [ ] 8.6 Update stale unplayable tests
+  - [x] 8.6 Update stale unplayable tests
     - Find every existing test (room-screen, final-door, question-panel and panel suites, and any e2e file) that expects the unplayable message for bone ordering, bound threads, combination dial or cursed object, and change it to expect that type's Lock_Panel. Do not touch tests for an unknown type.
     - _Requirements: 9.7_
-  - [ ] 8.7 Write the art, hotspot and close-up tests
+  - [x] 8.7 Write the art, hotspot and close-up tests
     - Extend the existing art-presence test: for each new type, `locks/<type>/closed.webp`, `closed@2x.webp`, `open.webp` and `open@2x.webp` exist, and each Art_Room scene file lists the lock with its four Lock_Layer files and the Light_Pass file.
     - Extend the hotspot CSS test so the four lock buttons have a transparent background, border width 0 and a 44 by 44 px minimum. Extend `lock-closeup.test.tsx` for the four types (closed for an open slot, open for a solved slot, one logged error on a failed load).
     - Add no image and edit nothing under `apps/web/public/art/`.
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8_
 
-- [ ] 9. Checkpoint - Phase 2
+- [x] 9. Checkpoint - Phase 2
   - Run only the targeted tests of task 8 and the panel tests from task 4 (now through the registry-backed context), then `pnpm typecheck` and `pnpm lint`.
   - Run `git pull --rebase` immediately before committing. Ensure all tests pass, ask the user if questions arise.
   - _Requirements: 14.1, 14.6, 1.3_

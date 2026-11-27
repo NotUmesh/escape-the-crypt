@@ -64,6 +64,21 @@ describe('LockCloseUp', () => {
     expect(mount.container.querySelector('img')?.getAttribute('src')).toBe('/art/locks/seance-board/open.webp');
   });
 
+  it.each(['bone-ordering', 'bound-threads', 'combination-dial', 'cursed-object'] as const)(
+    '%s shows closed art for an open slot, open art for a solved one, and logs one failed load',
+    (type) => {
+      closeUp(mount, { lockType: type, solved: false });
+      expect(mount.container.querySelector('img')?.getAttribute('src')).toBe(`/art/locks/${type}/closed.webp`);
+      closeUp(mount, { lockType: type, solved: true });
+      expect(mount.container.querySelector('img')?.getAttribute('src')).toBe(`/art/locks/${type}/open.webp`);
+      const log = vi.fn();
+      closeUp(mount, { lockType: type, solved: false }, log);
+      act(() => {
+        mount.container.querySelector('img')?.dispatchEvent(new Event('error'));
+      });
+      expect(log).toHaveBeenCalledTimes(1);
+    },
+  );
   it('names a file that exists for every lock type and state', () => {
     for (const type of ['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads', 'cursed-object', 'combination-dial'] as const) {
       for (const solved of [false, true]) {

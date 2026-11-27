@@ -145,13 +145,13 @@ describe('FinalDoor', () => {
     expect(labels).toContain(ROOM_PLAY_LABELS.challenge);
   });
 
-  it('falls back to a Skip-only panel for a type with no panel', async () => {
+  it('falls back to a Skip-only panel for an unknown type', async () => {
     await atDoor();
     override = (state) => ({
       ...state,
       finalDoor: {
         ...state.finalDoor,
-        slots: state.finalDoor.slots.map((s, i) => (i === 0 ? { ...s, currentQuestionType: 'bone-ordering' } : s)),
+        slots: state.finalDoor.slots.map((s, i) => (i === 0 ? { ...s, currentQuestionType: 'mystery-lock' as never } : s)),
       },
     });
     act(() => binding.dispatch({ type: 'enterFinalDoor' }));
