@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { GENERATION_COPY, SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
-import type { RunSettings, State } from '@escape-the-crypt/core';
+import type { RunSettings } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
 import { usePersistedRoomBinding } from '../../state/persisted-room';
 import { RUN_SETTINGS } from '../../state/room-binding';
