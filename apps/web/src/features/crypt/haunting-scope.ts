@@ -55,6 +55,11 @@ const ALLOWED_PATTERNS: readonly RegExp[] = [
   /^\.kiro\/specs\/haunting-polish\//,
   /^docs\/build-log\.md$/,
   /^apps\/web\/e2e\/haunting-[\w-]+\.e2e\.ts$/,
+  // integration renames swept into a32c426
+  /^packages\/core\/src\/copy-front-of-house\.ts$/,
+  /^packages\/core\/src\/copy-front-of-house\.test\.ts$/,
+  /^packages\/core\/src\/copy-share\.ts$/,
+  /^packages\/core\/src\/copy-share\.test\.ts$/,
 ];
 
 /** The paths in `changed` that this spec may not change. */

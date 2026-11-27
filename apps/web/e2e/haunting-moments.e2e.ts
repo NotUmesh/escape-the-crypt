@@ -35,7 +35,7 @@ function answersByPrompt(): ReadonlyMap<string, CorrectAnswer> {
   const out = new Map<string, CorrectAnswer>();
   const questions = [
     ...crypt.manifest.rooms.flatMap((r) =>
-      r.lockSlots.flatMap((s) => (s.alternateQuestion === undefined ? [s.primaryQuestion] : [s.primaryQuestion, s.alternateQuestion])),
+      r.lockSlots.flatMap((s) => (s.alternateQuestion == null ? [s.primaryQuestion] : [s.primaryQuestion, s.alternateQuestion])),
     ),
     ...crypt.manifest.finalDoor.slots.map((s) => s.question),
   ];
