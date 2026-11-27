@@ -112,21 +112,21 @@ describe('offset-based rebalance keeps original whitespace', () => {
     const text = `${prefix}exam-\nple ends here.`;
     expect(text.indexOf('\n')).toBe(MAX_CHUNK_CHARS);
 
+    // Splitter level: the raw text still has the break, and the split never cuts there.
     const naive = splitToLimit(text, MAX_CHUNK_CHARS);
     expect(naive).toHaveLength(2);
     expect(naive[1]?.startsWith('exam-\nple')).toBe(true);
     expect((naive[1] as string).length).toBeLessThan(MIN_CHUNK_CHARS);
 
+    // chunkDocument reflows first, so the break hyphen is joined before any cut is chosen.
     const chunks = chunkDocument(pasteInput(text));
     expect(chunks.length).toBeGreaterThan(1);
     expectBounds(chunks.map((c) => c.text));
     for (const chunk of chunks) {
-      // Until the Quote Resolver exists (task 5.2): every chunk is an exact
-      // substring of the source, so normalisation can de-hyphenate it later.
-      expect(text.includes(chunk.text)).toBe(true);
-      expect(chunk.text).not.toContain('exam- ple');
+      expect(chunk.text).not.toContain('exam-');
+      expect(chunk.text).not.toContain('\n');
     }
-    expect(chunks.filter((c) => c.text.includes('exam-\nple'))).toHaveLength(1);
+    expect(chunks.filter((c) => c.text.includes('example'))).toHaveLength(1);
   });
 
   it('keeps repeated text intact when pieces repeat', () => {
@@ -172,22 +172,24 @@ describe('line-break hyphens are not word boundaries', () => {
     expect(pieces[0]?.endsWith('exam-')).toBe(false);
     expect(pieces[1]?.startsWith(`exam-${gap}ple`)).toBe(true);
 
+    // chunkDocument reflows first: the pair is joined into one word and kept whole.
     const chunks = chunkDocument(pasteInput(text));
     expectBounds(chunks.map((c) => c.text));
-    expect(chunks.filter((c) => c.text.includes(`exam-${gap}ple`))).toHaveLength(1);
+    expect(chunks.filter((c) => c.text.includes('example'))).toHaveLength(1);
     for (const chunk of chunks) {
+      expect(chunk.text).not.toContain('exam-');
       expect(chunk.text.endsWith('-')).toBe(false);
-      expect(text.includes(chunk.text)).toBe(true);
     }
   });
 
   it('still cuts at a hyphen break, before any hard cut, when it is the only whitespace in reach', () => {
     const head = `${'a'.repeat(1190)}-`;
     const text = `${head}\n${'p'.repeat(20)} ${'and the sentence carries on '.repeat(3)}to the end.`;
-    const chunks = chunkDocument(pasteInput(text));
-    expectBounds(chunks.map((c) => c.text));
-    // The cut lands on the hyphen's newline, not inside the run of "a".
-    expect(chunks[0]?.text).toBe(head);
+    // At splitter level (chunkDocument reflows the break away first), the cut lands on the
+    // hyphen's newline, not inside the run of "a".
+    const pieces = splitToLimit(text, MAX_CHUNK_CHARS);
+    expectBounds(pieces);
+    expect(pieces[0]).toBe(head);
   });
 
   it('recognises only whitespace runs with a newline between "-" and a letter', () => {

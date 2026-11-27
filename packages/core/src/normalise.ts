@@ -26,7 +26,8 @@ const QUOTES: Readonly<Record<string, string>> = {
  * spaces/tabs, then a letter (not consumed). Matches the chunker's
  * isHyphenBreak rule: `pages 5-\n10` keeps its hyphen, `exam-\nple` joins.
  */
-const LINE_BREAK_HYPHEN = /-[ \t]*(?:\r\n|\r|\n)[ \t]*(?=\p{L})/uy;
+export const LINE_BREAK_HYPHEN_SOURCE = String.raw`-[ \t]*(?:\r\n|\r|\n)[ \t]*(?=\p{L})`;
+const LINE_BREAK_HYPHEN = new RegExp(LINE_BREAK_HYPHEN_SOURCE, 'uy');
 const COMBINING_MARK = /^\p{M}$/u;
 const WHITESPACE = /^\s$/u;
 

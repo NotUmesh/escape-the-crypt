@@ -77,13 +77,21 @@ describe('multi-paragraph extraction (three-paragraphs.pdf)', () => {
     });
     expect(chunks).toHaveLength(3);
 
+    // chunkDocument reflows the page: the line-break hyphen is joined and wraps become spaces.
     const second = chunks[1] as Chunk;
-    expect(second.text).toMatch(/exam-\s*ple/u);
+    expect(second.text).toContain('A good example is closing the book');
+    expect(second.text).not.toMatch(/exam-\s*ple/u);
+    expect(second.text).not.toContain('\n');
     const byId = new Map(chunks.map((c) => [c.id, c]));
-    const result = resolveQuote(byId, second.id, 'A good exam-\nple is closing the book');
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(second.text.slice(result.value.start, result.value.end)).toMatch(/^A good exam-\s*ple/u);
+    // A quote copied from the raw extraction, with the break, still resolves.
+    for (const quote of ['A good exam-\nple is closing the book', 'A good example is closing the book']) {
+      const result = resolveQuote(byId, second.id, quote);
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(second.text.slice(result.value.start, result.value.end)).toBe(
+          'A good example is closing the book',
+        );
+      }
     }
   });
 });

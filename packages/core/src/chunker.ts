@@ -2,6 +2,7 @@ import { MIN_CHUNK_CHARS, mergeShort } from './chunker-merge';
 import { splitBalanced } from './chunker-rebalance';
 import { MAX_CHUNK_CHARS, candidateSpans, spanText } from './chunker-split';
 import { documentDigest } from './digest';
+import { reflowLineBreaks } from './reflow';
 import type { Chunk, SourceLocation } from './types';
 
 export interface PdfPageInput {
@@ -32,10 +33,14 @@ function splitParagraphs(text: string): string[] {
     .filter((p) => p.length > 0);
 }
 
+/**
+ * Units hold reflowed text (see reflow.ts): hard line wraps and line-break hyphens are repaired
+ * here, once, so a chunk's text is both what the model reads and what quotes resolve against.
+ */
 function buildUnits(input: ChunkInput): Unit[] {
   if (input.sourceType === 'paste') {
-    const original = splitParagraphs(input.originalText);
-    return splitParagraphs(input.text).map((text, index) => ({
+    const original = splitParagraphs(reflowLineBreaks(input.originalText));
+    return splitParagraphs(reflowLineBreaks(input.text)).map((text, index) => ({
       text,
       originalText: original[index] ?? '',
       location: { sourceType: 'paste', paragraphNumber: index + 1 },
@@ -44,8 +49,8 @@ function buildUnits(input: ChunkInput): Unit[] {
   return input.pages
     .filter((page) => page.text.trim().length > 0)
     .map((page) => ({
-      text: page.text,
-      originalText: page.originalText,
+      text: reflowLineBreaks(page.text),
+      originalText: reflowLineBreaks(page.originalText),
       location: {
         sourceType: 'pdf',
         pdfPageIndex: page.pdfPageIndex,
@@ -56,8 +61,7 @@ function buildUnits(input: ChunkInput): Unit[] {
 
 /**
  * Chunk texts of one unit. Every step works on [start, end) offsets into the
- * unit text, and each chunk is a trimmed slice of it, so original whitespace
- * (including a line-break hyphen such as "exam-\nple") is kept exactly.
+ * unit text, and each chunk is a trimmed slice of it. The unit text is already reflowed.
  */
 function chunkUnitText(text: string): string[] {
   const pieces = candidateSpans(text).flatMap((candidate) =>
