@@ -35,6 +35,13 @@ const INGEST_PREFIX = 'apps/web/src/features/ingest/';
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 /** Hosts that never leave the machine or are reserved for tests (RFC 2606). */
 const LOCAL_HOSTS: readonly string[] = ['localhost', '127.0.0.1', 'example.test'];
+/**
+ * Public addresses that appear only as text the learner shares and are never requested. Each is
+ * allowed in one named file and nowhere else, so a stray link in any other file is still reported.
+ */
+const SHARED_TEXT_LINKS: Readonly<Record<string, readonly string[]>> = {
+  'apps/web/src/features/share/share-card-copy.ts': ['escape-the-crypt.pages.dev'],
+};
 /** Only config, unit-test and e2e files (.ts, and .tsx for tests) may name those hosts; app source may not. */
 const LOCAL_HOST_FILES = /\.(?:config|test|e2e)\.tsx?$/;
 
@@ -105,13 +112,18 @@ function scanColours(text: string, isCss: boolean, out: GuardViolation[]): void 
   }
 }
 
-function scanNetwork(text: string, allowLocalHosts: boolean, out: GuardViolation[]): void {
+function scanNetwork(
+  text: string,
+  allowLocalHosts: boolean,
+  sharedLinkHosts: readonly string[],
+  out: GuardViolation[],
+): void {
   if (/(?:fonts\.googleapis\.com|fonts\.gstatic\.com)/i.test(text)) {
     out.push({ rule: 'google-fonts', detail: 'Google Fonts host' });
   }
   for (const m of text.matchAll(/\b(?:https?|wss?|ftp):\/\/([^\s/'"`)\\:?#]+)[^\s'"`)]*/gi)) {
     const host = (m[1] ?? '').toLowerCase();
-    if (m[0] === SVG_NAMESPACE || (allowLocalHosts && LOCAL_HOSTS.includes(host))) continue;
+    if (m[0] === SVG_NAMESPACE || (allowLocalHosts && LOCAL_HOSTS.includes(host)) || sharedLinkHosts.includes(host)) continue;
     out.push({ rule: 'cross-origin-url', detail: m[0] });
   }
   for (const m of text.matchAll(/url\(\s*['"]?(\/\/[^'")\s]+)/gi)) {
@@ -172,7 +184,7 @@ export function scanFile(
   const out: GuardViolation[] = [];
 
   if (path !== TOKENS_PATH) scanColours(text, isCss, out);
-  scanNetwork(text, LOCAL_HOST_FILES.test(path), out);
+  scanNetwork(text, LOCAL_HOST_FILES.test(path), SHARED_TEXT_LINKS[path] ?? [], out);
   if (path.endsWith('/fonts.css')) scanFontUrls(text, options, out);
   if (path.startsWith(INGEST_PREFIX)) scanIngest(text, isCss, out);
   return out;

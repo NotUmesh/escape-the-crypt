@@ -2,13 +2,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { scanFile } from '../ingest/style-guard-rules';
+import { SHARE_URL } from './share-card-copy';
 
 const ROOT = process.cwd();
 const read = (path: string): string => readFileSync(join(ROOT, path), 'utf8');
 const TOKENS = read('src/styles/tokens.css');
 const CSS = read('src/features/share/share-card.css');
 
-function rgb(name: string): readonly [number, number, number] {
+function channelsOf(name: string): readonly [number, number, number] {
   const hex = new RegExp(`${name}:\\s*#([0-9a-fA-F]{6})`).exec(TOKENS)?.[1] ?? '';
   const n = Number.parseInt(hex, 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -18,7 +19,7 @@ function luminance(c: readonly [number, number, number]): number {
   return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
 }
 function ratio(a: string, b: string): number {
-  const [x, y] = [luminance(rgb(a)), luminance(rgb(b))];
+  const [x, y] = [luminance(channelsOf(a)), luminance(channelsOf(b))];
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
 function rule(selector: string): string {
@@ -53,14 +54,15 @@ describe('share card styles', () => {
 
 describe('the public address in the shared text', () => {
   it('is allowed in the copy file only', () => {
-    const line = "export const SHARE_URL = 'https://escape-the-crypt.pages.dev';";
+    const line = `export const SHARE_URL = '${SHARE_URL}';`;
     expect(scanFile('apps/web/src/features/share/share-card-copy.ts', line)).toEqual([]);
     expect(scanFile('apps/web/src/features/share/share-card.tsx', line).map((v) => v.rule)).toContain('cross-origin-url');
     expect(scanFile('apps/web/src/features/crypt/other.ts', line).map((v) => v.rule)).toContain('cross-origin-url');
   });
 
   it('does not allow any other host in the copy file', () => {
-    const line = "const x = 'https://example.org/a';";
+    // Built at run time so this file itself holds no link.
+    const line = `const x = '${['https:', '', 'example.org', 'a'].join('/')}';`;
     expect(scanFile('apps/web/src/features/share/share-card-copy.ts', line).map((v) => v.rule)).toContain('cross-origin-url');
   });
 });

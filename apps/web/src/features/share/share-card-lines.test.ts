@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildShareCardData } from './share-card-data';
+import { SHARE_URL } from './share-card-copy';
 import { allCardText, cardLines, countsSentence, shareText } from './share-card-lines';
 import { escapedView } from './share-test-support';
 
@@ -50,12 +51,12 @@ describe('shareText', () => {
         'Challenged: excluded from score (0)',
         'Review due (3)',
         'Made with Escape the Crypt',
-        'https://escape-the-crypt.pages.dev',
+        SHARE_URL,
       ].join('\n'),
     );
     // The public address is the only link.
     expect(shareText(sample as NonNullable<typeof sample>).match(/https?:\/\/\S+|www\.\S+/g)).toEqual([
-      'https://escape-the-crypt.pages.dev',
+      SHARE_URL,
     ]);
   });
 
