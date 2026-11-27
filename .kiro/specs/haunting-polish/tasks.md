@@ -137,7 +137,7 @@ Rules for every task:
   - _Requirements: 16.12, 17.2_
 
 - [ ] 9. Playwright tests
-  - [ ] 9.1 Add `e2e/haunting-moments.e2e.ts`
+  - [x] 9.1 Add `e2e/haunting-moments.e2e.ts`
     - Run on `chromium`, `firefox` and `pixel` (the config's three projects). One `describe` per moment, each with `test.use({ reducedMotion: 'no-preference' })` and `test.use({ reducedMotion: 'reduce' })`, using the existing helpers in `crypt-helpers.ts`.
     - `candle-lit`: answer the first lock correctly. Motion on: computed `animationName` of `[data-flame="progress"][data-ignite="true"] .flame__body` is not `none`. Motion off: `none`, the flame is visible. Both: the live region holds the candle text.
     - `ghost-rises`: answer a lock wrong. Motion on: `[data-ghost][data-state="rising"]` has `animationName` `ghost-rise`. Motion off: `none`, the ghost and its return number are visible at once. Both: the ghost text in the live region.

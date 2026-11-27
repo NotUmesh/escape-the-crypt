@@ -160,3 +160,11 @@ Haunting polish, decisions after the integration push:
 - Announcements: `usePersistedRoom` releases notices a render after the State, once the Event is written. `CryptFlow` had already handled that State and dropped them. `announce-step.ts` now announces late notices once, and has a unit test. The moment e2e asserts the sentences again.
 - Due ghost: `drawn-ghosts.ts` keeps a due ghost drawn while its return is open (room or final door). `use-placed-ghosts.ts` holds a departed ghost for 400 ms so a late `ghostLaidToRest` still starts the fade. `crypt-run-view.tsx` now passes notices to the final door, where nothing animated before.
 - Open_Decision 4 fixes, one commit each: desk push-in holds its end frame under reduced motion; the descent fade is clear at once under reduced motion; the dig mist and specks are named ambient loops (both already stop under reduced motion). The descent and start screens draw no atmosphere, and Lantern_Mode controls the overlay only, so they need no `useLantern`. The descent clips keep playing in Lantern_Mode by decision; reduced motion skips them. The audit now flags only screens that draw atmosphere without reading `useLantern`. It reports 0 findings.
+
+Haunting polish checkpoint at c1ddaee (clean worktree, Node 22.23.5):
+| run | passed | failed | skipped | notes |
+| --- | --- | --- | --- | --- |
+| vitest apps/web (--maxWorkers=50%) | 1340 (169 files) | 0 | 0 | |
+| vitest packages/core (--maxWorkers=50%) | 1530 (177 files) | 0 | 0 | |
+| web e2e chromium, firefox, pixel (--workers=2) | 235 | 0 | 1 | skip is crypt-hotspots "door too small for placed seals"; haunting-moments 24/24 (8 per project) |
+Not yet written: haunting-axe.e2e.ts and haunting-input.e2e.ts (tasks 9.2, 9.3), and the per-moment screenshots of Checkpoint B. Still held: QuillMark and Lantern toggle in autopsy-view.tsx and final-door.tsx, and the title routed through DeskHub (Open_Decisions 1 and 2).
