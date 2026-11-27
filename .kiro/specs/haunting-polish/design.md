@@ -138,7 +138,7 @@ Algorithm, in notice order, one pass:
 4. `ghostLaidToRest`: keep it when `next.ghosts` holds no pending ghost for the concept.
 5. Every other notice kind gives nothing.
 
-The function takes read-only inputs, reads no clock, randomness or DOM, and imports only types and read-only selectors from `@escape-the-crypt/core`. It imports no reducer, no `apply`, no Event creator. `motion-moments.boundary.test.ts` greps the source of every new file for those names.
+The function takes read-only inputs, reads no clock, randomness or DOM, and imports only types and read-only selectors from `@escape-the-crypt/core`. It imports no reducer, no `apply`, no Event creator. `motion-moments-boundary.test.ts` greps the source of every new file for those names.
 
 `announcementKeyFor(moment)` returns the `ROOM_ANNOUNCEMENT_COPY.notice` key a moment accompanies (`candleLit`, `ghostSpawned` or `ghostLaidToRest`). It exists so the pairing property can be written without a second copy of the mapping.
 
@@ -190,8 +190,8 @@ The spec adds no stored data and no schema. Its one new type is the `MotionMomen
 | Stacking order and overlay opacities | `overlay-stacking.test.ts` | static CSS |
 | Contrast, as drawn and negative control | `overlay-contrast.test.ts` | unit, token math from `desk-contrast.test.ts` |
 | Moment_Selector | `motion-moments.test.ts` | unit |
-| Selector properties | `motion-moments.properties.test.ts` | fast-check, 100 runs each |
-| Boundary and no-write | `motion-moments.boundary.test.ts` | static source and render |
+| Selector properties | `motion-moments-properties.test.ts` | fast-check, 100 runs each |
+| Boundary and no-write | `motion-moments-boundary.test.ts` | static source and render |
 | CSS motion audit | `crypt-motion-css.test.ts` | static CSS |
 | Autopsy parchment | `autopsy-parchment.test.tsx` | component + token contrast |
 | Quill_Mark | `quill-mark.test.tsx` | component |
