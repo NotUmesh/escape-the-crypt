@@ -5,13 +5,13 @@
     "status": "completed",
     "bundle": {
       "manifest": {
-        "manifestId": "crypt-62a99254e222d538",
+        "manifestId": "crypt-62a99254e222d538-f6fa8b8f",
         "rooms": [
           {
             "roomId": "room-1",
             "lockSlots": [
               {
-                "slotId": "slot-rune-cipher",
+                "slotId": "room-1-slot-rune-cipher",
                 "stationType": "rune-cipher",
                 "conceptId": "concept-1",
                 "primaryQuestion": {
@@ -54,7 +54,7 @@
                 }
               },
               {
-                "slotId": "slot-seance-board",
+                "slotId": "room-1-slot-seance-board",
                 "stationType": "seance-board",
                 "conceptId": "concept-2",
                 "primaryQuestion": {

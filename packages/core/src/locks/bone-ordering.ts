@@ -28,13 +28,31 @@ export interface MappedBoneOrdering {
  * Additive mapper helper. One generated item ID per step (`<questionId>-step-<index>`);
  * `steps` is already the answer order, so `keyOrder` equals `itemIds`. The hint is pinned to
  * `keyOrder[0]`. Pure; assumes at least one step (the schema requires 3 to 5).
+ *
+ * An authored `hint.boneId` agrees with the derived hint when it names the first step, written
+ * either as the generated item ID (`<questionId>-step-0`) or as the first step's text (trimmed).
+ * No existing sample or dev question authors this hint, so both spellings are accepted. When
+ * the authored value is given (even `undefined`) and disagrees, the result is `null`.
  */
+export function mapBoneOrderingPayload(questionId: string, steps: readonly string[]): MappedBoneOrdering;
 export function mapBoneOrderingPayload(
   questionId: string,
   steps: readonly string[],
-): MappedBoneOrdering {
+  authoredBoneId: string | undefined,
+): MappedBoneOrdering | null;
+export function mapBoneOrderingPayload(
+  questionId: string,
+  steps: readonly string[],
+  authoredBoneId?: string,
+): MappedBoneOrdering | null {
   const itemIds = steps.map((_, i) => `${questionId}-step-${i}`);
   const keyOrder = [...itemIds];
+  if (authoredBoneId !== undefined) {
+    const first = steps[0];
+    const agrees =
+      authoredBoneId === keyOrder[0] || (first !== undefined && authoredBoneId.trim() === first.trim());
+    if (!agrees) return null;
+  }
   return {
     payload: { itemIds, keyOrder },
     hintEffect: { kind: 'lock-first-bone', boneId: keyOrder[0] ?? '' },

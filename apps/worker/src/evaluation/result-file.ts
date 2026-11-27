@@ -43,6 +43,8 @@ export const NoteRunSchema = z.strictObject({
     .strictObject({
       slots: z.array(
         z.strictObject({
+          /** Added with multi-room crypts; older result files parse as room-1. */
+          roomId: z.string().min(1).default('room-1'),
           stationType: z.string().min(1),
           conceptId: z.string().min(1),
           primaryQuestionId: z.string().min(1),

@@ -4,11 +4,12 @@ import { parseAuthoringQuestion } from '../authoring/parse';
 import { judge, mapBoneOrderingPayload } from '../locks/bone-ordering';
 import { QuestionSpecSchema, payloadSchemaFor } from '../runtime/manifest-schema';
 import { buildContentEntry } from './build-content';
-import { buildDocumentChunkMaps } from './manifest-mapper';
+import { buildDocumentChunkMaps, mapAuthoringQuestionToSpec } from './manifest-mapper';
 
 // packages/core compiles without Node types, so load Node modules dynamically.
 interface FsLike {
   readFileSync(path: string, enc: string): string;
+  readdirSync(path: string): string[];
 }
 const [fsName, urlName]: string[] = ['node:fs', 'node:url'];
 const fs = (await import(fsName!)) as unknown as FsLike;
@@ -62,6 +63,63 @@ describe('mapBoneOrderingPayload (hh-q05)', () => {
       'hh-q05-step-3': 'Pulmonary valve',
     });
     expect(entry.excerpts.every((e) => e.chunkId !== '' && e.optionId === undefined)).toBe(true);
+  });
+});
+
+describe('authored lock-first-bone hint (31.10)', () => {
+  const withHint = (hint: unknown) => {
+    const raw = heart.questions.find((q) => q.id === 'hh-q05');
+    const parsed = parseAuthoringQuestion({ ...raw, hint });
+    if (!parsed.ok || parsed.value.lockType !== 'bone-ordering') throw new Error('hh-q05 not parsed');
+    return parsed.value;
+  };
+  const map = (q: ReturnType<typeof hhQ05>) => mapAuthoringQuestionToSpec(q, maps, q.id, 'Blood path');
+
+  it('rejects a disagreeing hint with hint-mismatch', () => {
+    for (const boneId of ['hh-q05-step-1', 'Tricuspid valve', 'nope']) {
+      const q = withHint({ kind: 'lock-first-bone', boneId });
+      expect(map(q)).toEqual({ ok: false, error: { kind: 'hint-mismatch', questionId: 'hh-q05' } });
+    }
+    expect(mapBoneOrderingPayload('q', ['a', 'b', 'c'], 'b')).toBeNull();
+  });
+
+  it('accepts an agreeing hint (item ID or first step text) and an absent hint', () => {
+    const expected = { kind: 'lock-first-bone', boneId: 'hh-q05-step-0' };
+    for (const boneId of ['hh-q05-step-0', 'Right atrium']) {
+      const r = map(withHint({ kind: 'lock-first-bone', boneId }));
+      expect(r.ok && r.value.spec.hintEffect).toEqual(expected);
+    }
+    const absent = map(hhQ05());
+    expect(absent.ok && absent.value.spec.hintEffect).toEqual(expected);
+  });
+
+  it('every bone-ordering question in samples and eval/dev still maps', () => {
+    const sources = [
+      ...['https', 'human-heart', 'printing-press'].map((n) => ({
+        file: `${root}/samples/questions/${n}.json`,
+        notesDir: `${root}/samples`,
+      })),
+      ...[1, 3, 4, 5, 7, 8, 9, 10].map((n) => ({
+        file: fs
+          .readdirSync(`${root}/eval/dev/questions`)
+          .map((f) => `${root}/eval/dev/questions/${f}`)
+          .find((f) => f.includes(`/dev-${String(n).padStart(2, '0')}-`))!,
+        notesDir: `${root}/eval/dev/notes`,
+      })),
+    ];
+    let count = 0;
+    for (const { file, notesDir } of sources) {
+      const doc = JSON.parse(fs.readFileSync(file, 'utf8')) as { notes: string; questions: Record<string, unknown>[] };
+      const docMaps = buildDocumentChunkMaps(fs.readFileSync(`${notesDir}/${doc.notes}`, 'utf8'));
+      for (const raw of doc.questions.filter((q) => q.lockType === 'bone-ordering')) {
+        const parsed = parseAuthoringQuestion(raw);
+        if (!parsed.ok) throw new Error(`${String(raw.id)} not parsed`);
+        const r = mapAuthoringQuestionToSpec(parsed.value, docMaps, String(raw.id), 'Title');
+        expect(r.ok, String(raw.id)).toBe(true);
+        count += 1;
+      }
+    }
+    expect(count).toBe(11);
   });
 });
 

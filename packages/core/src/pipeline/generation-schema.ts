@@ -60,10 +60,40 @@ export const BoneOrderingGeneratedSchema = z.strictObject({
   explanation: z.string(),
 });
 
+// No hint field: the tie-thread pair names item IDs the Manifest_Mapper assigns.
+export const BoundThreadsGeneratedSchema = z.strictObject({
+  lockType: z.literal('bound-threads'),
+  prompt: z.string().min(1),
+  pairs: z
+    .array(
+      z.strictObject({
+        left: z.string().min(1),
+        right: z.string().min(1),
+        evidence: GeneratedEvidenceSchema,
+      }),
+    )
+    .min(3)
+    .max(4),
+  explanation: z.string(),
+});
+
+// No hint field: a hint would name item IDs the Manifest_Mapper assigns, which the model cannot know.
+export const CursedObjectGeneratedSchema = z.strictObject({
+  lockType: z.literal('cursed-object'),
+  prompt: z.string().min(1),
+  items: z.array(z.string().min(1)).length(4),
+  answer: z.string().min(1),
+  categoryRule: z.string().min(1),
+  evidence: z.array(GeneratedEvidenceSchema).min(1),
+  explanation: z.string(),
+});
+
 type GeneratedArm =
+  | z.infer<typeof CursedObjectGeneratedSchema>
   | z.infer<typeof RuneCipherGeneratedSchema>
   | z.infer<typeof SeanceBoardGeneratedSchema>
-  | z.infer<typeof BoneOrderingGeneratedSchema>;
+  | z.infer<typeof BoneOrderingGeneratedSchema>
+  | z.infer<typeof BoundThreadsGeneratedSchema>;
 
 export type GeneratedQuestion = GeneratedArm;
 
@@ -79,6 +109,8 @@ const ARMS: ReadonlyArray<readonly [LockType, z.ZodType<GeneratedArm>]> = [
   ['rune-cipher', RuneCipherGeneratedSchema],
   ['seance-board', SeanceBoardGeneratedSchema],
   ['bone-ordering', BoneOrderingGeneratedSchema],
+  ['bound-threads', BoundThreadsGeneratedSchema],
+  ['cursed-object', CursedObjectGeneratedSchema],
 ];
 
 /**
@@ -114,6 +146,8 @@ export const FullGenerationResponseSchema = buildGenerationResponseSchema([
   'rune-cipher',
   'seance-board',
   'bone-ordering',
+  'bound-threads',
+  'cursed-object',
 ]);
 export interface QuestionIdentity {
   readonly id: string;
@@ -165,10 +199,17 @@ export function toAuthoringQuestion(
     const { hint, ...rest } = generated;
     void hint;
     candidate = { ...rest, ...identity, evidence: evidence.value };
-  } else if (generated.lockType === 'bone-ordering') {
+  } else if (generated.lockType === 'bone-ordering' || generated.lockType === 'cursed-object') {
     const evidence = collect(generated.evidence, (e) => evidenceOf(doc, e));
     if (!evidence.ok) return evidence;
     candidate = { ...generated, ...identity, evidence: evidence.value };
+  } else if (generated.lockType === 'bound-threads') {
+    const pairs = collect(generated.pairs, (p) => {
+      const ev = evidenceOf(doc, p.evidence);
+      return ev.ok ? { ok: true as const, value: { ...p, evidence: ev.value } } : ev;
+    });
+    if (!pairs.ok) return pairs;
+    candidate = { ...generated, ...identity, pairs: pairs.value };
   } else {
     const options = collect(generated.options, (o) => {
       const ev = evidenceOf(doc, o.evidence);

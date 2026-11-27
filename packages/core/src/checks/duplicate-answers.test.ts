@@ -7,6 +7,7 @@ import {
   seanceWithKey,
 } from '../test-support/duplicate-answer-case';
 import { mapBoneOrderingPayload } from '../locks/bone-ordering';
+import { mapBoundThreadsPayload } from '../locks/bound-threads';
 import { answerKey, answerKeysOf, answerKeysOfAuthoring, duplicateAnswerScan } from './duplicate-answers';
 import { runRoomChecks } from './run-checks';
 
@@ -83,5 +84,11 @@ describe('bone-ordering answer keys', () => {
     const spec = { questionId: 'q', lockType: 'bone-ordering' as const, payload, evidenceRefs: ['c1'], hintEffect };
     expect(answerKeysOf(spec, undefined)).toEqual([]);
     expect(answerKeysOfAuthoring({ lockType: 'bone-ordering' })).toEqual([]);
+
+    // bound-threads: its answer is a structure too, so it contributes no key either.
+    const bound = mapBoundThreadsPayload('b', [{ left: 'a', right: 'b' }, { left: 'c', right: 'd' }, { left: 'e', right: 'f' }])!;
+    const boundSpec = { questionId: 'b', lockType: 'bound-threads' as const, payload: bound.payload, evidenceRefs: ['c1'], hintEffect: bound.hintEffect };
+    expect(answerKeysOf(boundSpec, undefined)).toEqual([]);
+    expect(answerKeysOfAuthoring({ lockType: 'bound-threads' })).toEqual([]);
   });
 });

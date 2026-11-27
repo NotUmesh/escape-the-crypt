@@ -9,6 +9,8 @@ import { CHECK_REGISTRY } from '../checks/registry';
 import { runChecks } from '../checks/run-checks';
 import type { CheckId } from '../checks/types';
 import { mapBoneOrderingPayload } from '../locks/bone-ordering';
+import { mapBoundThreadsPayload } from '../locks/bound-threads';
+import { mapCursedObjectPayload } from '../locks/cursed-object';
 import type { QuestionSpec } from '../runtime/manifest-types';
 import type { Chunk, HintEffectSpec, Result } from '../types';
 import { buildContentEntry, everyOptionHasEvidence } from './build-content';
@@ -70,8 +72,11 @@ function evidenceParagraphs(question: AuthoringQuestion): readonly number[] {
   switch (question.lockType) {
     case 'seance-board':
       return question.options.map((o) => o.evidence.paragraph);
+    case 'bound-threads':
+      return question.pairs.map((p) => p.evidence.paragraph);
     case 'rune-cipher':
     case 'bone-ordering':
+    case 'cursed-object':
       return question.evidence.map((e) => e.paragraph);
   }
 }
@@ -209,12 +214,48 @@ function mapSpec(
   }
 
   if (question.lockType === 'bone-ordering') {
-    // An authored hint boneId cannot name a generated item ID, so the hint is always pinned
-    // to keyOrder[0] by the mapper.
-    const { payload, hintEffect } = mapBoneOrderingPayload(questionId, question.steps);
+    // An authored hint that disagrees with keyOrder[0] is rejected, not overridden.
+    const mapped = mapBoneOrderingPayload(questionId, question.steps, question.hint?.boneId);
+    if (mapped === null) return { ok: false, error: { kind: 'hint-mismatch', questionId } };
     return {
       ok: true,
-      value: { questionId, lockType: 'bone-ordering', payload, evidenceRefs, hintEffect },
+      value: {
+        questionId,
+        lockType: 'bone-ordering',
+        payload: mapped.payload,
+        evidenceRefs,
+        hintEffect: mapped.hintEffect,
+      },
+    };
+  }
+  if (question.lockType === 'bound-threads') {
+    // An authored hint that disagrees with the authored pairs is rejected, not overridden.
+    const mapped = mapBoundThreadsPayload(questionId, question.pairs, question.hint?.pair);
+    if (mapped === null) return { ok: false, error: { kind: 'hint-mismatch', questionId } };
+    return {
+      ok: true,
+      value: {
+        questionId,
+        lockType: 'bound-threads',
+        payload: mapped.payload,
+        evidenceRefs,
+        hintEffect: mapped.hintEffect,
+      },
+    };
+  }
+  if (question.lockType === 'cursed-object') {
+    // The hint is chosen in code (first non-odd item); there is no authored hint field.
+    const mapped = mapCursedObjectPayload(questionId, question.items, question.answer);
+    if (mapped === null) return { ok: false, error: { kind: 'hint-mismatch', questionId } };
+    return {
+      ok: true,
+      value: {
+        questionId,
+        lockType: 'cursed-object',
+        payload: mapped.payload,
+        evidenceRefs,
+        hintEffect: mapped.hintEffect,
+      },
     };
   }
   const hintEffect = seanceHint(question);

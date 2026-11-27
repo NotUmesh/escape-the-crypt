@@ -13,6 +13,11 @@ import {
   buildBlindReviewUserMessage,
   boneDisplayOrder,
   boneItemId,
+  cursedDisplayOrder,
+  cursedItemId,
+  threadsDisplayOrder,
+  threadsLeftId,
+  threadsRightId,
   buildRetryNote,
   type ReviewResponse,
 } from './blind-review-prompt';
@@ -56,7 +61,9 @@ function reject(reason: ReviewRejection): ReviewVerdict {
   return { verdict: 'rejected', reason };
 }
 
-function keyOf(question: Exclude<AuthoringQuestion, { lockType: 'bone-ordering' }>): string {
+function keyOf(
+  question: Exclude<AuthoringQuestion, { lockType: 'bone-ordering' | 'bound-threads' | 'cursed-object' }>,
+): string {
   return question.answer;
 }
 
@@ -70,6 +77,59 @@ function boneMatches(steps: readonly string[], answer: string): boolean {
   const submitted = answer.split(',').map((s) => s.trim());
   if (submitted.length !== steps.length) return false;
   return submitted.every((id, i) => stepOfId.get(id) === i);
+}
+
+/**
+ * Bound threads: the reply is a full matching "L1=R3,L2=R1,...". It passes only if every shown
+ * left id appears once, every right id is used once, and each left is joined to the right item
+ * the key pairs it with. Partial, repeated, unknown or different pairings are rejected.
+ */
+function threadsMatches(pairs: readonly { left: string; right: string }[], answer: string): boolean {
+  const order = threadsDisplayOrder(pairs);
+  const keyRightOfLeft = new Map<string, string>();
+  order.left.forEach((pairIndex, position) => {
+    const rightPosition = order.right.indexOf(pairIndex);
+    keyRightOfLeft.set(threadsLeftId(position), threadsRightId(rightPosition));
+  });
+  const entries = answer.split(',').map((s) => s.trim());
+  if (entries.length !== pairs.length) return false;
+  const seenLeft = new Set<string>();
+  const seenRight = new Set<string>();
+  for (const entry of entries) {
+    const parts = entry.split('=').map((s) => s.trim());
+    if (parts.length !== 2) return false;
+    const [l, r] = parts as [string, string];
+    if (keyRightOfLeft.get(l) !== r || seenLeft.has(l) || seenRight.has(r)) return false;
+    seenLeft.add(l);
+    seenRight.add(r);
+  }
+  return true;
+}
+
+/**
+ * Cursed object. "Names the same item and rule" means, in code: the reply's `answer` is the shown
+ * id of the key item, AND `optionLabels` states the category rule item by item. Each of the other
+ * three items is labelled `supported` (the notes say it fits the category the question's prompt
+ * states) and the named item is labelled `contradicted` (the notes say it does not fit). The
+ * reply schema has no free-text field, and adding one would change every review digest, so the
+ * rule is carried by these per-item verdicts. A missing, partial, repeated or unknown-id label
+ * set, or any other pattern, fails. (`unknown` labels are rejected earlier as unknown-label.)
+ */
+function cursedMatches(items: readonly string[], key: string, response: ReviewResponse): boolean {
+  const keyIndex = items.indexOf(key);
+  if (keyIndex < 0) return false;
+  const display = cursedDisplayOrder(items);
+  const keyId = cursedItemId(display.indexOf(keyIndex));
+  if (response.answer.trim() !== keyId) return false;
+  const labels = response.optionLabels;
+  if (labels === null || labels.length !== items.length) return false;
+  const seen = new Set<string>();
+  for (const { optionId, label } of labels) {
+    if (seen.has(optionId)) return false;
+    seen.add(optionId);
+    if (label !== (optionId === keyId ? 'contradicted' : 'supported')) return false;
+  }
+  return items.every((_, position) => seen.has(cursedItemId(position)));
 }
 
 /** Applies the rejection rule (Req 15.5, 15.6) to a validated reply. Pure. */
@@ -92,6 +152,16 @@ export function decideReview(question: AuthoringQuestion, response: ReviewRespon
       ? { verdict: 'passed' }
       : reject({ kind: 'answer-mismatch' });
   }
+  if (question.lockType === 'bound-threads') {
+    return threadsMatches(question.pairs, response.answer)
+      ? { verdict: 'passed' }
+      : reject({ kind: 'answer-mismatch' });
+  }
+  if (question.lockType === 'cursed-object') {
+    return cursedMatches(question.items, question.answer, response)
+      ? { verdict: 'passed' }
+      : reject({ kind: 'answer-mismatch' });
+  }
   const answered = response.answer.trim();
   if (answered !== keyOf(question)) return reject({ kind: 'answer-mismatch' });
   const labelsOk = (response.optionLabels ?? []).every((l) =>
@@ -105,7 +175,17 @@ export function decideReview(question: AuthoringQuestion, response: ReviewRespon
  * Séance: exactly one label per shown option id, no unknown ids, no duplicates. Pure.
  */
 export function hasCompleteLabels(question: AuthoringQuestion, response: ReviewResponse): boolean {
-  // Rune cipher and bone ordering have no options to label.
+  if (question.lockType === 'cursed-object') {
+    if (response.optionLabels === null) return false;
+    const shownIds = new Set(question.items.map((_, p) => cursedItemId(p)));
+    const seenIds = new Set<string>();
+    for (const { optionId } of response.optionLabels) {
+      if (!shownIds.has(optionId) || seenIds.has(optionId)) return false;
+      seenIds.add(optionId);
+    }
+    return seenIds.size === shownIds.size;
+  }
+  // Rune cipher, bone ordering and bound threads have no options to label.
   if (question.lockType !== 'seance-board') return response.optionLabels === null;
   if (response.optionLabels === null) return false;
   const shown = new Set(question.options.map((o) => o.id));

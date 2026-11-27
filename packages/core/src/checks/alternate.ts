@@ -46,6 +46,9 @@ function answerBearingQuotes(q: AuthoringQuestion, context: QuoteContext): strin
   }
   // bone-ordering: no answer-bearing quote of its own; its checks arrive in task 29.2.
   if (q.lockType === 'bone-ordering') return q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
+  if (q.lockType === 'bound-threads') return q.pairs.map((p) => p.evidence).filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
+  // cursed-object: its answer-bearing quote logic arrives with its checks (task 33.3).
+  if (q.lockType === 'cursed-object') return q.evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
   const key = q.options.filter((o) => o.id === q.answer || o.text === q.answer);
   return (key.length > 0 ? key : q.options)
     .map((o) => o.evidence as Evidence)
@@ -55,7 +58,11 @@ function answerBearingQuotes(q: AuthoringQuestion, context: QuoteContext): strin
 
 function allQuotes(q: AuthoringQuestion, context: QuoteContext): string[] {
   const evidence: readonly Evidence[] =
-    q.lockType === 'seance-board' ? q.options.map((o) => o.evidence) : q.evidence;
+    q.lockType === 'seance-board'
+      ? q.options.map((o) => o.evidence)
+      : q.lockType === 'bound-threads'
+        ? q.pairs.map((p) => p.evidence)
+        : q.evidence;
   return evidence.filter((e) => resolvesUniquely(context, e)).map((e) => e.quote);
 }
 

@@ -1,7 +1,7 @@
 import type { CheckRegistration } from './types';
 
 /** Change whenever the set or behaviour of Code_Checks changes. */
-export const CHECK_VERSION = '2026-11-27.2';
+export const CHECK_VERSION = '2026-11-27.4';
 
 const shared = (id: CheckRegistration['id']): CheckRegistration => ({
   id,
@@ -31,10 +31,24 @@ const bone = (id: CheckRegistration['id']): CheckRegistration => ({
   implemented: true,
 });
 
-/** Not yet implemented. Bone ordering is implemented, so it has its own helper (`bone`). */
+const threads = (id: CheckRegistration['id']): CheckRegistration => ({
+  id,
+  scope: ['bound-threads'],
+  severity: 'blocking',
+  implemented: true,
+});
+
+const cursed = (id: CheckRegistration['id']): CheckRegistration => ({
+  id,
+  scope: ['cursed-object'],
+  severity: 'blocking',
+  implemented: true,
+});
+
+/** Not yet implemented (combination-dial only). Implemented types have their own helpers (`bone`, `threads`, `cursed`). */
 const later = (
   id: CheckRegistration['id'],
-  lockType: 'bound-threads' | 'cursed-object' | 'combination-dial',
+  lockType: 'combination-dial',
 ): CheckRegistration => ({
   id,
   scope: [lockType],
@@ -73,12 +87,14 @@ export const CHECK_REGISTRY: readonly CheckRegistration[] = [
   bone('step-count'),
   bone('duplicate-steps'),
   bone('no-explicit-sequence-marker-in-quotes'),
-  later('pair-count', 'bound-threads'),
-  later('not-one-to-one', 'bound-threads'),
-  later('item-count', 'cursed-object'),
-  later('answer-not-an-item', 'cursed-object'),
-  later('missing-category-rule', 'cursed-object'),
-  later('needs-category-and-outside-quotes', 'cursed-object'),
+  // Deliberate flip (task 31.2): bound-threads checks now exist and runChecks calls them.
+  threads('pair-count'),
+  threads('not-one-to-one'),
+  // Deliberate flip (task 33.3): cursed-object checks now exist and runChecks calls them.
+  cursed('item-count'),
+  cursed('answer-not-an-item'),
+  cursed('missing-category-rule'),
+  cursed('needs-category-and-outside-quotes'),
   later('missing-units', 'combination-dial'),
   later('number-not-in-quote', 'combination-dial'),
   later('range-not-in-quote', 'combination-dial'),

@@ -35,10 +35,10 @@ describe('parseManifest', () => {
     expect(r.ok).toBe(true);
   });
 
-  it('rejects the three lock types without a payload schema', () => {
-    // bone-ordering gained its payload schema in task 29.5; bound-threads is still unsupported.
-    const q = { ...rune('q1'), lockType: 'bound-threads' };
-    const r = parseManifest(manifest(q, null, 'bound-threads'));
+  it('rejects lock types without a payload schema', () => {
+    // bone-ordering gained its payload schema in task 29.5; bound-threads in 31.5; cursed-object in 33.6; combination-dial is still unsupported.
+    const q = { ...rune('q1'), lockType: 'combination-dial' };
+    const r = parseManifest(manifest(q, null, 'combination-dial'));
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error.issues[0]?.message).toContain('lock-type-not-supported');
   });

@@ -611,40 +611,40 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
 
-- [ ] 31. Phase 5: bound-threads
-  - [ ] 31.1 Authoring schema and generation response arm
+- [x] 31. Phase 5: bound-threads
+  - [x] 31.1 Authoring schema and generation response arm
     - Append `BoundThreadsAuthoringSchema` to `AuthoringQuestionSchema` (strict object, `pairs` of 3 to 4 `{ left, right }` entries, `evidence`, optional `tie-thread` hint, no offset field), the matching strict-compatible arm to `GeneratedQuestionSchema`, and the `pairs` branch in `toAuthoringQuestion`
     - Extend `schema.test.ts` with the real `bound-threads` dev and sample fixtures (for example `hh-q07`) and `generation-schema.test.ts` with the shared re-parse test
     - _Requirements: 22.2, 14.1_
 
-  - [ ] 31.2 Code_Checks and registry entries
+  - [x] 31.2 Code_Checks and registry entries
     - Create `packages/core/src/locks/bound-threads-checks.ts` with `pair-count` and `not-one-to-one` (a repeated left or right text, after case and whitespace normalisation, fails); each returns `readonly CheckFailure[]` and never throws
     - Flip the `bound-threads` registry entries to `implemented: true`, widen `isSupported` and `visibleTextOf` for this type (the `isSupported` and `later(...)` helpers change in step with this type's schema arm), bump `CHECK_VERSION` once for this group, and update the registry test
     - With the bump, update any result-file or cassette test that compares the version; if the cassette tests compare `checkVersion`, change only that field in cassette files (prompt digests and responses untouched)
     - _Requirements: 22.2, 3.2, 3.4, 3.6, 3.11, 3.14_
 
-  - [ ] 31.3 Generation prompt section
+  - [x] 31.3 Generation prompt section
     - Add the `bound-threads` entry to `LOCK_RULES`. Generated only when the notes state explicit pairings that are strictly one-to-one with no shared left or right item; never infer a pairing the notes do not state
     - Extend `generation-prompt.test.ts` so the rule text is present when the type is allowed
     - _Requirements: 22.2, 14.5_
 
-  - [ ] 31.4 Blind-review rule
+  - [x] 31.4 Blind-review rule
     - Add `bound-threads` branches to `citedChunks`, `buildBlindReviewUserMessage`, `decideReview` and `hasCompleteLabels`; the reviewer sees both columns in manifest order, never the key pairs, a label or the explanation
     - Extend `blind-review.test.ts` with the `bound-threads` `review:*` adversarial fixtures via cassette and one `passed` example
     - _Requirements: 22.2, 15.1, 15.3, 15.4, 15.6_
 
-  - [ ] 31.5 Mapper to the judge payload
+  - [x] 31.5 Mapper to the judge payload
     - In `packages/core/src/locks/bound-threads.ts`, add a pure, additive `mapBoundThreadsPayload` export producing `{ leftIds, rightIds, keyPairs }` (`keyPairs` in authoring order) and the `tie-thread` hint choosing one pair from `keyPairs` in code; leave the judge unchanged (or use `locks/bound-threads-mapper.ts` if the file would pass ~300 lines)
     - Add the `mapSpec`/`evidenceParagraphs` branches, the `build-content.ts` branch, `BoundThreadsPayloadSchema` and the `tie-thread` branch in `narrowHint` (the pair must be one of `keyPairs`, compared as an unordered membership check)
     - Unit-test the `hh-q07` mapping and feed the payload plus the fixture's correct submission to the real judge, expecting `correct`
     - _Requirements: 22.2, 8.2, 8.4, 22.8_
 
-  - [ ] 31.6 Add `bound-threads` to the test and eval allow-lists only
+  - [x] 31.6 Add `bound-threads` to the test and eval allow-lists only
     - Add `'bound-threads'` to `PHASE5_TEST_ALLOWED_LOCK_TYPES` (`test-support/phase5-lock-types.ts`) and to `EVAL_ALLOWED_LOCK_TYPES` (`apps/worker/src/config.ts`); use the former in the `bound-threads` cassette test (task 31.8)
     - Do NOT change `DEFAULT_ALLOWED_LOCK_TYPES` or `ALLOWED_LOCK_TYPES`; the assertions from task 29.6 that both still equal `['rune-cipher', 'seance-board']` must keep passing, and the eval test asserts `bound-threads` is in `EVAL_ALLOWED_LOCK_TYPES`
     - _Requirements: 22.2, 14.9_
 
-  - [ ] 31.7 Write property tests for bound-threads
+  - [x] 31.7 Write property tests for bound-threads
     - **Property 22: Count checks reject out-of-range counts and accept in-range counts** (`pair-count`, 3 to 4)
     - **Validates: Requirements 22.2**
     - **Property 26: Bound threads are rejected unless every left and every right item is distinct**
@@ -656,55 +656,64 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - **Validates: Requirements 22.9**
     - Example test (one line, in the duplicate-answer suite): `bound-threads` contributes no duplicate-answer key, because its answer is a structure and two equal structures across concepts are not a learner-facing duplicate
 
-  - [ ] 31.8 Write the cassette test for bound-threads
+  - [x] 31.8 Write the cassette test for bound-threads
     - Add a cassette fixture driving `runRoomPipeline` (cassette provider and mock ledger only) with a `bound-threads` primary; assert generation, Code_Checks, blind review, mapping and `validateManifestForPublish`; assert each entry's `digest` against `promptDigest`
     - _Requirements: 22.2, 12.2, 16.3_
 
-- [ ] 32. Checkpoint - bound-threads group
+  - [x] 31.9 Add `--allowed-lock-types` flag to the eval CLI
+    - In `apps/worker/src/evaluation/cli.ts`, parse a comma-separated `--allowed-lock-types` list validated against the six Lock_Types; an invalid value is a typed error and a non-zero exit, never a thrown raw string. Default to `EVAL_ALLOWED_LOCK_TYPES` when the flag is absent; the flag applies to both `record` and `replay`
+    - Add unit tests in the CLI tests (valid list, invalid value, default, both subcommands); no real provider call
+    - _Requirements: 22.1, 14.9_
+
+  - [x] 31.10 Reject an authored bone-ordering `hint.boneId` that disagrees with `keyOrder[0]`
+    - In the mapper (`mapBoneOrderingPayload` in `locks/bone-ordering.ts` or `locks/bone-ordering-mapper.ts`, and the dispatch in `mapper/manifest-mapper.ts`), return a typed mapper error, as rune cipher does, when an authored `hint.boneId` disagrees with the derived `keyOrder[0]`-pinned hint. Add tests: a hand-written sample with a disagreeing hint is rejected; an agreeing or absent hint is accepted; the 11 existing bone-ordering questions still map
+    - _Requirements: 22.1, 8.4_
+
+- [x] 32. Checkpoint - bound-threads group
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
 
-- [ ] 33. Phase 5: cursed-object
-  - [ ] 33.1 Authoring schema and generation response arm
+- [x] 33. Phase 5: cursed-object
+  - [x] 33.1 Authoring schema and generation response arm
     - Append `CursedObjectAuthoringSchema` to `AuthoringQuestionSchema` (strict object, `items` of exactly 4, an answer naming the odd item, a `categoryRule`, `evidence`, no offset field), the matching strict-compatible arm to `GeneratedQuestionSchema`, and the `items` branch in `toAuthoringQuestion`
     - Extend `schema.test.ts` with the real `cursed-object` dev and sample fixtures (for example `hh-q09`) and `generation-schema.test.ts` with the shared re-parse test
     - _Requirements: 22.3, 14.1_
 
-  - [ ] 33.2 Write the `adv-20` fixture-literal test, then implement the cursed-object Code_Checks
+  - [x] 33.2 Write the `adv-20` fixture-literal test, then implement the cursed-object Code_Checks
     - First, before any check code: create `packages/core/src/locks/cursed-object-checks.test.ts` with the fixture-literal unit test that feeds the `adv-20` question from `eval/adversarial/fixtures.json` (read at test time, file not edited) to `needs-category-and-outside-quotes` and expects exactly its expected Check_ID; run it and see it fail
     - Then create `packages/core/src/locks/cursed-object-checks.ts` with `item-count` (exactly 4), `answer-not-an-item`, `missing-category-rule` and `needs-category-and-outside-quotes`, and tighten the `needs-category-and-outside-quotes` heuristic until the `adv-20` test passes with exactly its expected Check_ID (the design flags this check as a conservative heuristic). Each function returns `readonly CheckFailure[]` and never throws
     - Do not touch the registry, `run-checks.ts` or `CHECK_VERSION` in this task: the check is not trusted until task 33.3
     - _Requirements: 22.3, 4.9, 3.2, 3.4, 3.6_
 
-  - [ ] 33.3 Flip the cursed-object registry entries (only after the `adv-20` test passes)
+  - [x] 33.3 Flip the cursed-object registry entries (only after the `adv-20` test passes)
     - Precondition: the `adv-20` test from task 33.2 passes. If it does not, stop and do not flip anything
     - Flip the `cursed-object` registry entries to `implemented: true` without changing any Check_ID string, widen `isSupported` and `visibleTextOf` in `run-checks.ts` (the `isSupported` and `later(...)` helpers change in step with this type's schema arm), bump `CHECK_VERSION` once for this group, and update the registry test (a comment marks the flip as deliberate)
     - With the bump, update any result-file or cassette test that compares the version; if the cassette tests compare `checkVersion`, change only that field in cassette files (prompt digests and responses untouched)
     - Confirm the "which one is not" exemption in `negative-question` now applies to a real cursed-object prompt
     - _Requirements: 22.3, 4.9, 3.2, 3.4, 3.6, 3.11, 3.14_
 
-  - [ ] 33.4 Generation prompt section
+  - [x] 33.4 Generation prompt section
     - Add the `cursed-object` entry to `LOCK_RULES`. Generated only when the notes give an explicit category and exactly one item outside it, with the exclusion supported by the quoted evidence; never infer the odd item from outside knowledge
     - Extend `generation-prompt.test.ts` so the rule text is present when the type is allowed
     - _Requirements: 22.3, 14.5_
 
-  - [ ] 33.5 Blind-review rule
+  - [x] 33.5 Blind-review rule
     - Add `cursed-object` branches to `citedChunks`, `buildBlindReviewUserMessage`, `decideReview` and `hasCompleteLabels`; the reviewer sees the four items in manifest order and the category rule only as the question states it, never the odd-item key, a label or the explanation
     - Extend `blind-review.test.ts` with the `cursed-object` `review:*` adversarial fixtures via cassette (including the `adv-20` case where relevant) and one `passed` example
     - _Requirements: 22.3, 15.1, 15.3, 15.4, 15.6_
 
-  - [ ] 33.6 Mapper to the judge payload
+  - [x] 33.6 Mapper to the judge payload
     - In `packages/core/src/locks/cursed-object.ts`, add a pure, additive `mapCursedObjectPayload` export producing `{ optionIds, oddOneOutId }` (option order preserved) and the hint that removes one non-odd item, chosen in code; leave the judge unchanged (or use `locks/cursed-object-mapper.ts` if the file would pass ~300 lines)
     - Add the `mapSpec`/`evidenceParagraphs` branches, the `build-content.ts` branch, `CursedObjectPayloadSchema` and the `narrowHint` branch (the removed item must be in `optionIds` and not the odd one)
     - Unit-test the `hh-q09` mapping and feed the payload plus the fixture's correct submission to the real judge, expecting `correct`
     - _Requirements: 22.3, 8.2, 8.4, 22.8_
 
-  - [ ] 33.7 Add `cursed-object` to the test and eval allow-lists only
+  - [x] 33.7 Add `cursed-object` to the test and eval allow-lists only
     - Add `'cursed-object'` to `PHASE5_TEST_ALLOWED_LOCK_TYPES` and `EVAL_ALLOWED_LOCK_TYPES`; use the former in the `cursed-object` cassette test (task 33.9)
     - Do NOT change `DEFAULT_ALLOWED_LOCK_TYPES` or `ALLOWED_LOCK_TYPES`; the assertions from task 29.6 must keep passing
     - _Requirements: 22.3, 14.9_
 
-  - [ ] 33.8 Write property tests for cursed-object
+  - [x] 33.8 Write property tests for cursed-object
     - **Property 22: Count checks reject out-of-range counts and accept in-range counts** (`item-count`, exactly 4)
     - **Validates: Requirements 22.3**
     - **Property 28: The Manifest_Schema validates every six-Lock_Type payload and hint shape, and rejects every mismatch** (cursed-object part: `oddOneOutId` is in `optionIds`; the removed-item hint never names it)
@@ -713,16 +722,16 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     - **Property 29: Every Dev_Set and Sample_Set question of the four new types passes Code_Checks, and every `code:*` adversarial fixture of those types fails with exactly its expected Check_ID** (cursed-object part; reads only `eval/dev`, `samples` and `eval/adversarial`, never `eval/holdout`)
     - **Validates: Requirements 22.9**
 
-  - [ ] 33.9 Write the cassette test for cursed-object
+  - [x] 33.9 Write the cassette test for cursed-object
     - Add a cassette fixture driving `runRoomPipeline` (cassette provider and mock ledger only) with a `cursed-object` primary; assert generation, Code_Checks, blind review, mapping and `validateManifestForPublish`; assert each entry's `digest` against `promptDigest`
     - _Requirements: 22.3, 12.2, 16.3_
 
-  - [ ] 33.10 Extend the duplicate-answer keys for cursed-object
+  - [x] 33.10 Extend the duplicate-answer keys for cursed-object
     - Extend `answerKeysOfAuthoring` and `answerKeysOf` in `packages/core/src/checks/duplicate-answers.ts` so a `cursed-object` question contributes one key: the cursed item's text, normalised the same way rune answers are
     - Add ONE property test for this type to the duplicate suite (`packages/core/src/checks/duplicate-answers.test.ts` or a sibling file): for any two `cursed-object` questions in different concepts whose cursed items are equal after normalisation, `duplicate-answer-in-room` is reported, and for any two whose normalised items differ it is not
     - _Requirements: 22.3, 4.9_
 
-- [ ] 34. Checkpoint - cursed-object group
+- [x] 34. Checkpoint - cursed-object group
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
 
@@ -789,6 +798,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
 - [ ] 36. Checkpoint - combination-dial group
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
+  - After the checkpoint passes, give the user the exact paid re-record command (all six types via `--allowed-lock-types`, through the evaluation skill with its spending cap). Do not run it; the user runs it in their own shell
 
 - [ ] 37. Phase 5: room assembly across six types
   - [ ] 37.1 Add a six-type room assembly example
@@ -862,6 +872,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
 - CPU rule for every task: during work, run targeted tests only (for example `pnpm exec vitest run <file>`). Run the full suite and e2e only at checkpoints (28.2, 30, 32, 34, 36, 39.6, 40), with `--maxWorkers=50%` for Vitest and `--workers=2` for Playwright. Before e2e, check that port 4173 is free and wait if it is busy.
 - Per-type payload mappers live in `packages/core/src/locks/<type>.ts` as additive exports, as the user asked. The design says the judges are not modified; the judge functions and their types stay unchanged, and a mapper moves to `locks/<type>-mapper.ts` if a file nears ~300 lines. `mapper/manifest-mapper.ts` only dispatches.
 - Phase 5 tests read only `eval/dev/`, `samples/` and `eval/adversarial/`, never `eval/holdout/`, and never call a real provider.
+- Eval replay rule (Phase 5): until the end of Phase 5, replay of the recorded dev cassettes uses `--allowed-lock-types rune-cipher,seance-board`. Recorded dev cassettes are not re-recorded per group. One paid re-record over the dev set happens after the combination-dial group (task 36) with all six types allowed, run by the user in their own shell through the evaluation skill.
 - Requirement 30 is withdrawn (covered by G8 and Requirement 21.3), so no task references it.
 - Each task references specific requirements for traceability. Property tests validate universal correctness properties; unit tests cover fixed examples and fixtures.
 
@@ -934,7 +945,7 @@ Phase 2/3 order: Provider interface and Prompt_Digest â†’ cassette store an
     { "id": 61, "tasks": ["29.6"] },
     { "id": 62, "tasks": ["29.7", "29.8"] },
     { "id": 63, "tasks": ["30"] },
-    { "id": 64, "tasks": ["31.1"] },
+    { "id": 64, "tasks": ["31.1", "31.9", "31.10"] },
     { "id": 65, "tasks": ["31.2", "31.3", "31.4", "31.5"] },
     { "id": 66, "tasks": ["31.6"] },
     { "id": 67, "tasks": ["31.7", "31.8"] },

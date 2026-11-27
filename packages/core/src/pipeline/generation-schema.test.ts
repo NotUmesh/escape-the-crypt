@@ -1,4 +1,4 @@
-import fc from 'fast-check';
+﻿import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { parseAuthoringQuestion } from '../authoring/parse';
 import {
@@ -69,6 +69,23 @@ const bone = fc.record({
   explanation: fc.string({ maxLength: 60 }),
 });
 
+const threads = fc.record({
+  lockType: fc.constant('bound-threads' as const),
+  prompt: text,
+  pairs: fc.array(fc.record({ left: text, right: text, evidence }), { minLength: 3, maxLength: 4 }),
+  explanation: fc.string({ maxLength: 60 }),
+});
+
+const cursed = fc.record({
+  lockType: fc.constant('cursed-object' as const),
+  prompt: text,
+  items: fc.array(text, { minLength: 4, maxLength: 4 }),
+  answer: text,
+  categoryRule: text,
+  evidence: fc.array(evidence, { minLength: 1, maxLength: 3 }),
+  explanation: fc.string({ maxLength: 60 }),
+});
+
 const identity = fc.record({
   id: text,
   conceptId: text,
@@ -82,7 +99,7 @@ describe('toAuthoringQuestion', () => {
 
   it('always yields a question that parses as an AuthoringQuestion (Req 14.1)', () => {
     fc.assert(
-      fc.property(fc.oneof(rune, seance, bone), identity, (generated, ident) => {
+      fc.property(fc.oneof(rune, seance, bone, threads, cursed), identity, (generated, ident) => {
         const result = toAuthoringQuestion(generated, ident, doc);
         expect(result.ok).toBe(true);
         if (!result.ok) return;
@@ -102,7 +119,7 @@ describe('toAuthoringQuestion', () => {
 
   const runeArm: GeneratedQuestion = {
     lockType: 'rune-cipher',
-    prompt: 'According to your notes, mitochondria produce most of the cell’s ____.',
+    prompt: 'According to your notes, mitochondria produce most of the cellâ€™s ____.',
     answer: 'energy',
     aliases: [],
     caseSensitive: false,
@@ -137,7 +154,7 @@ describe('toAuthoringQuestion', () => {
     expect(result.ok && result.value).not.toHaveProperty('hint');
   });
 
-  it.each([3, 4])('translates a séance arm with %i options', (n) => {
+  it.each([3, 4])('translates a sÃ©ance arm with %i options', (n) => {
     const arm: GeneratedQuestion = {
       lockType: 'seance-board',
       prompt: 'According to your notes, what do mitochondria produce?',
@@ -215,6 +232,7 @@ describe('toAuthoringQuestion', () => {
     expect(fnv1a64(schemaJson(GenerationResponseSchema))).toBe(FROZEN);
     expect(schemaJson(buildGenerationResponseSchema(DEFAULT_ALLOWED_LOCK_TYPES))).toBe(schemaJson(GenerationResponseSchema));
     expect(schemaJson(GenerationResponseSchema)).not.toContain('bone-ordering');
+    expect(schemaJson(GenerationResponseSchema)).not.toContain('bound-threads');
   });
 
   it('offers only the allowed arms', () => {

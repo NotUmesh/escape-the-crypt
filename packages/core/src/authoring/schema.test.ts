@@ -85,6 +85,46 @@ describe('parseAuthoringQuestion', () => {
     expect(path({ ...base, hint: { kind: 'lock-first-bone', boneId: 'x' } })).toBeNull();
   });
 
+  it('parses every real bound-threads dev and sample question, and rejects bad shapes', async () => {
+    const threads = (await realQuestions()).filter(({ q }) => q.lockType === 'bound-threads');
+    expect(threads.some(({ q }) => q.id === 'hh-q07')).toBe(true);
+    for (const { file, q } of threads) {
+      expect(parseAuthoringQuestion(q).ok, `${file} ${String(q.id)}`).toBe(true);
+    }
+    const base = threads[0]!.q as { pairs: Record<string, unknown>[] };
+    const path = (v: unknown) => {
+      const r = parseAuthoringQuestion(v);
+      return r.ok ? null : r.error.path;
+    };
+    expect(path({ ...base, pairs: base.pairs.slice(0, 2) })).toBe('pairs');
+    expect(path({ ...base, pairs: [...base.pairs, ...base.pairs] })).toBe('pairs');
+    expect(path({ ...base, pairs: [{ ...base.pairs[0], left: '' }, ...base.pairs.slice(1)] })).toBe('pairs.0.left');
+    expect(path({ ...base, offset: 1 })).toBe('offset');
+    expect(path({ ...base, pairs: [{ ...base.pairs[0], extra: 1 }, ...base.pairs.slice(1)] })).toBe('pairs.0.extra');
+    const withHint = { ...base, hint: { kind: 'tie-thread', pair: ['l', 'r'] } };
+    expect(path(withHint)).toBeNull();
+    expect(path({ ...base, hint: { kind: 'tie-thread', pair: ['l'] } })).toBe('hint.pair');
+  });
+
+  it('parses every real cursed-object dev and sample question, and rejects bad shapes', async () => {
+    const cursed = (await realQuestions()).filter(({ q }) => q.lockType === 'cursed-object');
+    expect(cursed.some(({ q }) => q.id === 'hh-q09')).toBe(true);
+    for (const { file, q } of cursed) {
+      expect(parseAuthoringQuestion(q).ok, `${file} ${String(q.id)}`).toBe(true);
+    }
+    const base = cursed.find(({ q }) => q.id === 'hh-q09')!.q as { items: string[] };
+    const path = (v: unknown) => {
+      const r = parseAuthoringQuestion(v);
+      return r.ok ? null : r.error.path;
+    };
+    expect(path({ ...base, items: base.items.slice(0, 3) })).toBe('items');
+    expect(path({ ...base, items: [...base.items, 'Extra'] })).toBe('items');
+    expect(path({ ...base, categoryRule: undefined })).toBe('categoryRule');
+    expect(path({ ...base, evidence: [] })).toBe('evidence');
+    expect(path({ ...base, offset: 1 })).toBe('offset');
+    expect(path({ ...base, hint: { kind: 'x' } })).toBe('hint');
+  });
+
   it('parses every real rune cipher and séance board question (again, by directory)', async () => {
     const relevant = (await realQuestions()).filter(({ q }) => q.lockType === 'rune-cipher' || q.lockType === 'seance-board');
     for (const { file, q } of relevant) {

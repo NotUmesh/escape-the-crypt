@@ -11,7 +11,6 @@ import { boneDisplayOrder, boneItemId } from './blind-review-prompt';
 import { runRoomPipeline, type PipelineOptions } from './orchestrator';
 import { promptDigest } from '../provider/prompt-digest';
 import type { Provider, ProviderRequest, ProviderResult, ProviderStage } from '../provider/types';
-import { PHASE5_TEST_ALLOWED_LOCK_TYPES } from '../test-support/phase5-lock-types';
 
 /**
  * Synthetic end-to-end cassette for a bone-ordering primary on `samples/human-heart.txt`
@@ -46,7 +45,8 @@ export const BONE_ORDERING_E2E_OPTIONS: Omit<PipelineOptions, 'provider' | 'ledg
   costOf: () => 0.001,
   providerName: 'synthetic',
   concurrency: 1,
-  allowedLockTypes: PHASE5_TEST_ALLOWED_LOCK_TYPES,
+  // Pinned explicitly: the recorded digests depend on this list, so it must not follow the shared constant.
+  allowedLockTypes: ['rune-cipher', 'seance-board', 'bone-ordering'],
 };
 
 export const boneE2eLedger = () => makeMockLedger({ dailyCapUsd: 1 });

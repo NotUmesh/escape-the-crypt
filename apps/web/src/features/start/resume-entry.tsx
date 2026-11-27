@@ -5,6 +5,7 @@ import type { RestoreDeps, RestoredRun } from '../../state/storage/restore-run';
 import type { RunRecord } from '../../state/storage/records';
 import { findResumable, setRunStatus } from '../../state/storage/run-repository';
 import type { StorageErrorKind } from '../../state/storage/storage-error';
+import type { RunSettings } from '@escape-the-crypt/core';
 import type { BuiltCrypt } from '../../state/room-binding';
 
 export const CONTINUE_LABEL = 'Continue your crypt';
@@ -57,7 +58,8 @@ export interface ResumeEntryProps {
    * Called once the previous run is `left`. `crypt` is the generated crypt to play again, or null
    * when the sample crypt should be played.
    */
-  readonly onStartAgain: (crypt: BuiltCrypt | null) => void;
+  /** `settings` are the stored run's, so a fresh run of the same crypt keeps its length and difficulty. */
+  readonly onStartAgain: (crypt: BuiltCrypt | null, settings?: RunSettings) => void;
 }
 
 function generatedCrypt(restored: RestoredRun): BuiltCrypt | null {
@@ -114,7 +116,7 @@ export function ResumeEntry({ deps, onContinue, onStartAgain }: ResumeEntryProps
       .then((result) => {
         if (!alive.current) return;
         setBusy(false);
-        onStartAgain(result.ok ? generatedCrypt(result.value) : null);
+        onStartAgain(result.ok ? generatedCrypt(result.value) : null, result.ok ? result.value.run.settings : undefined);
       });
   }, [run, factory, restoreDeps, onStartAgain]);
 

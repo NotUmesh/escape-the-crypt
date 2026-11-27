@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Event, Outcome_Notice } from '@escape-the-crypt/core';
 import type { RoomAction } from './room-actions';
-import { RUN_SETTINGS, useRoomBinding } from './room-binding';
+import { settingsOf, useRoomBinding } from './room-binding';
 import type { BuildCrypt, BuiltCrypt, RoomBinding } from './room-binding';
 import { saveCrypt } from './storage/crypt-repository';
 import { createEventWriter } from './storage/event-writer';
@@ -68,7 +68,7 @@ export function usePersistedRoom(buildCrypt: BuildCrypt, options: PersistedRoomO
       const run = await createRun(factory, {
         runId,
         manifestId: crypt.manifest.manifestId,
-        settings: RUN_SETTINGS,
+        settings: settingsOf(crypt),
         createdAt: now(),
       });
       return run.ok ? { ok: true, value: true } : run;

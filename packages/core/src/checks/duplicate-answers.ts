@@ -1,6 +1,6 @@
 import type { CryptContentEntry } from '../mapper/crypt-content';
 import { normaliseWithMap } from '../normalise';
-import { RuneCipherPayloadSchema, SeanceBoardPayloadSchema } from '../runtime/manifest-schema';
+import { CursedObjectPayloadSchema, RuneCipherPayloadSchema, SeanceBoardPayloadSchema } from '../runtime/manifest-schema';
 import type { QuestionSpec } from '../runtime/manifest-types';
 import type { CheckFailure } from './types';
 
@@ -28,6 +28,7 @@ export type AnswerBearing =
       readonly answer: string;
       readonly options: readonly { readonly id: string; readonly text: string }[];
     }
+  | { readonly lockType: 'cursed-object'; readonly answer: string; readonly items: readonly string[] }
   | { readonly lockType: string };
 
 /** Answer keys of an authoring question: what a learner can give as its answer. */
@@ -37,6 +38,9 @@ export function answerKeysOfAuthoring(question: AnswerBearing): readonly string[
   }
   if (question.lockType === 'seance-board' && 'options' in question) {
     return keysFrom(question.options.filter((o) => o.id === question.answer).map((o) => o.text));
+  }
+  if (question.lockType === 'cursed-object' && 'items' in question) {
+    return keysFrom([question.answer]);
   }
   return [];
 }
@@ -50,6 +54,11 @@ export function answerKeysOf(spec: QuestionSpec, content: CryptContentEntry | un
   if (spec.lockType === 'seance-board') {
     const parsed = SeanceBoardPayloadSchema.safeParse(spec.payload);
     const text = parsed.success ? content?.options?.[parsed.data.keyOptionId] : undefined;
+    return text === undefined ? [] : keysFrom([text]);
+  }
+  if (spec.lockType === 'cursed-object') {
+    const parsed = CursedObjectPayloadSchema.safeParse(spec.payload);
+    const text = parsed.success ? content?.options?.[parsed.data.oddOneOutId] : undefined;
     return text === undefined ? [] : keysFrom([text]);
   }
   return [];

@@ -42,6 +42,7 @@ pnpm --filter @escape-the-crypt/worker eval replay --model <model-id> --inspect
 ```
 
 Add `--only "dev-01,dev-07"` to limit the notes (quote it in PowerShell).
+Add `--allowed-lock-types "rune-cipher,seance-board"` to choose the lock types (record and replay; default is the evaluation list in `config.ts`).
 
 ## What it writes
 

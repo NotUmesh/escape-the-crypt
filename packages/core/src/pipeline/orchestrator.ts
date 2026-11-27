@@ -4,6 +4,7 @@ import { CHECK_VERSION } from '../checks/registry';
 import type { CryptContent } from '../mapper/crypt-content';
 import type { Provider } from '../provider/types';
 import type { CryptManifest } from '../runtime/manifest-types';
+import type { CryptTarget } from '../run-length';
 import type { Result } from '../types';
 import { blindReview, type ReviewVerdict } from './blind-review';
 import {
@@ -14,6 +15,8 @@ import {
   snapshotOutcomes,
 } from './candidate-outcomes';
 import { runCodeCheckStage } from './code-check-stage';
+import { conceptsForTarget } from './concept-spread';
+import { assembleForTarget } from './crypt-assembly';
 import { extractConcepts, type ExtractedConcept } from './concept-extraction';
 import { DEFAULT_CONCURRENCY, runWithConcurrency } from './concurrency';
 import {
@@ -24,7 +27,6 @@ import {
 import { prepareDocument, type PreparedDocument } from './prepare-input';
 import { recordCalls } from './recording-provider';
 import {
-  assembleRoom,
   type AssemblyConcept,
   type AssemblyPolicy,
   type RoomAssemblyError,
@@ -66,6 +68,8 @@ export interface PipelineOptions extends GenerationOptions {
   readonly signal?: AbortSignalLike;
   /** Room assembly policy. Default DEFAULT_ASSEMBLY_POLICY; the legacy one is for ablations. */
   readonly assemblyPolicy?: AssemblyPolicy;
+  /** Crypt size (`cryptTargetFor`). Absent: every concept, one room. Present: capped spread, up to `rooms` rooms. */
+  readonly target?: CryptTarget;
 }
 
 export interface PipelineResult {
@@ -164,8 +168,9 @@ export async function runRoomPipeline(
   );
   if (aborted()) return cancelled();
   if (!extracted.ok) return fail(extracted.error);
-  const concepts: readonly ExtractedConcept[] = extracted.value;
+  const concepts: readonly ExtractedConcept[] = conceptsForTarget(extracted.value, options.target, doc);
   counts.concepts = concepts.length;
+  counts.conceptsNotSelected = extracted.value.length - concepts.length;
 
   // Generation: one task per concept, in extraction order.
   const generated = await timed('generation', () =>
@@ -273,12 +278,10 @@ export async function runRoomPipeline(
     alternate: accepted[i]?.[1] ?? null,
   }));
   const assembled = await timed('assembly', () =>
-    assembleRoom({
-      manifestId: manifestIdOf(doc),
-      document: doc,
-      concepts: assemblyConcepts,
-      ...(options.assemblyPolicy === undefined ? {} : { policy: options.assemblyPolicy }),
-    }),
+    assembleForTarget(
+      { manifestId: manifestIdOf(doc), document: doc, concepts: assemblyConcepts, ...(options.assemblyPolicy && { policy: options.assemblyPolicy }) },
+      options.target,
+    ),
   );
   if (!assembled.ok) return fail(assembled.error);
   recordPlacements(outcomes, assembled.value);

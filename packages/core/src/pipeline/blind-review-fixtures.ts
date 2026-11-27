@@ -218,9 +218,11 @@ export function loadReviewFixtures(
       const q = JSON.parse(JSON.stringify(f.question)) as Record<string, unknown> & {
         evidence?: { paragraph: number }[];
         options?: { evidence: { paragraph: number } }[];
+        pairs?: { evidence: { paragraph: number } }[];
       };
       if (q.evidence) q.evidence = q.evidence.map(remap);
       if (q.options) q.options = q.options.map((o) => ({ ...o, evidence: remap(o.evidence) }));
+      if (q.pairs) q.pairs = q.pairs.map((p) => ({ ...p, evidence: remap(p.evidence) }));
       return { id: f.id, expectedCatch: f.expectedCatch, doc, question: must(q), translated };
     });
 }

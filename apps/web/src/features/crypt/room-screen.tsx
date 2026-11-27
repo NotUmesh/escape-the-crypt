@@ -4,6 +4,7 @@ import {
   ROOM_PLAY_LABELS,
   SAMPLE_CRYPT_LABEL,
   SLOT_STATUS_WORDS,
+  cryptTargetFor,
   roomDisplayName,
   selectFinalDoor,
 } from '@escape-the-crypt/core';
@@ -58,6 +59,20 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
   const roomIndex = state.rooms.findIndex((r) => r.roomId === state.currentRoomId);
   const slots = room?.lockSlots ?? [];
   const { artRoom, log, sceneState, drawn, plain } = useRoomArt(state, loadSceneImpl);
+  const rooms = state.finalRoomCount ?? state.rooms.length;
+  // A generated crypt (no sample label) with fewer rooms than its length asked for.
+  const requested = cryptTargetFor(state.settings.length).rooms;
+  const shortened = !showSampleLabel && rooms < requested;
+  const nextRoom = room?.cleared === true ? state.rooms[roomIndex + 1] : undefined;
+  const canGoOn = nextRoom !== undefined && nextRoom.published && roomIndex + 1 < rooms;
+  // A new room moves focus to its title, so a keyboard or screen-reader user starts at the top.
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const shownRoom = useRef(state.currentRoomId);
+  useEffect(() => {
+    if (shownRoom.current === state.currentRoomId) return;
+    shownRoom.current = state.currentRoomId;
+    titleRef.current?.focus();
+  }, [state.currentRoomId]);
   const spiritCandleCount =
     (room?.spiritCandles.length ?? 0) + (state.atFinalDoor ? state.finalDoor.spiritCandles.length : 0);
   // A judged slot is no longer `open`, but its panel stays until the learner continues from the evidence.
@@ -117,11 +132,19 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
 
   return (
     <section className="room-screen" aria-labelledby="room-screen-title">
-      <h2 id="room-screen-title" className="room-screen__title">
+      <h2 id="room-screen-title" className="room-screen__title" ref={titleRef} tabIndex={-1}>
         {room === undefined ? '' : roomDisplayName(roomIndex)}
       </h2>
+      {rooms > 1 ? <p className="room-screen__position">{ROOM_PLAY_LABELS.roomOf(roomIndex + 1, rooms)}</p> : null}
+      {shortened && roomIndex === 0 ? (
+        <p className="room-screen__shortened" data-testid="crypt-shortened">
+          {ROOM_PLAY_LABELS.cryptShortened(rooms, requested)}
+        </p>
+      ) : null}
       {showSampleLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
-      <p className="room-screen__hints">{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}</p>
+      {state.settings.hintAllowance > 0 ? (
+        <p className="room-screen__hints">{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}</p>
+      ) : null}
       <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
       {sceneState.status === 'ready' && artRoom !== null && drawn.length > 0 ? (
         <ArtStage
@@ -177,6 +200,15 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
             );
           })}
         </ul>
+      ) : null}
+      {canGoOn ? (
+        <button
+          type="button"
+          className="room-screen__next-room"
+          onClick={() => dispatch({ type: 'enterRoom', roomId: nextRoom.roomId })}
+        >
+          {ROOM_PLAY_LABELS.nextRoom}
+        </button>
       ) : null}
       {selectFinalDoor(state).available && !state.atFinalDoor ? (
         <button

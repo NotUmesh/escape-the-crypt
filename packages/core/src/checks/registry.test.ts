@@ -12,14 +12,11 @@ import {
 } from './run-checks';
 import type { CheckFailure, CheckId } from './types';
 
-const PHASE_5_LOCK_TYPES = [
-  'bound-threads',
-  'cursed-object',
-  'combination-dial',
-] as const;
+// Deliberate flip (task 33.3): cursed-object is implemented. Only combination-dial is still unsupported.
+const PHASE_5_LOCK_TYPES = ['combination-dial'] as const;
 
-/** Lock types whose checks exist and that runChecks calls (bone-ordering flipped in task 29.2). */
-const IMPLEMENTED_TYPES: readonly string[] = ['rune-cipher', 'seance-board', 'bone-ordering'];
+/** Lock types whose checks exist and that runChecks calls (bone-ordering 29.2, bound-threads 31.2). */
+const IMPLEMENTED_TYPES: readonly string[] = ['rune-cipher', 'seance-board', 'bone-ordering', 'bound-threads'];
 
 // ---------------------------------------------------------------------------
 // Implementation status (Req 3.14)
@@ -153,7 +150,18 @@ function bone(overrides: Overrides = {}): CheckableQuestion {
   } as CheckableQuestion;
 }
 
+function threadsQ(n: number): CheckableQuestion {
+  const pair = (i: number) => ({ left: `L${i}`, right: `R${i}`, evidence: { paragraph: 1, quote: Q_ENERGY } });
+  return {
+    id: 'q', conceptId: 'c', role: 'primary', lockType: 'bound-threads',
+    prompt: 'According to your notes, connect each pair.',
+    pairs: Array.from({ length: n }, (_, i) => pair(i)),
+    explanation: '-',
+  } as CheckableQuestion;
+}
+
 const SYNTHETIC_CASES: Partial<Record<CheckId, () => readonly CheckFailure[]>> = {
+  'pair-count': () => synth([threadsQ(2)]),
   'duplicate-steps': () => synth([bone({ steps: ['Ribosomes', 'ribosomes  ', 'Nucleus'] })]),
   'duplicate-answer-in-room': duplicateAnswerCase,
   'quote-too-long': () =>
@@ -225,7 +233,7 @@ const SYNTHETIC_CASES: Partial<Record<CheckId, () => readonly CheckFailure[]>> =
   'lock-type-not-supported': () =>
     runChecks({
       ...SYNTH,
-      question: { id: 'q', conceptId: 'c', role: 'primary', lockType: 'bound-threads' },
+      question: { id: 'q', conceptId: 'c', role: 'primary', lockType: 'combination-dial' },
     }),
 };
 

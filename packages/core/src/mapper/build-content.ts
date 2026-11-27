@@ -1,5 +1,7 @@
 import type { AuthoringQuestion } from '../authoring/schema';
 import { mapBoneOrderingPayload } from '../locks/bone-ordering';
+import { mapBoundThreadsPayload } from '../locks/bound-threads';
+import { mapCursedObjectPayload } from '../locks/cursed-object';
 import type { CryptContentExcerpt } from './crypt-content';
 
 interface ChunkLookup {
@@ -56,6 +58,38 @@ export function buildContentEntry(
     return {
       prompt: question.prompt,
       options: Object.fromEntries(itemIds.map((id, i) => [id, question.steps[i] ?? ''])),
+      excerpts: question.evidence.map((e) => ({
+        chunkId: maps.chunksByParagraph.get(e.paragraph) ?? '',
+        quote: e.quote,
+      })),
+      explanation: question.explanation,
+    };
+  }
+  if (question.lockType === 'bound-threads') {
+    // Item text is addressable by the same generated IDs the payload uses; excerpts are per pair.
+    const mapped = mapBoundThreadsPayload(questionId, question.pairs);
+    const { leftIds, rightIds } = mapped?.payload ?? { leftIds: [], rightIds: [] };
+    return {
+      prompt: question.prompt,
+      options: Object.fromEntries([
+        ...leftIds.map((id, i) => [id, question.pairs[i]?.left ?? ''] as const),
+        ...rightIds.map((id, i) => [id, question.pairs[i]?.right ?? ''] as const),
+      ]),
+      excerpts: question.pairs.map((p) => ({
+        chunkId: maps.chunksByParagraph.get(p.evidence.paragraph) ?? '',
+        quote: p.evidence.quote,
+      })),
+      explanation: question.explanation,
+    };
+  }
+  if (question.lockType === 'cursed-object') {
+    // Item text is addressable by the same generated IDs the payload uses, in `items` order.
+    // The category rule is part of the prompt the learner reads; the judge does not use it.
+    const optionIds = mapCursedObjectPayload(questionId, question.items, question.answer)?.payload
+      .optionIds ?? [];
+    return {
+      prompt: question.prompt,
+      options: Object.fromEntries(optionIds.map((id, i) => [id, question.items[i] ?? ''])),
       excerpts: question.evidence.map((e) => ({
         chunkId: maps.chunksByParagraph.get(e.paragraph) ?? '',
         quote: e.quote,

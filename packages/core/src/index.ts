@@ -89,6 +89,7 @@ export {
   ROOM_START_ERROR_COPY,
   ESCAPE_COPY,
   GENERATION_COPY,
+  RUN_SETUP_COPY,
 } from './copy-room-play';
 export type { RoomStartErrorKind, GenerationFailureKind } from './copy-room-play';
 export { initial } from './runtime/initial';
@@ -132,6 +133,11 @@ export { answerKey, duplicateAnswerScan, keyedSpec } from './checks/duplicate-an
 export type { KeyedAnswer } from './checks/duplicate-answers';
 export { CHECK_VERSION } from './checks/registry';
 export { promptDigest } from './provider/prompt-digest';
+export { RUN_LENGTHS, cryptTargetFor, lengthAvailability } from './run-length';
+export type { CryptTarget, LengthAvailability, RunLength } from './run-length';
+export { DIFFICULTIES, runSettingsFor, showsRuneLetterCount } from './difficulty';
+export type { Difficulty } from './difficulty';
+export { lengthAvailabilityForNotes } from './pipeline/notes-capacity';
 export { toModelJsonSchema } from './provider/model-json-schema';
 export type { ModelJsonSchema, ModelJsonSchemaError } from './provider/model-json-schema';
 export type {

@@ -62,7 +62,7 @@ describe('useRoomBinding start', () => {
     expect(current.eventLog).toEqual([]);
   });
 
-  it('applies the four start Events in order with the fixed settings', () => {
+  it('applies the four start Events in order with the default settings', () => {
     mount(okBuild);
     act(() => current.dispatch({ type: 'startRun' }));
     expect(current.phase).toBe('running');
@@ -72,7 +72,8 @@ describe('useRoomBinding start', () => {
       { kind: 'CryptFinalised', finalRoomCount: 1 },
       { kind: 'RoomEntered', roomId },
     ]);
-    expect(current.state?.settings).toEqual({ length: 'short', difficulty: 'apprentice', hintAllowance: 2 });
+    // Short and Apprentice: the Apprentice starts with 3 hints (Requirement 5.1).
+    expect(current.state?.settings).toEqual({ length: 'short', difficulty: 'apprentice', hintAllowance: 3 });
     expect(current.startError).toBeNull();
   });
 

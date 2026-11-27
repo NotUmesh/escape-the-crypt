@@ -4,10 +4,13 @@ export type ArtRoom = 'burial-chamber' | 'library-of-bones' | 'sunken-chapel';
 
 const ART_ROOMS: readonly ArtRoom[] = ['burial-chamber', 'library-of-bones', 'sunken-chapel'];
 
-/** The art room for a 1-based room position. Positions outside 1..3 have no art. */
+/**
+ * The art room for a 1-based room position. The three art rooms repeat in order, so room 4 of a
+ * Long crypt is drawn as room 1 again. Positions below 1 or not whole have no art.
+ */
 export function artRoomForPosition(position: number): ArtRoom | null {
-  if (!Number.isInteger(position)) return null;
-  return ART_ROOMS[position - 1] ?? null;
+  if (!Number.isInteger(position) || position < 1) return null;
+  return ART_ROOMS[(position - 1) % ART_ROOMS.length] ?? null;
 }
 
 /**

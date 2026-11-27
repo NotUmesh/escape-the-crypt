@@ -72,6 +72,51 @@ export function boneDisplayOrder(steps: readonly string[]): readonly number[] {
 /** Item id shown to the reviewer for the step at display position `position` (0-based). */
 export const boneItemId = (position: number): string => `s${position + 1}`;
 
+/**
+ * The order in which a cursed-object reviewer is shown the four items: `result[d]` is the index
+ * into `items` (authoring order) of the item shown at position `d`. Deliberate deviation, as for
+ * bone ordering: the authored order is not shown, because it may reveal the key. The order is a
+ * plain sort on a hash of the item texts, so it depends only on the texts and never on which item
+ * is the odd one. No rotation is applied: the key is never an input, so an order that happens to
+ * match the authored order reveals nothing. Pure.
+ */
+export function cursedDisplayOrder(items: readonly string[]): readonly number[] {
+  return items
+    .map((text, index) => ({ index, h: fnv1a(text) }))
+    .sort((a, b) => a.h - b.h || a.index - b.index)
+    .map((e) => e.index);
+}
+
+/** Item id shown to the reviewer for the cursed-object item at display position `position`. */
+export const cursedItemId = (position: number): string => `c${position + 1}`;
+
+/**
+ * Display orders for the two bound-threads columns: `left[d]` / `right[d]` is the index into
+ * `pairs` (the key order) of the item shown at position `d`. Each column is ordered by a hash of
+ * its item texts, never by authoring order. If the result would line the columns up exactly as
+ * the key pairs them (L1 with R1, L2 with R2, ...), the right column is rotated by one so the
+ * display never hands over the pairing. Pure.
+ */
+export function threadsDisplayOrder(pairs: readonly { left: string; right: string }[]): {
+  readonly left: readonly number[];
+  readonly right: readonly number[];
+} {
+  const order = (texts: readonly string[]): number[] =>
+    texts
+      .map((text, index) => ({ index, h: fnv1a(text) }))
+      .sort((a, b) => a.h - b.h || a.index - b.index)
+      .map((e) => e.index);
+  const left = order(pairs.map((p) => p.left));
+  let right = order(pairs.map((p) => p.right));
+  if (pairs.length > 1 && right.every((v, i) => v === left[i])) {
+    right = [...right.slice(1), right[0] as number];
+  }
+  return { left, right };
+}
+
+export const threadsLeftId = (position: number): string => `L${position + 1}`;
+export const threadsRightId = (position: number): string => `R${position + 1}`;
+
 /** Full text of every cited chunk, once each, in first-cited order. Uncited ordinals are skipped. */
 export function citedChunks(
   question: AuthoringQuestion,
@@ -80,7 +125,9 @@ export function citedChunks(
   const ordinals =
     question.lockType === 'seance-board'
       ? question.options.map((o) => o.evidence.paragraph)
-      : question.evidence.map((e) => e.paragraph); // rune cipher and bone ordering
+      : question.lockType === 'bound-threads'
+        ? question.pairs.map((p) => p.evidence.paragraph)
+        : question.evidence.map((e) => e.paragraph); // rune cipher, bone ordering, cursed object
   const seen = new Set<string>();
   const out: { id: string; text: string }[] = [];
   for (const ordinal of ordinals) {
@@ -116,6 +163,29 @@ export function buildBlindReviewUserMessage(
     });
     lines.push(
       'Put the steps in the order the notes state. Set answer to the item ids in that order, separated by commas (for example "s2,s1,s3"), and set optionLabels to null. If the notes do not fix the order, answer unknown.',
+    );
+  }
+  if (question.lockType === 'bound-threads') {
+    const order = threadsDisplayOrder(question.pairs);
+    lines.push('Left column, each with an item id (listed in no particular order):');
+    order.left.forEach((i, position) => {
+      lines.push(`- id ${threadsLeftId(position)}: ${defang(question.pairs[i]!.left)}`);
+    });
+    lines.push('Right column, each with an item id (listed in no particular order):');
+    order.right.forEach((i, position) => {
+      lines.push(`- id ${threadsRightId(position)}: ${defang(question.pairs[i]!.right)}`);
+    });
+    lines.push(
+      'Match every left item to exactly one right item, using each right item once, as the notes state. Set answer to the full matching as pairs separated by commas (for example "L1=R3,L2=R1,L3=R2"), and set optionLabels to null. If the notes do not fix the matching, answer unknown.',
+    );
+  }
+  if (question.lockType === 'cursed-object') {
+    lines.push('Items, each with an item id (listed in no particular order):');
+    cursedDisplayOrder(question.items).forEach((i, position) => {
+      lines.push(`- id ${cursedItemId(position)}: ${defang(question.items[i] as string)}`);
+    });
+    lines.push(
+      'Exactly one item does not fit the category the question describes. Set answer to the id of that item. Then set optionLabels with one entry per item id: supported if the notes say the item fits the category, contradicted if the notes say it does not fit, unknown if the notes do not say. If the notes do not say which item is the odd one, answer unknown.',
     );
   }
   lines.push(buildNotesBlock(citedChunks(question, doc), doc.headingContext));

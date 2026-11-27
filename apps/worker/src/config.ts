@@ -11,7 +11,13 @@ export const PROVIDER_TIMEOUT_MS = 60_000;
 export const PROVIDER_RETRY_LIMIT = 1;
 export const ALLOWED_LOCK_TYPES: readonly LockType[] = ['rune-cipher', 'seance-board'];
 /** Lock types the evaluation CLI may request. Wider than ALLOWED_LOCK_TYPES, which the learner-notes path uses. */
-export const EVAL_ALLOWED_LOCK_TYPES: readonly LockType[] = ['rune-cipher', 'seance-board', 'bone-ordering'];
+export const EVAL_ALLOWED_LOCK_TYPES: readonly LockType[] = [
+  'rune-cipher',
+  'seance-board',
+  'bone-ordering',
+  'bound-threads',
+  'cursed-object',
+];
 
 /** Sweep cadence: the design requires at least once a minute. */
 export const SWEEP_INTERVAL_MS = 60_000;

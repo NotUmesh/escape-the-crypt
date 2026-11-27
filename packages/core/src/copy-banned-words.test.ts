@@ -17,6 +17,7 @@ import {
   FINAL_DOOR_BUTTON_TEXT,
   FINAL_DOOR_STATUS_LABELS,
   GENERATION_COPY,
+  RUN_SETUP_COPY,
   LOCK_OBJECT_NAMES,
   ROOM_DISPLAY_NAMES,
   SLOT_STATUS_WORDS,
@@ -126,6 +127,12 @@ describe('Room-play copy', () => {
       ROOM_PLAY_LABELS.spiritCandlesLit(1),
       ROOM_PLAY_LABELS.spiritCandlesLit(3),
       ...collectStrings(GENERATION_COPY),
+      ...collectStrings(RUN_SETUP_COPY),
+      ROOM_PLAY_LABELS.runeLetterCount(1),
+      ROOM_PLAY_LABELS.runeLetterCount(12),
+      ROOM_PLAY_LABELS.roomOf(2, 4),
+      ROOM_PLAY_LABELS.cryptShortened(1, 3),
+      ROOM_PLAY_LABELS.cryptShortened(2, 4),
     ];
     for (const s of strings) {
       expect(s.length, s).toBeGreaterThan(0);

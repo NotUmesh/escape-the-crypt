@@ -1,0 +1,159 @@
+{
+  "checkVersion": "2026-11-27.4",
+  "entries": [
+    {
+      "digest": "578fcb38ab1e1b194234f9b5938d2aa1b80dce6c0afcccbb72fcc786782d163b",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Chambers of the heart",
+              "chunkIds": [
+                "chk_62a99254e222_2"
+              ],
+              "quotes": [
+                "The two upper chambers are the right atrium and the left atrium."
+              ]
+            },
+            {
+              "label": "Heart valves",
+              "chunkIds": [
+                "chk_62a99254e222_5"
+              ],
+              "quotes": [
+                "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "02830f02366c6e7662f63f00f51c4cbdfdc6510b0c39d45232a4d656633b91d2",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes name the chambers.",
+          "primary": {
+            "lockType": "cursed-object",
+            "prompt": "According to your notes, three of these are chambers of the heart. Which one is not?",
+            "items": [
+              "Left atrium",
+              "Right ventricle",
+              "Aorta",
+              "Right atrium"
+            ],
+            "answer": "Aorta",
+            "categoryRule": "The heart's four chambers are the right and left atria and the right and left ventricles.",
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_2",
+                "quote": "The two upper chambers are the right atrium and the left atrium."
+              },
+              {
+                "chunkId": "chk_62a99254e222_2",
+                "quote": "The aorta is not a chamber of the heart"
+              }
+            ],
+            "explanation": "Your notes say the aorta is the largest artery, not a chamber."
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "4154ad55b39a22930ef79e27f4019fa83c85d593aee6dd6414d2a302a5dd91d0",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state this plainly.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, the valves between the atria and ventricles are called the ______ valves.",
+            "answer": "atrioventricular",
+            "aliases": [
+              "AV"
+            ],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_62a99254e222_5",
+                "quote": "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+              }
+            ],
+            "explanation": "Your notes call them the atrioventricular (AV) valves.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "a",
+              "length": 16
+            }
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "a63e87a8945d401f1e561268f0d67d0e1689ac0738dee79271f99d42b39a3eff",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "c3",
+          "optionLabels": [
+            {
+              "optionId": "c1",
+              "label": "supported"
+            },
+            {
+              "optionId": "c2",
+              "label": "supported"
+            },
+            {
+              "optionId": "c3",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c4",
+              "label": "supported"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "92e70534ea94b8767382fb907e6625fb66575983ad972584b5456fea7f48c53c",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "atrioventricular",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    }
+  ]
+}

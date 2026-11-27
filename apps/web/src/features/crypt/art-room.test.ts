@@ -8,11 +8,13 @@ const stateOf = (ids: readonly string[], current: string): StateLike =>
   ({ rooms: roomsOf(ids), currentRoomId: current }) as unknown as StateLike;
 
 describe('artRoomForPosition', () => {
-  it('maps positions 1, 2, 3 and nothing else', () => {
+  it('maps positions 1, 2, 3 and repeats them for a fourth room', () => {
     expect(artRoomForPosition(1)).toBe('burial-chamber');
     expect(artRoomForPosition(2)).toBe('library-of-bones');
     expect(artRoomForPosition(3)).toBe('sunken-chapel');
-    for (const p of [0, 4, -1, 1.5, Number.NaN]) expect(artRoomForPosition(p)).toBeNull();
+    // A Long crypt has four rooms; the fourth reuses the first room's art (no new art).
+    expect(artRoomForPosition(4)).toBe('burial-chamber');
+    for (const p of [0, -1, 1.5, Number.NaN]) expect(artRoomForPosition(p)).toBeNull();
   });
 });
 
@@ -41,10 +43,11 @@ describe('Property 2: The Art_Room is chosen by room position only', () => {
       ),
     );
   });
-  it('is non-null exactly for positions 1 to 3', () => {
+  it('is non-null exactly for positions from 1, cycling through the three art rooms', () => {
     fc.assert(
       fc.property(fc.integer({ min: -5, max: 20 }), (p) => {
-        expect(artRoomForPosition(p) !== null).toBe(p >= 1 && p <= 3);
+        expect(artRoomForPosition(p) !== null).toBe(p >= 1);
+        if (p > 3) expect(artRoomForPosition(p)).toBe(artRoomForPosition(p - 3));
       }),
     );
   });

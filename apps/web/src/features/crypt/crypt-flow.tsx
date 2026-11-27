@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ENTER_CRYPT_LABEL, GENERATION_COPY, ROOM_START_ERROR_COPY, SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
-import type { RoomStartErrorKind, State } from '@escape-the-crypt/core';
+import type { RoomStartErrorKind, RunSettings, State } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
 import { usePersistedRoomBinding } from '../../state/persisted-room';
+import { RUN_SETTINGS } from '../../state/room-binding';
 import type { BuildCrypt, BuiltCrypt, RoomBinding, StartError } from '../../state/room-binding';
 import { buildSampleCrypt } from '../../state/sample-crypt-source';
 import { isGenerating } from '../generate/generation-flow';
@@ -25,6 +26,8 @@ import { createIdbStore } from '../ingest/notes-store-idb';
 import type { RestoreDeps, RestoredRun } from '../../state/storage/restore-run';
 import { ResumeEntry } from '../start/resume-entry';
 import { StartView } from './start-view';
+import { SettingsSlot } from '../desk/settings-slot';
+import { useRunChoice } from '../desk/use-run-choice';
 import type { SceneLoader } from './use-scene';
 
 export interface CryptFlowProps {
@@ -72,10 +75,13 @@ function StartFailed({
 function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps }: CryptFlowProps): ReactNode {
   // Which crypt startRun builds: the generated one once it is ready, else the sample.
   const playRef = useRef<BuiltCrypt | null>(null);
-  const buildCrypt = useCallback<BuildCrypt>(
-    () => (playRef.current === null ? buildSampleCrypt() : { ok: true, value: playRef.current }),
-    [],
-  );
+  // The sample's settings are read when the run starts, so the latest difficulty choice applies.
+  const sampleSettings = useRef(() => RUN_SETTINGS);
+  const buildCrypt = useCallback<BuildCrypt>(() => {
+    if (playRef.current !== null) return { ok: true, value: playRef.current };
+    const sample = buildSampleCrypt();
+    return sample.ok ? { ok: true, value: { ...sample.value, settings: sampleSettings.current() } } : sample;
+  }, []);
   const binding = useBinding(buildCrypt);
   const origin = resolveOrigin(generate);
   const client = useMemo(() => resolveClient(generate, origin), [generate, origin]);
@@ -86,6 +92,8 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     newKey: generate?.newKey,
   });
   const canGenerate = origin !== null && notesText !== undefined;
+  const choice = useRunChoice(notesText, canGenerate);
+  sampleSettings.current = () => choice.settingsFor('sample');
   const { state, notices, phase, startError } = binding;
   const [autopsyRequested, setAutopsyRequested] = useState(false);
   // View-only flag: true once the learner closed the Evidence_Panel of the escaping answer. Holds no game state.
@@ -162,8 +170,9 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   );
   // Start again on the same crypt: a generated crypt is rebuilt from its notes, else the sample plays.
   const onStartAgainSaved = useCallback(
-    (crypt: BuiltCrypt | null): void => {
-      playRef.current = crypt;
+    (crypt: BuiltCrypt | null, settings?: RunSettings): void => {
+      playRef.current = crypt === null || settings === undefined ? crypt : { ...crypt, settings };
+      if (crypt === null && settings !== undefined) sampleSettings.current = () => settings;
       dispatch({ type: 'startRun' });
     },
     [dispatch],
@@ -172,11 +181,12 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     <StartView
       resume={<ResumeEntry deps={deps} onContinue={onResume} onStartAgain={onStartAgainSaved} />}
       onEnter={startSample}
+      settings={<SettingsSlot value={choice.value} onChange={choice.onChange} availability={choice.availability} />}
       generation={
         canGenerate
           ? {
               state: generationState,
-              onGenerate: () => generation.start(notesText, notesDigest),
+              onGenerate: () => generation.start(notesText, notesDigest, choice.settingsFor('generated')),
               onCancel: generation.cancel,
               onPlaySample: startSample,
             }

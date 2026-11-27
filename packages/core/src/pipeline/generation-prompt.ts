@@ -43,6 +43,19 @@ const LOCK_RULES: Readonly<Partial<Record<LockType, string>>> = {
     '- Never use this type for a cycle or a process the notes describe as having no fixed starting point.',
     '- At least one quote must contain the words that show the order (e.g. "first", "then", "finally", or a number).',
   ].join('\n'),
+  'bound-threads': [
+    'bound-threads (match 3 or 4 pairs): use only when the notes state explicit pairings that are strictly one-to-one, with no left item or right item shared by two pairs.',
+    '- pairs lists 3 or 4 { left, right } entries. Every pairing must be stated in the notes; never infer a pairing the notes do not state.',
+    '- Never use this type when one item belongs to two pairs, or when the notes group several items under one label.',
+    '- Every pair is supported by the quoted evidence, each quote with its own chunk ID.',
+  ].join('\n'),
+  'cursed-object': [
+    'cursed-object (find the odd one out): use only when the notes give an explicit category and exactly one item outside it, with the exclusion supported by the quoted evidence.',
+    '- items lists exactly 4 items: three that the notes place in the category and one that the notes say is outside it.',
+    '- answer is the odd item\'s text, copied exactly from items. categoryRule states the category.',
+    '- Never infer the odd item from outside knowledge. If the notes do not say the item is outside the category, do not use this type.',
+    '- Every item is supported by the quoted evidence, each quote with its own chunk ID.',
+  ].join('\n'),
 };
 
 export function buildGenerationSystemPrompt(allowed: readonly LockType[]): string {

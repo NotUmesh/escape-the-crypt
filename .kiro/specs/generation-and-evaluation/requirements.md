@@ -156,7 +156,7 @@ Out of scope: `eval/holdout` (not read, not referenced, not requested), streamin
 1. IF a rune cipher prompt does not contain exactly one blank, THEN THE Code_Check SHALL fail with `rune-needs-one-blank`.
 2. IF the rune cipher answer does not appear in the answer Quote, THEN THE Code_Check SHALL fail with `answer-not-in-quote`.
 3. IF the rune cipher answer appears in the visible prompt text outside the blank, THEN THE Code_Check SHALL fail with `answer-leak-in-prompt`.
-4. WHEN a room is assembled, THE Leak_Scan SHALL fail with `answer-leak-in-room` for any rune cipher answer that appears in another concept's visible text in that room.
+4. WHEN a crypt is assembled, THE Leak_Scan SHALL fail with `answer-leak-in-room` for any rune cipher answer that appears in another concept's visible text in that crypt.
 4a. WHEN a crypt is assembled, THE Room_Assembly SHALL NOT place two questions of different concepts whose answers are equal after normalisation (`duplicate-answer-in-room`): it prefers the concept's alternate, else leaves the question out.
 5. THE rune cipher check SHALL apply the same normalisation that the rune judge in `packages/core/src/locks/rune-cipher.ts` applies, so that a check and the judge agree on whether an answer matches.
 6. IF a rune cipher question has a missing or empty answer, THEN THE Authoring_Schema SHALL reject it before any Code_Check runs.

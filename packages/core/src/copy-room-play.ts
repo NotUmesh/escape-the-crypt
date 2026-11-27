@@ -123,6 +123,14 @@ export const ROOM_PLAY_LABELS = {
   chooseOption: 'Choose an answer first.',
   runeHint: (firstLetter: string, length: number): string =>
     `Hint: the answer starts with "${firstLetter}" and has ${length} letters.`,
+  /** Shown on a rune tablet from the start for Apprentice and Gravedigger. */
+  runeLetterCount: (length: number): string => (length === 1 ? 'The answer has 1 letter.' : `The answer has ${length} letters.`),
+  nextRoom: 'Go to the next room',
+  /** The room count a crypt has, in a heading-style line under the room title. */
+  roomOf: (position: number, total: number): string => `Room ${position} of ${total}`,
+  /** When the notes could not fill the chosen length. */
+  cryptShortened: (actual: number, requested: number): string =>
+    `Your notes had enough for ${actual === 1 ? '1 room' : `${actual} rooms`}, so this crypt has ${actual} instead of ${requested}.`,
   seanceGroupLabel: 'Choose one answer',
   removedByHint: 'Removed by the hint',
   wrongOpening: "Not this time. Here's what your notes say.",
@@ -183,6 +191,26 @@ export const SLOT_STATUS_WORDS: Readonly<Record<SlotStatus, string>> = {
 /** Learner-visible failures of a generation job (generation-and-evaluation Requirement 29.9). */
 export type GenerationFailureKind = 'expired' | 'budget-exhausted' | 'not-enough-material' | 'generation-failed';
 /** Copy for building a crypt from the learner's own notes. */
+/** The length and difficulty choice before a crypt is made. Difficulty never changes the questions. */
+export const RUN_SETUP_COPY = {
+  lengthLegend: 'How long a crypt?',
+  lengthNote: 'A longer crypt takes a little longer to make.',
+  lengths: {
+    short: { label: 'Short', detail: '2 rooms' },
+    standard: { label: 'Standard', detail: '3 rooms' },
+    long: { label: 'Long', detail: '4 rooms' },
+  },
+  /** Why the longer lengths are switched off for these notes. */
+  onlyShort: 'Your notes are short enough for a Short crypt.',
+  difficultyLegend: 'How many hints?',
+  difficulties: {
+    apprentice: { label: 'Apprentice', detail: '3 hints. Rune tablets show how many letters the answer has.' },
+    gravedigger: { label: 'Gravedigger', detail: '2 hints. Rune tablets show how many letters the answer has.' },
+    lich: { label: 'Lich', detail: 'No hints. Rune tablets keep the letter count to themselves.' },
+  },
+  difficultyNote: 'The questions are the same at every difficulty.',
+} as const;
+
 export const GENERATION_COPY = {
   generateButton: 'Generate from my notes',
   progress: 'Building your crypt from your notes. This can take a minute or two.',

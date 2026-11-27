@@ -3,12 +3,16 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   CHECK_VERSION,
+  RUN_LENGTHS,
+  cryptTargetFor,
   DEFAULT_ASSEMBLY_POLICY,
   LEGACY_ASSEMBLY_POLICY,
   makeMockLedger,
   parseCassetteFile,
   type AssemblyPolicy,
   type CassetteFile,
+  type RunLength,
+  type LockType,
   type Provider,
   type ProviderUsage,
 } from '@escape-the-crypt/core';
@@ -62,8 +66,42 @@ function positive(value: string | undefined): number | undefined {
   return Number.isFinite(n) && n >= 0 ? n : undefined;
 }
 
-function settingsFor(modelId: string, prices: TokenPrices): PipelineSettings {
+/** Exhaustive over the six Lock_Types: adding a type to core fails the type-check here. */
+const LOCK_TYPE_NAMES: Readonly<Record<LockType, true>> = {
+  'rune-cipher': true,
+  'seance-board': true,
+  'bone-ordering': true,
+  'bound-threads': true,
+  'cursed-object': true,
+  'combination-dial': true,
+};
+
+export type LockTypeListError =
+  | { readonly kind: 'invalid-lock-type'; readonly value: string }
+  | { readonly kind: 'empty-lock-type-list' };
+
+function isLockType(value: string): value is LockType {
+  return Object.prototype.hasOwnProperty.call(LOCK_TYPE_NAMES, value);
+}
+
+/** Parses `--allowed-lock-types`. Absent means the evaluation default. Commas or spaces separate (PowerShell passes an unquoted `a,b` as `a b`). */
+export function parseAllowedLockTypes(
+  raw: string | undefined,
+): { readonly ok: true; readonly value: readonly LockType[] } | { readonly ok: false; readonly error: LockTypeListError } {
+  if (raw === undefined) return { ok: true, value: EVAL_ALLOWED_LOCK_TYPES };
+  const parts = raw.split(/[\s,]+/).filter(Boolean);
+  if (parts.length === 0) return { ok: false, error: { kind: 'empty-lock-type-list' } };
+  const out: LockType[] = [];
+  for (const part of parts) {
+    if (!isLockType(part)) return { ok: false, error: { kind: 'invalid-lock-type', value: part } };
+    if (!out.includes(part)) out.push(part);
+  }
+  return { ok: true, value: out };
+}
+
+export function settingsFor(modelId: string, prices: TokenPrices, allowedLockTypes: readonly LockType[] = EVAL_ALLOWED_LOCK_TYPES, length?: RunLength): PipelineSettings {
   return {
+    ...(length === undefined ? {} : { target: cryptTargetFor(length) }),
     modelId,
     temperature: GENERATION_TEMPERATURE,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
@@ -71,7 +109,7 @@ function settingsFor(modelId: string, prices: TokenPrices): PipelineSettings {
     retryLimit: PROVIDER_RETRY_LIMIT,
     worstCaseUsd: worstCaseUsd({ inputTokensEstimate: INPUT_TOKENS_BOUND, maxOutputTokens: MAX_OUTPUT_TOKENS }, prices),
     costOf: (usage: ProviderUsage) => costOfUsage(usage, prices),
-    allowedLockTypes: EVAL_ALLOWED_LOCK_TYPES,
+    allowedLockTypes,
     concurrency: EVAL_CONCURRENCY,
   };
 }
@@ -88,8 +126,9 @@ function loadNotes(notesDir: string, only: string | undefined): DevNote[] {
 
 const USAGE = [
   'Usage (from the repository root):',
-  '  pnpm --filter @escape-the-crypt/worker eval record --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <name.json> [--only dev-01,dev-02]',
-  '  pnpm --filter @escape-the-crypt/worker eval replay --model <id> [--policy default|legacy|both] [--inspect [seance-board|rune-cipher]] [--only ...]',
+  '  pnpm --filter @escape-the-crypt/worker eval record --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <name.json> [--only dev-01,dev-02] [--allowed-lock-types rune-cipher,seance-board]',
+  '  pnpm --filter @escape-the-crypt/worker eval replay --model <id> [--policy default|legacy|both] [--length short|standard|long] [--inspect [seance-board|rune-cipher]] [--only ...] [--allowed-lock-types ...]',
+  '--allowed-lock-types takes a comma-separated list of rune-cipher, seance-board, bone-ordering, bound-threads, cursed-object, combination-dial. Default: the evaluation list in config.ts. It applies to record and replay.',
   'record reads OPENAI_API_KEY from the environment and never writes it anywhere.',
 ].join('\n');
 
@@ -99,6 +138,16 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
   const paths = evaluationPaths(repoRoot);
   const modelId = args['model'];
   if ((mode !== 'record' && mode !== 'replay') || modelId === undefined) {
+    io.out(USAGE);
+    return 1;
+  }
+  const lockTypes = parseAllowedLockTypes(args['allowed-lock-types']);
+  if (!lockTypes.ok) {
+    io.out(
+      lockTypes.error.kind === 'invalid-lock-type'
+        ? `Unknown lock type "${lockTypes.error.value}". Nothing was called.`
+        : 'The lock type list is empty. Nothing was called.',
+    );
     io.out(USAGE);
     return 1;
   }
@@ -113,6 +162,7 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
 
   if (mode === 'replay') {
     const prices = { inputUsdPerMTok: 0, outputUsdPerMTok: 0 };
+    const length = RUN_LENGTHS.find((l) => l === args['length']);
     const which = args['policy'] ?? 'default';
     const policies: [string, AssemblyPolicy][] =
       which === 'both'
@@ -129,7 +179,7 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
         saveCassette: () => undefined,
         live: null,
         ledger: makeMockLedger({ dailyCapUsd: 1_000_000 }),
-        settings: settingsFor(modelId, prices),
+        settings: settingsFor(modelId, prices, lockTypes.value, length),
         providerName: 'openai',
         checkVersion: CHECK_VERSION,
         policy,
@@ -175,7 +225,7 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
   const budget = capped.value;
   io.out(`Budget: cap $${budget.capUsd.toFixed(2)}, spent before $${budget.spentBeforeUsd.toFixed(4)}, remaining $${budget.remainingUsd().toFixed(4)}.`);
   const live: Provider = makeOpenAiProvider({ apiKey });
-  const settings = settingsFor(modelId, { inputUsdPerMTok: prices.inputUsdPerMTok, outputUsdPerMTok: prices.outputUsdPerMTok });
+  const settings = settingsFor(modelId, { inputUsdPerMTok: prices.inputUsdPerMTok, outputUsdPerMTok: prices.outputUsdPerMTok }, lockTypes.value);
   mkdirSync(paths.cassettesDir, { recursive: true });
   const run = await runDevSet({
     notes,

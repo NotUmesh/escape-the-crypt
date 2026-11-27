@@ -13,6 +13,13 @@ export interface LockPanelContextValue {
   readonly content: CryptContent;
   /** The slot's `appliedHint`; a panel ignores it unless it is for the slot's current question. */
   readonly appliedHintFor: (slotId: string) => LockSlotState['appliedHint'];
+  /**
+   * The answer's letter count for a rune question, from its hint data, or null. Never the answer
+   * text. Absent in contexts that predate it (tests), which reads as no count.
+   */
+  readonly answerLengthFor?: (questionId: string) => number | null;
+  /** True when the run's difficulty shows the rune letter count from the start. */
+  readonly showAnswerLength?: boolean;
 }
 
 export const LockPanelContext = createContext<LockPanelContextValue | null>(null);

@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { checkWordCount, countWords, z } from '@escape-the-crypt/core';
+import { RUN_LENGTHS, checkWordCount, countWords, z } from '@escape-the-crypt/core';
 import type { JobAckResponse, JobStatusResponse } from '@escape-the-crypt/core';
 import { requestDigest, sha256Hex, type Job, type JobStore, type JobView } from '../jobs/job-store';
 import { readBody } from './body';
@@ -19,7 +19,7 @@ const SESSION_TOKEN_PATTERN = /^[A-Za-z0-9_-]{22,128}$/;
 const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
 const MAX_JOB_ID_LENGTH = 128;
 
-export const RUN_LENGTHS = ['short', 'standard', 'long'] as const;
+export { RUN_LENGTHS };
 
 /** Notes text and run length only (Req 29.7). Anything else is rejected. */
 export const createJobBodySchema = z.strictObject({
@@ -93,6 +93,7 @@ export async function handleCreateJob(
     sessionToken: token,
     idempotencyKey: key,
     requestDigest: requestDigest(parsed.data),
+    runLength: parsed.data.runLength,
     notesText: parsed.data.notesText,
   });
   switch (created.kind) {

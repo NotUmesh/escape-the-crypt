@@ -109,6 +109,7 @@ export async function runDevSet(deps: DevSetDeps): Promise<DevSetRun> {
         ? {
             slots: result.value.manifest.rooms.flatMap((r) =>
               r.lockSlots.map((s) => ({
+                roomId: r.roomId,
                 stationType: s.stationType,
                 conceptId: s.conceptId,
                 primaryQuestionId: s.primaryQuestion.questionId,

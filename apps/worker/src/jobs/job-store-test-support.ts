@@ -47,6 +47,7 @@ export function input(overrides: Partial<CreateJobInput> = {}): CreateJobInput {
     sessionToken: TOKEN_A,
     idempotencyKey: KEY_1,
     requestDigest: DIGEST_1,
+    runLength: 'short',
     notesText: NOTES,
     ...overrides,
   };

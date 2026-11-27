@@ -7,6 +7,8 @@ export interface FakeWorker {
   readonly startKeys: string[];
   /** Notes text per `startJob` call. */
   readonly startTexts: string[];
+  /** Run length per `startJob` call (the client's default when none was passed). */
+  readonly startLengths: string[];
   /** Job ids, one per `getJob` call. */
   readonly polls: string[];
   /** Job ids, one per cancelJob call. */
@@ -29,14 +31,16 @@ function isJob(step: PollStep): step is JobState {
 export function fakeWorker(polls: readonly PollStep[], starts: readonly StartStep[] = ['ok']): FakeWorker {
   const startKeys: string[] = [];
   const startTexts: string[] = [];
+  const startLengths: string[] = [];
   const pollLog: string[] = [];
   const cancelLog: string[] = [];
   const next = <T,>(steps: readonly T[], count: number): T => steps[Math.min(count, steps.length - 1)] as T;
   const client: WorkerClient = {
-    startJob(notesText, key): Promise<WorkerResult<StartedJob>> {
+    startJob(notesText, key, runLength = 'short'): Promise<WorkerResult<StartedJob>> {
       const step = next(starts, startKeys.length);
       startKeys.push(key);
       startTexts.push(notesText);
+      startLengths.push(runLength);
       return Promise.resolve(step === 'ok' ? { ok: true, value: ackBody('queued') } : { ok: false, error: step });
     },
     getJob(jobId): Promise<WorkerResult<JobState>> {
@@ -48,5 +52,5 @@ export function fakeWorker(polls: readonly PollStep[], starts: readonly StartSte
       cancelLog.push(jobId);
     },
   };
-  return { client, startKeys, startTexts, polls: pollLog, cancels: cancelLog };
+  return { client, startKeys, startTexts, startLengths, polls: pollLog, cancels: cancelLog };
 }

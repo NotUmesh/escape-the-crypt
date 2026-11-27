@@ -1,5 +1,7 @@
 import type { AuthoringQuestion } from '../authoring/schema';
 import { boneOrderingChecks } from '../locks/bone-ordering-checks';
+import { boundThreadsChecks } from '../locks/bound-threads-checks';
+import { cursedObjectChecks } from '../locks/cursed-object-checks';
 import { runeCipherChecks } from '../locks/rune-cipher-checks';
 import { checkSeanceBoard } from '../locks/seance-board-checks';
 import type { Chunk } from '../types';
@@ -10,15 +12,14 @@ import { leakScanRoom, type LeakScanRoomEntry } from './leak-scan';
 import type { CheckFailure } from './types';
 
 /**
- * A generated question of a lock type whose checks do not exist yet
- * (bone ordering, bound threads, cursed object, combination dial).
+ * A generated question of a lock type whose checks do not exist yet (combination dial).
  * Only identity fields are read; the rest of the payload is ignored.
  */
 export interface UnsupportedQuestion {
   readonly id: string;
   readonly conceptId: string;
   readonly role: 'primary' | 'alternate';
-  readonly lockType: 'bound-threads' | 'cursed-object' | 'combination-dial';
+  readonly lockType: 'combination-dial';
 }
 
 /** Any question runChecks accepts. Narrow on `lockType`. */
@@ -46,10 +47,16 @@ export interface RunChecksInput extends EvidenceContext {
   readonly siblings?: readonly CheckableQuestion[];
 }
 
-// Every AuthoringQuestion arm (rune cipher, séance board, bone ordering) has checks.
-// Each later lock type's task widens this with its own schema arm.
+// Every AuthoringQuestion arm (rune cipher, séance board, bone ordering, bound threads, cursed object)
+// has checks. The combination-dial task widens this with its own schema arm.
 function isSupported(q: CheckableQuestion): q is AuthoringQuestion {
-  return q.lockType === 'rune-cipher' || q.lockType === 'seance-board' || q.lockType === 'bone-ordering';
+  return (
+    q.lockType === 'rune-cipher' ||
+    q.lockType === 'seance-board' ||
+    q.lockType === 'bone-ordering' ||
+    q.lockType === 'bound-threads' ||
+    q.lockType === 'cursed-object'
+  );
 }
 
 /** Every learner-visible text of a question, for banned-phrase scanning and the leak scan. */
@@ -57,6 +64,10 @@ export function visibleTextOf(q: CheckableQuestion): readonly string[] {
   if (q.lockType === 'rune-cipher') return [q.prompt, q.explanation];
   if (q.lockType === 'seance-board') return [q.prompt, ...q.options.map((o) => o.text), q.explanation];
   if (q.lockType === 'bone-ordering') return [q.prompt, ...q.steps, q.explanation];
+  if (q.lockType === 'bound-threads') {
+    return [q.prompt, ...q.pairs.flatMap((p) => [p.left, p.right]), q.explanation];
+  }
+  if (q.lockType === 'cursed-object') return [q.prompt, ...q.items, q.explanation];
   return [];
 }
 
@@ -111,7 +122,7 @@ function alternateChecks(
 /**
  * Runs every implemented Code_Check for one question. Pure, total and deterministic:
  * the same input gives the same failures in the same order, with duplicates removed.
- * Questions of the four later lock types return exactly one `lock-type-not-supported`.
+ * Questions of the later lock type (combination dial) return exactly one `lock-type-not-supported`.
  * `answer-leak-in-room` is room-level; see `runRoomChecks`.
  */
 export function runChecks(input: RunChecksInput): readonly CheckFailure[] {
@@ -134,6 +145,12 @@ export function runChecks(input: RunChecksInput): readonly CheckFailure[] {
   } else if (question.lockType === 'bone-ordering') {
     // Includes each evidence quote's own checks.
     failures.push(...boneOrderingChecks(question, { chunks, paragraphChunkIds }));
+  } else if (question.lockType === 'bound-threads') {
+    // Includes each pair's quote checks.
+    failures.push(...boundThreadsChecks(question, { chunks, paragraphChunkIds }));
+  } else if (question.lockType === 'cursed-object') {
+    // Includes each evidence quote's own checks.
+    failures.push(...cursedObjectChecks(question, { chunks, paragraphChunkIds }));
   } else {
     // Includes each option's quote checks.
     failures.push(...checkSeanceBoard(question, { chunks, paragraphChunkIds }));

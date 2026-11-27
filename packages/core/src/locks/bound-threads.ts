@@ -10,6 +10,41 @@ export interface BoundThreadsSubmission {
   readonly pairs: readonly ThreadPair[];
 }
 
+export interface MappedBoundThreads {
+  readonly payload: BoundThreadsQuestion;
+  readonly hintEffect: Extract<HintEffectSpec, { kind: 'tie-thread' }>;
+}
+
+/**
+ * Additive mapper helper. One generated item ID per side and pair
+ * (`<questionId>-left-<i>`, `<questionId>-right-<i>`); `keyPairs` follow authoring order.
+ * An authored hint names pair texts: it is accepted when its two texts, in either order, match
+ * the left and right text of one authored pair, and it then pins that pair. An absent hint
+ * pins the first pair. A disagreeing hint, or no pairs, returns `null`. Pure, never throws.
+ */
+export function mapBoundThreadsPayload(
+  questionId: string,
+  pairs: readonly { readonly left: string; readonly right: string }[],
+  authoredHint?: readonly [string, string],
+): MappedBoundThreads | null {
+  const leftIds = pairs.map((_, i) => `${questionId}-left-${i}`);
+  const rightIds = pairs.map((_, i) => `${questionId}-right-${i}`);
+  const keyPairs = pairs.map((_, i): ThreadPair => [leftIds[i] ?? '', rightIds[i] ?? '']);
+  let index = 0;
+  if (authoredHint !== undefined) {
+    const [a, b] = authoredHint;
+    index = pairs.findIndex(
+      (p) => (p.left === a && p.right === b) || (p.left === b && p.right === a),
+    );
+  }
+  const pinned = keyPairs[index];
+  if (index < 0 || pinned === undefined) return null;
+  return {
+    payload: { leftIds, rightIds, keyPairs },
+    hintEffect: { kind: 'tie-thread', pair: pinned },
+  };
+}
+
 const SEPARATOR = '\u0000';
 
 function pairKey(pair: ThreadPair): string {

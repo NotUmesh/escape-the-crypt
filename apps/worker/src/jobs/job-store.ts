@@ -1,5 +1,5 @@
-﻿import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
-import type { JobFailureKindName, JobStatusName, PipelineResult } from '@escape-the-crypt/core';
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import type { JobFailureKindName, JobStatusName, PipelineResult, RunLength } from '@escape-the-crypt/core';
 
 /** `cancelling` is non-terminal: cancel was requested and the pipeline has not returned yet. */
 export type JobStatus = JobStatusName;
@@ -44,6 +44,8 @@ export interface Job {
   /** Set when the status first becomes terminal. Starts the Job_TTL. */
   readonly terminalAtMs: number | null;
   readonly failure: JobFailureKind | null;
+  /** Sets the crypt size the pipeline aims for (`cryptTargetFor`). */
+  readonly runLength: RunLength;
   /** Needed to run the pipeline. Deleted at the Job_TTL. */
   readonly notesText: string | null;
   /** Null until completed. Deleted at the Job_TTL. */
@@ -55,6 +57,7 @@ export interface CreateJobInput {
   readonly idempotencyKey: string;
   /** Computed by the HTTP layer over the validated body (see `requestDigest`). */
   readonly requestDigest: string;
+  readonly runLength: RunLength;
   readonly notesText: string;
 }
 
@@ -183,6 +186,7 @@ export function createJobStore(config: JobStoreConfig): JobStore {
         createdAtMs: config.now(),
         terminalAtMs: null,
         failure: null,
+        runLength: input.runLength,
         notesText: input.notesText,
         result: null,
       };

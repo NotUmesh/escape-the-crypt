@@ -8,6 +8,8 @@ export interface QuestionControlsProps {
   readonly remainingHints: number;
   /** True while the slot's current question already has an Applied_Hint. */
   readonly hintApplied: boolean;
+  /** The run's hint allowance. A run with none (Lich) shows no hint control at all. Defaults to 1. */
+  readonly hintAllowance?: number;
   readonly dispatch: (action: RoomAction) => void;
   /** Called after Skip is dispatched, so the room screen closes the panel. */
   readonly onClose: () => void;
@@ -18,6 +20,7 @@ export function QuestionControls({
   slotId,
   remainingHints,
   hintApplied,
+  hintAllowance = 1,
   dispatch,
   onClose,
 }: QuestionControlsProps): ReactNode {
@@ -28,17 +31,21 @@ export function QuestionControls({
   return (
     <div className="question-controls">
       <div className="question-controls__buttons">
-        <button
-          type="button"
-          disabled={noHints || hintApplied}
-          aria-describedby={countId}
-          onClick={() => dispatch({ type: 'useHint', slotId })}
-        >
-          {ROOM_PLAY_LABELS.hint}
-        </button>
-        <span id={countId} className="question-controls__count">
-          {countText}
-        </span>
+        {hintAllowance > 0 ? (
+          <>
+            <button
+              type="button"
+              disabled={noHints || hintApplied}
+              aria-describedby={countId}
+              onClick={() => dispatch({ type: 'useHint', slotId })}
+            >
+              {ROOM_PLAY_LABELS.hint}
+            </button>
+            <span id={countId} className="question-controls__count">
+              {countText}
+            </span>
+          </>
+        ) : null}
         <button
           type="button"
           onClick={() => {

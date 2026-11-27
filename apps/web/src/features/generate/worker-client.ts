@@ -1,5 +1,5 @@
 import { JobAckResponseSchema, JobStatusResponseSchema, parseCryptBundle } from '@escape-the-crypt/core';
-import type { CryptBundle, GenerationFailureKind, JobAckResponse, JobStatusResponse, Result } from '@escape-the-crypt/core';
+import type { CryptBundle, GenerationFailureKind, JobAckResponse, JobStatusResponse, Result, RunLength } from '@escape-the-crypt/core';
 
 /** Worker job states the client hands back. No response body ever travels in an error. */
 export type JobState =
@@ -39,7 +39,8 @@ export interface StartedJob {
 }
 
 export interface WorkerClient {
-  startJob(notesText: string, idempotencyKey: string): Promise<WorkerResult<StartedJob>>;
+  /** `runLength` defaults to Short, the length the worker always ran before lengths were real. */
+  startJob(notesText: string, idempotencyKey: string, runLength?: RunLength): Promise<WorkerResult<StartedJob>>;
   getJob(jobId: string): Promise<WorkerResult<JobState>>;
   /** Fire-and-forget DELETE /jobs/:id. Survives page unload. Never throws; the outcome is ignored. */
   cancelJob(jobId: string): void;
@@ -129,7 +130,7 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
   }
 
   return {
-    startJob(notesText, idempotencyKey) {
+    startJob(notesText, idempotencyKey, runLength = 'short') {
       return request(
         '/jobs',
         {
@@ -139,7 +140,7 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
             'X-Session-Token': sessionToken,
             'Idempotency-Key': idempotencyKey,
           },
-          body: JSON.stringify({ notesText, runLength: 'short' }),
+          body: JSON.stringify({ notesText, runLength }),
         },
         (json) => {
           const parsed = JobAckResponseSchema.safeParse(json);

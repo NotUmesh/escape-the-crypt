@@ -26,8 +26,10 @@ export interface DevSetSummary {
   /** Concept generation outcome -> concepts. */
   conceptGeneration: Record<string, number>;
   byLockType: Record<string, LockTypeSummary>;
-  /** Locks in the published room -> notes. Failed notes count under 0. */
+  /** Locks in the whole crypt -> notes. Failed notes count under 0. */
   locksPerRoom: Record<string, number>;
+  /** Rooms in the crypt -> notes. Failed notes count under 0. */
+  roomsPerCrypt: Record<string, number>;
   /** Station type -> rooms that have it. */
   roomsWithStation: Record<string, number>;
   duplicateAnswers: number;
@@ -61,6 +63,7 @@ export function summarise(notes: readonly NoteRun[]): DevSetSummary {
     conceptGeneration: {},
     byLockType: {},
     locksPerRoom: {},
+    roomsPerCrypt: {},
     roomsWithStation: {},
     duplicateAnswers: 0,
     liveCalls: 0,
@@ -94,6 +97,7 @@ export function summarise(notes: readonly NoteRun[]): DevSetSummary {
     }
     const slots = note.room?.slots ?? [];
     bump(s.locksPerRoom, String(slots.length));
+    bump(s.roomsPerCrypt, String(new Set(slots.map((x) => x.roomId)).size));
     for (const station of new Set(slots.map((x) => x.stationType))) bump(s.roomsWithStation, station);
     s.duplicateAnswers += note.room?.duplicateAnswers ?? 0;
   }

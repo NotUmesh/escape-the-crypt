@@ -122,7 +122,7 @@ Because the sample has one room with two locks and `GHOST_DELAY` is 3, a missed 
 
 #### Acceptance Criteria
 
-1. WHEN a run starts, THE Room_Binding SHALL create State with `initial(manifest, settings)` using the run settings `length` "short", `difficulty` "apprentice" and `hintAllowance` 2.
+1. WHEN a run starts, THE Room_Binding SHALL create State with `initial(manifest, settings)` using the run settings the learner chose (default `length` "short", `difficulty` "apprentice"), with `hintAllowance` set from the difficulty by `runSettingsFor` (Apprentice 3, Gravedigger 2, Lich 0). The sample crypt keeps its one room and honours the chosen difficulty.
 2. WHEN a run starts, THE Room_Binding SHALL apply these Events in this order: `RunStarted` with the Sample_Crypt manifest ID, `RoomPublished` for `hh-room-1`, `CryptFinalised` with a final room count of 1, and `RoomEntered` for `hh-room-1`.
 3. IF any Event of criterion 2 is rejected, THEN THE Room_Play SHALL show a message that states what happened and what the learner can do next, and SHALL leave the learner on the notes preview.
 4. WHEN the run starts, THE Room_Screen SHALL show the remaining hint count from State.

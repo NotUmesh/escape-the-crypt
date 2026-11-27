@@ -4,6 +4,8 @@ import type { GenerationState } from './generation-flow';
 import { buildGeneratedCrypt } from './generated-crypt';
 import type { GeneratedCrypt } from './generated-crypt';
 import type { WorkerClient } from './worker-client';
+import type { RunSettings } from '@escape-the-crypt/core';
+import { RUN_SETTINGS } from '../../state/room-binding';
 
 export const POLL_INTERVAL_MS = 2000;
 /** About five minutes at the default interval. Reaching it counts as generation-failed. */
@@ -22,8 +24,11 @@ export interface GenerationOptions {
 
 export interface Generation {
   readonly state: GenerationState;
-  /** Starts a job for this notes text. Ignored while one is running. */
-  readonly start: (notesText: string, documentDigest?: string) => void;
+  /**
+   * Starts a job for this notes text. Ignored while one is running. `settings` (default Short and
+   * Apprentice) sends its length to the worker and travels on the crypt the job builds.
+   */
+  readonly start: (notesText: string, documentDigest?: string, settings?: RunSettings) => void;
   /** Stops polling, drops the job ID and asks the worker to stop the job (once, fire-and-forget). */
   readonly cancel: () => void;
   /** The playable crypt of a `ready` state, with the chunks of the text that was sent. */
@@ -94,7 +99,7 @@ export function useGeneration(options: GenerationOptions): Generation {
   );
 
   const drive = useCallback(
-    async (run: number, notesText: string, key: string, documentDigest?: string): Promise<void> => {
+    async (run: number, notesText: string, key: string, documentDigest: string | undefined, settings: RunSettings): Promise<void> => {
       const { client, intervalMs = POLL_INTERVAL_MS, maxPolls = MAX_POLLS, startRetries = START_RETRIES } =
         optionsRef.current;
       const alive = (): boolean => liveRun.current === run;
@@ -106,7 +111,7 @@ export function useGeneration(options: GenerationOptions): Generation {
       let jobId: string | null = null;
       for (let attempt = 0; jobId === null; attempt += 1) {
         // The same key every time, so a retried POST cannot start a second job.
-        const started = await client.startJob(notesText, key);
+        const started = await client.startJob(notesText, key, settings.length);
         if (!alive()) {
           // Cancelled while the POST was in flight: stop the job it started, and never poll it.
           if (started.ok && abandoned.current.delete(run)) sendDelete(started.value.jobId);
@@ -143,7 +148,7 @@ export function useGeneration(options: GenerationOptions): Generation {
         pollErrors = 0;
         const job = result.value;
         if (job.kind === 'completed') {
-          const crypt = buildGeneratedCrypt(job.bundle, notesText, documentDigest);
+          const crypt = buildGeneratedCrypt(job.bundle, notesText, documentDigest, settings);
           if (!crypt.ok) {
             finish({ type: 'bundleRejected' });
             return;
@@ -162,14 +167,14 @@ export function useGeneration(options: GenerationOptions): Generation {
   );
 
   const start = useCallback(
-    (notesText: string, documentDigest?: string): void => {
+    (notesText: string, documentDigest?: string, settings: RunSettings = RUN_SETTINGS): void => {
       if (liveRun.current !== null) return;
       const key = (optionsRef.current.newKey ?? randomKey)();
       runCounter.current += 1;
       liveRun.current = runCounter.current;
       built.current = null;
       send({ type: 'press', key });
-      void drive(runCounter.current, notesText, key, documentDigest);
+      void drive(runCounter.current, notesText, key, documentDigest, settings);
     },
     [drive],
   );

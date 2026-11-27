@@ -1,4 +1,5 @@
 import {
+  cryptTargetFor,
   runRoomPipeline,
   type BudgetLedger,
   type PipelineJobError,
@@ -67,6 +68,7 @@ export async function runJob(deps: JobRunnerDeps, job: Job): Promise<void> {
     }
     const result = await run(job.notesText, {
       ...deps.pipelineSettings,
+      target: cryptTargetFor(job.runLength),
       provider: deps.provider,
       providerName: deps.providerName,
       ledger: deps.ledger,

@@ -36,6 +36,7 @@ const noteArb = fc.record({
     fc.record({
       slots: fc.array(
         fc.record({
+          roomId: fc.constantFrom('room-1', 'room-2'),
           stationType: fc.constantFrom('rune-cipher', 'seance-board'),
           conceptId: id,
           primaryQuestionId: id,

@@ -28,6 +28,8 @@ export const TIMED_STAGES: readonly TimedStage[] = [
 export interface PipelineRunCounts {
   /** Concepts that survived extraction filtering. */
   concepts: number;
+  /** Extracted concepts left out by the run's concept cap (`target.maxConcepts`). */
+  conceptsNotSelected: number;
   /** Concepts whose generation ended in an error other than a budget stop (concept-level). */
   conceptsSetAside: number;
   /** Questions returned by generation, primaries and alternates. */
@@ -50,6 +52,7 @@ export interface PipelineRunCounts {
 export function newCounts(): PipelineRunCounts {
   return {
     concepts: 0,
+    conceptsNotSelected: 0,
     conceptsSetAside: 0,
     candidates: 0,
     schemaRejected: 0,

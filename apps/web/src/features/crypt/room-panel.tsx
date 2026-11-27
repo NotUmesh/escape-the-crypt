@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import type { ReactNode, RefObject } from 'react';
+import { showsRuneLetterCount } from '@escape-the-crypt/core';
 import type {
   Event,
   FinalDoorSlotState,
@@ -51,6 +52,18 @@ export function keyOptionIdFor(state: State, questionId: string): string | undef
   return undefined;
 }
 
+/**
+ * The letter count of a rune question, from its first-letter hint data (always set by the mapper).
+ * Only the count is read, never the answer text; null for other types or a missing hint.
+ */
+export function answerLengthOf(state: State, questionId: string): number | null {
+  const all = [
+    ...state.manifest.rooms.flatMap((r) => r.lockSlots.flatMap((s) => [s.primaryQuestion, s.alternateQuestion])),
+    ...state.manifest.finalDoor.slots.map((d) => d.question),
+  ];
+  const effect = all.find((q) => q !== null && q.questionId === questionId)?.hintEffect;
+  return effect?.kind === 'reveal-first-letter' ? effect.length : null;
+}
 function seanceKey(lockType: string, payload: unknown): string | undefined {
   if (lockType !== 'seance-board' || typeof payload !== 'object' || payload === null) return undefined;
   const key = (payload as { readonly keyOptionId?: unknown }).keyOptionId;
@@ -81,6 +94,8 @@ export function RoomPanel({
       dispatch,
       rejection,
       content: assets.content,
+      answerLengthFor: (questionId) => answerLengthOf(state, questionId),
+      showAnswerLength: showsRuneLetterCount(state.settings.difficulty),
       appliedHintFor: (slotId) => {
         for (const room of state.rooms) {
           const found =
@@ -90,7 +105,7 @@ export function RoomPanel({
         return state.finalDoor.slots.find((s) => s.slotId === slotId)?.appliedHint ?? null;
       },
     }),
-    [dispatch, rejection, assets.content, state.rooms, state.finalDoor.slots],
+    [dispatch, rejection, assets.content, state],
   );
 
   if (evidenceOpen) {
@@ -135,6 +150,7 @@ export function RoomPanel({
           <QuestionControls
             slotId={slot.slotId}
             remainingHints={state.remainingHints}
+            hintAllowance={state.settings.hintAllowance}
             hintApplied={slot.appliedHint?.questionId === slot.currentQuestionId}
             dispatch={dispatch}
             onClose={onClose}

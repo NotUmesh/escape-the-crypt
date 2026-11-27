@@ -27,12 +27,15 @@ export function RuneCipherPanel({ slotId, questionId }: LockPanelProps): ReactNo
   const [askForAnswer, setAskForAnswer] = useState(false);
   const inputId = useId();
   const messageId = useId();
+  const lengthId = useId();
 
   if (context === null) return null;
   const prompt = context.content.questions[questionId]?.prompt ?? '';
   const rejected = context.rejection?.kind === 'invalid-submission' && context.rejection['slotId'] === slotId;
   const showMessage = askForAnswer || rejected;
   const hint = firstLetterHint(context.appliedHintFor(slotId), questionId);
+  // Apprentice and Gravedigger see the letter count from the start; a used hint says it too.
+  const letterCount = context.showAnswerLength === true ? (context.answerLengthFor?.(questionId) ?? null) : null;
 
   function submit(): void {
     if (context === null) return;
@@ -58,6 +61,11 @@ export function RuneCipherPanel({ slotId, questionId }: LockPanelProps): ReactNo
   return (
     <div className="rune-cipher-panel">
       <p className="rune-cipher-panel__prompt">{prompt}</p>
+      {hint === null && letterCount !== null ? (
+        <p className="rune-cipher-panel__length" id={lengthId}>
+          {ROOM_PLAY_LABELS.runeLetterCount(letterCount)}
+        </p>
+      ) : null}
       {hint === null ? null : (
         <p className="rune-cipher-panel__hint">
           {ROOM_PLAY_LABELS.runeHint(hint.firstLetter, hint.length)}
@@ -69,7 +77,7 @@ export function RuneCipherPanel({ slotId, questionId }: LockPanelProps): ReactNo
         type="text"
         value={draft}
         autoComplete="off"
-        aria-describedby={showMessage ? messageId : undefined}
+        aria-describedby={[hint === null && letterCount !== null ? lengthId : null, showMessage ? messageId : null].filter(Boolean).join(' ') || undefined}
         onChange={onChange}
         onKeyDown={onKeyDown}
       />

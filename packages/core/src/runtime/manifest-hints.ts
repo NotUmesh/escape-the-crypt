@@ -51,5 +51,34 @@ export function narrowHint(
     if (!itemIds.includes(hintEffect.boneId)) {
       fail('hint-bone-unknown: lock-first-bone boneId is not in itemIds');
     }
+    return;
+  }
+  if (lockType === 'bound-threads') {
+    if (hintEffect.kind !== 'tie-thread') {
+      fail(`hint-kind-not-allowed: bound-threads accepts only tie-thread, got ${hintEffect.kind}`);
+      return;
+    }
+    const { keyPairs } = payload as { readonly keyPairs: readonly (readonly [string, string])[] };
+    const [a, b] = hintEffect.pair;
+    // Unordered membership: the pair may name a key pair in either order.
+    if (!keyPairs.some(([l, r]) => (l === a && r === b) || (l === b && r === a))) {
+      fail('hint-pair-unknown: tie-thread pair is not one of keyPairs');
+    }
+    return;
+  }
+  if (lockType === 'cursed-object') {
+    if (hintEffect.kind !== 'remove-option') {
+      fail(`hint-kind-not-allowed: cursed-object accepts only remove-option, got ${hintEffect.kind}`);
+      return;
+    }
+    const { optionIds, oddOneOutId } = payload as {
+      readonly optionIds: readonly string[];
+      readonly oddOneOutId: string;
+    };
+    if (!optionIds.includes(hintEffect.optionId)) {
+      fail('hint-option-unknown: remove-option optionId is not in optionIds');
+    } else if (hintEffect.optionId === oddOneOutId) {
+      fail('hint-option-is-key: remove-option must not remove the odd item');
+    }
   }
 }

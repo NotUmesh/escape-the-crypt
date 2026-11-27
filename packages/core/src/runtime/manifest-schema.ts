@@ -50,6 +50,41 @@ export const BoneOrderingPayloadSchema = z
     { message: 'keyOrder must be a permutation of itemIds' },
   );
 
+/**
+ * Mirrors `BoundThreadsQuestion` in `locks/bound-threads.ts`; `keyPairs` tie each left ID and
+ * each right ID exactly once.
+ */
+export const BoundThreadsPayloadSchema = z
+  .strictObject({
+    leftIds: z.array(z.string().min(1)).min(3).max(4),
+    rightIds: z.array(z.string().min(1)).min(3).max(4),
+    keyPairs: z.array(z.tuple([z.string().min(1), z.string().min(1)])).min(3).max(4),
+  })
+  .refine(
+    (v) =>
+      new Set(v.leftIds).size === v.leftIds.length &&
+      new Set(v.rightIds).size === v.rightIds.length &&
+      v.rightIds.length === v.leftIds.length &&
+      v.keyPairs.length === v.leftIds.length &&
+      new Set(v.keyPairs.map((p) => p[0])).size === v.keyPairs.length &&
+      new Set(v.keyPairs.map((p) => p[1])).size === v.keyPairs.length &&
+      v.keyPairs.every((p) => v.leftIds.includes(p[0]) && v.rightIds.includes(p[1])),
+    { message: 'keyPairs must tie every left ID and every right ID exactly once' },
+  );
+
+/** Mirrors `CursedObjectQuestion` in `locks/cursed-object.ts`. */
+export const CursedObjectPayloadSchema = z
+  .strictObject({
+    optionIds: z.array(z.string().min(1)).length(4),
+    oddOneOutId: z.string().min(1),
+  })
+  .refine((v) => new Set(v.optionIds).size === v.optionIds.length, {
+    message: 'optionIds must be unique',
+  })
+  .refine((v) => v.optionIds.includes(v.oddOneOutId), {
+    message: 'oddOneOutId must be one of optionIds',
+  });
+
 /** Returns `null` for lock types with no payload schema yet; the manifest rejects them. */
 export function payloadSchemaFor(
   lockType: LockType,
@@ -57,6 +92,8 @@ export function payloadSchemaFor(
   | typeof RuneCipherPayloadSchema
   | typeof SeanceBoardPayloadSchema
   | typeof BoneOrderingPayloadSchema
+  | typeof BoundThreadsPayloadSchema
+  | typeof CursedObjectPayloadSchema
   | null {
   switch (lockType) {
     case 'rune-cipher':
@@ -65,6 +102,10 @@ export function payloadSchemaFor(
       return SeanceBoardPayloadSchema;
     case 'bone-ordering':
       return BoneOrderingPayloadSchema;
+    case 'bound-threads':
+      return BoundThreadsPayloadSchema;
+    case 'cursed-object':
+      return CursedObjectPayloadSchema;
     default:
       return null;
   }

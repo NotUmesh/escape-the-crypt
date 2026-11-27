@@ -17,10 +17,12 @@ export interface StartViewProps {
   readonly generation?: StartViewGeneration;
   /** The resume entry, shown beside the existing buttons. It renders nothing when there is no saved run. */
   readonly resume?: ReactNode;
+  /** The length and difficulty choice, shown before the buttons and hidden while a job runs. */
+  readonly settings?: ReactNode;
 }
 
 /** The start view: "Enter the crypt" (sample), plus "Generate from my notes" when a worker is set. */
-export function StartView({ onEnter, generation, resume }: StartViewProps): ReactNode {
+export function StartView({ onEnter, generation, resume, settings }: StartViewProps): ReactNode {
   const state = generation?.state;
   const running = state?.status === 'starting' || state?.status === 'polling';
   const failed = state?.status === 'failed';
@@ -31,6 +33,7 @@ export function StartView({ onEnter, generation, resume }: StartViewProps): Reac
       {generation !== undefined && state !== undefined ? (
         <GenerationNotice state={state} onCancel={generation.onCancel} />
       ) : null}
+      {running ? null : settings}
       {running || failed ? null : (
         <button type="button" onClick={onEnter}>
           {ENTER_CRYPT_LABEL}

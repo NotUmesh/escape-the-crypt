@@ -47,6 +47,10 @@
     "29.7 Write property tests for bone-ordering": {
       "status": "passed",
       "lastRunTimestamp": 1795785246492
+    },
+    "33.8 Write property tests for cursed-object": {
+      "status": "passed",
+      "lastRunTimestamp": 1795797679060
     }
   },
   "executionHistory": {
@@ -1812,6 +1816,319 @@
         "executionId": "3ebbf7d6-df18-42a9-9b59-4c48432a3a4a",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795785820447
+      }
+    ],
+    "31.1 Authoring schema and generation response arm": [
+      {
+        "executionId": "c8e39dec-3dd0-4611-acb2-cc5dd2efe2f9",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795792772889
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795793375291
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795793380039
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794155611
+      }
+    ],
+    "31.9 Add `--allowed-lock-types` flag to the eval CLI": [
+      {
+        "executionId": "c8e39dec-3dd0-4611-acb2-cc5dd2efe2f9",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795792772979
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795793375907
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794487775
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794763106
+      }
+    ],
+    "31.10 Reject an authored bone-ordering `hint.boneId` that disagrees with `keyOrder[0]`": [
+      {
+        "executionId": "c8e39dec-3dd0-4611-acb2-cc5dd2efe2f9",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795792773051
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794763889
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794971173
+      }
+    ],
+    "31.2 Code_Checks and registry entries": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794155707
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794487366
+      }
+    ],
+    "31.5 Mapper to the judge payload": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794156084
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794487477
+      }
+    ],
+    "31.3 Generation prompt section": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794487569
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794762566
+      }
+    ],
+    "31.4 Blind-review rule": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794487671
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794762682
+      }
+    ],
+    "31.6 Add `bound-threads` to the test and eval allow-lists only": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794764663
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794970405
+      }
+    ],
+    "31.7 Write property tests for bound-threads": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794975308
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795795187788
+      }
+    ],
+    "31.8 Write the cassette test for bound-threads": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795794975756
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795795188322
+      }
+    ],
+    "31. Phase 5: bound-threads": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795795188385
+      }
+    ],
+    "32. Checkpoint - bound-threads group": [
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795795192217
+      },
+      {
+        "executionId": "692caf90-dbd7-468d-bd85-e914582ad4b5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795795705578
+      }
+    ],
+    "33.1 Authoring schema and generation response arm": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795795983865
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795796392051
+      }
+    ],
+    "33.2 Write the `adv-20` fixture-literal test, then implement the cursed-object Code_Checks": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795796392829
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795796695743
+      }
+    ],
+    "33.3 Flip the cursed-object registry entries (only after the `adv-20` test passes)": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795796695993
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797006939
+      }
+    ],
+    "33.4 Generation prompt section": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797007101
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797315157
+      }
+    ],
+    "33.5 Blind-review rule": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797007288
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797315325
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797573611
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797747374
+      }
+    ],
+    "33.6 Mapper to the judge payload": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797007613
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797315461
+      }
+    ],
+    "33.7 Add `cursed-object` to the test and eval allow-lists only": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797316235
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797573273
+      }
+    ],
+    "33.10 Extend the duplicate-answer keys for cursed-object": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797319118
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797573510
+      }
+    ],
+    "33.8 Write property tests for cursed-object": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797573737
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797749717
+      }
+    ],
+    "33.9 Write the cassette test for cursed-object": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797574044
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797749813
+      }
+    ],
+    "33. Phase 5: cursed-object": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797749894
+      }
+    ],
+    "34. Checkpoint - cursed-object group": [
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795797753866
+      },
+      {
+        "executionId": "71c6c469-53fc-43b0-b471-34e1291a1faf",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795798353542
       }
     ]
   }

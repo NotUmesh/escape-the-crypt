@@ -1,9 +1,10 @@
 import { useCallback, useReducer } from 'react';
-import { apply, initial } from '@escape-the-crypt/core';
+import { apply, cryptTargetFor, initial, runSettingsFor } from '@escape-the-crypt/core';
 import type {
   Event,
   Outcome_Notice,
   Result,
+  RunSettings,
   SampleCryptError,
   SampleCryptResult,
   State,
@@ -23,12 +24,27 @@ export type BuiltCrypt = SampleCryptResult & {
   readonly source?: CryptSource;
   /** Digest of the notes a generated crypt was made from; saved so a restore can rebuild citations. */
   readonly documentDigest?: string;
+  /** The settings the learner chose for this crypt. `RUN_SETTINGS` when absent. */
+  readonly settings?: RunSettings;
 };
 export type BuildCrypt = () => Result<BuiltCrypt, SampleCryptError>;
 export type StartError = SampleCryptError | Typed_Rejection;
 
-/** Fixed run settings (Requirement 5.1). */
-export const RUN_SETTINGS = { length: 'short', difficulty: 'apprentice', hintAllowance: 2 } as const;
+/** Default run settings (Requirement 5.1): Short and Apprentice, with the Apprentice's 3 hints. */
+export const RUN_SETTINGS: RunSettings = runSettingsFor('short', 'apprentice');
+
+/** The settings a run of this crypt starts with. */
+export function settingsOf(crypt: BuiltCrypt): RunSettings {
+  return crypt.settings ?? RUN_SETTINGS;
+}
+
+/**
+ * The rooms a crypt was asked for. A generated crypt was asked for its length's room count; the
+ * sample has a fixed size, so it is asked for exactly the rooms it has.
+ */
+export function requestedRooms(crypt: BuiltCrypt): number {
+  return crypt.source === 'notes' ? cryptTargetFor(settingsOf(crypt).length).rooms : crypt.manifest.rooms.length;
+}
 
 export interface RoomBindingState {
   readonly phase: 'not-started' | 'running' | 'start-failed';
@@ -80,20 +96,28 @@ type StoreAction =
 const INITIAL_STORE: Store = { phase: 'not-started', model: null, crypt: null, assets: null, startError: null };
 
 /** The four start Events in order (Requirement 5.2). */
-function startEvents(crypt: BuiltCrypt): readonly Event[] {
+/**
+ * The start sequence: every room is published (the crypt is complete before the run starts), the
+ * final room count is the count asked for, and a crypt with fewer rooms is shortened to what it
+ * has, so the runtime and the Autopsy know the notes did not fill the length.
+ */
+export function startEvents(crypt: BuiltCrypt): readonly Event[] {
   const { manifest } = crypt;
   const firstRoom = manifest.rooms[0]?.roomId ?? '';
+  const actual = manifest.rooms.length;
+  const requested = Math.max(requestedRooms(crypt), actual);
   return [
     { kind: 'RunStarted', manifestId: manifest.manifestId },
-    { kind: 'RoomPublished', roomId: firstRoom },
-    { kind: 'CryptFinalised', finalRoomCount: 1 },
+    ...manifest.rooms.map((r): Event => ({ kind: 'RoomPublished', roomId: r.roomId })),
+    { kind: 'CryptFinalised', finalRoomCount: requested },
+    ...(actual < requested ? [{ kind: 'CryptShortened', finalRoomCount: actual } as const] : []),
     { kind: 'RoomEntered', roomId: firstRoom },
   ];
 }
 
 /** Applies the start sequence to a fresh State. A rejected Event stops the run. */
 function startModel(crypt: BuiltCrypt): Result<BindingModel, Typed_Rejection> {
-  let state = initial(crypt.manifest, RUN_SETTINGS);
+  let state = initial(crypt.manifest, settingsOf(crypt));
   const log: Event[] = [];
   for (const event of startEvents(crypt)) {
     const result = apply(state, event);
@@ -138,6 +162,8 @@ export function bindingReducer(store: Store, action: StoreAction): Store {
         content: crypt.content,
         chunks: assets.chunks,
         source: assets.source,
+        // Play again after a resume keeps the stored run's settings.
+        settings: model.state.settings,
         ...(crypt.documentDigest === undefined ? {} : { documentDigest: crypt.documentDigest }),
       };
       return { phase: 'running', model, crypt: built, assets, startError: null };

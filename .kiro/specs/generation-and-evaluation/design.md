@@ -1109,7 +1109,7 @@ export async function blindReview(
 ```
 
 - Runs only on a question that already passed `runChecks` with zero blocking failures — the pipeline calls `runChecks` (unchanged) immediately after generation and before review, dropping any question with a blocking failure right there (no Blind_Reviewer call wasted on a question Code_Checks would reject anyway).
-- The reviewer prompt contains the question text, options/steps in **manifest order** (the authoring `options` array order, unchanged — same order the Manifest_Mapper later preserves into `optionIds`), and the **full text of every cited chunk** (looked up from `doc.chunks`, not just the quote) — never the key, any label, or the explanation (Req 15.2, 15.3, G4). Temperature is fixed at `0` in the `ProviderRequest` the stage builds (Req 11.5, 15.4-ish).
+- The reviewer prompt contains the question text, options/steps in **manifest order** (the authoring `options` array order, unchanged — same order the Manifest_Mapper later preserves into `optionIds`; bone-ordering is the one exception, see Phase 5 decision (e)), and the **full text of every cited chunk** (looked up from `doc.chunks`, not just the quote) — never the key, any label, or the explanation (Req 15.2, 15.3, G4). Temperature is fixed at `0` in the `ProviderRequest` the stage builds (Req 11.5, 15.4-ish).
 - The model answers first (`answer`), then labels every option `supported`/`contradicted`/`unknown` for séance (rune has no options to label, so `optionLabels` is `null` and only `answer` is checked); the schema enforces this field order textually in the prompt instructions, not structurally (JSON object field order is not meaningful to Zod), so the *prompt* text says "answer first, then label," matching G4/the brief's instruction, while the *validation* only cares about the final values.
 - Rejection rule (Req 15.5, 15.6): the call result is `'rejected'` if `answer` disagrees with the key (`question.answer` for rune, the `supported` option's id for séance) **or** any `optionLabels` entry is `'unknown'`; otherwise `'passed'`. Checks run in this order: `unknown-label`, then `answer-mismatch`, then (séance only, Req 15.11) `label-mismatch`, raised unless the answered option is labelled `supported` and every other option `contradicted`. Before the rule runs, a post-parse step inside the same attempt/retry loop requires exactly one label per shown option id (no unknown or duplicate ids) for séance and `optionLabels: null` for rune cipher; otherwise it counts as a schema failure (Req 15.4, 15.8). The model-facing JSON schema is unchanged. Reasons never carry labels or model output.
 - A schema failure retries once, then rejects on a second failure (Req 15.8) — review failures are always a rejection, never a hard pipeline error, since one bad model response for one question should not fail the whole run.
@@ -1627,12 +1627,14 @@ Probed against the dev/sample corpus (see Correctness Properties/testing evidenc
 ].join('\n'),
 ```
 
-**Blind review.** `citedChunks` and `buildBlindReviewUserMessage` (`pipeline/blind-review-prompt.ts`) gain a `bone-ordering` branch: the ordinals come from `question.evidence.map(e => e.paragraph)` (same shape as rune cipher's own branch), and the user message lists `steps` **in the question's own (shuffled-for-display) item order**, each tagged with a generated item ID, exactly as the séance branch lists `options`. `ReviewResponseSchema` is unchanged (`answer`/`optionLabels`); for `bone-ordering`, `decideReview` is extended with:
+**Blind review.** `citedChunks` and `buildBlindReviewUserMessage` (`pipeline/blind-review-prompt.ts`) gain a `bone-ordering` branch: the ordinals come from `question.evidence.map(e => e.paragraph)` (same shape as rune cipher's own branch), and the user message lists `steps` **in a deterministic display order derived from the step texts, never the key order** (see Phase 5 decision (e)), each tagged with an id by display position. This is a deliberate deviation from "manifest order". `ReviewResponseSchema` is unchanged (`answer`/`optionLabels`); for `bone-ordering`, `decideReview` is extended with:
 
 ```ts
 if (question.lockType === 'bone-ordering') {
   const submitted = response.answer.split(',').map((s) => s.trim());
-  const key = question.steps; // steps IS the key order (see schema note above)
+  // steps IS the key order (see schema note above); the reply uses display-position ids, so
+  // code recomputes the display order (decision (e)) and maps the key onto those ids first
+  const key = keyOrderAsDisplayIds(question.steps);
   const isKey = submitted.length === key.length && submitted.every((s, i) => s === key[i]);
   return isKey ? { verdict: 'passed' } : reject({ kind: 'answer-mismatch' });
 }
@@ -2078,6 +2080,9 @@ This subsection lists where the brief's instructions and the existing Requiremen
   - `bone-ordering` and `bound-threads` contribute no key. Their answers are structures, and two equal structures in different concepts are not a duplicate the learner would notice.
 - **(c) `isSupported` and `later(...)` change with each schema arm.** `isSupported` in `run-checks.ts` and the registry's `later(...)` helper change in step with each type's authoring-schema arm, so a type is never reported as supported before its arm and checks exist. A type-aware helper is acceptable for this.
 - **(d) Cassette `checkVersion`.** If the cassette tests compare the `checkVersion` field, only that field may be updated in cassette files. Prompt digests and recorded responses stay untouched.
+- **(e) Bone-ordering blind-review display order (deliberate deviation from "manifest order").** In the authoring schema `steps` is in key order, so showing the steps in manifest order would give the reviewer the answer. The reviewer sees the steps in a deterministic order derived from the step texts (never the identity order for 2 or more steps), each with an id by display position. The reply must reproduce the key order exactly. Code recomputes the display order to check the reply.
+- **(f) Mapper hints for bone-ordering.** Bone-ordering matches rune cipher: an authored `hint.boneId` that disagrees with the derived `keyOrder[0]`-pinned hint is rejected as a mapper error, which catches mistakes in hand-written samples. The generated arm carries no hint.
+- **(g) Eval replay allow-list.** The eval CLI gets an `--allowed-lock-types` flag (comma-separated) so replay of the recorded dev cassettes can use the original two types. Until the end of Phase 5, replay uses `rune-cipher,seance-board`. Recorded dev cassettes are not re-recorded per group. ONE paid re-record over the dev set happens after the combination-dial group (task 36) with all six types allowed. The user runs it in their own shell through the evaluation skill; the agent gives the command and never runs it.
 
 ## Correctness Properties
 

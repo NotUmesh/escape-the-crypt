@@ -91,3 +91,44 @@ Two failures from task 29 files were fixed first: `bone-ordering-e2e-fixtures.ts
 | vitest | apps/web | 111 files passed; 925 tests passed, 0 failed, 0 skipped |
 | worker build (`pnpm --filter ./apps/worker build`) | apps/worker | pass, `dist/index.js` 1.8mb |
 | Playwright e2e (`--workers=2`) | apps/web | 172 passed, 0 failed, 1 skipped |
+
+### Checkpoint 32 (Phase 5, task 31 complete)
+
+| Check | Package | Result |
+| --- | --- | --- |
+| typecheck (`tsc --noEmit`) | packages/core | pass, no errors |
+| typecheck (`tsc --noEmit`) | apps/worker | pass, no errors |
+| typecheck (`tsc --noEmit`) | apps/web | pass, no errors |
+| `pnpm lint` (eslint + structure check) | root | pass, "Structure checks passed." |
+| vitest `--maxWorkers=50%` | packages/core | 153 files passed; 1245 tests passed, 0 failed, 0 skipped |
+| vitest `--maxWorkers=50%` | apps/worker | 20 files passed; 240 tests passed, 0 failed, 0 skipped |
+| vitest `--maxWorkers=50%` | apps/web | 111 files passed; 925 tests passed, 0 failed, 0 skipped |
+| worker build (`pnpm --filter ./apps/worker build`) | apps/worker | pass, `dist/index.js` 1.8mb |
+| Playwright e2e (`--workers=2`) | apps/web | 172 passed, 0 failed, 1 skipped |
+
+Fixes made at this checkpoint (both stale expectations from task 31):
+- `packages/core/src/runtime/manifest-schema-hints.test.ts`: the "no payload schema" test used `bound-threads`, which now has a schema; it uses `cursed-object`.
+- `packages/core/src/test-support/contract/job-completed.json`: golden job fixture regenerated. Only `manifestId` (now suffixed) and two `slotId` values (now prefixed with the room) changed.
+
+Cassettes: only the `checkVersion` field changed (`2026-11-27.2` to `2026-11-27.3`) in `bone-ordering-e2e.json` and `human-heart-e2e.json`. No digest edits. `bound-threads-e2e.json` is new.
+Lock types: `DEFAULT_ALLOWED_LOCK_TYPES` (core) and `ALLOWED_LOCK_TYPES` (worker) are both still `['rune-cipher', 'seance-board']`.
+
+## Task 33.2: cursed-object Code_Checks
+Task 33.2: adv-20 stays a review fixture; needs-category-and-outside-quotes is tested with hand-written questions; reason: adv-20's `expectedCatch` is `review:odd-item-not-explicitly-outside` (repo convention: `review:` fixtures must pass every code check and are rejected by the blind review, tested in task 33.5). Its quotes never mention the odd item "Moths", so a code check that required the odd item's text would contradict that label. A test reads adv-20 at test time and expects no code failures.
+Heuristic implemented (`locks/cursed-object-checks.ts`): over uniquely resolved quotes, one quote must be a category quote (names a non-odd item, or has at least half its content words in `categoryRule`) and a different quote must be an outside quote (an exclusion marker such as "not", or the odd item's text). Checked on all 13 real cursed-object questions in eval/dev/questions and samples/questions: zero failures. adv-27 fails only `item-count`. The registry, run-checks.ts and CHECK_VERSION are unchanged (task 33.3).
+
+## Checkpoint 34
+
+| Check | Pass | Fail | Skipped | Notes |
+| --- | --- | --- | --- | --- |
+| tsc packages/core | clean | 0 | 0 | exit 0 |
+| tsc apps/worker | clean | 0 | 0 | exit 0 |
+| tsc apps/web | clean | 0 | 0 | exit 0 |
+| pnpm lint (ESLint + structure) | pass | 0 | 0 | First run failed structure: generation-schema.test.ts was 311 lines. Moved the bound-threads and cursed-object tests to generation-schema-arms.test.ts; now passes |
+| vitest packages/core | 1327 (161 files) | 0 | 0 | |
+| vitest apps/worker | 241 (20 files) | 0 | 0 | |
+| vitest apps/web | 1160 (140 files) | 2 | 0 | share-card-css.test.ts "is allowed in the copy file only"; style-guard.test.ts "reports no violations in any .css/.ts/.tsx file". Both come from the committed share-card files (HEAD 6be0ebc), not Phase 5 |
+| worker build | ok | 0 | 0 | dist/index.js 1.9mb |
+| web e2e (--workers=2) | 175 | 0 | 1 | |
+
+Cassette and constants: e2e-pipeline, e2e-cassette-digest, bone-ordering-e2e, bound-threads-e2e, cursed-object-e2e and human-heart tests all pass (6 files, 36 tests). CHECK_VERSION is 2026-11-27.4. DEFAULT_ALLOWED_LOCK_TYPES and ALLOWED_LOCK_TYPES are both ['rune-cipher', 'seance-board'].

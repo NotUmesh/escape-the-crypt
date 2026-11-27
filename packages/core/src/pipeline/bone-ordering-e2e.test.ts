@@ -15,7 +15,6 @@ import {
   boneE2eLedger,
   captureBoneOrderingE2e,
 } from './bone-ordering-e2e-fixtures';
-import { PHASE5_TEST_ALLOWED_LOCK_TYPES } from '../test-support/phase5-lock-types';
 import { runRoomPipeline } from './orchestrator';
 
 const [fsName]: string[] = ['node:fs'];
@@ -65,7 +64,6 @@ describe('bone-ordering cassette-driven pipeline', () => {
     const ledger = boneE2eLedger();
     const result = await runRoomPipeline(BONE_NOTES, {
       ...BONE_ORDERING_E2E_OPTIONS,
-      allowedLockTypes: PHASE5_TEST_ALLOWED_LOCK_TYPES,
       provider: counted,
       ledger,
     });
