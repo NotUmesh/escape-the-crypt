@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { NOTES_TEXT, buildSampleCrypt, correctAnswerFor, enterCrypt, openLockName, roomOneSlots, submitAnswer } from './crypt-helpers';
+import { buildSampleCrypt, correctAnswerFor, enterCrypt, openLockName, roomOneSlots, submitAnswer } from './crypt-helpers';
 
 interface ScreenSnapshot {
   readonly lockNames: readonly string[];
@@ -58,10 +58,8 @@ test('reload mid-run, then Continue your crypt: the same screen comes back', asy
 
   // Let the autosave settle, then reload.
   await page.waitForTimeout(500);
-  await page.reload();
-  // The app opens on /ingest; the start screen (and its resume entry) shows once the notes are confirmed again.
-  await page.locator('.ingest-paste textarea').fill(NOTES_TEXT);
-  await page.getByRole('button', { name: 'Confirm notes' }).click();
+  // The desk shows the saved crypt as a book; Continue goes straight in (a short fade, no clips).
+  await page.goto('/');
   await page.getByRole('button', { name: 'Continue your crypt', exact: true }).click();
   await page.locator('.room-screen__lock-button').first().waitFor();
 

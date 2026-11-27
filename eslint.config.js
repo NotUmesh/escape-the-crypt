@@ -24,6 +24,8 @@ export default tseslint.config(
       '**/test-results/**',
       '**/public/**',
       '.kiro/**',
+      // The Power's committed bundle is generated code (powers/<name>/scripts/build.mjs).
+      'powers/*/server/**',
     ],
   },
   js.configs.recommended,

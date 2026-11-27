@@ -4,7 +4,7 @@ import {
   FRONT_OF_HOUSE_COPY,
   formatElapsed,
   formatShelfDate,
-} from './front-of-house-copy';
+} from './copy-front-of-house';
 
 const FORBIDDEN = /verified|guaranteed|100% accurate|hallucination-free|mastered|exam-ready/i;
 

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, GENERATION_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { answerSlot, buildSampleCrypt, correctAnswerFor, roomOneSlots, submitAnswer } from './crypt-helpers';
+import { answerSlot, buildSampleCrypt, correctAnswerFor, roomOneSlots, skipDescent, submitAnswer } from './crypt-helpers';
 import { installFakeWorker, SAMPLE_NOTES, WORKER_ORIGIN } from './fake-worker';
 import type { FakeStep } from './fake-worker';
 
@@ -96,6 +96,7 @@ for (const kind of FAILURES) {
     await expect(page.getByText(copy.what, { exact: true })).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(copy.next, { exact: true })).toBeVisible();
     await page.getByRole('button', { name: GENERATION_COPY.sampleOffer }).click();
+    await skipDescent(page);
     await page.locator('.room-screen').waitFor();
     await page.locator('.room-screen__lock-button').first().waitFor();
     expect(fake.seen.filter((request) => request.method === 'DELETE')).toHaveLength(0);

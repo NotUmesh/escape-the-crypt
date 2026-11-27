@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { canUseWebShare, performShare, statusFor } from './share-actions';
 import type { ShareEnv, ShareNavigator } from './share-actions';
-import { SHARE_COPY } from './share-card-copy';
+import { SHARE_COPY } from '@escape-the-crypt/core';
 
 const PNG = new Blob(['png'], { type: 'image/png' });
 const TEXT = 'Escaped a crypt made from my own notes with no ghosts remaining';

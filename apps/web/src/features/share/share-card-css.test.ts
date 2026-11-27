@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { scanFile } from '../ingest/style-guard-rules';
-import { SHARE_URL } from './share-card-copy';
+import { SHARE_URL } from '@escape-the-crypt/core';
 
 const ROOT = process.cwd();
 const read = (path: string): string => readFileSync(join(ROOT, path), 'utf8');
@@ -53,16 +53,10 @@ describe('share card styles', () => {
 });
 
 describe('the public address in the shared text', () => {
-  it('is allowed in the copy file only', () => {
+  it('lives in core copy, so app source may not hold it', () => {
     const line = `export const SHARE_URL = '${SHARE_URL}';`;
-    expect(scanFile('apps/web/src/features/share/share-card-copy.ts', line)).toEqual([]);
-    expect(scanFile('apps/web/src/features/share/share-card.tsx', line).map((v) => v.rule)).toContain('cross-origin-url');
-    expect(scanFile('apps/web/src/features/crypt/other.ts', line).map((v) => v.rule)).toContain('cross-origin-url');
-  });
-
-  it('does not allow any other host in the copy file', () => {
-    // Built at run time so this file itself holds no link.
-    const line = `const x = '${['https:', '', 'example.org', 'a'].join('/')}';`;
-    expect(scanFile('apps/web/src/features/share/share-card-copy.ts', line).map((v) => v.rule)).toContain('cross-origin-url');
+    for (const path of ['apps/web/src/features/share/share-card.tsx', 'apps/web/src/features/share/share-card-lines.ts', 'apps/web/src/features/crypt/other.ts']) {
+      expect(scanFile(path, line).map((v) => v.rule)).toContain('cross-origin-url');
+    }
   });
 });

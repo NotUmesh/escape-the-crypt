@@ -101,6 +101,15 @@ describe('AutopsyView', () => {
     });
   });
 
+  it('puts the share card after the counts, with the sample title and no concept text', () => {
+    show(['first-try-correct', 'review-due']);
+    const section = mount.container.querySelector('[data-testid="share-section"]');
+    expect(section).not.toBeNull();
+    const counts = mount.container.querySelector('.autopsy-counts');
+    expect(counts?.compareDocumentPosition(section as Node) ?? 0).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(section?.querySelector('[data-testid="share-headline"]')?.textContent).toContain('Sample crypt');
+    for (const concept of Object.values(CRYPT.content.concepts)) expect(section?.textContent).not.toContain(concept.title);
+  });
   it('shows the five counts', () => {
     show(['first-try-correct', 'review-due']);
     const total = OUTCOMES.reduce(

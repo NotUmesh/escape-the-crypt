@@ -33,8 +33,8 @@ describe('hook files in .kiro/hooks', () => {
     .filter((name) => name.endsWith('.json'))
     .map((name) => name.slice(0, -'.json'.length));
 
-  it('are all valid v1 hook files that save-trigger a command', () => {
-    expect(ids.length).toBeGreaterThanOrEqual(4);
+  it('are the three quick hooks (the old full-suite hook is retired), each a valid v1 save hook', () => {
+    expect(ids.sort()).toEqual(['banned-words-on-copy-edit', 'check-tasks-format-on-edit', 'related-core-tests-on-save']);
     for (const id of ids) {
       const hook = load(id);
       expect(hook.trigger, id).toBe('PostFileSave');
@@ -54,8 +54,8 @@ describe('hook files in .kiro/hooks', () => {
     }
   });
 
-  it('the three new hooks never call a package test script', () => {
-    for (const id of ['related-core-tests-on-save', 'check-tasks-format-on-edit', 'banned-words-on-copy-edit']) {
+  it('no hook calls a package test script, so none can run a whole suite', () => {
+    for (const id of ids) {
       const command = load(id).action.command ?? '';
       expect(command, id).not.toMatch(/pnpm|npm|vitest|--run/);
       expect(load(id).action.timeout, id).toBeLessThanOrEqual(60);
@@ -99,7 +99,7 @@ describe('banned-words-on-copy-edit matcher', () => {
       'packages/core/src/copy-room-play.ts',
       'packages/core/src/copy-banned-words.test.ts',
       'apps/web/src/features/share/share-card-copy.ts',
-      'apps/web/src/features/desk/front-of-house-copy.test.ts',
+      'packages/core/src/copy-front-of-house.test.ts',
       'C:/work/apps/web/src/features/x/y-copy.ts',
     ]) {
       for (const variant of both(path)) expect(re.test(variant), variant).toBe(true);

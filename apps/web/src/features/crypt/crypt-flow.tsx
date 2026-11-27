@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ENTER_CRYPT_LABEL, GENERATION_COPY, ROOM_START_ERROR_COPY, SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
-import type { RoomStartErrorKind, RunSettings, State } from '@escape-the-crypt/core';
+import { GENERATION_COPY, SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
+import type { RunSettings, State } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
 import { usePersistedRoomBinding } from '../../state/persisted-room';
 import { RUN_SETTINGS } from '../../state/room-binding';
-import type { BuildCrypt, BuiltCrypt, RoomBinding, StartError } from '../../state/room-binding';
+import type { BuildCrypt, BuiltCrypt, RoomBinding } from '../../state/room-binding';
 import { buildSampleCrypt } from '../../state/sample-crypt-source';
 import { isGenerating } from '../generate/generation-flow';
 import { resolveClient, resolveOrigin } from '../generate/generate-seams';
@@ -13,13 +13,12 @@ import type { GenerateSeams } from '../generate/generate-seams';
 import { useGeneration } from '../generate/use-generation';
 import { announcementsFor } from './announcements';
 import { CryptErrorBoundary } from './crypt-error-boundary';
-import { AutopsyView } from './autopsy-view';
-import { FinalDoor } from './final-door';
+import { DescentLayer, useDescent } from './crypt-descent';
+import { CryptRunView } from './crypt-run-view';
+import type { RenderStart } from './crypt-start-context';
 import { LanternProvider } from './lantern-context';
 import { LiveRegion } from './live-region';
 import { LockAnnounceContext } from './lock-panel-payload';
-import { RoomPanel } from './room-panel';
-import { RoomScreen } from './room-screen';
 import { ReadOnlyScreenContainer } from '../start/read-only-screen';
 import { SaveBanner } from '../start/save-banner';
 import { exportSlotFor } from '../start/export-control';
@@ -30,6 +29,9 @@ import { StartView } from './start-view';
 import { SettingsSlot } from '../desk/settings-slot';
 import { useRunChoice } from '../desk/use-run-choice';
 import type { SceneLoader } from './use-scene';
+import { sampleTitleFor } from '../desk/sample-list';
+import './crypt-stage.css';
+
 
 export interface CryptFlowProps {
   /** Loads each room's Scene_File. Tests inject one. */
@@ -45,35 +47,17 @@ export interface CryptFlowProps {
   readonly onAnnounce?: (message: string) => void;
   /** What the read-only screen restores from. Defaults to the browser's IndexedDB. */
   readonly restoreDeps?: RestoreDeps;
+  /**
+   * Builds the screens before the crypt (desk, notes book, dig) in place of the built-in start
+   * view. When set, a newly started run also plays the descent, and the room's live region
+   * exists only while a run is playing, because the host's announcer covers the screens before it.
+   */
+  readonly renderStart?: RenderStart;
 }
 
 const NO_MESSAGES: readonly string[] = [];
 
-function startErrorKind(error: StartError | null): RoomStartErrorKind {
-  if (error !== null && error.kind in ROOM_START_ERROR_COPY) return error.kind as RoomStartErrorKind;
-  return 'start-rejected';
-}
-
-function StartFailed({
-  error,
-  dispatch,
-}: {
-  readonly error: StartError | null;
-  readonly dispatch: (action: RoomAction) => void;
-}): ReactNode {
-  const copy = ROOM_START_ERROR_COPY[startErrorKind(error)];
-  return (
-    <section className="crypt-start crypt-start--failed" role="alert" data-testid="start-failed">
-      <p>{copy.what}</p>
-      <p>{copy.next}</p>
-      <button type="button" onClick={() => dispatch({ type: 'startRun' })}>
-        {ENTER_CRYPT_LABEL}
-      </button>
-    </section>
-  );
-}
-
-function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps }: CryptFlowProps): ReactNode {
+function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps, renderStart }: CryptFlowProps): ReactNode {
   // Which crypt startRun builds: the generated one once it is ready, else the sample.
   const playRef = useRef<BuiltCrypt | null>(null);
   // The sample's settings are read when the run starts, so the latest difficulty choice applies.
@@ -95,7 +79,10 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   const canGenerate = origin !== null && notesText !== undefined;
   const choice = useRunChoice(notesText, canGenerate);
   sampleSettings.current = () => choice.settingsFor('sample');
-  const { state, notices, phase, startError } = binding;
+  const { state, notices, phase } = binding;
+  const descent = useDescent(renderStart !== undefined);
+  const beginDescent = descent.begin;
+  const playedSample = useRef<string | undefined>(undefined);
   const [autopsyRequested, setAutopsyRequested] = useState(false);
   // View-only flag: true once the learner closed the Evidence_Panel of the escaping answer. Holds no game state.
   const [escapeEvidenceDismissed, setEscapeEvidenceDismissed] = useState(false);
@@ -141,10 +128,15 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     void takeOver?.();
   }, [takeOver]);
 
-  const startSample = useCallback((): void => {
-    playRef.current = null;
-    dispatch({ type: 'startRun' });
-  }, [dispatch]);
+  const startSample = useCallback(
+    (sampleId?: string): void => {
+      playRef.current = null;
+      playedSample.current = sampleId;
+      beginDescent('clips');
+      dispatch({ type: 'startRun' });
+    },
+    [dispatch, beginDescent],
+  );
   const generationState = generation.state;
   const readyCrypt = generation.crypt;
   // A finished job starts room 1 of the generated crypt through the same binding as the sample.
@@ -153,114 +145,85 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     const crypt = readyCrypt();
     if (crypt === null) return;
     playRef.current = crypt;
+    beginDescent('clips');
     bindingDispatch({ type: 'startRun' });
-  }, [generationState, readyCrypt, bindingDispatch]);
-  // The progress line and the stopped message are read through the host's announcer, not a region here.
+  }, [generationState, readyCrypt, bindingDispatch, beginDescent]);
+  // The stopped message is read through the host's announcer, not a region here. The progress line is
+  // read by the host's dig screen, once, so it is not sent from here as well.
   const generationStatus = generationState.status;
+  const hosted = renderStart !== undefined;
   useEffect(() => {
     if (onAnnounce === undefined) return;
-    if (generationStatus === 'starting' || generationStatus === 'polling') onAnnounce(GENERATION_COPY.progress);
-    else if (generationStatus === 'cancelled') onAnnounce(GENERATION_COPY.cancelled);
-    else onAnnounce('');
-  }, [generationStatus, onAnnounce]);
+    if (generationStatus === 'cancelled') onAnnounce(GENERATION_COPY.cancelled);
+    else if (!hosted && (generationStatus === 'starting' || generationStatus === 'polling')) {
+      onAnnounce(GENERATION_COPY.progress);
+    } else if (hosted && generationStatus === 'idle') {
+      // Nothing to say, and a message from the notes book must not be cleared.
+    } else if (generationStatus !== 'starting' && generationStatus !== 'polling') onAnnounce('');
+  }, [generationStatus, onAnnounce, hosted]);
   const restoreBinding = binding.restore;
   const onResume = useCallback(
     (restored: RestoredRun): void => {
+      // Continuing goes straight in: a short fade, not the clips.
+      beginDescent('fade');
       restoreBinding?.(restored);
     },
-    [restoreBinding],
+    [restoreBinding, beginDescent],
   );
   // Start again on the same crypt: a generated crypt is rebuilt from its notes, else the sample plays.
   const onStartAgainSaved = useCallback(
     (crypt: BuiltCrypt | null, settings?: RunSettings): void => {
       playRef.current = crypt === null || settings === undefined ? crypt : { ...crypt, settings };
       if (crypt === null && settings !== undefined) sampleSettings.current = () => settings;
+      beginDescent('clips');
       dispatch({ type: 'startRun' });
     },
-    [dispatch],
+    [dispatch, beginDescent],
   );
-  const startView = (
+  const onGenerate = (): void => generation.start(notesText ?? '', notesDigest, choice.settingsFor('generated'));
+  const startView = renderStart !== undefined ? (
+    renderStart({
+      generation: generationState,
+      canGenerate,
+      choice,
+      onGenerate,
+      onCancelGeneration: generation.cancel,
+      playSample: startSample,
+      deps,
+      onContinue: onResume,
+      onStartAgain: onStartAgainSaved,
+    })
+  ) : (
     <StartView
       resume={<ResumeEntry deps={deps} onContinue={onResume} onStartAgain={onStartAgainSaved} />}
-      onEnter={startSample}
+      onEnter={() => startSample()}
       settings={<SettingsSlot value={choice.value} onChange={choice.onChange} availability={choice.availability} />}
       generation={
         canGenerate
           ? {
               state: generationState,
-              onGenerate: () => generation.start(notesText, notesDigest, choice.settingsFor('generated')),
+              onGenerate,
               onCancel: generation.cancel,
-              onPlaySample: startSample,
+              onPlaySample: () => startSample(),
             }
           : undefined
       }
     />
   );
-  let view: ReactNode;
-  if (phase === 'start-failed') {
-    view = <StartFailed error={startError} dispatch={dispatch} />;
-  } else if (phase !== 'running' || state === null) {
-    view = startView;
-  } else if (state.status === 'escaped') {
-    // The answer that escaped the run still shows its Evidence_Panel. Its Continue is local (no Event),
-    // because the runtime rejects every Event after the escape. Only then does the escape view appear.
-    const evidenceStillOpen =
-      !escapeEvidenceDismissed &&
-      binding.assets !== null &&
-      state.finalDoor.slots.some((s) => s.evidencePanelOpen);
-    if (autopsyRequested) {
-      view = <AutopsyView state={state} assets={binding.assets} dispatch={dispatch} />;
-    } else if (evidenceStillOpen) {
-      view = (
-        <FinalDoor
-          state={state}
-          dispatch={dispatch}
-          assets={binding.assets}
-          rejection={binding.rejection}
-          eventLog={binding.eventLog}
-          loadSceneImpl={loadSceneImpl}
-          onEscapeEvidenceDismissed={() => setEscapeEvidenceDismissed(true)}
-        />
-      );
-    } else {
-      view = <FinalDoor escaped state={state} loadSceneImpl={loadSceneImpl} onOpenAutopsy={() => setAutopsyRequested(true)} />;
-    }
-  } else if (state.status === 'in progress') {
-    view = state.atFinalDoor ? (
-      <FinalDoor
-        state={state}
-        dispatch={dispatch}
-        assets={binding.assets}
-        rejection={binding.rejection}
-        eventLog={binding.eventLog}
-      />
-    ) : (
-      <RoomScreen
-        state={state}
-        dispatch={dispatch}
-        notices={notices}
-        loadSceneImpl={loadSceneImpl}
-        showSampleLabel={binding.assets?.source !== 'notes'}
-        renderPanel={(slot, controls) =>
-          binding.assets === null ? null : (
-            <RoomPanel
-              slot={slot}
-              state={state}
-              assets={binding.assets}
-              rejection={binding.rejection}
-              eventLog={binding.eventLog}
-              dispatch={dispatch}
-              openerRef={controls.openerRef}
-              onClose={controls.onClose}
-              side={controls.side}
-            />
-          )
-        }
-      />
-    );
-  } else {
-    view = startView;
-  }
+  const view = (
+    <CryptRunView
+      binding={binding}
+      dispatch={dispatch}
+      startView={startView}
+      loadSceneImpl={loadSceneImpl}
+      autopsyRequested={autopsyRequested}
+      onOpenAutopsy={() => setAutopsyRequested(true)}
+      escapeEvidenceDismissed={escapeEvidenceDismissed}
+      onEscapeEvidenceDismissed={() => setEscapeEvidenceDismissed(true)}
+      announce={announceFromPanel}
+      sampleTitle={sampleTitleFor(playedSample.current)}
+    />
+  );
 
   // The room screen draws its own label; every other screen of a run gets it here (Requirement 1.6).
   const showLabel =
@@ -269,21 +232,45 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     binding.assets?.source !== 'notes' &&
     (state.status === 'escaped' || state.atFinalDoor);
 
+  // A run that could not start has no descent to wait for.
+  const endDescent = descent.end;
+  const descentVariant = descent.variant;
+  useEffect(() => {
+    if (phase === 'start-failed' && descentVariant !== null) endDescent();
+  }, [phase, descentVariant, endDescent]);
+
   // Another tab owns the run: show it read-only. cquiring (first grant pending) shows the normal screen.
   // This return comes after every hook above.
   const lockState = binding.lockState;
   if ((lockState === 'waiting' || lockState === 'lost') && binding.runId !== undefined) {
-    return <ReadOnlyScreenContainer deps={deps} runId={binding.runId} onTakeOver={onTakeOver} />;
+    const readOnly = <ReadOnlyScreenContainer deps={deps} runId={binding.runId} onTakeOver={onTakeOver} />;
+    return renderStart === undefined ? readOnly : <main className="screen">{readOnly}</main>;
   }
 
-  return (
+  const body = (
     <>
       {showLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
       {phase === 'running' && state !== null ? (
-        <SaveBanner saveFailed={binding.saveFailed === true} exportSlot={exportSlotFor(binding, state, deps)} />
+        <SaveBanner
+          saveFailed={binding.saveFailed === true}
+          exportSlot={exportSlotFor(binding, state, deps, renderStart === undefined ? undefined : announceFromPanel)}
+        />
       ) : null}
       <LockAnnounceContext.Provider value={announceFromPanel}>{view}</LockAnnounceContext.Provider>
-      {isGenerating(generationState) ? null : <LiveRegion messages={messages} />}
+    </>
+  );
+  // With a host start screen the room's region exists only while a run plays; the host's announcer covers the rest.
+  const showRegion = renderStart === undefined ? !isGenerating(generationState) : phase === 'running';
+  return (
+    <>
+      {renderStart === undefined ? (
+        body
+      ) : (
+        <DescentLayer variant={phase === 'running' ? descent.variant : null} onDone={descent.end} announce={announceFromPanel} landmark={phase !== 'not-started'}>
+          {body}
+        </DescentLayer>
+      )}
+      {showRegion ? <LiveRegion messages={messages} /> : null}
     </>
   );
 }

@@ -11,7 +11,7 @@
     "dev": "pnpm --filter @escape-the-crypt/web dev",
     "test": "pnpm -r test --run && vitest run --project scripts",
     "lint": "eslint . && node scripts/check-structure.ts",
-    "typecheck": "pnpm -r typecheck && tsc -p scripts",
+    "typecheck": "pnpm -r typecheck && tsc -p scripts && tsc -p powers/grounded-quiz",
     "e2e": "pnpm --filter @escape-the-crypt/web e2e"
   },
   "devDependencies": {

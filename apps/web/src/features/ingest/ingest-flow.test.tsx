@@ -125,3 +125,19 @@ describe('IngestFlow', () => {
     expect(citationLabel(confirmed[0] as Chunk)).toBe('PDF page 2 (printed page ii)');
   });
 });
+describe('IngestFlow: host announcer', () => {
+  const mount = useMount();
+  it('draws no live region of its own and forwards each non-empty message', async () => {
+    const heard: string[] = [];
+    mount.render(<IngestFlow store={createMemoryStore()} onAnnouncement={(message) => heard.push(message)} />);
+    expect(mount.container.querySelector('[aria-live]')).toBeNull();
+    expect(mount.container.querySelector('[role="status"]')).toBeNull();
+    typeNotes(
+      mount.container,
+      'Active recall means producing an answer from memory instead of re-reading the notes. Spaced repetition schedules each review.',
+    );
+    await clickButton(mount.container, 'Confirm notes');
+    expect(heard.length).toBeGreaterThan(0);
+    expect(heard).not.toContain('');
+  });
+});

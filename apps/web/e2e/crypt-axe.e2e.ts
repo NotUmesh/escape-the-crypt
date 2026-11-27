@@ -64,5 +64,7 @@ test('autopsy', async ({ page }) => {
   await expect(page.getByTestId('escape-view')).toBeVisible();
   await page.getByRole('button', { name: ROOM_PLAY_LABELS.openAutopsy, exact: true }).click();
   await page.getByTestId('autopsy-view').waitFor();
+  // The page fades in over 600 ms. A scan during the fade reads blended colours, so it waits for the fade to end.
+  await page.getByTestId('autopsy-view').evaluate((el) => Promise.all(el.getAnimations().map((animation) => animation.finished)));
   await scan(page);
 });

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { LanternToggle } from '../crypt/lantern-toggle';
 import { DeskScene } from './desk-scene';
 import type { Size } from './desk-scene-layout';
-import { FRONT_OF_HOUSE_COPY } from './front-of-house-copy';
+import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
 import { SettingsSlot } from './settings-slot';
 import './open-book.css';
 

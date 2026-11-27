@@ -13,6 +13,11 @@
 .share-section p {
   margin: 0;
 }
+/* The Autopsy sets its headings to ink for its parchment. This section is dark, so its heading stays light. */
+.share-section h3,
+.autopsy-view .share-section h3 {
+  color: var(--bone-50);
+}
 .share-card {
   box-sizing: border-box;
   display: grid;

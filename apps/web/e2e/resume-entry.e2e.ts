@@ -1,16 +1,17 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { ENTER_CRYPT_LABEL, FINAL_DOOR_BUTTON_TEXT, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { NOTES_TEXT, answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, submitAnswer } from './crypt-helpers';
+import { FINAL_DOOR_BUTTON_TEXT, FRONT_OF_HOUSE_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
+import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, submitAnswer } from './crypt-helpers';
 
 const CONTINUE_LABEL = 'Continue your crypt';
 
-/** After a reload the app opens on /ingest; confirming the same notes reaches the start screen. Waiting for it means an absent entry is not just a page still loading. */
-async function reloadToStart(page: Page): Promise<void> {
-  await page.reload();
-  await page.locator('.ingest-paste textarea').fill(NOTES_TEXT);
-  await page.getByRole('button', { name: 'Confirm notes' }).click();
-  await page.getByRole('button', { name: ENTER_CRYPT_LABEL }).waitFor();
+/**
+ * A saved crypt shows on the desk's book stack, so a return visit starts at `/`. The desk's own
+ * "Bring your notes" link is the signal that the page has rendered.
+ */
+async function backToDesk(page: Page): Promise<void> {
+  await page.goto('/');
+  await page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.hub.bringNotes }).waitFor();
 }
 
 test('an unfinished run offers "Continue your crypt" after a reload', async ({ page }) => {
@@ -21,7 +22,7 @@ test('an unfinished run offers "Continue your crypt" after a reload', async ({ p
   await answerSlot(page, first, correctAnswerFor(crypt, first.primaryQuestion));
   await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
 
-  await reloadToStart(page);
+  await backToDesk(page);
   const entry = page.getByTestId('resume-entry');
   await expect(entry).toBeVisible();
   await expect(entry.getByRole('button', { name: CONTINUE_LABEL, exact: true })).toBeVisible();
@@ -43,7 +44,11 @@ test('after the run escapes, a reload shows no resume entry', async ({ page }) =
   }
   await expect(page.getByTestId('escape-view')).toBeVisible();
 
-  await reloadToStart(page);
+  await backToDesk(page);
+  // The shelf loads from IndexedDB after the page renders. The first test shows the entry appears
+  // for an unfinished run; here the shelf is given time to load before the absence is checked.
+  await page.waitForTimeout(750);
+  await expect(page.getByTestId('shelf-empty')).toBeVisible();
   await expect(page.getByTestId('resume-entry')).toHaveCount(0);
   await expect(page.getByRole('button', { name: CONTINUE_LABEL })).toHaveCount(0);
 });

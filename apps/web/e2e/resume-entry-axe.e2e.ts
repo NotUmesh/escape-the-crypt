@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { ENTER_CRYPT_LABEL, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { NOTES_TEXT, answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots } from './crypt-helpers';
+import { FRONT_OF_HOUSE_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
+import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots } from './crypt-helpers';
 
 // Requirements 10.8 and 12.13: the resume entry has no axe violations, both buttons are at least
 // 44 by 44 px, Tab reaches both, and Enter on "Continue your crypt" restores the run.
@@ -22,12 +22,9 @@ test('resume entry: no axe violations, 44 by 44 px targets, keyboard reachable',
   await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
   await page.locator('.room-screen__lock-button[data-status="solved"]').first().waitFor();
 
-  // Reload: the app opens on /ingest again. Confirming the same notes reaches the start screen,
-  // which now shows the resume entry.
-  await page.reload();
-  await page.locator('.ingest-paste textarea').fill(NOTES_TEXT);
-  await page.getByRole('button', { name: 'Confirm notes' }).click();
-  await page.getByRole('button', { name: ENTER_CRYPT_LABEL }).waitFor();
+  // Back to the desk: the saved crypt is a book on the stack, and its card shows the resume entry.
+  await page.goto('/');
+  await page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.hub.bringNotes }).waitFor();
   const entry = page.getByTestId('resume-entry');
   const continueButton = entry.getByRole('button', { name: CONTINUE_LABEL, exact: true });
   const startAgain = entry.getByRole('button', { name: START_AGAIN_LABEL, exact: true });

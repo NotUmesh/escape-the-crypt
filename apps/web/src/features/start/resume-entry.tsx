@@ -27,14 +27,16 @@ export interface ResumeEntryViewProps {
   /** Set after a failed restore. */
   readonly failure: StorageErrorKind | null;
   readonly busy?: boolean;
+  /** False when the host's announcer reads the message: the sentence then has no live role of its own. */
+  readonly live?: boolean;
 }
 
 /** The two buttons. After a failed restore only "Start again" remains, under a plain sentence. */
-export function ResumeEntryView({ onContinue, onStartAgain, failure, busy = false }: ResumeEntryViewProps): ReactNode {
+export function ResumeEntryView({ onContinue, onStartAgain, failure, busy = false, live = true }: ResumeEntryViewProps): ReactNode {
   return (
     <div className="resume-entry" role="group" aria-label={RESUME_GROUP_LABEL} data-testid="resume-entry">
       {failure === null ? null : (
-        <p className="resume-entry__message" role="status">
+        <p className="resume-entry__message" role={live ? 'status' : undefined}>
           {restoreFailureText(failure)}
         </p>
       )}
@@ -60,6 +62,8 @@ export interface ResumeEntryProps {
    */
   /** `settings` are the stored run's, so a fresh run of the same crypt keeps its length and difficulty. */
   readonly onStartAgain: (crypt: BuiltCrypt | null, settings?: RunSettings) => void;
+  /** When set, a failed restore is read through the host's announcer, not a region of its own. */
+  readonly announce?: (message: string) => void;
 }
 
 function generatedCrypt(restored: RestoredRun): BuiltCrypt | null {
@@ -77,7 +81,7 @@ function generatedCrypt(restored: RestoredRun): BuiltCrypt | null {
  * Looks up the most recent active run when it mounts. Shows nothing when there is none or the
  * lookup fails, so the start screen keeps only its own buttons.
  */
-export function ResumeEntry({ deps, onContinue, onStartAgain }: ResumeEntryProps): ReactNode {
+export function ResumeEntry({ deps, onContinue, onStartAgain, announce }: ResumeEntryProps): ReactNode {
   const { factory, notesStore, buildSample } = deps;
   const [run, setRun] = useState<RunRecord | null>(null);
   const [failure, setFailure] = useState<StorageErrorKind | null>(null);
@@ -93,6 +97,10 @@ export function ResumeEntry({ deps, onContinue, onStartAgain }: ResumeEntryProps
       alive.current = false;
     };
   }, [factory]);
+
+  useEffect(() => {
+    if (failure !== null) announce?.(restoreFailureText(failure));
+  }, [failure, announce]);
 
   const restoreDeps = useCallback((): RestoreDeps => ({ factory, notesStore, buildSample }), [factory, notesStore, buildSample]);
 
@@ -121,5 +129,5 @@ export function ResumeEntry({ deps, onContinue, onStartAgain }: ResumeEntryProps
   }, [run, factory, restoreDeps, onStartAgain]);
 
   if (run === null) return null;
-  return <ResumeEntryView onContinue={doContinue} onStartAgain={doStartAgain} failure={failure} busy={busy} />;
+  return <ResumeEntryView onContinue={doContinue} onStartAgain={doStartAgain} failure={failure} busy={busy} live={announce === undefined} />;
 }

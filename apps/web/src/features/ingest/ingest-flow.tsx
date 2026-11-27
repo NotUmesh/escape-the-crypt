@@ -30,6 +30,11 @@ export interface IngestFlowProps {
   readonly createClient?: () => ExtractionClient;
   /** A message from a later step (such as generation progress). When not empty it is read in place of the flow's own. */
   readonly announcement?: string;
+  /**
+   * When set, the flow draws no live region of its own and hands each new message to the host's
+   * one announcer instead. `announcement` is then not used.
+   */
+  readonly onAnnouncement?: (message: string) => void;
 }
 
 type Source = 'paste' | 'pdf' | 'preview';
@@ -39,7 +44,7 @@ type Source = 'paste' | 'pdf' | 'preview';
  * the notes store. It sets no layout and imports no router, so a host screen can
  * place it anywhere.
  */
-export function IngestFlow({ store, onConfirmed, createClient, announcement = '' }: IngestFlowProps): React.JSX.Element {
+export function IngestFlow({ store, onConfirmed, createClient, announcement = '', onAnnouncement }: IngestFlowProps): React.JSX.Element {
   const { state, send, getState } = useIngestMachine();
   const [pasteText, setPasteText] = useState('');
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
@@ -60,6 +65,12 @@ export function IngestFlow({ store, onConfirmed, createClient, announcement = ''
     },
     [],
   );
+
+  const machineMessage = state.announcement;
+  useEffect(() => {
+    // An empty message is not forwarded: it would clear a message from another screen.
+    if (onAnnouncement !== undefined && machineMessage !== '') onAnnouncement(machineMessage);
+  }, [machineMessage, onAnnouncement]);
 
   const onPasteChanged = (text: string): void => {
     clientRef.current?.cancel();
@@ -207,7 +218,9 @@ export function IngestFlow({ store, onConfirmed, createClient, announcement = ''
           ) : null}
         </>
       )}
-      <LiveAnnouncer message={announcement === '' ? state.announcement : announcement} />
+      {onAnnouncement === undefined ? (
+        <LiveAnnouncer message={announcement === '' ? state.announcement : announcement} />
+      ) : null}
     </div>
   );
 }

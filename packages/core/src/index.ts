@@ -230,3 +230,6 @@ export {
   cursedObjectSubmission,
 } from './locks/interaction/cursed-object-interaction';
 export type { CursedObjectDraft } from './locks/interaction/cursed-object-interaction';
+export { DIG_STAGE_IDS, FRONT_OF_HOUSE_COPY, formatElapsed, formatShelfDate } from './copy-front-of-house';
+export type { DigStageId } from './copy-front-of-house';
+export { GENERIC_CRYPT_NAME, SHARE_COPY, SHARE_URL, ghostPhrase } from './copy-share';

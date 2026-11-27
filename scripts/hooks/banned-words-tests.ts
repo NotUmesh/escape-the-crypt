@@ -26,7 +26,7 @@ export function isCopyFile(rel: string): boolean {
 }
 
 /**
- * Which wording test covers a copy file. Core copy files share one test. A web copy file is covered by
+ * Which wording test covers a copy file. Core copy files run the shared banned-words test, plus their own test when they have one. A web copy file is covered by
  * the test named after it (`share-card-copy.ts` by `share-card-copy.test.ts`); without one, the plan says so
  * instead of pretending another test covers it. `exists` checks a repository-relative path. Pure.
  */
@@ -34,7 +34,13 @@ export function planWordingTests(rel: string, exists: (repoPath: string) => bool
   if (!isCopyFile(rel)) return undefined;
   const isTest = rel.endsWith('.test.ts');
   if (rel.startsWith('packages/core/')) {
-    const tests = isTest ? [rel.slice('packages/core/'.length)] : [CORE_WORDING_TEST];
+    // A core copy file with a test of its own (`copy-share.ts` and `copy-share.test.ts`) runs that test too.
+    const own = rel.replace(/\.ts$/, '.test.ts');
+    const tests = isTest
+      ? [rel.slice('packages/core/'.length)]
+      : exists(own)
+        ? [CORE_WORDING_TEST, own.slice('packages/core/'.length)]
+        : [CORE_WORDING_TEST];
     return { packageDir: 'packages/core', tests, message: `Core copy file: running ${tests.join(', ')}.` };
   }
   const own = isTest ? rel : rel.replace(/\.ts$/, '.test.ts');

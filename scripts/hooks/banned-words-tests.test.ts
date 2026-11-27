@@ -15,7 +15,7 @@ describe('isCopyFile', () => {
       'packages/core/src/copy-room-play.ts',
       'packages/core/src/copy-banned-words.test.ts',
       'apps/web/src/features/share/share-card-copy.ts',
-      'apps/web/src/features/desk/front-of-house-copy.test.ts',
+      'packages/core/src/copy-front-of-house.test.ts',
     ]) {
       expect(isCopyFile(rel), rel).toBe(true);
     }
@@ -43,6 +43,12 @@ describe('planWordingTests', () => {
     }
   });
 
+  it('adds a core copy file\'s own test when it has one', () => {
+    expect(planWordingTests('packages/core/src/copy-share.ts', has('packages/core/src/copy-share.test.ts'))?.tests).toEqual([
+      CORE_WORDING_TEST,
+      'src/copy-share.test.ts',
+    ]);
+  });
   it('runs a core copy test by itself', () => {
     expect(planWordingTests('packages/core/src/copy-counts.test.ts', has())?.tests).toEqual(['src/copy-counts.test.ts']);
   });
@@ -77,11 +83,12 @@ describe('the copy files in the repository', () => {
     expect(exists(`packages/core/${CORE_WORDING_TEST}`)).toBe(true);
   });
 
-  it('the front-of-house and share copy files have the wording tests the hook would run', () => {
-    for (const rel of ['apps/web/src/features/desk/front-of-house-copy.ts', 'apps/web/src/features/share/share-card-copy.ts']) {
+  it('the front-of-house and share copy files run the shared test and their own, and both exist', () => {
+    for (const rel of ['packages/core/src/copy-front-of-house.ts', 'packages/core/src/copy-share.ts']) {
       const plan = planWordingTests(rel, exists);
-      expect(plan?.tests.length, rel).toBe(1);
-      expect(exists(`apps/web/${plan?.tests[0]}`), rel).toBe(true);
+      expect(plan?.tests.length, rel).toBe(2);
+      expect(plan?.tests[0], rel).toBe(CORE_WORDING_TEST);
+      for (const test of plan?.tests ?? []) expect(exists(`packages/core/${test}`), `${rel} -> ${test}`).toBe(true);
     }
   });
 });

@@ -36,12 +36,10 @@ const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 /** Hosts that never leave the machine or are reserved for tests (RFC 2606). */
 const LOCAL_HOSTS: readonly string[] = ['localhost', '127.0.0.1', 'example.test'];
 /**
- * Public addresses that appear only as text the learner shares and are never requested. Each is
- * allowed in one named file and nowhere else, so a stray link in any other file is still reported.
+ * Public addresses allowed in one named web file and nowhere else. Empty: the address in the shared
+ * text lives in core copy (`copy-share.ts`), outside the web app, so any link in app source is reported.
  */
-const SHARED_TEXT_LINKS: Readonly<Record<string, readonly string[]>> = {
-  'apps/web/src/features/share/share-card-copy.ts': ['escape-the-crypt.pages.dev'],
-};
+const SHARED_TEXT_LINKS: Readonly<Record<string, readonly string[]>> = {};
 /** Only config, unit-test and e2e files (.ts, and .tsx for tests) may name those hosts; app source may not. */
 const LOCAL_HOST_FILES = /\.(?:config|test|e2e)\.tsx?$/;
 

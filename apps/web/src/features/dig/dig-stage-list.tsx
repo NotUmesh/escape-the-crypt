@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { FRONT_OF_HOUSE_COPY } from '../desk/front-of-house-copy';
+import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
 import { digStageRows } from './dig-stages';
 import type { DigStageInput } from './dig-stages';
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { usePrefersReducedMotion } from '../crypt/lantern-context';
-import { FRONT_OF_HOUSE_COPY } from '../desk/front-of-house-copy';
+import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
 import { DESCENT_CLIPS } from './clip-sources';
 import type { DescentClip } from './clip-sources';
 import { useDescentSequence } from './use-descent-sequence';

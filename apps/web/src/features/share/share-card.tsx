@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { browserShareEnv } from './browser-share-env';
 import { canUseWebShare, performShare, statusFor } from './share-actions';
 import type { ShareEnv } from './share-actions';
-import { SHARE_COPY } from './share-card-copy';
+import { SHARE_COPY } from '@escape-the-crypt/core';
 import type { ShareCardData } from './share-card-data';
 import { cardLines, shareText } from './share-card-lines';
 import './share-card.css';

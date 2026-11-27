@@ -1,7 +1,6 @@
 /**
- * Learner-facing text for the pre-crypt screens. It lives here while core's `index.ts` is being
- * changed by another task; at integration it moves to `packages/core/src/copy-front-of-house.ts`
- * with the same shape, so every visible string comes from core copy like the ingest screens.
+ * Learner-facing text for the desk, the open book, the dig and the descent. Checked against the
+ * banned-wording list in `copy-front-of-house.test.ts`.
  */
 
 export const DIG_STAGE_IDS = ['finding-concepts', 'writing-questions', 'checking', 'building-rooms'] as const;

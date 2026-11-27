@@ -5,7 +5,7 @@ import { BookStack } from './book-stack';
 import { StatusIcon } from './book-spine';
 import { DeskScene } from './desk-scene';
 import type { Size } from './desk-scene-layout';
-import { FRONT_OF_HOUSE_COPY } from './front-of-house-copy';
+import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
 import { SampleShelf } from './sample-shelf';
 import { bookLabel, shelfKey } from './shelf-entry';
 import type { SampleEntry, ShelfEntry } from './shelf-entry';

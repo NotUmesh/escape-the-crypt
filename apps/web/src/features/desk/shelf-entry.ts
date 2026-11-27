@@ -1,4 +1,4 @@
-import { FRONT_OF_HOUSE_COPY, formatShelfDate } from './front-of-house-copy';
+import { FRONT_OF_HOUSE_COPY, formatShelfDate } from '@escape-the-crypt/core';
 
 /**
  * One saved crypt on this device. The shape `listShelf` in `state/storage` is asked to return;

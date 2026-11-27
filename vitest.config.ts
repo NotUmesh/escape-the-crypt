@@ -5,7 +5,7 @@ export default defineConfig({
       "packages/core",
       "apps/web",
       "apps/worker",
-      { test: { name: "scripts", include: ["scripts/**/*.test.ts"], environment: "node" } },
+      { test: { name: "scripts", include: ["scripts/**/*.test.ts", "powers/**/*.test.ts"], environment: "node" } },
     ],
   },
 });

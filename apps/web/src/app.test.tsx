@@ -46,10 +46,10 @@ describe('IngestScreen: Enter the crypt', () => {
     mount.render(screen());
     typeNotes(mount.container, PROSE);
     await clickButton(mount.container, 'Confirm notes');
-    const start = mount.container.querySelector('.crypt-start');
-    expect(start?.textContent).toContain(SAMPLE_CRYPT_LINE);
-    expect(start?.querySelector('button')?.textContent).toBe(ENTER_CRYPT_LABEL);
-    expect(mount.container.querySelectorAll('button')).toHaveLength(1);
+    const actions = mount.container.querySelector('[data-testid="start-actions"]');
+    expect(actions?.textContent).toContain(SAMPLE_CRYPT_LINE);
+    expect(actions?.querySelector('button')?.textContent).toBe(ENTER_CRYPT_LABEL);
+    expect(actions?.querySelectorAll('button')).toHaveLength(1);
   });
 
   it('starts the run and shows room 1 on activation, leaving the saved notes unchanged', async () => {
@@ -80,7 +80,7 @@ describe('IngestScreen: Enter the crypt', () => {
     mount.render(null);
     mount.render(screen(store));
     expect(mount.container.querySelector('.room-screen')).toBeNull();
-    expect(mount.container.querySelector('.crypt-start')).toBeNull();
+    expect(mount.container.querySelector('[data-testid="start-actions"]')).toBeNull();
     expect(mount.container.textContent).not.toContain(ENTER_CRYPT_LABEL);
     expect(mount.container.querySelector('.ingest-paste textarea')).not.toBeNull();
   });

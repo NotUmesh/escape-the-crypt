@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { ENTER_CRYPT_LABEL, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { NOTES_TEXT, buildSampleCrypt, correctAnswerFor, openLockName, roomOneSlots, submitAnswer } from './crypt-helpers';
+import { NOTES_TEXT, buildSampleCrypt, correctAnswerFor, openLockName, roomOneSlots, skipDescent, submitAnswer } from './crypt-helpers';
 
 // Requirements 7.8 and 12.13: the save banner has no axe violations and never overlaps the
 // Question_Panel or the Evidence_Panel.
@@ -33,6 +33,7 @@ test('save banner: no axe violations and no overlap with the question or evidenc
   });
 
   await page.getByRole('button', { name: ENTER_CRYPT_LABEL }).click();
+  await skipDescent(page);
   await page.locator('.room-screen').waitFor();
   await page.locator('.room-screen__lock-button').first().waitFor();
 

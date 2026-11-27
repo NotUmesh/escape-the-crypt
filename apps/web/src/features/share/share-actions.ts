@@ -1,4 +1,4 @@
-import { SHARE_COPY } from './share-card-copy';
+import { SHARE_COPY } from '@escape-the-crypt/core';
 
 export type ShareOutcome =
   | 'shared'

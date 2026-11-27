@@ -1,5 +1,5 @@
-import { DIG_STAGE_IDS, FRONT_OF_HOUSE_COPY } from '../desk/front-of-house-copy';
-import type { DigStageId } from '../desk/front-of-house-copy';
+import { DIG_STAGE_IDS, FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
+import type { DigStageId } from '@escape-the-crypt/core';
 
 /**
  * Pipeline progress as the dig shows it. This is the shape the job status is asked to carry

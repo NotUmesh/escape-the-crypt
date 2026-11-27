@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { SAMPLE_CRYPT, SAMPLE_NOTES_TEXT } from '../../test-support/sample-bundle';
 import { useMount } from '../../test-support/flow-dom';
 import { ShareCard } from './share-card';
-import { SHARE_COPY } from './share-card-copy';
+import { SHARE_COPY } from '@escape-the-crypt/core';
 import { buildShareCardData } from './share-card-data';
 import type { ShareCardData, ShareCrypt } from './share-card-data';
 import { layoutCard } from './share-card-image';

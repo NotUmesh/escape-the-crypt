@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "grounded-quiz",
+  "version": "0.1.0",
+  "description": "Make a quiz from your own notes where every question cites an exact quote that is checked against the notes: the quote must appear once, answers must not leak, questions are never negative, and choice options need evidence.",
+  "author": {
+    "name": "NotUmesh",
+    "url": "https://github.com/NotUmesh"
+  },
+  "keywords": ["quiz", "study notes", "revision", "flashcards", "cloze", "fill in the blank", "grounded quiz", "escape the crypt"],
+  "homepage": "https://github.com/NotUmesh/escape-the-crypt/tree/main/powers/grounded-quiz",
+  "repository": "https://github.com/NotUmesh/escape-the-crypt",
+  "license": "MIT"
+}

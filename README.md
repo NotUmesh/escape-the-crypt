@@ -89,6 +89,10 @@ pnpm e2e          # Playwright: Chromium, Firefox and Pixel 7 emulation, includi
 - Paid evaluation runs go only through the evaluation skill (`.kiro/skills/evaluation/SKILL.md`). Replaying recorded cassettes is free:
   `pnpm --filter @escape-the-crypt/worker eval replay --model <model-id> --policy both`
 
+## Release checklist
+- [ ] Rebuild the Power bundle at Tuesday's freeze, and again before submission: `node powers/grounded-quiz/scripts/build.mjs`. The bundle in `powers/grounded-quiz/server/index.mjs` contains a copy of core, so it is stale after any change to core. Commit the rebuilt file.
+- [ ] Publish the Power from this repo's `powers/` folder, so judges see it next to the code. Check that `powers/grounded-quiz` installs from that folder after the second rebuild.
+- [ ] Re-run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm e2e` on the final commit, and update the counts under Tests.
 ## Repo layout
 
 ```
@@ -96,6 +100,7 @@ apps/web/        React + Vite game: desk, notes, dig, descent, rooms, locks, Aut
 apps/worker/     Node service: generation jobs, interim budget ledger, job API, evaluation CLI
 packages/core/   engine, no React or database: chunking, quote resolver, contracts,
                  lock-type judges and checks, generation pipeline, room runtime reducer
+powers/          a Kiro Power: Grounded Quiz, the quote resolver and evidence checks as tools (powers/grounded-quiz)
 samples/         original sample notes and their question files
 eval/dev/        practice notes and labels (tuning happens here only)
 eval/adversarial/ questions that must be rejected

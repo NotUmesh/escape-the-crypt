@@ -1,10 +1,5 @@
-import { useState } from 'react';
-import { CryptFlow } from './features/crypt/crypt-flow';
-import type { CryptFlowProps } from './features/crypt/crypt-flow';
-import { notesTextFromChunks } from './features/generate/generated-crypt';
-import type { GenerateSeams } from './features/generate/generate-seams';
-import { IngestFlow } from './features/ingest/ingest-flow';
-import type { IngestFlowProps } from './features/ingest/ingest-flow';
+import { FrontOfHouse } from './features/desk/front-of-house';
+import type { FrontOfHouseProps } from './features/desk/front-of-house';
 import { createIdbStore } from './features/ingest/notes-store-idb';
 import { createMemoryStore } from './features/ingest/notes-store-memory';
 import { createSessionStore } from './features/ingest/notes-store';
@@ -18,49 +13,23 @@ const store = createSessionStore(createIdbStore(globalThis.indexedDB), createMem
 export interface IngestScreenProps {
   readonly store: NotesStore;
   /** Test seams, passed straight through. */
-  readonly createClient?: IngestFlowProps['createClient'];
-  readonly useBinding?: CryptFlowProps['useBinding'];
-  readonly generate?: GenerateSeams;
+  readonly createClient?: FrontOfHouseProps['createClient'];
+  readonly useBinding?: FrontOfHouseProps['useBinding'];
+  readonly generate?: FrontOfHouseProps['generate'];
 }
 
 /**
- * The notes step, then the crypt. Once notes are confirmed, CryptFlow's start view
- * offers "Enter the crypt" with the sample-crypt line, and "Generate from my notes" when a worker is
- * configured. "Enter the crypt" plays the built-in sample crypt; the confirmed notes text goes only to
- * the worker, and only after the learner presses Generate. Nothing about the run is
- * saved, so a reload starts again at the notes preview.
+ * The open book: bring notes, confirm them, then choose the sample crypt or Generate. The confirmed
+ * notes text goes only to the worker, and only after the learner presses Generate. Nothing about the
+ * run is kept for a reload except what the saved-crypt storage already holds.
  */
 export function IngestScreen({ store: notesStore, createClient, useBinding, generate }: IngestScreenProps): React.JSX.Element {
-  const [notesText, setNotesText] = useState<string | null>(null);
-  const [notesDigest, setNotesDigest] = useState<string | undefined>(undefined);
-  // Generation progress is read through the notes step's one polite live region.
-  const [announcement, setAnnouncement] = useState('');
-  return (
-    <>
-      <IngestFlow store={notesStore} createClient={createClient} announcement={announcement} onConfirmed={(chunks) => {
-        setNotesText(notesTextFromChunks(chunks));
-        setNotesDigest(chunks[0]?.documentDigest);
-      }} />
-      {notesText !== null ? <CryptFlow useBinding={useBinding} notesText={notesText} notesDigest={notesDigest} generate={generate} onAnnounce={setAnnouncement} /> : null}
-    </>
-  );
+  return <FrontOfHouse route="ingest" store={notesStore} createClient={createClient} useBinding={useBinding} generate={generate} />;
 }
 
+/** `/` is the desk; `/ingest` is the open book. Each screen draws its own `main`. */
 export function App(): React.JSX.Element {
   const baseUrl = import.meta.env.BASE_URL;
-  if (routeFor(globalThis.location.pathname, baseUrl) === 'ingest') {
-    return (
-      <main className="screen">
-        <IngestScreen store={store} />
-      </main>
-    );
-  }
-  return (
-    <main className="screen">
-      <h1 className="screen-title">Escape the Crypt</h1>
-      <p>
-        <a href={`${baseUrl}ingest`}>Bring your notes</a>
-      </p>
-    </main>
-  );
+  const route = routeFor(globalThis.location.pathname, baseUrl);
+  return <FrontOfHouse route={route} store={store} baseUrl={baseUrl} />;
 }

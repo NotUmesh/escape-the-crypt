@@ -1,0 +1,8 @@
+/* The wrapper that lets the descent cover the run without remounting it. It draws no box. */
+.crypt-stage {
+  display: contents;
+}
+/* A run's page: the app's page frame applies (see .screen), so the wrapper adds nothing. */
+.crypt-stage--page {
+  display: block;
+}

@@ -2,7 +2,7 @@ import { act } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useMount } from '../../test-support/flow-dom';
 import type { ShareEnv } from './share-actions';
-import { SHARE_COPY } from './share-card-copy';
+import { SHARE_COPY } from '@escape-the-crypt/core';
 import { buildShareCardData } from './share-card-data';
 import type { ShareCardData } from './share-card-data';
 import { ShareCard } from './share-card';

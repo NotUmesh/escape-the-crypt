@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import {
   ENTER_CRYPT_LABEL,
+  FRONT_OF_HOUSE_COPY,
   LOCK_OBJECT_NAMES,
   ROOM_PLAY_LABELS,
   SLOT_STATUS_WORDS,
@@ -72,12 +74,28 @@ export function openLockName(stationType: LockType): string {
   return `${object}: ${kind}, ${SLOT_STATUS_WORDS.open}`;
 }
 
-/** From the start of the app: paste notes, confirm them, then choose "Enter the crypt". */
+/**
+ * Gets past the descent over a freshly started run. The room is drawn beneath the gate but is inert
+ * until the gate is gone, so every spec that plays calls this first. Without a gate (reduced motion)
+ * it only waits for the room.
+ */
+export async function skipDescent(page: Page): Promise<void> {
+  await page.locator('.room-screen, [data-testid="descent-gate"]').first().waitFor();
+  const skip = page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.descent.skip, exact: true });
+  if ((await skip.count()) > 0) await skip.click();
+  await expect(page.getByTestId('descent-gate')).toHaveCount(0);
+  await expect(page.locator('.crypt-stage')).not.toHaveAttribute('inert', /.*/);
+  // The pointer is still where Skip was. Move it off, so no lock is hovered when the learner starts.
+  await page.mouse.move(0, 0);
+}
+
+/** From the start of the app: paste notes, confirm them, choose "Enter the crypt", then skip the descent. */
 export async function enterCrypt(page: Page): Promise<void> {
   await page.goto('/ingest');
   await page.locator('.ingest-paste textarea').fill(NOTES_TEXT);
   await page.getByRole('button', { name: 'Confirm notes' }).click();
   await page.getByRole('button', { name: ENTER_CRYPT_LABEL }).click();
+  await skipDescent(page);
   await page.locator('.room-screen').waitFor();
   // The lock buttons appear once the Scene_File has loaded (or failed to); wait for them so callers never read an empty room.
   await page.locator('.room-screen__lock-button').first().waitFor();

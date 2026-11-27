@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { citationLabel } from '@escape-the-crypt/core';
+import { FRONT_OF_HOUSE_COPY, citationLabel } from '@escape-the-crypt/core';
 import type { Chunk } from '@escape-the-crypt/core';
 import { readNotesStore } from './notes-db';
 
@@ -66,7 +66,12 @@ test('paste flow: confirm is explained while empty, text stays plain, only parag
 
 test('paste flow with the keyboard only', async ({ page }) => {
   await page.goto('/ingest');
-  // First Tab stop is the paste box.
+  // The book's own controls come first, in visual order: the way back to the desk, then the lantern
+  // toggle. The paste box is the third stop.
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.bring.back })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.lantern })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.locator('.ingest-paste textarea')).toBeFocused();
   await page.keyboard.type(`${P1}\n\n${P2}\n\n${P3}`);

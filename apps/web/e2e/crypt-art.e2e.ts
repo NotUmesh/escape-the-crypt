@@ -28,6 +28,8 @@ test('hover and focus swap the lock layer to the -hover image and back (Requirem
   const lock = firstLockType();
   await enterCrypt(page);
   await waitForArtStage(page);
+  // After the descent, focus goes to the first lock, which shows its hover image. Start from rest.
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   const rest = `lock-${lock}.webp`;
   const hover = `lock-${lock}-hover.webp`;
   const shown = (file: string) => lockImage(page, lock, file);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { AUTOPSY_LABELS, ROOM_PLAY_LABELS, selectAutopsy } from '@escape-the-crypt/core';
+import { AUTOPSY_LABELS, ROOM_PLAY_LABELS, SAMPLE_CRYPT_LABEL, selectAutopsy } from '@escape-the-crypt/core';
 import type { ConceptOutcome, State } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
 import type { RoomAssets } from '../../state/room-assets';
@@ -8,12 +8,18 @@ import { withConceptTitles } from './autopsy-titles';
 import type { AutopsyEntryView } from './autopsy-titles';
 import { FinalDoorSection } from './final-door-section';
 import { resolveExcerpt } from './evidence-text';
+import { ShareCard } from '../share/share-card';
+import { buildShareCardData } from '../share/share-card-data';
 import type { ResolvedExcerpt } from './evidence-text';
 
 export interface AutopsyViewProps {
   readonly state: State;
   readonly assets: RoomAssets | null;
   readonly dispatch: (action: RoomAction) => void;
+  /** Sends the share result to the one live region on screen. */
+  readonly announce?: (message: string) => void;
+  /** The public title of the sample that was played. Used only when the crypt is a sample. */
+  readonly sampleTitle?: string;
 }
 
 const OUTCOME_ORDER: readonly ConceptOutcome[] = [
@@ -176,7 +182,7 @@ function ConceptsSection({
 }
 
 /** The Autopsy: one entry per concept, the five outcome counts and a way to play again. The final door section follows the concepts. */
-export function AutopsyView({ state, assets, dispatch }: AutopsyViewProps): ReactNode {
+export function AutopsyView({ state, assets, dispatch, announce, sampleTitle = SAMPLE_CRYPT_LABEL }: AutopsyViewProps): ReactNode {
   const view = selectAutopsy(state);
   if (!view.available || view.counts === null) return null;
   const entries = assets === null ? view.entries.map((e) => ({ ...e, title: e.conceptId })) : withConceptTitles(view.entries, assets.content);
@@ -184,6 +190,10 @@ export function AutopsyView({ state, assets, dispatch }: AutopsyViewProps): Reac
     <section className="autopsy-view" data-testid="autopsy-view" aria-labelledby="autopsy-heading">
       <h2 id="autopsy-heading">{ROOM_PLAY_LABELS.autopsyHeading}</h2>
       <CountsSection counts={view.counts} />
+      <ShareCard
+        data={buildShareCardData(view, assets === null || assets.source === 'notes' ? { kind: 'notes' } : { kind: 'sample', title: sampleTitle })}
+        announce={announce}
+      />
       <ConceptsSection entries={entries} assets={assets} />
       <FinalDoorSection state={state} content={assets === null ? null : assets.content} />
       <button type="button" onClick={() => dispatch({ type: 'playAgain' })}>

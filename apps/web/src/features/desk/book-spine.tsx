@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { FRONT_OF_HOUSE_COPY } from './front-of-house-copy';
+import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
 import { bookLabel } from './shelf-entry';
 import type { ShelfEntry } from './shelf-entry';
 

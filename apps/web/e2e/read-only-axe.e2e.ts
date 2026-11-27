@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { ENTER_CRYPT_LABEL } from '@escape-the-crypt/core';
-import { NOTES_TEXT } from './crypt-helpers';
+import { NOTES_TEXT, skipDescent } from './crypt-helpers';
 
 // Requirements 9.8 and 12.13: the read-only screen has no axe violations and focus lands on
 // "Take over here".
@@ -26,6 +26,7 @@ async function confirmNotes(page: Page): Promise<void> {
 test('read-only screen: no axe violations and focus on Take over here', async ({ context, page }) => {
   await confirmNotes(page);
   await page.getByRole('button', { name: ENTER_CRYPT_LABEL }).click();
+  await skipDescent(page);
   await page.locator('.room-screen').waitFor();
   await page.locator('.room-screen__lock-button').first().waitFor();
 
@@ -41,7 +42,8 @@ test('read-only screen: no axe violations and focus on Take over here', async ({
   if (!held) throw new Error('Tab 1 never acquired a run lock');
 
   const other = await context.newPage();
-  await confirmNotes(other);
+  // The saved crypt is on the desk's book stack, so tab 2 opens the desk, not the notes book.
+  await other.goto('/');
   await other.getByRole('button', { name: 'Continue your crypt', exact: true }).click();
   await other.getByTestId('read-only-screen').waitFor();
   const takeOver = other.getByRole('button', { name: TAKE_OVER_LABEL, exact: true });

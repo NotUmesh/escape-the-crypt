@@ -12,11 +12,11 @@ First draft for review. Each section lists the evidence that already exists in t
 | --- | --- | --- |
 | Specs | `.kiro/specs/` (6 folders), `docs/briefs/` | Strong |
 | Steering | `.kiro/steering/` (8 files, all three inclusion modes) | Strong |
-| Hooks | `.kiro/hooks/` (4 hooks, 3 with tests in `scripts/hooks/`) | Strong; the three new ones need one captured run each |
+| Hooks | `.kiro/hooks/` (3 hooks, all tested in `scripts/hooks/`; the original full-suite hook is retired) | Strong; each needs one captured run |
 | Property-based testing | fast-check across `packages/core`, `apps/web`, `apps/worker`; build-log entry on Property 12 | Strong |
 | Custom agents | `.kiro/agents/crypt-keeper.md`, `.kiro/agents/design-critic.md` | Written; each needs one captured run on real output |
 | MCP | `.kiro/settings/mcp.json` (Playwright server, pinned) | Configured and started once against a local page; needs a captured run in Kiro |
-| Powers | none in the repo; `packages/core` is built to be packageable | TODO (capture) |
+| Powers | `powers/grounded-quiz/` (Grounded Quiz: quote resolver, normaliser and evidence checks from `packages/core`) | Built and tested; needs one captured install and run in Kiro |
 | Skills | `.kiro/skills/evaluation/SKILL.md` and the files it produced | Strong |
 | Surfaces | git history only | TODO (capture) |
 
@@ -73,7 +73,7 @@ First committed in `392b7ed` "Add steering docs". It was edited as the build wen
 
 | Rule | Steering file | Check in the repo |
 | --- | --- | --- |
-| Banned wording and learning-gain claims | `evidence-and-honesty.md` | `packages/core/src/copy-banned-words.test.ts`; `apps/web/src/features/start/new-copy-wording.test.ts` (Property 20); `apps/web/src/features/share/share-card-copy.test.ts` |
+| Banned wording and learning-gain claims | `evidence-and-honesty.md` | `packages/core/src/copy-banned-words.test.ts`; `apps/web/src/features/start/new-copy-wording.test.ts` (Property 20); `packages/core/src/copy-share.test.ts`; `packages/core/src/copy-front-of-house.test.ts` |
 | Colour literals only in `tokens.css`; no cross-origin URLs | `design-system.md`, `security.md` | `apps/web/src/features/ingest/style-guard-rules.ts` and `style-guard.test.ts`; `apps/web/src/styles/tokens.test.ts` |
 | Files under about 300 lines, kebab-case names, core imports, shared types in one file | `structure.md`, `tech.md` | `scripts/check-structure.ts` (run by `pnpm lint`) and `scripts/structure-checks.test.ts` |
 | `packages/core` has no React, database or AI SDK | `tech.md` | `packages/core/src/boundary.test.ts`; `apps/worker/src/boundary.test.ts` |
@@ -90,41 +90,38 @@ First committed in `392b7ed` "Add steering docs". It was edited as the build wen
 
 ## 3. Hooks
 
-**What they are used for.** Four hooks give fast feedback on save. CI stays the release gate. None of the three newest runs a whole package: each runs the one or two test files, or the one check, that belongs to the file just saved.
+**What they are used for.** Three hooks give fast feedback on save. CI stays the release gate. None runs a whole package: each runs the one or two test files, or the one check, that belongs to the file just saved. The first hook ever written here (`run-core-tests-on-save`, commit `5f6b32e`, extended in `702dccc`) ran the whole core suite on most core saves. It is retired: its two files were deleted when the related-tests hook replaced it, because a full core run took 24.36 s on 2026-11-27 (149 files, 1,177 tests in the `pnpm test` run that day) and that is too slow to run on every save. Its history stays in `docs/build-log.md` ("First Kiro hook", "Hook change").
 
 | Hook | File | Fires on | Runs | Tested by |
 | --- | --- | --- | --- | --- |
-| Run core tests on save (the first hook) | `.kiro/hooks/run-core-tests-on-save.json`, script `.kiro/hooks/run-core-tests.mjs` | a save under `packages/core/src` | `runtime/` or `locks/` saves run those two folders; any other core save runs the full core suite | no test (see "Overlap" below) |
-| Run related core tests on save | `.kiro/hooks/related-core-tests-on-save.json`, script `scripts/hooks/related-tests.ts` | a `.ts` or `.tsx` save under `packages/core/src` | the tests named after the file, the tests that import it, or the tests named after the module that imports it, capped at 12 files | `scripts/hooks/related-tests.test.ts` |
-| Check tasks.md format on edit | `.kiro/hooks/check-tasks-format-on-edit.json`, script `scripts/hooks/check-tasks-format.ts` | any `.kiro/specs/*/tasks.md` | the format check on that one file (checkbox syntax, numbering, parent and sub-task consistency, requirement lines, garbled characters) | `scripts/hooks/tasks-format.test.ts` |
+| Run related core tests on save | `.kiro/hooks/related-core-tests-on-save.json`, script `scripts/hooks/related-tests.ts` | a `.ts` or `.tsx` save under `packages/core/src` | the tests named after the file, the tests that import it, the tests that import a module that imports it, or the tests named after that module, whichever set is first non-empty and at most 12 files | `scripts/hooks/related-tests.test.ts` |
+| Check tasks.md format on edit | `.kiro/hooks/check-tasks-format-on-edit.json`, script `scripts/hooks/check-tasks-format.ts` | any `.kiro/specs/*/tasks.md` | the format check on that one file (checkbox syntax, numbering at three levels, parent and child consistency, requirement lines, garbled characters) | `scripts/hooks/tasks-format.test.ts` |
 | Run the wording test on copy edit | `.kiro/hooks/banned-words-on-copy-edit.json`, script `scripts/hooks/banned-words-tests.ts` | a `copy*.ts` or `*-copy.ts` file in core or web, or its test | `packages/core/src/copy-banned-words.test.ts` for core copy; the test named after the file for web copy; a message when a web copy file has no test | `scripts/hooks/banned-words-tests.test.ts` |
 
-All four use `PostFileSave` and a `command` action, and the three new ones were made with Kiro's `createHook` tool. `scripts/hooks/hook-definitions.test.ts` reads every file in `.kiro/hooks/` and checks the trigger, that each matcher accepts and rejects the right paths (in both slash styles), that each command names a script that exists, and that the three new hooks never call `pnpm`, `vitest` or `--run`. These tests run under `pnpm test` (the `scripts` project).
+All three use `PostFileSave` and a `command` action, and were made with Kiro's `createHook` tool. `scripts/hooks/hook-definitions.test.ts` reads every file in `.kiro/hooks/` and checks that exactly these three exist, that each matcher accepts and rejects the right paths (in both slash styles), that each command names a script that exists, and that none calls `pnpm`, `vitest` or `--run`. These tests run under `pnpm test` (the `scripts` project).
 
-**How the related-tests hook stays small.** It reads the files under `packages/core/src` once, builds the import map, and picks the first set that is not empty and fits under 12 test files: named, then importing, then reaching through one module, then named after the importing modules. A test in `scripts/hooks/related-tests.test.ts` plans every real non-test file in `packages/core/src` and asserts none gets more than 12. Run by hand on 2026-11-27 (this machine, one run each):
+**How the related-tests hook stays small.** It reads the files under `packages/core/src` once, builds the import map, and picks the first set that is not empty and fits under 12 test files. A test in `scripts/hooks/related-tests.test.ts` plans every real non-test file in `packages/core/src` and asserts none gets more than 12. Run by hand on 2026-11-27 (this machine, one run each):
 
 | Saved file | What the hook did |
 | --- | --- |
-| `packages/core/src/runtime/apply.ts` | 30 test files reach it, over the cap, so it ran the 2 named after it: 2 files, 26 tests, 0.687 s wall time |
-| `packages/core/src/chunker-rebalance.ts` | 19 test files reach it and none is named after it, so it ran the 10 named after the modules that import it (`chunker*.test.ts`) |
-| `packages/core/src/types.ts` | 132 test files reach it, so it ran nothing and said so |
+| `packages/core/src/runtime/apply.ts` | 30 test files reach it, over the cap, so it ran the 2 named after it: 2 files, 26 tests, 0.677 s wall time |
+| `packages/core/src/chunker-rebalance.ts` | 24 test files reach it and none is named after it, so it ran the 10 named after the modules that import it (`chunker*.test.ts`) |
+| `packages/core/src/types.ts` | 147 test files reach it, so it ran nothing and said so |
 
-The wording hook on `packages/core/src/copy.ts` ran 1 test file, 9 tests, 0.491 s wall time. On `apps/web/src/features/share/share-card-copy.ts` it ran 1 file, 5 tests (vitest reported 857 ms).
+The wording hook on `packages/core/src/copy.ts` ran 1 test file, 9 tests, 0.482 s wall time. On `apps/web/src/features/share/share-card-copy.ts` it ran 1 file, 5 tests (vitest reported 891 ms). That file has since moved to `packages/core/src/copy-share.ts`, where the hook runs the shared core test and `copy-share.test.ts`.
 
-**What the tasks hook found on its first run.** `node scripts/hooks/check-tasks-format.ts --all` reports 22 lines with garbled characters in `.kiro/specs/generation-and-evaluation/tasks.md` (UTF-8 text saved as Windows-1252, for example "â€“" where an en dash was meant). The other five task lists pass. TODO (capture): fix those lines (in the file's owner's session, since it is a spec the pipeline work edits) and keep a screenshot of the hook's output before and after.
+**What the tasks hook found.** `node scripts/hooks/check-tasks-format.ts --all` reports 22 lines with garbled characters in `.kiro/specs/generation-and-evaluation/tasks.md` (UTF-8 text saved as Windows-1252, for example "â€“" where an en dash was meant). The other task lists pass. That file belongs to the generation work and the fix is left to that session's next checkpoint. The hook also taught its own rules: its first version knew only two levels of tasks, and `.kiro/specs/haunting-polish/tasks.md` (Kiro's "4.2.1 Property 1" tasks) failed it, so it now accepts three levels.
 
-**Overlap.** The first hook also fires on every core save, and its fallback runs the whole core suite (22.65 s on 2026-11-27: 143 files, 1,145 tests passed, run with `--maxWorkers=50%`). The related-tests hook is the quicker replacement. TODO (decision): retire the first hook, or cut its full-suite fallback, so a core save does not run both.
-
-**Requirements for the new hooks.** Node 22.18 or newer (the scripts are TypeScript run by `node` directly, like `scripts/check-structure.ts`), and Kiro must be restarted or the session reopened so it picks up new hook files.
+**Requirements.** Node 22.18 or newer (the scripts are TypeScript run by `node` directly, like `scripts/check-structure.ts`), and a restart of the Kiro session so it picks up new hook files. The room-runtime brief (`docs/briefs/room-runtime-spec-brief.md`, line 144) records that file hooks fire on agent edits and not on manual edits in the editor, so capture a hook by asking Kiro's chat to make the edit.
 
 **Capture recipes (TODO (capture): one screenshot each, saved in `docs/captures/`).**
-1. Related tests: in Kiro, open `packages/core/src/chunker-rebalance.ts`, add a blank line, save, then undo and save again. Capture the hook's output. By hand: `node scripts/hooks/related-tests.ts --file packages/core/src/chunker-rebalance.ts`.
-2. Tasks format: open `.kiro/specs/room-play/tasks.md` and save it (clean result), then open `.kiro/specs/generation-and-evaluation/tasks.md` and save it (the garbled lines). By hand: `node scripts/hooks/check-tasks-format.ts --all`.
-3. Wording: open `packages/core/src/copy.ts` and save it unchanged (green). Then, on a scratch branch, add the word "mastered" inside any string and save: the test should fail. Discard the change with `git checkout -- packages/core/src/copy.ts`.
+1. Related tests: ask Kiro to add and then remove a blank line in `packages/core/src/chunker-rebalance.ts`. Capture the hook's output. By hand: `node scripts/hooks/related-tests.ts --file packages/core/src/chunker-rebalance.ts`.
+2. Tasks format: ask Kiro to re-save `.kiro/specs/room-play/tasks.md` (clean result), then `.kiro/specs/generation-and-evaluation/tasks.md` (the garbled lines). By hand: `node scripts/hooks/check-tasks-format.ts --all`.
+3. Wording: ask Kiro to re-save `packages/core/src/copy.ts` unchanged (green). Then, on a scratch branch, ask it to add the word "mastered" inside any string: the test should fail. Discard with `git checkout -- packages/core/src/copy.ts`.
 
 **Gaps.**
 - TODO (capture): the three screenshots above, and one real moment where a hook caught something you did not expect.
-- The hooks panel in Kiro: TODO (capture) a screenshot of the four hooks listed.
+- TODO (capture): a screenshot of the three hooks listed in Kiro's hooks panel.
 
 ---
 
@@ -229,11 +226,39 @@ Notes for the run:
 
 ## 7. Powers
 
-Nothing installed or committed. What exists is the groundwork:
+**What it is.** `powers/grounded-quiz/` is a Kiro Power, **Grounded Quiz**. It lets someone make a quiz from their own notes in their own Kiro, where every question cites an exact quote and code checks the quote. It packages three parts of `packages/core`: the quote resolver (`quote-resolver.ts`), the normaliser (`normalise.ts`) and the evidence code checks (`checks/` and the per-lock-type checks in `locks/`), plus the document preparation they need (`pipeline/prepare-input.ts`, which includes the line-break repair from section 4). Kiro's model drafts the questions. The tools say whether each one stands.
 
-- `.kiro/steering/tech.md` says `packages/core` holds the shared engine and "must not depend on React, the database or any AI SDK directly (pass providers in), so it can be packaged as a Kiro Power".
-- `packages/core/src/boundary.test.ts` and `scripts/check-structure.ts` check that boundary (core imports only `@noble/hashes` and relative files, and uses no DOM global; see the build-log entry "Integration and structure checks").
-- TODO (capture): decide whether to package the engine (quote resolver, contracts, lock checks) as a Power before submission. If not, say plainly that the boundary is prepared and no Power was built.
+**Format.** Kiro's current docs build powers on the Agent Plugins specification, so the Power uses `plugin.json`, `mcp.json` and `skills/`, not the older `POWER.md` (which the docs say still works but do not describe). `powers/grounded-quiz/test/manifest.test.ts` checks both manifests against the key sets in the published JSON schemas (`agent-plugins.org/schemas/1.0.0/plugin.schema.json` and `mcp.schema.json`, which were read while building it).
+
+| File | Role |
+| --- | --- |
+| `powers/grounded-quiz/plugin.json` | Name `grounded-quiz`, version, description, author, keywords that activate it, repository, MIT licence |
+| `powers/grounded-quiz/mcp.json` | One stdio server: `node ${PLUGIN_ROOT}/server/index.mjs` |
+| `powers/grounded-quiz/skills/grounded-quiz/SKILL.md` | The workflow: prepare, choose, draft, check, repair or set aside, present with sources and the limits |
+| `powers/grounded-quiz/skills/grounded-quiz/references/` | `question-formats.md` (five lock types, with real sample questions) and `worked-example.md` (a real run on `samples/human-heart.txt`) |
+| `powers/grounded-quiz/README.md` | What it is and is not, install, tools, privacy, how it is built |
+| `powers/grounded-quiz/server/index.mjs` | The server and everything it imports from core, bundled into one file (851,289 bytes) so the installed Power needs nothing else |
+| `powers/grounded-quiz/src/`, `test/`, `scripts/build.mjs` | Source, tests, and the build |
+
+**The tools** (a small MCP server that holds your notes in memory only): `prepare_notes` (numbered paragraphs and a `notesId`), `resolve_quote`, `check_question`, `check_quiz` (adds the checks that compare questions: leaks and repeated answers), `normalise_text`, `list_checks`. Five lock types are checked: rune cipher, séance board, bone ordering, bound threads, cursed object. Combination dial is not checked in core yet, so the Power says it is unsupported.
+
+**It imports core and changes none of it.** Core's public index does not export `runChecks`, the check registry or the authoring schema, so the Power imports core's source files through one file, `src/core-imports.ts`, and a test asserts that is the only file naming `packages/core`. Nothing under `packages/core` was edited. When core moved on during this work (bound-threads and cursed-object checks landed, and `CHECK_VERSION` went from `2026-11-27.2` to `2026-11-27.4`), the Power's own tests failed in the right places: the bundle's check version no longer matched core's, and a new check had no help text. The Power was extended to match.
+
+**Tests** (`pnpm test`, in the `scripts` project; 7 files, 89 tests on 2026-11-27):
+- `tools.test.ts`, `checks.test.ts`: every tool on `samples/human-heart.txt`: the sample crypt's ten supported questions all pass `check_quiz`; a wrong quote, a leaked answer, a negative question, two supported options, a repeated right-hand item, an odd item that is not among the items, and a duplicate answer across questions all fail with the right Check_ID.
+- `server.test.ts`: the protocol (initialize, tools/list, tools/call, errors, notifications, split and batched lines).
+- `bundle.test.ts`: runs the committed `server/index.mjs` over stdio on the sample notes; asserts it imports nothing but Node's `readline` (no files, no network, no processes), serves the same tool list as the source, and reports the same `CHECK_VERSION` as core.
+- `manifest.test.ts`, `docs.test.ts`: the manifests, the skill front matter, banned wording in every document, and the examples in `question-formats.md` and `worked-example.md` run as written against the tools.
+- `hygiene.test.ts`: 300-line and kebab-case rules for the Power's own files.
+`pnpm typecheck` also runs `tsc -p powers/grounded-quiz`, and `eslint.config.js` ignores the generated bundle.
+
+**Install and use (for the write-up and the video).** In Kiro: Powers panel, **Add Custom Power**, **Import power from a folder**, choose `powers/grounded-quiz` (or **Import power from GitHub** with `https://github.com/NotUmesh/escape-the-crypt/tree/main/powers/grounded-quiz`). Needs Node 20 or newer on the PATH. Then say: "Make a quiz from these notes, with fill-in-the-blank and multiple-choice questions", and paste the text of `samples/human-heart.txt`. Rebuild after core changes with `node powers/grounded-quiz/scripts/build.mjs`.
+
+**Honest limits.** The Power does not generate questions itself and does not run the blind model review. A question that passes is not thereby a good one; the tool results say so in `notChecked`. The committed bundle is a copy of core's code at build time: the tests catch a changed `CHECK_VERSION` or tool list, not every edit to core.
+
+**Gaps.**
+- TODO (capture): install the Power in Kiro from the folder, a screenshot of it listed in the Powers panel, and a short recording of one quiz made from `samples/human-heart.txt` with one question failing a check and being repaired. The server has been run over stdio by the tests, not yet inside Kiro, so how Kiro expands `${PLUGIN_ROOT}` is not yet observed here.
+- TODO (decision): whether to publish the Power from this repository's `powers/` folder as it stands, or to give it its own repository.
 
 ---
 
@@ -288,10 +313,10 @@ The repo shows work done in the Kiro IDE (spec folders, hooks created with `crea
 
 - [ ] Re-run the counting commands on the final commit and update every figure.
 - [ ] Fill each TODO (capture), or delete the sentence it sits under. Screenshots go in `docs/captures/` (see its README for the planned names).
-- [ ] Hooks: one captured run for each of the three new hooks; decide about the first hook's full-suite fallback; fix the garbled characters the tasks hook found.
+- [ ] Hooks: one captured run for each of the three hooks; the garbled characters the tasks hook found are fixed by the owner of that spec.
 - [ ] Agents: one captured report from each of crypt-keeper and design-critic, on real output.
 - [ ] MCP: the server connected in Kiro, and the sample-crypt run with its screenshots.
 - [ ] Add the missing build-log entries (first entry blank fields, PDF line breaks, specs 3, 4, room-play, evaluation skill, the three hooks, the two agents, the MCP server).
-- [ ] Powers: either package something real or say plainly that none was built (section 7).
+- [ ] Powers: the Power installed in Kiro from the folder, with a screenshot and a short recording (section 7); rebuild the bundle if core changed since.
 - [ ] After the paid re-record, update section 8 with the new run files.
 - [ ] Link this file from the README.

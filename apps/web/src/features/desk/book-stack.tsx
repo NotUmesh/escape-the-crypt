@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { BookSpine } from './book-spine';
-import { FRONT_OF_HOUSE_COPY } from './front-of-house-copy';
+import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
 import { shelfKey } from './shelf-entry';
 import type { ShelfEntry } from './shelf-entry';
 import './book-stack.css';

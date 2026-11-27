@@ -1,7 +1,6 @@
 /**
- * Text for the share card. It lives here while core's `index.ts` is being changed by another task;
- * at integration it moves to core copy with the same shape. Every string is checked against the
- * banned-wording list in `share-card-copy.test.ts`. The card claims nothing about learning.
+ * Text for the share card. Every string is checked against the banned-wording list in
+ * `copy-share.test.ts`. The card claims nothing about learning.
  */
 
 /** The public address of the game. It goes in the shared text only; the app never requests it. */

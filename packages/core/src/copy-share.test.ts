@@ -1,6 +1,6 @@
-import { BANNED_COPY_PHRASES } from '@escape-the-crypt/core';
+import { BANNED_COPY_PHRASES } from './copy';
 import { describe, expect, it } from 'vitest';
-import { GENERIC_CRYPT_NAME, SHARE_COPY, ghostPhrase } from './share-card-copy';
+import { GENERIC_CRYPT_NAME, SHARE_COPY, ghostPhrase } from './copy-share';
 
 // The same lists the persistence copy test uses.
 const LEARNING_GAIN_CLAIMS: readonly string[] = [

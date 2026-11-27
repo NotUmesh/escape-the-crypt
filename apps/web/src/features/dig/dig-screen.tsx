@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { GENERATION_COPY } from '@escape-the-crypt/core';
 import { LanternToggle } from '../crypt/lantern-toggle';
 import { useLantern } from '../crypt/lantern-context';
-import { FRONT_OF_HOUSE_COPY, formatElapsed } from '../desk/front-of-house-copy';
+import { FRONT_OF_HOUSE_COPY, formatElapsed } from '@escape-the-crypt/core';
 import { isGenerating } from '../generate/generation-flow';
 import type { GenerationState } from '../generate/generation-flow';
 import { GenerationNotice } from '../generate/generation-notice';

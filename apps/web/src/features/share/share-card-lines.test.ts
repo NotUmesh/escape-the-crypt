@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildShareCardData } from './share-card-data';
-import { SHARE_URL } from './share-card-copy';
+import { SHARE_URL } from '@escape-the-crypt/core';
 import { allCardText, cardLines, countsSentence, shareText } from './share-card-lines';
 import { escapedView } from './share-test-support';
 

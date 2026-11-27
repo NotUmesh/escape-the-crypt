@@ -1,5 +1,5 @@
 import { SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
-import { SHARE_COPY, SHARE_URL } from './share-card-copy';
+import { SHARE_COPY, SHARE_URL } from '@escape-the-crypt/core';
 import type { ShareCardData } from './share-card-data';
 
 export type CardLineRole = 'app' | 'headline' | 'note' | 'count' | 'footer';
