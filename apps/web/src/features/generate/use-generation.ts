@@ -24,7 +24,7 @@ export interface Generation {
   readonly state: GenerationState;
   /** Starts a job for this notes text. Ignored while one is running. */
   readonly start: (notesText: string) => void;
-  /** Stops polling and drops the job ID. Sends no request. */
+  /** Stops polling, drops the job ID and asks the worker to stop the job (once, fire-and-forget). */
   readonly cancel: () => void;
   /** The playable crypt of a `ready` state, with the chunks of the text that was sent. */
   readonly crypt: () => (SampleCryptResult & { readonly source: 'notes' }) | null;
@@ -54,8 +54,33 @@ export function useGeneration(options: GenerationOptions): Generation {
     }
   }, []);
 
-  useEffect(() => stop, [stop]);
-
+  // The job the worker knows about while this hook polls it. Null before the POST returns and after any end.
+  const activeJob = useRef<string | null>(null);
+  // Job IDs a DELETE was already sent for: at most one per job.
+  const deleted = useRef(new Set<string>());
+  // Runs left (cancel or unmount) before their POST returned a job ID.
+  const abandoned = useRef(new Set<number>());
+  const sendDelete = useCallback((jobId: string): void => {
+    if (deleted.current.has(jobId)) return;
+    deleted.current.add(jobId);
+    optionsRef.current.client.cancelJob(jobId);
+  }, []);
+  /** Stops the run for good and tells the worker when a job is in flight. */
+  const abandon = useCallback((): void => {
+    const jobId = activeJob.current;
+    if (jobId !== null) sendDelete(jobId);
+    else if (liveRun.current !== null) abandoned.current.add(liveRun.current);
+    activeJob.current = null;
+    stop();
+  }, [sendDelete, stop]);
+  useEffect(() => abandon, [abandon]);
+  useEffect(() => {
+    const onPageHide = (): void => {
+      if (activeJob.current !== null) sendDelete(activeJob.current);
+    };
+    window.addEventListener('pagehide', onPageHide);
+    return () => window.removeEventListener('pagehide', onPageHide);
+  }, [sendDelete]);
   const sleep = useCallback(
     (ms: number): Promise<void> =>
       new Promise<void>((resolve) => {
@@ -75,13 +100,18 @@ export function useGeneration(options: GenerationOptions): Generation {
       const alive = (): boolean => liveRun.current === run;
       const finish = (event: Parameters<typeof send>[0]): void => {
         liveRun.current = null;
+        activeJob.current = null;
         send(event);
       };
       let jobId: string | null = null;
       for (let attempt = 0; jobId === null; attempt += 1) {
         // The same key every time, so a retried POST cannot start a second job.
         const started = await client.startJob(notesText, key);
-        if (!alive()) return;
+        if (!alive()) {
+          // Cancelled while the POST was in flight: stop the job it started, and never poll it.
+          if (started.ok && abandoned.current.delete(run)) sendDelete(started.value.jobId);
+          return;
+        }
         if (started.ok) {
           jobId = started.value.jobId;
         } else if ((started.error.kind === 'network' || started.error.kind === 'timeout') && attempt < startRetries) {
@@ -92,6 +122,7 @@ export function useGeneration(options: GenerationOptions): Generation {
           return;
         }
       }
+      activeJob.current = jobId;
       send({ type: 'started', jobId });
       let pollErrors = 0;
       for (let polls = 0; polls < maxPolls; polls += 1) {
@@ -127,7 +158,7 @@ export function useGeneration(options: GenerationOptions): Generation {
       }
       finish({ type: 'capReached' });
     },
-    [sleep],
+    [sendDelete, sleep],
   );
 
   const start = useCallback(
@@ -144,9 +175,9 @@ export function useGeneration(options: GenerationOptions): Generation {
   );
 
   const cancel = useCallback((): void => {
-    stop();
+    abandon();
     send({ type: 'cancel' });
-  }, [stop]);
+  }, [abandon]);
 
   const crypt = useCallback(() => built.current, []);
 

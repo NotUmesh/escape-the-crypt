@@ -8,6 +8,8 @@ export interface FakeWorker {
   readonly startTexts: string[];
   /** Job ids, one per `getJob` call. */
   readonly polls: string[];
+  /** Job ids, one per cancelJob call. */
+  readonly cancels: string[];
 }
 
 type StartStep = WorkerError | 'ok';
@@ -27,6 +29,7 @@ export function fakeWorker(polls: readonly PollStep[], starts: readonly StartSte
   const startKeys: string[] = [];
   const startTexts: string[] = [];
   const pollLog: string[] = [];
+  const cancelLog: string[] = [];
   const next = <T,>(steps: readonly T[], count: number): T => steps[Math.min(count, steps.length - 1)] as T;
   const client: WorkerClient = {
     startJob(notesText, key): Promise<WorkerResult<StartedJob>> {
@@ -40,6 +43,9 @@ export function fakeWorker(polls: readonly PollStep[], starts: readonly StartSte
       pollLog.push(jobId);
       return Promise.resolve(isJob(step) ? { ok: true, value: step } : { ok: false, error: step });
     },
+    cancelJob(jobId): void {
+      cancelLog.push(jobId);
+    },
   };
-  return { client, startKeys, startTexts, polls: pollLog };
+  return { client, startKeys, startTexts, polls: pollLog, cancels: cancelLog };
 }

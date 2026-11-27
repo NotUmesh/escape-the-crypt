@@ -41,6 +41,8 @@ export interface StartedJob {
 export interface WorkerClient {
   startJob(notesText: string, idempotencyKey: string): Promise<WorkerResult<StartedJob>>;
   getJob(jobId: string): Promise<WorkerResult<JobState>>;
+  /** Fire-and-forget DELETE /jobs/:id. Survives page unload. Never throws; the outcome is ignored. */
+  cancelJob(jobId: string): void;
 }
 
 export interface WorkerClientOptions {
@@ -175,6 +177,23 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
           return toJobState(parsed.data);
         },
       );
+    },
+    cancelJob(jobId) {
+      try {
+        fetchImpl(`${origin}/jobs/${encodeURIComponent(jobId)}`, {
+          method: 'DELETE',
+          headers: { 'X-Session-Token': sessionToken },
+          credentials: 'omit',
+          cache: 'no-store',
+          redirect: 'error',
+          keepalive: true,
+        }).then(
+          () => undefined,
+          () => undefined,
+        );
+      } catch {
+        // Ignored: the worker also expires jobs by itself.
+      }
     },
   };
 }

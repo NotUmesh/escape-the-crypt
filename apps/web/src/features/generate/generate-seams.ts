@@ -19,6 +19,7 @@ const REQUEST_TIMEOUT_MS = 15_000;
 const INERT_CLIENT: WorkerClient = {
   startJob: () => Promise.resolve({ ok: false, error: { kind: 'network' } }),
   getJob: () => Promise.resolve({ ok: false, error: { kind: 'network' } }),
+  cancelJob: () => undefined,
 };
 
 export function resolveOrigin(seams: GenerateSeams | undefined): string | null {

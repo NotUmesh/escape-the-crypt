@@ -35,7 +35,7 @@ export interface FakeWorker {
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token, Idempotency-Key',
   'Access-Control-Max-Age': '600',
 };
@@ -87,6 +87,10 @@ export async function installFakeWorker(page: Page, steps: readonly FakeStep[]):
       } else {
         await json(route, 200, JSON.stringify(step));
       }
+      return;
+    }
+    if (request.method() === 'DELETE' && path.startsWith('/jobs/')) {
+      await route.fulfill({ status: 204, headers: CORS });
       return;
     }
     await json(route, 404, '{}');

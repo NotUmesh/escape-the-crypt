@@ -41,6 +41,7 @@ test('generated crypt: progress, polls, play to the escape view with notes citat
   const gets = fake.seen.filter((request) => request.method === 'GET');
   expect(posts).toHaveLength(1);
   expect(gets.length).toBeGreaterThanOrEqual(3);
+  expect(fake.seen.filter((request) => request.method === 'DELETE')).toHaveLength(0);
   const post = posts[0];
   if (post === undefined) throw new Error('no POST seen');
   expect(post.url).toBe(`${WORKER_ORIGIN}/jobs`);
@@ -88,7 +89,7 @@ for (const kind of FAILURES) {
   test(`failure ${kind}: message, sample offer, and the offer starts the sample crypt`, async ({ page }) => {
     const requested: string[] = [];
     page.on('request', (request) => requested.push(request.url()));
-    await installFakeWorker(page, [{ status: 'failed', failure: kind }]);
+    const fake = await installFakeWorker(page, [{ status: 'failed', failure: kind }]);
     await startGeneration(page);
     const appOrigin = new URL(page.url()).origin;
     const copy = GENERATION_COPY.failures[kind];
@@ -97,28 +98,35 @@ for (const kind of FAILURES) {
     await page.getByRole('button', { name: GENERATION_COPY.sampleOffer }).click();
     await page.locator('.room-screen').waitFor();
     await page.locator('.room-screen__lock-button').first().waitFor();
+    expect(fake.seen.filter((request) => request.method === 'DELETE')).toHaveLength(0);
     expect(foreignRequests(requested, appOrigin)).toEqual([]);
   });
 }
 
 test('expired: message and sample offer', async ({ page }) => {
-  await installFakeWorker(page, [{ status: 'expired' }]);
+  const fake = await installFakeWorker(page, [{ status: 'expired' }]);
   await startGeneration(page);
   const copy = GENERATION_COPY.failures.expired;
   await expect(page.getByText(copy.what, { exact: true })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText(copy.next, { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: GENERATION_COPY.sampleOffer })).toBeVisible();
+  expect(fake.seen.filter((request) => request.method === 'DELETE')).toHaveLength(0);
 });
 
-test('cancel: no request reaches the worker afterwards, and both buttons return', async ({ page }) => {
+test('cancel: one DELETE for the job, then no request reaches the worker, and both buttons return', async ({ page }) => {
   const steps: FakeStep[] = [{ status: 'running' }];
   const fake = await installFakeWorker(page, steps);
   await startGeneration(page);
   await expect(page.getByTestId('generation-progress')).toBeVisible();
   await expect.poll(() => fake.seen.length, { timeout: 10_000 }).toBeGreaterThanOrEqual(1);
   await page.getByRole('button', { name: GENERATION_COPY.cancel, exact: true }).click();
-  const countAtCancel = fake.seen.length;
   await expect(page.getByTestId('generation-cancelled')).toBeVisible();
+  await expect.poll(() => fake.seen.filter((request) => request.method === 'DELETE').length).toBe(1);
+  const countAtCancel = fake.seen.length;
+  const deletes = fake.seen.filter((request) => request.method === 'DELETE');
+  expect(deletes[0]?.url).toBe(`${WORKER_ORIGIN}/jobs/job-1`);
+  expect(deletes[0]?.headers['x-session-token']).toMatch(/^[A-Za-z0-9_-]{22,128}$/);
+  expect(deletes[0]?.headers['cookie']).toBeUndefined();
   await page.waitForTimeout(POLL_MS * 2 + 1000);
   expect(fake.seen.length).toBe(countAtCancel);
   await expect(page.getByRole('button', { name: 'Enter the crypt' })).toBeVisible();

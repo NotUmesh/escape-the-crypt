@@ -207,4 +207,43 @@ describe('getJob', () => {
     await client.getJob('j');
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  describe('cancelJob', () => {
+    it('sends DELETE with the token, no cookies and keepalive', () => {
+      const { client, calls } = setup(() => new Response(null, { status: 204 }));
+      client.cancelJob('job/1');
+      expect(calls).toHaveLength(1);
+      expect(calls[0]?.url).toBe(`${ORIGIN}/jobs/job%2F1`);
+      expect(calls[0]?.init.method).toBe('DELETE');
+      expect(calls[0]?.init.headers).toEqual({ 'X-Session-Token': TOKEN });
+      expect(calls[0]?.init.credentials).toBe('omit');
+      expect(calls[0]?.init.cache).toBe('no-store');
+      expect(calls[0]?.init.redirect).toBe('error');
+      expect(calls[0]?.init.keepalive).toBe(true);
+    });
+    for (const status of [404, 405, 500]) {
+      it(`ignores a ${status} answer`, async () => {
+        const { client } = setup(() => new Response('{}', { status }));
+        expect(client.cancelJob('j')).toBeUndefined();
+        await Promise.resolve();
+      });
+    }
+    it('ignores a network error without an unhandled rejection', async () => {
+      const unhandled = vi.fn();
+      process.on('unhandledRejection', unhandled);
+      const fetchImpl = (() => Promise.reject(new TypeError('offline'))) as unknown as typeof fetch;
+      const client = createWorkerClient({ origin: ORIGIN, fetchImpl, sessionToken: TOKEN, timeoutMs: 1000 });
+      expect(() => client.cancelJob('j')).not.toThrow();
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      process.off('unhandledRejection', unhandled);
+      expect(unhandled).not.toHaveBeenCalled();
+    });
+    it('ignores a fetch that throws at once', () => {
+      const fetchImpl = (() => {
+        throw new TypeError('boom');
+      }) as unknown as typeof fetch;
+      const client = createWorkerClient({ origin: ORIGIN, fetchImpl, sessionToken: TOKEN, timeoutMs: 1000 });
+      expect(() => client.cancelJob('j')).not.toThrow();
+    });
+  });
 });
