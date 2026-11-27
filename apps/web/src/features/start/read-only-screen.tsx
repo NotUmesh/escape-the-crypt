@@ -11,8 +11,8 @@ export const READ_ONLY_TITLE = 'This crypt is open in another tab';
 export const TAKE_OVER_LABEL = 'Take over here';
 export const READ_ONLY_HINT = 'This tab shows the crypt as it was at the last saved step. Nothing here can be changed.';
 export const READ_ONLY_RESTORE_FAILED = 'The saved crypt could not be shown here. You can still take over.';
-const FINAL_DOOR_TEXT = 'The crypt is at the final door.';
-const ESCAPED_TEXT = 'The crypt has been escaped.';
+export const FINAL_DOOR_TEXT = 'The crypt is at the final door.';
+export const ESCAPED_TEXT = 'The crypt has been escaped.';
 
 export interface ReadOnlyScreenProps {
   /** The run as restored from the database at its last stored event. Null while loading or if it could not be restored. */

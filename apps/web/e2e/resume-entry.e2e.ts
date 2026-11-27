@@ -1,0 +1,49 @@
+import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { ENTER_CRYPT_LABEL, FINAL_DOOR_BUTTON_TEXT, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
+import { NOTES_TEXT, answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, submitAnswer } from './crypt-helpers';
+
+const CONTINUE_LABEL = 'Continue your crypt';
+
+/** After a reload the app opens on /ingest; confirming the same notes reaches the start screen. Waiting for it means an absent entry is not just a page still loading. */
+async function reloadToStart(page: Page): Promise<void> {
+  await page.reload();
+  await page.locator('.ingest-paste textarea').fill(NOTES_TEXT);
+  await page.getByRole('button', { name: 'Confirm notes' }).click();
+  await page.getByRole('button', { name: ENTER_CRYPT_LABEL }).waitFor();
+}
+
+test('an unfinished run offers "Continue your crypt" after a reload', async ({ page }) => {
+  const crypt = buildSampleCrypt();
+  await enterCrypt(page);
+  const [first] = roomOneSlots(crypt);
+  if (first === undefined) throw new Error('sample crypt room 1 has no slots');
+  await answerSlot(page, first, correctAnswerFor(crypt, first.primaryQuestion));
+  await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
+
+  await reloadToStart(page);
+  const entry = page.getByTestId('resume-entry');
+  await expect(entry).toBeVisible();
+  await expect(entry.getByRole('button', { name: CONTINUE_LABEL, exact: true })).toBeVisible();
+  await expect(entry.getByRole('button', { name: 'Start again', exact: true })).toBeVisible();
+});
+
+test('after the run escapes, a reload shows no resume entry', async ({ page }) => {
+  const crypt = buildSampleCrypt();
+  await enterCrypt(page);
+  for (const slot of roomOneSlots(crypt)) {
+    await answerSlot(page, slot, correctAnswerFor(crypt, slot.primaryQuestion));
+    await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
+  }
+  await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+  for (const doorSlot of crypt.manifest.finalDoor.slots) {
+    await page.locator('.final-door__seal-button').first().click();
+    await submitAnswer(page, correctAnswerFor(crypt, doorSlot.question));
+    await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
+  }
+  await expect(page.getByTestId('escape-view')).toBeVisible();
+
+  await reloadToStart(page);
+  await expect(page.getByTestId('resume-entry')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: CONTINUE_LABEL })).toHaveCount(0);
+});

@@ -249,8 +249,8 @@ Test names use hyphens. Storage tests run on `fake-indexeddb` with a fresh `IDBF
 - [x] 6. Checkpoint - Phase 3 complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Resume entry point and reload tests
-  - [~] 7.1 Create the resume entry and wire the start screen
+- [x] 7. Resume entry point and reload tests
+  - [x] 7.1 Create the resume entry and wire the start screen
     - Create `features/start/resume-entry.tsx` with "Continue your crypt" and "Start again", each at least 44 by 44 px with an accessible name and keyboard access
     - On the start screen, call `findResumable` and render the entry beside the existing buttons only when an `active` run exists; on a lookup error show only the existing buttons
     - "Continue your crypt" restores under task 1.17 and shows the screen the restored state describes
@@ -258,58 +258,58 @@ Test names use hyphens. Storage tests run on `fake-indexeddb` with a fresh `IDBF
     - On a restore error show a plain sentence that the saved crypt could not be opened and offer "Start again"; for `notes-unavailable` show that the notes for this crypt are missing from this device; leave stored records unchanged
     - _Requirements: 3.4, 5.8, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8_
 
-  - [~] 7.2 Write property test for the resumable run lookup
+  - [x] 7.2 Write property test for the resumable run lookup
     - **Property 19: The resumable run is the most recent active one**
     - **Validates: Requirements 10.1**
     - _Requirements: 10.1_
 
-  - [~] 7.3 Write the Playwright reload test
+  - [x] 7.3 Write the Playwright reload test
     - Play 3 events on the sample crypt, reload the page, continue, and find the same screen state
     - Use the existing e2e build; call no provider and no worker endpoint
     - _Requirements: 5.2, 10.3, 12.11, 12.14_
 
-  - [~] 7.4 Write the Playwright resume-entry test
+  - [x] 7.4 Write the Playwright resume-entry test
     - The Resume_Entry appears after a reload of an unfinished run and does not appear after the run escapes
     - _Requirements: 10.2, 10.5, 12.12, 12.14_
 
-  - [~] 7.5 Write the axe check for the resume entry
+  - [x] 7.5 Write the axe check for the resume entry
     - Expect no violations; assert the 44 by 44 px target size and keyboard reachability
     - _Requirements: 10.8, 12.13_
 
-- [~] 8. Checkpoint - Resume entry complete
+- [x] 8. Checkpoint - Resume entry complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Export
-  - [~] 9.1 Implement the export builder
+- [x] 9. Export
+  - [x] 9.1 Implement the export builder
     - Create `state/storage/export-run.ts` with `buildExport` and a strict Zod `ExportFile` schema holding schema version, notes chunks (or `null`), manifest, content, settings and events, with no field for an original file, file name or PDF bytes
     - Take events from the in-memory accepted events so unsaved events are included
     - _Requirements: 13.1, 13.2, 13.5, 13.6_
 
-  - [~] 9.2 Add the export control
+  - [x] 9.2 Add the export control
     - Add a download-only export control (Blob download) labelled to say the file contains the learner's notes
     - Show it inside the Save_Banner slot from task 3.3
     - When the notes for a generated crypt are unavailable, export without chunks and say so on screen
     - Build no import
     - _Requirements: 13.3, 13.4, 13.6, 13.8_
 
-  - [~] 9.3 Write property test for export
+  - [x] 9.3 Write property test for export
     - **Property 21: Export reflects the in-memory run, not just what was saved**
     - **Validates: Requirements 13.1, 13.2, 13.5, 13.6**
     - _Requirements: 13.1, 13.2, 13.5, 13.6_
 
-  - [~] 9.4 Write the export unit tests
+  - [x] 9.4 Write the export unit tests
     - The file parses with the strict Zod schema and holds no file name
     - Its events equal the accepted events, including a case where the last events failed to save
     - _Requirements: 13.2, 13.5, 13.7_
 
-  - [~] 9.5 Write the copy property test
+  - [x] 9.5 Write the copy property test
     - **Property 20: New feature copy avoids banned wording**
     - **Validates: Requirements 10.9, 12.15**
     - Import the copy constants for every `StorageErrorKind` and every string added to the Resume_Entry, Read_Only_Screen, Save_Banner and export control; assert none contains "verified", "guaranteed", "100% accurate", "hallucination-free", "mastered" or "exam-ready" and none claims learning gains
     - Add the matching example unit test
     - _Requirements: 10.9, 12.15_
 
-- [~] 10. Final checkpoint - Ensure all tests pass
+- [x] 10. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

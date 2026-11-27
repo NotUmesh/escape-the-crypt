@@ -1,6 +1,23 @@
+import type { Outcome_Notice } from '@escape-the-crypt/core';
+import type { NotesStore } from '../features/ingest/notes-store';
 import type { EventWriter } from './storage/event-writer';
 import type { BroadcastChannelLike, LockManagerLike, RunLock, RunLockState } from './storage/run-lock';
 import type { StorageResult } from './storage/storage-error';
+
+export interface PersistedRoomOptions {
+  /** Defaults to the browser's `indexedDB`; undefined means nothing can be saved. */
+  readonly factory?: IDBFactory | undefined;
+  readonly now?: () => number;
+  readonly newRunId?: () => string;
+  /** Web Locks manager for the run lock. Defaults to `navigator.locks` when present. */
+  readonly locks?: LockManagerLike | undefined;
+  /** BroadcastChannel fallback for the run lock. Defaults to the global when present. */
+  readonly channelFactory?: ((name: string) => BroadcastChannelLike) | undefined;
+  /** Notes store used by a takeover restore. Defaults to the IndexedDB adapter. */
+  readonly notesStore?: NotesStore;
+  /** Called once per accepted Event, with its notices, after its append has settled. */
+  readonly animate?: (notices: readonly Outcome_Notice[]) => void;
+}
 
 export interface Session {
   readonly id: number;

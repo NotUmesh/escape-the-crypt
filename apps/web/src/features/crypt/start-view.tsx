@@ -15,10 +15,12 @@ export interface StartViewProps {
   readonly onEnter: () => void;
   /** Absent when no worker origin is configured: the view is then exactly the sample start. */
   readonly generation?: StartViewGeneration;
+  /** The resume entry, shown beside the existing buttons. It renders nothing when there is no saved run. */
+  readonly resume?: ReactNode;
 }
 
 /** The start view: "Enter the crypt" (sample), plus "Generate from my notes" when a worker is set. */
-export function StartView({ onEnter, generation }: StartViewProps): ReactNode {
+export function StartView({ onEnter, generation, resume }: StartViewProps): ReactNode {
   const state = generation?.state;
   const running = state?.status === 'starting' || state?.status === 'polling';
   const failed = state?.status === 'failed';
@@ -44,6 +46,7 @@ export function StartView({ onEnter, generation }: StartViewProps): ReactNode {
           {GENERATION_COPY.sampleOffer}
         </button>
       ) : null}
+      {running ? null : resume}
     </section>
   );
 }

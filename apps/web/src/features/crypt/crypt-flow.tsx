@@ -20,8 +20,10 @@ import { RoomPanel } from './room-panel';
 import { RoomScreen } from './room-screen';
 import { ReadOnlyScreenContainer } from '../start/read-only-screen';
 import { SaveBanner } from '../start/save-banner';
+import { exportSlotFor } from '../start/export-control';
 import { createIdbStore } from '../ingest/notes-store-idb';
-import type { RestoreDeps } from '../../state/storage/restore-run';
+import type { RestoreDeps, RestoredRun } from '../../state/storage/restore-run';
+import { ResumeEntry } from '../start/resume-entry';
 import { StartView } from './start-view';
 import type { SceneLoader } from './use-scene';
 
@@ -151,8 +153,24 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     else if (generationStatus === 'cancelled') onAnnounce(GENERATION_COPY.cancelled);
     else onAnnounce('');
   }, [generationStatus, onAnnounce]);
+  const restoreBinding = binding.restore;
+  const onResume = useCallback(
+    (restored: RestoredRun): void => {
+      restoreBinding?.(restored);
+    },
+    [restoreBinding],
+  );
+  // Start again on the same crypt: a generated crypt is rebuilt from its notes, else the sample plays.
+  const onStartAgainSaved = useCallback(
+    (crypt: BuiltCrypt | null): void => {
+      playRef.current = crypt;
+      dispatch({ type: 'startRun' });
+    },
+    [dispatch],
+  );
   const startView = (
     <StartView
+      resume={<ResumeEntry deps={deps} onContinue={onResume} onStartAgain={onStartAgainSaved} />}
       onEnter={startSample}
       generation={
         canGenerate
@@ -249,7 +267,9 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   return (
     <>
       {showLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
-      {phase === 'running' && state !== null ? <SaveBanner saveFailed={binding.saveFailed === true} /> : null}
+      {phase === 'running' && state !== null ? (
+        <SaveBanner saveFailed={binding.saveFailed === true} exportSlot={exportSlotFor(binding, state, deps)} />
+      ) : null}
       {view}
       {isGenerating(generationState) ? null : <LiveRegion messages={messages} />}
     </>

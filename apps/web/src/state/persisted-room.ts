@@ -8,29 +8,16 @@ import { createEventWriter } from './storage/event-writer';
 import type { EventWriter, WriteOutcome } from './storage/event-writer';
 import { appendEvent, createRun, setRunStatus } from './storage/run-repository';
 import { restoreRun } from './storage/restore-run';
-import { acquireRunLock } from './storage/run-lock';
-import type { BroadcastChannelLike, LockManagerLike, RunLockState } from './storage/run-lock';
+import type { RestoredRun } from './storage/restore-run';
+import type { RunLockState } from './storage/run-lock';
+import { newSession } from './persisted-room-session';
 import { browserChannelFactory, browserFactory, browserLocks, canWrite } from './persisted-room-support';
-import type { Session } from './persisted-room-support';
+import type { PersistedRoomOptions, Session } from './persisted-room-support';
 import { createIdbStore } from '../features/ingest/notes-store-idb';
-import type { NotesStore } from '../features/ingest/notes-store';
 import { storageError } from './storage/storage-error';
 import type { StorageResult } from './storage/storage-error';
 
-export interface PersistedRoomOptions {
-  /** Defaults to the browser's `indexedDB`; undefined means nothing can be saved. */
-  readonly factory?: IDBFactory | undefined;
-  readonly now?: () => number;
-  readonly newRunId?: () => string;
-  /** Web Locks manager for the run lock. Defaults to `navigator.locks` when present. */
-  readonly locks?: LockManagerLike | undefined;
-  /** BroadcastChannel fallback for the run lock. Defaults to the global when present. */
-  readonly channelFactory?: ((name: string) => BroadcastChannelLike) | undefined;
-  /** Notes store used by a takeover restore. Defaults to the IndexedDB adapter. */
-  readonly notesStore?: NotesStore;
-  /** Called once per accepted Event, with its notices, after its append has settled. */
-  readonly animate?: (notices: readonly Outcome_Notice[]) => void;
-}
+export type { PersistedRoomOptions };
 
 /**
  * Wraps `useRoomBinding` with persistence. In-memory state is shown at once. The notices of an
@@ -102,35 +89,47 @@ export function usePersistedRoom(buildCrypt: BuildCrypt, options: PersistedRoomO
     [factory],
   );
 
-  const beginSession = useCallback((): Session => {
-    const runId = newRunId();
+  const makeSession = useCallback((runId: string, setup: Promise<StorageResult<true>>, enqueued: number): Session => {
     sessionCount.current += 1;
     // The crypt and the run exist before the first append (or the append reports why not).
-    const setupRef: { current: Promise<StorageResult<true>> } = { current: runSetup(runId) };
+    const setupRef: { current: Promise<StorageResult<true>> } = { current: setup };
     const writer = makeWriter(runId, () => setupRef.current);
     // The lock is requested before the first append; the effect below enqueues only once it is held.
-    const lock = acquireRunLock({ locks, channelFactory }, runId);
     const id = sessionCount.current;
-    const unsubscribe = lock.subscribe((next) => {
-      if (sessionCount.current === id) setLockState(next);
-    });
-    setLockState(lock.state);
-    return {
+    return newSession({
       id,
       runId,
       writer,
-      lock,
-      unsubscribe,
-      get setup() {
-        return setupRef.current;
-      },
-      set setup(next: Promise<StorageResult<true>>) {
-        setupRef.current = next;
-      },
-      enqueued: 0,
-      escapedSent: false,
-    };
-  }, [factory, newRunId, runSetup, makeWriter, locks, channelFactory]);
+      setupRef,
+      enqueued,
+      locks,
+      channelFactory,
+      onLockState: setLockState,
+      isCurrent: () => sessionCount.current === id,
+    });
+  }, [makeWriter, locks, channelFactory]);
+
+  const beginSession = useCallback((): Session => {
+    const runId = newRunId();
+    return makeSession(runId, runSetup(runId), 0);
+  }, [newRunId, runSetup, makeSession]);
+
+  const bindingRestoreAction = binding.restore;
+  /** Continues a stored run: it gets a lock and a writer, and its stored events are not written again. */
+  const adoptRestored = useCallback(
+    (restored: RestoredRun): void => {
+      session.current?.unsubscribe();
+      session.current?.lock.release();
+      const ready: Promise<StorageResult<true>> = Promise.resolve({ ok: true, value: true });
+      const next = makeSession(restored.run.runId, ready, restored.events.length);
+      session.current = next;
+      pendingStart.current = false;
+      setReleased({ session: next.id, length: restored.events.length });
+      setSaveFailed(leftFailures.current.size > 0);
+      bindingRestoreAction?.(restored);
+    },
+    [makeSession, bindingRestoreAction],
+  );
 
   const settle = useCallback(
     (current: Session, length: number, outcome: WriteOutcome): void => {
@@ -285,6 +284,7 @@ export function usePersistedRoom(buildCrypt: BuildCrypt, options: PersistedRoomO
     ...(current === null ? {} : { runId: current.runId }),
     lockState,
     takeOver,
+    restore: adoptRestored,
   };
 }
 
