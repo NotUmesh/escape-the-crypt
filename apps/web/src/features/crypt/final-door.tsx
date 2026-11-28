@@ -74,6 +74,7 @@ function EscapedDoor({ onOpenAutopsy, state, loadSceneImpl, viewport }: EscapedF
       <button ref={buttonRef} type="button" className="final-door__button" onClick={onOpenAutopsy}>
         {ROOM_PLAY_LABELS.openAutopsy}
       </button>
+      <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
     </section>
   );
 }

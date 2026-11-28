@@ -28,7 +28,6 @@ export const HAUNTING_NEW_FILES: readonly string[] = [
 
 /** Existing files that must not change under this spec. */
 export const HAUNTING_FROZEN_FILES: readonly string[] = [
-  'room-screen.tsx',
   'art-room.ts',
   'question-controls.tsx',
   'rune-cipher-panel.tsx',
@@ -54,7 +53,16 @@ const ALLOWED_PATTERNS: readonly RegExp[] = [
   new RegExp(`^${CRYPT}/[\\w-]+\\.css$`),
   /^\.kiro\/specs\/haunting-polish\//,
   /^docs\/build-log\.md$/,
-  /^apps\/web\/e2e\/haunting-[\w-]+\.e2e\.ts$/,
+  /^apps\/web\/e2e\/haunting-[\w-]+\.(e2e\.)?ts$/,
+  /^docs\/screenshots\/haunting\/[\w-]+\.jpg$/,
+  // Edits the user approved, one by one. Each landed in a commit named "Haunting polish (decision ...)".
+  /^apps\/web\/src\/features\/crypt\/autopsy-view\.tsx$/, // decision 2: the quill and the Lantern toggle
+  /^apps\/web\/src\/features\/crypt\/final-door\.tsx$/, // decision 2: the Lantern toggle in the escape view
+  /^apps\/web\/src\/features\/crypt\/art-stage\.tsx$/, // decision 3: data-moment on the stage
+  /^apps\/web\/src\/features\/crypt\/crypt-flow\.tsx$/, // announcements: notices released a render late
+  /^apps\/web\/src\/features\/crypt\/room-screen\.tsx$/, // due ghost: drawn until laid to rest
+  /^apps\/web\/src\/features\/crypt\/(door-stage|crypt-run-view|use-placed-ghosts)\.tsx?$/, // supporting edits for the due ghost
+  /^apps\/web\/src\/features\/(desk|descent)\/(desk-scene|descent)\.css$/, // decision 4: reduced-motion rules
   // integration renames swept into a32c426
   /^packages\/core\/src\/copy-front-of-house\.ts$/,
   /^packages\/core\/src\/copy-front-of-house\.test\.ts$/,

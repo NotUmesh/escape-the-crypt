@@ -1,66 +1,12 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, ROOM_ANNOUNCEMENT_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { buildSampleCrypt, correctAnswerFor, enterCrypt, waitForArtStage } from './crypt-helpers';
-import type { CorrectAnswer } from './crypt-helpers';
+import { enterCrypt, waitForArtStage } from './crypt-helpers';
+import { answerOpenPanel, continueButton, expectAnnounced, openFirstLock } from './haunting-flows';
 
 // Haunting polish: each motion moment with motion allowed and with reduced motion. The names are read
 // right after the action; the moment classes stay on the page until the next dispatch, so nothing here
 // depends on timing. The text of each moment is checked in the live region.
-const crypt = buildSampleCrypt();
-const WRONG_RUNE = 'zzzxq';
-const continueButton = (page: Page) => page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true });
-const liveRegion = (page: Page) => page.getByTestId('room-live-region');
-
-/** The live region shows the sentence. It shows one queued message every 1.5 s, so a backlog can take a while. */
-async function expectAnnounced(page: Page, text: string, ms = 20000): Promise<void> {
-  await expect(liveRegion(page)).toHaveText(text, { timeout: ms });
-}
-
-/** Every question's answer, by prompt, read from the manifest (primary, Alternate and final door). */
-function answersByPrompt(): ReadonlyMap<string, CorrectAnswer> {
-  const out = new Map<string, CorrectAnswer>();
-  const questions = [
-    ...crypt.manifest.rooms.flatMap((r) =>
-      r.lockSlots.flatMap((s) => (s.alternateQuestion == null ? [s.primaryQuestion] : [s.primaryQuestion, s.alternateQuestion])),
-    ),
-    ...crypt.manifest.finalDoor.slots.map((s) => s.question),
-  ];
-  for (const q of questions) {
-    const prompt = crypt.content.questions[q.questionId]?.prompt;
-    if (prompt !== undefined) out.set(prompt, correctAnswerFor(crypt, q));
-  }
-  return out;
-}
-const ANSWERS = answersByPrompt();
-
-/** Answers the question in the open panel, right or wrong. Does not press Continue. */
-async function answerOpenPanel(page: Page, correct: boolean): Promise<void> {
-  const panel = page.getByTestId('panel-slot');
-  const rune = panel.getByLabel('Your answer');
-  const seance = panel.locator('.seance-board-panel');
-  await expect(rune.or(seance)).toBeVisible();
-  const isRune = (await rune.count()) > 0;
-  const prompt = (await panel.locator(isRune ? '.rune-cipher-panel__prompt' : '.seance-board-panel__prompt').innerText()).trim();
-  const answer = ANSWERS.get(prompt);
-  if (answer === undefined) throw new Error('prompt not found in the manifest');
-  if (answer.kind === 'rune-cipher') {
-    await rune.fill(correct ? answer.text : WRONG_RUNE);
-  } else {
-    const options = panel.locator('input[type="radio"]:not([disabled])');
-    for (let i = 0; i < (await options.count()); i += 1) {
-      const option = options.nth(i);
-      if (((await option.getAttribute('value')) === answer.optionId) === correct) {
-        await option.check();
-        break;
-      }
-    }
-  }
-  await panel.getByRole('button', { name: ROOM_PLAY_LABELS.submitAnswer }).click();
-}
-async function openFirstLock(page: Page): Promise<void> {
-  await page.locator('.room-screen__lock-button[data-status="open"]').first().click();
-}
 const animationName = (page: Page, selector: string) =>
   page.locator(selector).first().evaluate((el) => getComputedStyle(el).animationName);
 

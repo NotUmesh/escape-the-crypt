@@ -136,7 +136,7 @@ Rules for every task:
   - Record the real results in the build log, including any failure. Fix failures that this spec caused; report any other failure and stop.
   - _Requirements: 16.12, 17.2_
 
-- [ ] 9. Playwright tests
+- [x] 9. Playwright tests
   - [x] 9.1 Add `e2e/haunting-moments.e2e.ts`
     - Run on `chromium`, `firefox` and `pixel` (the config's three projects). One `describe` per moment, each with `test.use({ reducedMotion: 'no-preference' })` and `test.use({ reducedMotion: 'reduce' })`, using the existing helpers in `crypt-helpers.ts`.
     - `candle-lit`: answer the first lock correctly. Motion on: computed `animationName` of `[data-flame="progress"][data-ignite="true"] .flame__body` is not `none`. Motion off: `none`, the flame is visible. Both: the live region holds the candle text.
@@ -146,10 +146,10 @@ Rules for every task:
     - Read names right after the triggering action and wait on `animationend` (1500 ms cap) for the end, not a fixed sleep. Tap instead of click on `pixel`.
     - Run one project at a time while writing: `playwright test e2e/haunting-moments.e2e.ts --project=chromium --workers=1`.
     - _Requirements: 3.1, 3.5, 4.1, 4.6, 5.1, 5.4, 7.7, 7.10, 10.3, 10.8, 16.5, 16.6, 16.7_
-  - [ ] 9.2 Add `e2e/haunting-axe.e2e.ts`
+  - [x] 9.2 Add `e2e/haunting-axe.e2e.ts`
     - axe scans: the room with the overlay present and Lantern_Mode off, the room in Lantern_Mode, the final door, and the Autopsy after the fade and with reduced motion on. Each reports no violations. Note in the test that axe marks text over images as incomplete, and point to `overlay-contrast.test.ts`.
     - _Requirements: 2.5, 7.12, 16.8_
-  - [ ] 9.3 Add `e2e/haunting-input.e2e.ts`
+  - [x] 9.3 Add `e2e/haunting-input.e2e.ts`
     - `document.elementFromPoint` at the centre of each hotspot, panel button and seal returns that control, never an overlay part. A click and a key press reach the control with the overlay on.
     - Tab order of the room and the Autopsy equals DOM order, and focus is visible on every stop (`:focus-visible` outline from `--focus-ring` or `--focus-ring-on-light`).
     - No request to another origin, no AI provider call.
@@ -163,19 +163,19 @@ Rules for every task:
 
 - [ ] 11. HOLD: Open_Decisions (all blocked until the user confirms each)
   - Nothing in this task runs without the user's go-ahead for that item. Add the confirmed path to the allowed list in `scope-fence.test.ts` in the same sub-task.
-  - [ ] 11.1 Open_Decision 1: Lantern above the title and the desk (waits for confirmation)
+  - [x] 11.1 Open_Decision 1: Lantern above the title and the desk (waits for confirmation)
     - Ask which option: render the title through `DeskHub` inside `CryptFlow`, or one `LanternProvider` in `main.tsx` with a nesting guard in `lantern-context.tsx`. Then edit only the named files.
     - Add a test that the title toggle and the crypt toggle write the same Lantern_Setting and read one value.
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
-  - [ ] 11.2 Open_Decision 2: mount the Quill_Mark and toggles (waits for confirmation)
+  - [x] 11.2 Open_Decision 2: mount the Quill_Mark and toggles (waits for confirmation)
     - `autopsy-view.tsx`: import and mount `QuillMark` beside the heading and a `LanternToggle` with `ROOM_PLAY_LABELS.lanternToggle`. `final-door.tsx`: a `LanternToggle` in the escape view. Optionally move the Autopsy_Parchment section from `final-door.css` to `autopsy-view.css` with one import.
     - Re-run the Autopsy axe, tab-order and reduced-motion tests with the quill and toggle present, and extend `quill-mark.test.tsx` to assert the mount.
     - _Requirements: 8.8, 13.1, 13.2, 13.3, 13.4, 13.5_
-  - [ ] 11.3 Open_Decision 3: mount the Moment_Selector in the Stage (waits for confirmation)
+  - [x] 11.3 Open_Decision 3: mount the Moment_Selector in the Stage (waits for confirmation)
     - `art-stage.tsx`: call `selectMotionMoments` next to `artEffectsFrom` and write `data-moment` on the Stage root. Needs the previous State; if `art-stage.tsx` has only `notices`, report the one extra prop and stop.
     - Add a test that `data-moment` matches the selector for each moment and is empty for a restored State, and that it agrees with `artEffectsFrom`.
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
-  - [ ] 11.4 Open_Decision 4: gaps outside the crypt feature (waits for confirmation)
+  - [ ] 11.4 Open_Decision 4: gaps outside the crypt feature (the fixes are done; still open: whether mist and grain are wanted on the desk-side screens)
     - Present the findings of task 7.2 and ask which to fix. For each confirmed gap, make the named edit and add its test in the same sub-task (for example `descent-gate.tsx` reading `useLantern`, and a `reduce` rule in `descent.css`). Ask separately whether mist and grain are wanted on the desk-side screens.
     - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5_
 

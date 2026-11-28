@@ -64,10 +64,11 @@ describe('QuillMark', () => {
     control.setReduced(true);
     expect(svg().getAttribute('data-reduced-motion')).toBe('true');
   });
-  it('is imported by no existing module yet (it stays unmounted until Open_Decision 2)', () => {
-    const importers = readdirSync(DIR)
-      .filter((f) => /\.tsx?$/.test(f) && !f.endsWith('.test.ts') && !f.endsWith('.test.tsx') && f !== 'quill-mark.tsx')
-      .filter((f) => /from '\.\/quill-mark'/.test(readFileSync(join(DIR, f), 'utf8')));
-    expect(importers).toEqual([]);
+  it('is mounted exactly once, by the Autopsy and nowhere else', () => {
+    const sources = readdirSync(DIR).filter((f) => /\.tsx?$/.test(f) && !/\.test\.tsx?$/.test(f) && f !== 'quill-mark.tsx');
+    const importers = sources.filter((f) => /from '\.\/quill-mark'/.test(readFileSync(join(DIR, f), 'utf8')));
+    expect(importers).toEqual(['autopsy-view.tsx']);
+    const mounts = readFileSync(join(DIR, 'autopsy-view.tsx'), 'utf8').match(/<QuillMark\b/g) ?? [];
+    expect(mounts).toHaveLength(1);
   });
 });

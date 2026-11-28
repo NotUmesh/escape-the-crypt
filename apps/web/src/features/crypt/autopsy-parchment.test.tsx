@@ -59,6 +59,10 @@ describe('Autopsy parchment CSS', () => {
     expect(PARCHMENT).toMatch(/\.autopsy-view button\s*\{[^}]*min-width:\s*44px[^}]*min-height:\s*44px/);
     expect(PARCHMENT).toMatch(/\.autopsy-view button:focus-visible\s*\{[^}]*var\(--focus-ring-on-light\)/);
   });
+  it('lays each outcome out as a row, the label left and the count right', () => {
+    expect(PARCHMENT).toMatch(/\.autopsy-counts li\s*\{[^}]*display:\s*flex[^}]*justify-content:\s*space-between/);
+    expect(PARCHMENT).toMatch(/\.autopsy-outcome\s*\{[^}]*display:\s*inline-flex[^}]*gap:/);
+  });
   it('uses no gold or ember on the parchment', () => {
     expect(PARCHMENT).not.toMatch(/--candle-400|--ember-600/);
   });
@@ -87,5 +91,25 @@ describe('AutopsyView in the DOM', () => {
     expect(view.querySelectorAll('.autopsy-entry').length).toBeGreaterThan(0);
     expect(Array.from(view.querySelectorAll('button')).some((b) => b.textContent === ROOM_PLAY_LABELS.playAgain)).toBe(true);
     expect(mount.container.querySelector('[data-testid="atmosphere"]')).toBeNull();
+  });
+  it('puts the quill (hidden from assistive technology) and the Lantern toggle beside the heading', () => {
+    mount.render(createElement(Harness));
+    act(() => binding.dispatch({ type: 'startRun' }));
+    const head = mount.container.querySelector('.autopsy-view__head') as HTMLElement;
+    expect(Array.from(head.children).map((c) => c.tagName.toLowerCase() + (c.classList.contains('lantern-toggle') ? '.toggle' : ''))).toEqual([
+      'h2',
+      'svg',
+      'button.toggle',
+    ]);
+    expect(head.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(head.querySelector('button')?.textContent).toBe(ROOM_PLAY_LABELS.lanternToggle);
+    expect(head.querySelector('button')?.getAttribute('aria-pressed')).not.toBeNull();
+    // The toggle comes before the Play again button, so the tab order follows the page.
+    const buttons = Array.from(mount.container.querySelectorAll('.autopsy-view button'));
+    expect(buttons[0]).toBe(head.querySelector('button'));
+    expect(buttons.at(-1)?.textContent).toBe(ROOM_PLAY_LABELS.playAgain);
+  });
+  it('shows the pressed toggle on parchment as ink with a second ring, never gold', () => {
+    expect(PARCHMENT).toMatch(/\.autopsy-view \.lantern-toggle\[aria-pressed='true'\]\s*\{[^}]*border-color:\s*var\(--ink-900\)[^}]*box-shadow:[^}]*--parchment-100[^}]*--ink-900/);
   });
 });

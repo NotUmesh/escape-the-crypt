@@ -7,6 +7,8 @@ import type { RoomAssets } from '../../state/room-assets';
 import { withConceptTitles } from './autopsy-titles';
 import type { AutopsyEntryView } from './autopsy-titles';
 import { FinalDoorSection } from './final-door-section';
+import { LanternToggle } from './lantern-toggle';
+import { QuillMark } from './quill-mark';
 import { resolveExcerpt } from './evidence-text';
 import { ShareCard } from '../share/share-card';
 import { buildShareCardData } from '../share/share-card-data';
@@ -188,7 +190,11 @@ export function AutopsyView({ state, assets, dispatch, announce, sampleTitle = S
   const entries = assets === null ? view.entries.map((e) => ({ ...e, title: e.conceptId })) : withConceptTitles(view.entries, assets.content);
   return (
     <section className="autopsy-view" data-testid="autopsy-view" aria-labelledby="autopsy-heading">
-      <h2 id="autopsy-heading">{ROOM_PLAY_LABELS.autopsyHeading}</h2>
+      <header className="autopsy-view__head">
+        <h2 id="autopsy-heading">{ROOM_PLAY_LABELS.autopsyHeading}</h2>
+        <QuillMark />
+        <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
+      </header>
       <CountsSection counts={view.counts} />
       <ShareCard
         data={buildShareCardData(view, assets === null || assets.source === 'notes' ? { kind: 'notes' } : { kind: 'sample', title: sampleTitle })}

@@ -155,7 +155,8 @@ describe('FinalDoor with art', () => {
       i.getAttribute('data-file'),
     );
     expect(doorFiles).toEqual(['door-open.webp', 'light-door.webp']);
-    expect(view?.querySelectorAll('button')).toHaveLength(1);
+    expect(view?.querySelectorAll('button.lantern-toggle')).toHaveLength(1);
+    expect(view?.querySelectorAll('button:not(.lantern-toggle)')).toHaveLength(1);
     expect(view?.querySelector('.final-door__seals')).toBeNull();
   });
 });

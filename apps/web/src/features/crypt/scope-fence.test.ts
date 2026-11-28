@@ -22,7 +22,7 @@ function changedByHauntingCommits(): readonly string[] | null {
 
 describe('scope fence', () => {
   it('rejects a frozen file', () => {
-    expect(scopeViolations([`${CRYPT}/room-screen.tsx`])).toEqual([`${CRYPT}/room-screen.tsx`]);
+    expect(scopeViolations([`${CRYPT}/room-panel.tsx`])).toEqual([`${CRYPT}/room-panel.tsx`]);
     expect(scopeViolations(['packages/core/src/mapper/manifest-mapper.ts'])).toHaveLength(1);
     expect(scopeViolations(['apps/web/src/state/room-binding.ts'])).toHaveLength(1);
   });
@@ -30,7 +30,12 @@ describe('scope fence', () => {
     expect(scopeViolations([`${CRYPT}/flame.css`, `${CRYPT}/quill-mark.tsx`])).toEqual([]);
   });
   it('rejects an existing component that is not on the list', () => {
-    expect(scopeViolations([`${CRYPT}/art-stage.tsx`, `${CRYPT}/autopsy-view.tsx`])).toHaveLength(2);
+    expect(scopeViolations([`${CRYPT}/evidence-panel.tsx`, `${CRYPT}/ghost-layer.tsx`])).toHaveLength(2);
+  });
+  it('allows the edits the user approved, and no other component beside them', () => {
+    const approved = ['autopsy-view', 'final-door', 'art-stage', 'crypt-flow', 'room-screen'].map((n) => `${CRYPT}/${n}.tsx`);
+    expect(scopeViolations(approved)).toEqual([]);
+    expect(scopeViolations(['apps/web/e2e/haunting-axe.e2e.ts', 'apps/web/e2e/haunting-flows.ts', 'docs/screenshots/haunting/candle-lit.jpg'])).toEqual([]);
   });
   it('keeps the two lists apart', () => {
     for (const file of HAUNTING_NEW_FILES) expect(HAUNTING_FROZEN_FILES).not.toContain(file);
