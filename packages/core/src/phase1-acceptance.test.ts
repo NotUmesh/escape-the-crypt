@@ -15,8 +15,9 @@ import { buildHumanHeartSampleCrypt } from './sample-crypt/human-heart';
 import type { HumanHeartQuestionsFile } from './sample-crypt/human-heart';
 
 // Phase 1 dataset sizes (Req 9.1 to 9.4).
-const EXPECTED_QUESTION_COUNT = 56;
-const EXPECTED_RUNE_CIPHER_COUNT = 26;
+// 57 and 27: https.json gained one rune cipher question (hs-q10) so the HTTPS sample can place all six lock types.
+const EXPECTED_QUESTION_COUNT = 57;
+const EXPECTED_RUNE_CIPHER_COUNT = 27;
 const EXPECTED_SEANCE_BOARD_COUNT = 30;
 const EXPECTED_CODE_FIXTURE_COUNT = 10;
 const EXPECTED_REVIEW_FIXTURE_COUNT = 4;

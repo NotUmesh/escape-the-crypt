@@ -235,3 +235,9 @@ export { DIG_STAGE_IDS, FRONT_OF_HOUSE_COPY, formatElapsed, formatShelfDate } fr
 export type { DigStageId } from './copy-front-of-house';
 export { GENERIC_CRYPT_NAME, SHARE_COPY, SHARE_URL, ghostPhrase } from './copy-share';
 export { JUDGE_ACCESS_COPY, JUDGE_ACCESS_DENIED_COPY } from './copy-judge';
+export { buildSampleFromLayout, isSampleHumanReviewed } from './sample-crypt/sample-builder';
+export type { SampleQuestionsFile, SampleLayout } from './sample-crypt/sample-builder';
+export { buildHttpsSampleCrypt, HTTPS_CONCEPT_TITLES } from './sample-crypt/https';
+export { buildPrintingPressSampleCrypt, PRINTING_PRESS_CONCEPT_TITLES } from './sample-crypt/printing-press';
+export { getSampleBuilder, isSampleId, sampleIdForManifestId, SAMPLE_IDS, SAMPLE_MANIFEST_IDS } from './sample-crypt/sample-registry';
+export type { SampleBuilder, SampleId, UnknownSampleError } from './sample-crypt/sample-registry';

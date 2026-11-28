@@ -24,6 +24,10 @@ export const ROOM_START_ERROR_COPY: Readonly<Record<RoomStartErrorKind, ErrorCop
     what: "A question for the sample crypt couldn't be found.",
     next: SAMPLE_BROKEN_NEXT,
   },
+  'unknown-sample': {
+    what: "That sample crypt isn't on the shelf.",
+    next: 'Choose one from the shelf and try again.',
+  },
   'sample-question-invalid': {
     what: "A question in the sample crypt isn't readable.",
     next: SAMPLE_BROKEN_NEXT,

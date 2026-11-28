@@ -203,13 +203,13 @@ Rules for every task:
   - Run `git pull --rebase` immediately before committing. Ensure all tests pass, ask the user if questions arise.
   - _Requirements: 14.1, 14.6, 1.3_
 
-- [ ] 10. Mapper gate (Phase 3, first task)
+- [x] 10. Mapper gate (Phase 3, first task)
   - Run `git pull --rebase`; on a conflict, stop and report.
   - Read `packages/core/src/mapper/manifest-mapper.ts` and confirm it has an arm for each of `bone-ordering`, `bound-threads`, `cursed-object` and `combination-dial`, and that the output for each matches the "Item texts" table of the design (item texts in `content.questions[id].options` keyed by payload IDs; none for the dial).
   - If any arm is missing, or the output shape differs, STOP. Report the missing types or the difference to the user. Do not add a local mapper, a sample-only mapping or any workaround, and do not start task 11 or later.
   - _Requirements: 1.15, 1.16, 11.1, 11.4, 12.6_
 
-- [ ] 11. Widen manifest limits or the bundle parser only if the samples need it (Phase 3)
+- [x] 11. Widen manifest limits or the bundle parser only if the samples need it (Phase 3)
   - Only if a sample layout in the design cannot pass `validateManifestForPublish` or `parseCryptBundle` with the mapper's output, make the smallest change to the manifest limits or, as Requirement 2.7 allows, to `mapper/crypt-bundle-parse.ts` or `mapper/crypt-content.ts`. Add a test for the change and report it to the user.
   - If no change is needed, record "no change needed" in the task output and edit nothing.
   - _Requirements: 2.7, 2.8, 2.13_
@@ -225,31 +225,31 @@ Rules for every task:
     - **Validates: Requirements 11.5, 12.2, 12.3, 12.14, 12.15**
     - _Requirements: 11.5, 11.6, 12.3, 12.13, 12.14, 12.15_
 
-- [ ] 13. HTTPS sample (Phase 3)
-  - [ ] 13.1 Add the rune cipher question to `samples/questions/https.json`
+- [x] 13. HTTPS sample (Phase 3)
+  - [x] 13.1 Add the rune cipher question to `samples/questions/https.json`
     - Read `samples/https.txt` and the existing questions. Add one `rune-cipher` question with `role: primary`, its own concept, a `draft` status and a short exact quote from the notes. Check that the quote resolves against its paragraph before using it. Leave existing concepts and roles as authored.
     - _Requirements: 12.7, 12.8_
-  - [ ] 13.2 Add `sample-crypt/https.ts`
+  - [x] 13.2 Add `sample-crypt/https.ts`
     - Follow `human-heart.ts`: fixed room and final-door selection tables per the design (bone-ordering and cursed-object; bound-threads and rune-cipher; final door with combination-dial, combination-dial or another, and séance-board), a fixed concept-title table, `buildHttpsSampleCrypt(notesText, questionsFile)` returning the typed result, every question through the Core_Mapper. Choose IDs by reading the file. File at or below about 300 lines.
     - _Requirements: 12.1, 12.2, 12.4, 12.5, 12.6, 12.8, 12.17, 15.5_
-  - [ ] 13.3 Write `https.test.ts`
+  - [x] 13.3 Write `https.test.ts`
     - **Property 11: Sample crypts are complete, resolvable and escapable** for the HTTPS sample, including the new rune question and a corrupted-payload case that the schema rejects.
     - **Validates: Requirements 11.5, 12.2, 12.3, 12.14, 12.15**
     - _Requirements: 11.5, 12.3, 12.14, 12.15, 13.8_
 
-- [ ] 14. Printing-press sample (Phase 3)
-  - [ ] 14.1 Add `sample-crypt/printing-press.ts` and `printing-press.test.ts`
+- [x] 14. Printing-press sample (Phase 3)
+  - [x] 14.1 Add `sample-crypt/printing-press.ts` and `printing-press.test.ts`
     - Same shape as task 13.2 and 13.3, with the layout from the design (bone-ordering and cursed-object; bound-threads and rune-cipher; final door with a bound-threads or combination-dial question, combination-dial and séance-board). Fixed selection and concept-title tables, every question through the Core_Mapper, draft status.
     - Test **Property 11: Sample crypts are complete, resolvable and escapable** for this sample.
     - **Validates: Requirements 11.5, 12.2, 12.3, 12.14, 12.15**
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.8, 12.14, 12.15, 12.17, 15.5_
 
-- [ ] 15. Sample registry and sample sources (Phase 3)
-  - [ ] 15.1 Add the Sample_Registry in `packages/core/src/sample-crypt/sample-registry.ts`
+- [x] 15. Sample registry and sample sources (Phase 3)
+  - [x] 15.1 Add the Sample_Registry in `packages/core/src/sample-crypt/sample-registry.ts`
     - Export `SampleId`, `SampleSources`, `SampleBuilder`, `UnknownSampleError`, `SAMPLE_IDS` and `getSampleBuilder(id)`, which returns a builder for each of `human-heart`, `https` and `printing-press` and a typed `unknown-sample` error for any other string, never a default.
     - Write `sample-registry.test.ts`: a builder for each ID in `SAMPLE_LIST`, `SAMPLE_IDS` equals the IDs of `SAMPLE_LIST`, a typed error for an unknown ID. Do not edit `sample-list.ts`.
     - _Requirements: 12.9, 13.12_
-  - [ ] 15.2 Add `apps/web/src/features/crypt/sample-sources.ts`
+  - [x] 15.2 Add `apps/web/src/features/crypt/sample-sources.ts`
     - Import the raw notes and question files of all three samples at build time (as `state/sample-crypt-source.ts` does for human-heart) and export `buildCryptForSample(id): BuildCrypt` in the shape that `useRoomBinding` already accepts. No picker, no start-view control, no crypt-flow edit and no edit under `apps/web/src/state/`. Nothing leaves the origin.
     - Write a unit test that `buildCryptForSample` builds a crypt for each sample ID and returns a typed error for an unknown ID. Add a code comment that resume of an https or printing-press run fails with the existing `record-unreadable` error.
     - _Requirements: 12.9, 12.10, 12.11, 12.12, 15.3_

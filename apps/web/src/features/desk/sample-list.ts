@@ -12,12 +12,10 @@ export const SAMPLE_LIST: readonly SampleEntry[] = [
 ];
 
 /**
- * The samples `buildSampleCrypt` can build today. The other two have notes and question files but no
- * builder yet, so the hub does not offer them: a button that starts a different crypt would be a lie.
- * Add an id here when its builder lands.
+ * The samples `buildCryptForSample` can build. The hub offers only these, so a button never starts a
+ * different crypt than the one it names. Add an id here only when its builder is in the registry.
  */
-export const BUILDABLE_SAMPLE_IDS: readonly string[] = ['human-heart'];
-
+export const BUILDABLE_SAMPLE_IDS: readonly string[] = ['human-heart', 'https', 'printing-press'];
 export const DEFAULT_SAMPLE_ID = 'human-heart';
 
 /** The samples the hub offers. */

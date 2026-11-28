@@ -1,3 +1,4 @@
+import { BUILDABLE_SAMPLE_IDS, SAMPLE_LIST } from './sample-list';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { act } from 'react';
@@ -73,8 +74,11 @@ describe('FrontOfHouse', () => {
     it('offers only the sample crypts that can be built, never with a review label', () => {
       show('home');
       const text = mount.container.textContent ?? '';
+      // Exactly the buildable samples are offered: a listed sample with no builder would not show.
+      for (const entry of SAMPLE_LIST) {
+        expect(text.includes(entry.title), entry.title).toBe(BUILDABLE_SAMPLE_IDS.includes(entry.id));
+      }
       expect(text).toContain('The human heart');
-      expect(text).not.toContain('printing press');
       expect(text).not.toMatch(/human-reviewed/i);
     });
 

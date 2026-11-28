@@ -283,6 +283,26 @@
       "answer": "a",
       "explanation": "The padlock means encryption, not that the site is trustworthy or that you're anonymous.",
       "note": "No alternate."
+    },
+    {
+      "id": "hs-q10",
+      "conceptId": "hs-c07",
+      "role": "primary",
+      "lockType": "rune-cipher",
+      "prompt": "According to your notes, a ______ is a trusted organisation that signs certificates.",
+      "answer": "certificate authority",
+      "aliases": [
+        "CA"
+      ],
+      "caseSensitive": false,
+      "evidence": [
+        {
+          "paragraph": 4,
+          "quote": "A certificate authority is a trusted organisation that signs certificates."
+        }
+      ],
+      "explanation": "Paragraph 4 says a certificate authority signs certificates.",
+      "note": "No alternate."
     }
   ]
 }

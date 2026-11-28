@@ -6,7 +6,6 @@ import type { RoomAction } from '../../state/room-actions';
 import { usePersistedRoomBinding } from '../../state/persisted-room';
 import { RUN_SETTINGS } from '../../state/room-binding';
 import type { BuildCrypt, BuiltCrypt, RoomBinding } from '../../state/room-binding';
-import { buildSampleCrypt } from '../../state/sample-crypt-source';
 import { isGenerating } from '../generate/generation-flow';
 import { resolveClient, resolveOrigin } from '../generate/generate-seams';
 import type { GenerateSeams } from '../generate/generate-seams';
@@ -16,6 +15,7 @@ import type { AnnounceTracker } from './announce-step';
 import { CryptErrorBoundary } from './crypt-error-boundary';
 import { DescentLayer, useDescent } from './crypt-descent';
 import { CryptRunView } from './crypt-run-view';
+import { buildCryptForSample } from './sample-sources';
 import type { RenderStart } from './crypt-start-context';
 import { LanternProvider } from './lantern-context';
 import { LiveRegion } from './live-region';
@@ -30,7 +30,7 @@ import { StartView } from './start-view';
 import { SettingsSlot } from '../desk/settings-slot';
 import { useRunChoice } from '../desk/use-run-choice';
 import type { SceneLoader } from './use-scene';
-import { sampleTitleFor } from '../desk/sample-list';
+import { DEFAULT_SAMPLE_ID, sampleTitleFor } from '../desk/sample-list';
 import './crypt-stage.css';
 
 
@@ -63,11 +63,13 @@ const NO_MESSAGES: readonly string[] = [];
 function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, notesText, notesDigest, generate, onAnnounce, restoreDeps, renderStart, judgeCode }: CryptFlowProps): ReactNode {
   // Which crypt startRun builds: the generated one once it is ready, else the sample.
   const playRef = useRef<BuiltCrypt | null>(null);
+  // The sample the learner chose on the shelf; the default when none was chosen.
+  const playedSample = useRef<string | undefined>(undefined);
   // The sample's settings are read when the run starts, so the latest difficulty choice applies.
   const sampleSettings = useRef(() => RUN_SETTINGS);
   const buildCrypt = useCallback<BuildCrypt>(() => {
     if (playRef.current !== null) return { ok: true, value: playRef.current };
-    const sample = buildSampleCrypt();
+    const sample = buildCryptForSample(playedSample.current ?? DEFAULT_SAMPLE_ID)();
     return sample.ok ? { ok: true, value: { ...sample.value, settings: sampleSettings.current() } } : sample;
   }, []);
   const binding = useBinding(buildCrypt);
@@ -85,7 +87,6 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   const { state, notices, phase } = binding;
   const descent = useDescent(renderStart !== undefined);
   const beginDescent = descent.begin;
-  const playedSample = useRef<string | undefined>(undefined);
   const [autopsyRequested, setAutopsyRequested] = useState(false);
   // View-only flag: true once the learner closed the Evidence_Panel of the escaping answer. Holds no game state.
   const [escapeEvidenceDismissed, setEscapeEvidenceDismissed] = useState(false);
