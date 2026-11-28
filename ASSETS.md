@@ -1,6 +1,6 @@
 # Assets and licences
 
-Everything in this repository's code was written in Kiro. The table below lists every asset that was not.
+The code, specs, tests, hooks and steering in this repository were built primarily with Kiro (spec-driven sessions, task execution and agent chats). Some small fixes, configuration and documentation were written by hand or with other AI assistants, and planning briefs, evaluation drafts and art prompts were prepared with other AI tools; the git history shows each change. The table below lists every asset that was not made in this repository.
 
 ## AI-generated artwork (disclosed)
 
