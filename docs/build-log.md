@@ -397,3 +397,14 @@ Run on 2026-11-28 over the working tree. HEAD was 60bb6ba at the start; during t
 - Structure check passed: every source file is within the limit. The longest Phase 6 source files are `orchestrator.ts` (296 lines), `copy-banned-words.test.ts` (280), `cli.test.ts` (268), `boundary.test.ts` (255) and `conflict-stage.test.ts` (253).
 - Paid re-record with `--conflict-check on`: the command was given to the user and not run.
 Decision (lock types phase 3): human-heart stays the two-type starter (rune cipher and séance board), not widened. Widening it changed the room count or the final-door seal count that tests under apps/web/src/state pin, and those tests belong to the other machine. https and printing-press each place all six lock types. The `restoreRun` and `import-run.ts` change that lets a saved https or printing-press run resume goes to the Default chat on this machine.
+
+Lock types phase 4 checkpoint (per-type e2e, axe, skip and challenge), clean worktree at 1d7c7f8, Node 22.23.5:
+| run | passed | failed | skipped | notes |
+| --- | --- | --- | --- | --- |
+| lint, typecheck | ok | 0 | 0 | |
+| vitest packages/core (--maxWorkers=50%) | 1735 (200 files) | 0 | 0 | |
+| vitest apps/web (--maxWorkers=50%) | 1368 (172 files) | 0 | 0 | |
+| web e2e chromium, firefox, pixel (--workers=2) | 309 | 0 | 2 | skips: crypt-hotspots "door too small for placed seals"; lock-types-axe "combination dial, a number typed" on Firefox only |
+New e2e files, 57 tests: lock-types (5 tests x 3 projects, keyboard on desktop with Alt+Arrow for bones, taps and a 44 by 44 px check on every control on pixel), lock-types-axe (5 tests x 3 projects, each panel fresh, with a hint applied and part way through an answer), sample-escape (3 samples x 3), sample-settle (3 samples x skip and challenge x 3). 56 pass, 1 skip, 0 flaky.
+Bug found by the axe run and fixed: the bone ordering, bound threads and cursed object panels read the applied hint once, when they mounted, so a hint used after the panel opened showed nothing and (for bone ordering) made the answer invalid at the judge. They now apply the hint at render time (applyBoneHint, applyThreadHint, applyRemoveHint), announce it once, and have mid-answer property tests and a panel test that fails if the hint is ignored.
+Firefox: Playwright's Firefox build crashes the page when a text input and an axe scan are used on the same page, in either order. The existing rune cipher input does the same, so it is not specific to the dial. Playwright runs a fallback build on this OS. The typed-entry axe state is skipped on Firefox and scanned on chromium and pixel.
