@@ -44,11 +44,6 @@ async function waitForTestId(container: ParentNode, testId: string): Promise<voi
   await waitFor(() => container.querySelector(`[data-testid="${testId}"]`) !== null);
 }
 
-/** Waits until the container holds no element for the given test-id. */
-async function waitForNoTestId(container: ParentNode, testId: string): Promise<void> {
-  await waitFor(() => container.querySelector(`[data-testid="${testId}"]`) === null);
-}
-
 async function seed(
   factory: IDBFactory,
   runId: string,
