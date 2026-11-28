@@ -173,3 +173,6 @@ playwright-report/
 test-results/
 # page snapshots saved by the Playwright MCP server (screenshots in docs/captures are kept)
 docs/captures/*.yml
+
+# rater spreadsheets hold question text from the notes; result files must not (Req 21.4)
+eval/results/*.csv

@@ -10,9 +10,9 @@ Provider call for evaluation. Tests and the Worker never use it; tests replay ca
 
 ## Rules
 
-- **Dev set only.** Tune prompts, models and verifiers on `eval/dev/` only. The runner has no
-  option for any other set. Never read, tune against or summarise the final test set until the
-  configuration is frozen; holdout support is added to the runner only then.
+- **Dev set only.** Tune prompts, models and verifiers on `eval/dev/` only. `record` and `replay`
+  take no other set. Never read, tune against or summarise the final test set until the
+  configuration is frozen. The only way to run it is `eval holdout` (below), once.
 - **Key stays in the user's shell.** `record` reads `OPENAI_API_KEY` (or `GEMINI_API_KEY` with
   `--provider gemini`) from the environment of the shell that runs it. Never write the key to a file, a command line, a log or a chat
   message. If the agent's shell has no key, give the user the exact command to run in their own
@@ -47,6 +47,51 @@ folder per model, so a Gemini run never rewrites or replays the OpenAI cassettes
 
 Add `--only "dev-01,dev-07"` to limit the notes (quote it in PowerShell).
 Add `--allowed-lock-types "rune-cipher,seance-board"` to choose the lock types (record and replay; default is the evaluation list in `config.ts`).
+
+## Rater tooling (no model calls, no key)
+
+Honest quality numbers need a human verdict per question. Two raters label the questions of a
+result file; the tool counts Wrong_Accepted and Correct_Rejected per lock type.
+
+```powershell
+pnpm --filter @escape-the-crypt/worker eval export-ratings --result <result>.json --blind
+pnpm --filter @escape-the-crypt/worker eval import-ratings --result <result>.json --csv <rater-1>.csv --csv <rater-2>.csv
+```
+
+- **Export** writes `<result>-ratings.csv` in the results folder: one row per accepted or rejected
+  question (not `not-reviewed`), with lock type, prompt, the answer key, options, cited quotes and the
+  rejection reason, and blank `rater`, `verdict` (`correct`, `wrong`, `unsure`) and `comment` columns.
+  Each rater gets their own copy and fills in their name. Use `--blind` for real rating: it drops the
+  `result` and `rejection_reason` columns and shuffles the rows, so a rater cannot tell accepted from
+  rejected. It never overwrites an existing CSV. A note whose cassette does not line up with the
+  result file (a retried call, a re-recorded cassette) is skipped with a reason, never guessed.
+- **Import** takes one or two filled CSVs, joins each row to the result file by note, concept index and
+  role (accepted or rejected comes from the result file, never from the CSV), and writes
+  `<result>-rated.json`: a copy of the run data plus a `ratings` section. Any bad row (unknown verdict,
+  unknown question, duplicate, wrong run, two rater names in one file) stops the import and writes
+  nothing. Blank verdicts are counted as unrated, not dropped.
+- **Definitions.** Wrong_Accepted rate: accepted questions rated `wrong` over accepted questions rated.
+  Correct_Rejected rate: rejected questions rated `correct` over rejected questions rated. `unsure` is
+  not counted in either; the `...Max` rates count every `unsure` against the pipeline (worst case).
+- **Two raters:** rates are given per rater and for the questions both rated alike (consensus), plus
+  agreement rate, Cohen's kappa, and every disagreement listed with both verdicts. Disagreements are
+  never averaged. Rater comments are read by nobody and never copied into a result file.
+- **The CSV holds question text.** `eval/results/*.csv` is git-ignored. Never commit it.
+
+## The holdout set runs once
+
+```powershell
+pnpm --filter @escape-the-crypt/worker eval holdout --confirm-final-run --provider <openai|gemini> --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n>
+```
+
+Only after the configuration is frozen (evidence-and-honesty steering). It refuses to start when the
+results folder already holds a result with `set: "holdout"`, or the ledger `ledger-holdout.json` (a run
+cut off after spending is still a run), or a file it cannot read. It takes no `--only` and no
+`--ledger`. It writes `holdout-<date>.json` and records cassettes inside the git-ignored holdout
+folder. No other mode reads the holdout notes. `export-ratings` reads holdout cassettes only when the
+result file it is given says `set: "holdout"`. To run the holdout again on purpose, a person deletes
+the holdout result and ledger; no flag does it. The notes are assumed to sit in a `notes` subfolder
+there, like `eval/dev/notes`.
 
 ## What it writes
 

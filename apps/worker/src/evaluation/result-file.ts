@@ -1,4 +1,5 @@
 import { z } from '@escape-the-crypt/core';
+import { RatingsSectionSchema } from './ratings-section';
 
 /**
  * Evaluation result file (Req 21.3, 21.4, 21.6): run facts only. No notes text, prompt text,
@@ -12,7 +13,7 @@ export const CandidateOutcomeSchema = z.strictObject({
   conceptId: z.string(),
   role: z.enum(['primary', 'alternate']),
   lockType: z.string().min(1),
-  result: z.enum(['accepted', 'code-check-rejected', 'review-rejected', 'not-reviewed']),
+  result: z.enum(['accepted', 'code-check-rejected', 'review-rejected', 'not-reviewed', 'conflict-rejected']),
   checkIds: z.array(z.string().min(1)),
   reviewReason: z.string().min(1).nullable(),
   /** Added after the first dev-set run; older result files parse with null. */
@@ -62,7 +63,8 @@ export const EvaluationResultSchema = z.strictObject({
   runId: z.string().min(1),
   startedAt: z.string().min(1),
   finishedAt: z.string().min(1),
-  set: z.literal('dev'),
+  /** holdout only from the one-shot holdout mode. */
+  set: z.enum(['dev', 'holdout']),
   provider: z.string().min(1),
   modelId: z.string().min(1),
   temperature: z.number(),
@@ -77,6 +79,8 @@ export const EvaluationResultSchema = z.strictObject({
   }),
   stopped: z.enum(['completed', 'budget-refused']),
   notes: z.array(NoteRunSchema),
+  /** Added by import-ratings in a new file; run data above is copied unchanged. */
+  ratings: RatingsSectionSchema.optional(),
 });
 
 export type NoteRun = z.infer<typeof NoteRunSchema>;

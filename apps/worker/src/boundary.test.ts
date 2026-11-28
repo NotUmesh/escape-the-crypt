@@ -129,7 +129,12 @@ describe('worker-local dependency boundary (Req 9.8, 27.7)', () => {
     expect(version).toMatch(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/);
   });
 
-  it('no scanned file references the final test set path', () => {
+  // Deliberately widened for the one-shot `eval holdout` mode: the evaluation paths module is the only
+  // file that may name the final test set's folder. holdout-isolation.test.ts pins the same single file
+  // and proves no other mode reads that folder.
+  const HOLDOUT_PATH_ALLOWLIST = ['apps/worker/src/evaluation/paths.ts'];
+
+  it('no scanned file references the final test set path, except the evaluation paths module', () => {
     const offenders: string[] = [];
     for (const files of filesByPackage.values()) {
       for (const f of files) {
@@ -137,6 +142,6 @@ describe('worker-local dependency boundary (Req 9.8, 27.7)', () => {
         if (text.includes(HOLDOUT_PATH) || text.includes(HOLDOUT_PATH_WIN)) offenders.push(relRepo(f));
       }
     }
-    expect(offenders).toEqual([]);
+    expect(offenders).toEqual(HOLDOUT_PATH_ALLOWLIST);
   });
 });

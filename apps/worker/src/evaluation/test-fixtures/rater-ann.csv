@@ -1,0 +1,6 @@
+run_id,note,concept_index,concept_id,role,lock_type,result,rejection_reason,prompt,answer,options,quotes,explanation,rater,verdict,comment
+fixture-run,dev-77-fixture.txt,0,concept-0,primary,rune-cipher,accepted,,A substance that trains the immune system is a ____.,vaccine,,A vaccine trains the immune system.,The notes define it.,Ann,correct,
+fixture-run,dev-77-fixture.txt,0,concept-0,alternate,seance-board,accepted,,Which statement is true?,a: Vaccines train the immune system,a: Vaccines train the immune system (supported) | b: Vaccines cure every disease (contradicted),[a] A vaccine trains the immune system.,Option a is quoted.,Ann,wrong,option b is also arguable
+fixture-run,dev-77-fixture.txt,1,concept-1,primary,rune-cipher,rejected,negative-question,Which is NOT a vaccine use? ____,antibiotic,,A vaccine trains the immune system.,The notes define it.,Ann,correct,fine question
+fixture-run,dev-77-fixture.txt,1,concept-1,alternate,bone-ordering,rejected,answer-mismatch,Put the steps in order.,Exposure → Response → Memory,,First exposure then response then memory.,Stated order.,Ann,wrong,order is not stated
+fixture-run,dev-77-fixture.txt,3,concept-3,primary,combination-dial,accepted,,How many doses are given?,2 doses,,Two doses are given.,Stated number.,Ann,unsure,

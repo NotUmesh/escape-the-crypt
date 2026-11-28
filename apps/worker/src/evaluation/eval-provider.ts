@@ -3,6 +3,11 @@ import { PROVIDER_NAMES, type ProviderName } from '../config';
 import { isGeminiModelId, makeGeminiProvider } from '../provider/gemini-provider';
 import { makeOpenAiProvider } from '../provider/openai-provider';
 
+/** Test seam: production never passes it. A fake live provider replaces the real one, so tests make no call. */
+export interface EvalOverrides {
+  readonly live?: Provider;
+}
+
 const KEY_NAME: Readonly<Record<ProviderName, string>> = { openai: 'OPENAI_API_KEY', gemini: 'GEMINI_API_KEY' };
 
 export type EvalProviderError =
@@ -32,7 +37,9 @@ export function evalProviderErrorText(error: EvalProviderError): string {
 export function liveEvalProvider(
   name: ProviderName,
   env: Readonly<Record<string, string | undefined>>,
+  overrides: EvalOverrides = {},
 ): { readonly ok: true; readonly value: Provider } | { readonly ok: false; readonly message: string } {
+  if (overrides.live !== undefined) return { ok: true, value: overrides.live };
   const key = env[KEY_NAME[name]]?.trim();
   if (key === undefined || key.length === 0) return { ok: false, message: `${KEY_NAME[name]} is not set in this shell. Nothing was called.` };
   return { ok: true, value: name === 'gemini' ? makeGeminiProvider({ apiKey: key }) : makeOpenAiProvider({ apiKey: key }) };

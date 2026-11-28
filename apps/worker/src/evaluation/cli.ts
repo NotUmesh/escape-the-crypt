@@ -1,41 +1,30 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   CHECK_VERSION,
   RUN_LENGTHS,
-  cryptTargetFor,
   DEFAULT_ASSEMBLY_POLICY,
   LEGACY_ASSEMBLY_POLICY,
   makeMockLedger,
   parseCassetteFile,
   type AssemblyPolicy,
   type CassetteFile,
-  type RunLength,
-  type LockType,
-  type Provider,
-  type ProviderUsage,
 } from '@escape-the-crypt/core';
-import { costOfUsage, worstCaseUsd, type TokenPrices } from '../budget/interim-ledger';
-import {
-  EVAL_ALLOWED_LOCK_TYPES,
-  GENERATION_TEMPERATURE,
-  INPUT_TOKENS_BOUND,
-  MAX_OUTPUT_TOKENS,
-  PROVIDER_RETRY_LIMIT,
-  PROVIDER_TIMEOUT_MS,
-} from '../config';
-import type { PipelineSettings } from '../http/job-runner';
-import { openCappedLedger } from './capped-ledger';
-import { evalProviderErrorText, liveEvalProvider, parseEvalProvider } from './eval-provider';
+import { evalProviderErrorText, liveEvalProvider, parseEvalProvider, type EvalOverrides } from './eval-provider';
+import { loadNotes, parseAllowedLockTypes, settingsFor } from './eval-settings';
+import { runExportRatings } from './export-ratings';
+import { runHoldout } from './holdout';
+import { runImportRatings } from './import-ratings';
 import { makeInspector } from './inspect';
-import { evaluationPaths, isPlainJsonName } from './paths';
+import { evaluationPaths } from './paths';
+import { runRecord } from './record-run';
 import { summarise } from './report';
-import { EvaluationResultSchema, resultFileName, type EvaluationResult } from './result-file';
-import { runDevSet, type DevNote } from './run-dev-set';
+import { runDevSet } from './run-dev-set';
 
-/** Calls in flight per stage. Lower than production's 4 to stay clear of rate limits; digests do not depend on it. */
-const EVAL_CONCURRENCY = 2;
+// Kept importable from here: tests and the Gemini contract test use them.
+export { parseAllowedLockTypes, settingsFor } from './eval-settings';
+export type { LockTypeListError } from './eval-settings';
 
 export interface Io {
   readonly out: (line: string) => void;
@@ -61,69 +50,6 @@ function parseArgs(argv: readonly string[]): { mode: string; args: Args } {
   return { mode, args };
 }
 
-function positive(value: string | undefined): number | undefined {
-  const n = value === undefined ? Number.NaN : Number(value);
-  return Number.isFinite(n) && n >= 0 ? n : undefined;
-}
-
-/** Exhaustive over the six Lock_Types: adding a type to core fails the type-check here. */
-const LOCK_TYPE_NAMES: Readonly<Record<LockType, true>> = {
-  'rune-cipher': true,
-  'seance-board': true,
-  'bone-ordering': true,
-  'bound-threads': true,
-  'cursed-object': true,
-  'combination-dial': true,
-};
-
-export type LockTypeListError =
-  | { readonly kind: 'invalid-lock-type'; readonly value: string }
-  | { readonly kind: 'empty-lock-type-list' };
-
-function isLockType(value: string): value is LockType {
-  return Object.prototype.hasOwnProperty.call(LOCK_TYPE_NAMES, value);
-}
-
-/** Parses `--allowed-lock-types`. Absent means the evaluation default. Commas or spaces separate (PowerShell passes an unquoted `a,b` as `a b`). */
-export function parseAllowedLockTypes(
-  raw: string | undefined,
-): { readonly ok: true; readonly value: readonly LockType[] } | { readonly ok: false; readonly error: LockTypeListError } {
-  if (raw === undefined) return { ok: true, value: EVAL_ALLOWED_LOCK_TYPES };
-  const parts = raw.split(/[\s,]+/).filter(Boolean);
-  if (parts.length === 0) return { ok: false, error: { kind: 'empty-lock-type-list' } };
-  const out: LockType[] = [];
-  for (const part of parts) {
-    if (!isLockType(part)) return { ok: false, error: { kind: 'invalid-lock-type', value: part } };
-    if (!out.includes(part)) out.push(part);
-  }
-  return { ok: true, value: out };
-}
-
-export function settingsFor(modelId: string, prices: TokenPrices, allowedLockTypes: readonly LockType[] = EVAL_ALLOWED_LOCK_TYPES, length?: RunLength): PipelineSettings {
-  return {
-    ...(length === undefined ? {} : { target: cryptTargetFor(length) }),
-    modelId,
-    temperature: GENERATION_TEMPERATURE,
-    maxOutputTokens: MAX_OUTPUT_TOKENS,
-    timeoutMs: PROVIDER_TIMEOUT_MS,
-    retryLimit: PROVIDER_RETRY_LIMIT,
-    worstCaseUsd: worstCaseUsd({ inputTokensEstimate: INPUT_TOKENS_BOUND, maxOutputTokens: MAX_OUTPUT_TOKENS }, prices),
-    costOf: (usage: ProviderUsage) => costOfUsage(usage, prices),
-    allowedLockTypes,
-    concurrency: EVAL_CONCURRENCY,
-  };
-}
-
-function loadNotes(notesDir: string, only: string | undefined): DevNote[] {
-  // Commas or spaces: PowerShell passes an unquoted `a,b` as `a b`.
-  const wanted = only?.split(/[\s,]+/).filter(Boolean);
-  return readdirSync(notesDir)
-    .filter((n) => n.endsWith('.txt'))
-    .filter((n) => wanted === undefined || wanted.some((w) => n.startsWith(w)))
-    .sort()
-    .map((name) => ({ name, text: readFileSync(join(notesDir, name), 'utf8') }));
-}
-
 const USAGE = [
   'Usage (from the repository root):',
   '  pnpm --filter @escape-the-crypt/worker eval record [--provider openai|gemini] --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <name.json> [--only dev-01,dev-02] [--allowed-lock-types rune-cipher,seance-board]',
@@ -131,11 +57,28 @@ const USAGE = [
   '--allowed-lock-types takes a comma-separated list of rune-cipher, seance-board, bone-ordering, bound-threads, cursed-object, combination-dial. Default: the evaluation list in config.ts. It applies to record and replay.',
   '--provider openai|gemini (default openai) applies to record and replay. Gemini cassettes live in cassettes/dev-gemini/<model>/, OpenAI ones in cassettes/dev/; replay reads only its own folder.',
   'record reads OPENAI_API_KEY or GEMINI_API_KEY from the environment and never writes it anywhere.',
+  'Rater tooling (dev or holdout result files; no model calls):',
+  '  eval export-ratings --result <result.json> [--out <ratings.csv>] [--blind]',
+  '  eval import-ratings --result <result.json> --csv <rater-1.csv> [--csv <rater-2.csv>]',
+  'The final test set has its own once-only mode, `eval holdout`; run it with no arguments to read its usage.',
 ].join('\n');
 
-/** Returns the process exit code: 0 done, 2 stopped by the budget cap, 1 usage or setup error. */
-export async function main(argv: readonly string[], env: Readonly<Record<string, string | undefined>>, repoRoot: string, io: Io): Promise<number> {
+/**
+ * Returns the process exit code: 0 done, 2 stopped by the budget cap or a partial export,
+ * 1 usage or setup error. `overrides` is a test seam: production never passes it.
+ */
+export async function main(
+  argv: readonly string[],
+  env: Readonly<Record<string, string | undefined>>,
+  repoRoot: string,
+  io: Io,
+  overrides: EvalOverrides = {},
+): Promise<number> {
   const { mode, args } = parseArgs(argv);
+  // These three never read the dev notes. Only `holdout` ever reads the holdout set.
+  if (mode === 'export-ratings') return runExportRatings(argv.slice(1), repoRoot, io);
+  if (mode === 'import-ratings') return runImportRatings(argv.slice(1), repoRoot, io);
+  if (mode === 'holdout') return runHoldout(argv.slice(1), env, repoRoot, io, overrides);
   const paths = evaluationPaths(repoRoot);
   const modelId = args['model'];
   if ((mode !== 'record' && mode !== 'replay') || modelId === undefined) {
@@ -203,78 +146,20 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
     return 0;
   }
 
-  const prices = { inputUsdPerMTok: positive(args['input-usd-per-mtok']), outputUsdPerMTok: positive(args['output-usd-per-mtok']) };
-  const capUsd = positive(args['cap-usd']);
-  const ledgerName = args['ledger'];
-  if (prices.inputUsdPerMTok === undefined || prices.outputUsdPerMTok === undefined || capUsd === undefined || capUsd <= 0 || ledgerName === undefined || !isPlainJsonName(ledgerName)) {
-    io.out(USAGE);
-    return 1;
-  }
-  const liveChoice = liveEvalProvider(providerName, env);
-  if (!liveChoice.ok) {
-    io.out(liveChoice.message);
-    return 1;
-  }
-  const started = io.date();
-  const runId = `${started.toISOString().replace(/[:.]/g, '-')}-record`;
-  mkdirSync(paths.resultsDir, { recursive: true });
-  const ledgerPath = paths.ledgerFile(ledgerName);
-  const capped = openCappedLedger(
-    {
-      load: () => (existsSync(ledgerPath) ? (JSON.parse(readFileSync(ledgerPath, 'utf8')) as unknown) : null),
-      save: (state) => writeFileSync(ledgerPath, `${JSON.stringify(state, null, 2)}\n`),
-    },
-    capUsd,
-    runId,
-  );
-  if (!capped.ok) {
-    io.out(capped.error.kind === 'cap-mismatch' ? `The ledger file's cap is $${capped.error.fileCapUsd}; refusing to run with a different cap.` : 'The ledger file does not parse; refusing to run.');
-    return 1;
-  }
-  const budget = capped.value;
-  io.out(`Budget: cap $${budget.capUsd.toFixed(2)}, spent before $${budget.spentBeforeUsd.toFixed(4)}, remaining $${budget.remainingUsd().toFixed(4)}.`);
-  const live: Provider = liveChoice.value;
-  const settings = settingsFor(modelId, { inputUsdPerMTok: prices.inputUsdPerMTok, outputUsdPerMTok: prices.outputUsdPerMTok }, lockTypes.value);
-  mkdirSync(cassettesDir, { recursive: true });
-  const run = await runDevSet({
-    notes,
-    loadCassette,
-    saveCassette: (note, file) => writeFileSync(cassettePath(note), `${JSON.stringify(file, null, 2)}\n`),
-    live,
-    ledger: budget.ledger,
-    settings,
+  return runRecord({
+    args,
+    io,
+    paths,
     providerName,
-    checkVersion: CHECK_VERSION,
-    now: io.now,
-    log: io.out,
-  });
-  const stopped = run.stopped === 'budget-refused' || budget.refused() ? 'budget-refused' : 'completed';
-  const result: EvaluationResult = EvaluationResultSchema.parse({
-    schemaVersion: 1,
-    runId,
-    startedAt: started.toISOString(),
-    finishedAt: io.date().toISOString(),
-    set: 'dev',
-    provider: providerName,
     modelId,
-    temperature: settings.temperature,
-    checkVersion: CHECK_VERSION,
-    assemblyPolicy: DEFAULT_ASSEMBLY_POLICY,
-    prices: { inputUsdPerMTok: prices.inputUsdPerMTok, outputUsdPerMTok: prices.outputUsdPerMTok },
-    budget: { capUsd: budget.capUsd, spentBeforeUsd: budget.spentBeforeUsd, spentThisRunUsd: budget.spentThisRunUsd(), reservationRefused: budget.refused() },
-    stopped,
-    notes: run.notes,
+    lockTypes: lockTypes.value,
+    set: 'dev',
+    ledgerName: args['ledger'],
+    cassettesDir,
+    notes: () => notes,
+    live: liveEvalProvider(providerName, env, overrides),
+    usage: USAGE,
   });
-  const name = resultFileName(started.toISOString().slice(0, 10), (n) => existsSync(join(paths.resultsDir, n)));
-  writeFileSync(join(paths.resultsDir, name), `${JSON.stringify(result, null, 2)}\n`);
-  io.out(JSON.stringify(summarise(run.notes), null, 2));
-  io.out(`Spent this run: $${budget.spentThisRunUsd().toFixed(4)}; remaining under the cap: $${budget.remainingUsd().toFixed(4)}.`);
-  io.out(`Result file: ${name}`);
-  if (stopped === 'budget-refused') {
-    io.out('STOPPED: the ledger refused a reservation. Later notes were not run.');
-    return 2;
-  }
-  return 0;
 }
 
 const entry = process.argv[1];
