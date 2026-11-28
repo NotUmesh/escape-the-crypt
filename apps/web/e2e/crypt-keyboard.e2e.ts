@@ -63,6 +63,15 @@ test('keyboard only: hint, skip and challenge, with focus moving into each panel
   await expect(panelSlot(page).locator('.question-panel')).toHaveCount(0);
   await expect(lockButton(0)).toBeFocused();
 
+  for (const exit of [ROOM_PLAY_LABELS.backToRoom, ROOM_PLAY_LABELS.closePanel]) {
+    await page.keyboard.press('Enter');
+    await expect(panelHeading(page)).toBeFocused();
+    await tabTo(page, panelButton(page, exit), exit === ROOM_PLAY_LABELS.backToRoom ? 'Shift+Tab' : 'Tab');
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect(lockButton(0)).toBeFocused();
+  }
+
   // Space reopens it. Use a hint, answer, and read the evidence.
   await page.keyboard.press('Space');
   await expect(panelHeading(page)).toBeFocused();
@@ -73,6 +82,8 @@ test('keyboard only: hint, skip and challenge, with focus moving into each panel
   await answerWithKeyboard(page, correctAnswerFor(crypt, first.primaryQuestion));
   await expect(page.locator('.evidence-panel')).toBeFocused();
   await expect(page.locator('.evidence-panel__result[data-result="correct"]')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.evidence-panel')).toBeFocused();
   await tabTo(page, panelButton(page, ROOM_PLAY_LABELS.continue));
   await page.keyboard.press('Space');
   await expect(panelSlot(page).locator('.evidence-panel')).toHaveCount(0);

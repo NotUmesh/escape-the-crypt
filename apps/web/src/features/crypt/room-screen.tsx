@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode, RefObject } from 'react';
 import {
+  LOCK_OBJECT_NAMES,
   ROOM_PLAY_LABELS,
   SAMPLE_CRYPT_LABEL,
   SLOT_STATUS_WORDS,
@@ -17,10 +18,7 @@ import type { Viewport } from './crop-mapping';
 import type { Box } from './hotspot-geometry';
 import { drawnGhosts } from './drawn-ghosts';
 import { GhostList } from './ghost-list';
-import { LockCloseUp } from './lock-closeup';
-import { panelSideFor } from './panel-side';
-import type { PanelSide } from './panel-side';
-import { isPhoneViewport } from './scene-layout';
+import { LockOverlay } from './lock-overlay';
 import { useRoomArt } from './use-room-art';
 import type { SceneLoader } from './use-scene';
 import './room-screen.css';
@@ -31,8 +29,6 @@ const NO_NOTICES: readonly Outcome_Notice[] = [];
 export interface PanelControls {
   readonly openerRef: RefObject<HTMLElement | null>;
   readonly onClose: () => void;
-  /** The side the panel opens on (Requirement 13.1). */
-  readonly side: PanelSide;
 }
 
 export interface RoomScreenProps {
@@ -95,18 +91,18 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
     const challenged = slots.find((s) => s.slotId === openSlotId && s.status === 'challenged');
     if (challenged === undefined || !cracked.includes(challenged.slotId)) return;
     setOpenSlotId(null);
-    openerRef.current?.focus();
   }, [notices, slots, openSlotId]);
+
+  useLayoutEffect(() => {
+    if (openSlotId !== null || openerRef.current === null) return;
+    const opener = openerRef.current;
+    openerRef.current = null;
+    if (opener.isConnected) opener.focus();
+    else titleRef.current?.closest('.room-screen')?.querySelector<HTMLElement>('.room-screen__lock-button')?.focus();
+  }, [openSlotId]);
 
   function close(): void {
     setOpenSlotId(null);
-    const opener = openerRef.current;
-    if (opener !== null && opener.isConnected) {
-      opener.focus();
-      return;
-    }
-    // The opener is gone: move to the next available control instead of dropping focus.
-    document.querySelector<HTMLElement>('.room-screen__lock-button')?.focus();
   }
 
   function activate(slot: LockSlotState | ReturnSlotState, opener: HTMLElement): void {
@@ -123,19 +119,28 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
 
   const scene = sceneState.status === 'ready' ? sceneState.scene : null;
   const hasStage = scene !== null && artRoom !== null && drawn.length > 0;
-  const phone = isPhoneViewport(viewport ?? { width: window.innerWidth, height: window.innerHeight });
   let panel: ReactNode = null;
   if (openSlot !== undefined && renderPanel !== undefined) {
-    const side = 'stationType' in openSlot ? panelSideFor(scene, openSlot.stationType, phone) : 'right';
-    const content = renderPanel(openSlot, { openerRef, onClose: close, side });
-    panel =
-      content !== null && 'stationType' in openSlot ? (
-        <LockCloseUp lockType={openSlot.stationType} solved={openSlot.status === 'solved'} side={side} phone={phone} log={log}>
+    const content = renderPanel(openSlot, { openerRef, onClose: close });
+    if (content !== null) {
+      const concept = 'conceptId' in openSlot
+        ? openSlot.conceptId
+        : state.manifest.rooms[roomIndex]?.lockSlots.find((slot) => slot.slotId === openSlot.slotId)?.conceptId;
+      panel = (
+        <LockOverlay
+          heading={LOCK_OBJECT_NAMES[openSlot.currentQuestionType]?.kind ?? ROOM_PLAY_LABELS.unplayableType}
+          lockType={openSlot.currentQuestionType}
+          solved={openSlot.status === 'solved'}
+          evidence={openSlot.evidencePanelOpen}
+          ghostRises={openSlot.evidencePanelOpen && notices.some((notice) => notice.kind === 'ghostSpawned' && notice.conceptId === concept)}
+          hints={state.settings.hintAllowance > 0 ? state.remainingHints : null}
+          log={log}
+          onClose={close}
+        >
           {content}
-        </LockCloseUp>
-      ) : (
-        content
+        </LockOverlay>
       );
+    }
   }
 
   function exits(box?: Box): ReactNode {

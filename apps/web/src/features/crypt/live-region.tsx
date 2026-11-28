@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface QueueState {
   readonly current: string;
@@ -25,10 +26,12 @@ export interface LiveRegionProps {
   readonly messages: readonly string[];
   /** How long each message stays before the next one replaces it. */
   readonly intervalMs?: number;
+  /** The native lock dialog makes everything outside it inert. */
+  readonly host?: HTMLElement | null;
 }
 
 /** The one polite live region. It shows one queued message at a time, so none are merged. */
-export function LiveRegion({ messages, intervalMs = 1500 }: LiveRegionProps) {
+export function LiveRegion({ messages, intervalMs = 1500, host = null }: LiveRegionProps) {
   const [state, dispatch] = useReducer(reduce, { current: '', pending: [], tick: 0 });
   const lastBatch = useRef<readonly string[] | null>(null);
 
@@ -44,7 +47,7 @@ export function LiveRegion({ messages, intervalMs = 1500 }: LiveRegionProps) {
     return () => clearTimeout(timer);
   }, [state.tick, state.current, intervalMs]);
 
-  return (
+  const region = (
     <div
       aria-live="polite"
       aria-atomic="true"
@@ -64,4 +67,5 @@ export function LiveRegion({ messages, intervalMs = 1500 }: LiveRegionProps) {
       {state.current}
     </div>
   );
+  return host === null ? region : createPortal(region, host);
 }

@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import type { ChangeEvent, KeyboardEvent, ReactNode } from 'react';
 import {
   LOCK_PANEL_LABELS,
-  ROOM_PLAY_LABELS,
   combinationDialSubmission,
   initCombinationDialDraft,
   setTypedEntry,
@@ -14,6 +13,7 @@ import { placeName, wheelName } from './accessible-names';
 import type { LockPanelContextValue } from './lock-panel-context';
 import { rejectedInvalid, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
 import type { LockPanelProps } from './lock-panel-registry';
+import { LockSubmit } from './lock-submit';
 import './lock-panels.css';
 
 /**
@@ -121,9 +121,7 @@ function CombinationDialBody({ slotId, questionId, env, payload }: BodyProps): R
         onChange={onType}
         onKeyDown={onTypedKey}
       />
-      <button type="button" className="costume-seal" onClick={submit}>
-        {ROOM_PLAY_LABELS.submitAnswer}
-      </button>
+      <LockSubmit onClick={submit} />
       {showMessage ? (
         <p id={messageId} role="alert">
           {showInvalid ? LOCK_PANEL_LABELS.invalidNumber : LOCK_PANEL_LABELS.typeNumberFirst}

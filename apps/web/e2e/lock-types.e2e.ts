@@ -30,6 +30,17 @@ async function open(page: Page, lockType: Parameters<typeof findTarget>[1], mode
   await startSample(page, SAMPLE, mode);
   await routeTo(page, crypt, target, mode);
   await expect(panelSlot(page).locator(`.${lockType}-panel`)).toBeVisible();
+  if (target.kind === 'lock') {
+    const dialog = panelSlot(page).getByRole('dialog');
+    await expect(dialog.locator('.lock-overlay__ledge').getByRole('button', { name: ROOM_PLAY_LABELS.submitAnswer })).toBeInViewport();
+    if (mode === 'keyboard') {
+      const art = await dialog.locator('.lock-overlay__frame').boundingBox();
+      const paper = await dialog.locator('.lock-overlay__paper').boundingBox();
+      if (art === null || paper === null) throw new Error('Lock art and parchment must both be visible');
+      expect(art.x + art.width).toBeLessThan(paper.x);
+      expect(paper.width).toBeLessThanOrEqual(520);
+    }
+  }
   // Hint, Skip and Challenge, Submit, and the type's own controls.
   if (mode === 'tap') await expectTouchTargets(page, 5);
   return question;
@@ -57,6 +68,7 @@ test.describe('the four newer lock types', () => {
     const question = await open(page, 'bound-threads', mode);
     const payload = payloadOf(question);
     await tieThreads(page, payload['keyPairs'] as string[][], textOf(crypt.content, question), mode, true);
+    await expect(panelSlot(page).locator('.bound-threads-panel__strings path')).toHaveCount((payload['keyPairs'] as string[][]).length);
     if (mode === 'tap') await expectTouchTargets(page);
     await finish(page, question, mode);
   });

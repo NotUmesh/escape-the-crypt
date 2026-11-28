@@ -16,7 +16,8 @@ interface ScreenSnapshot {
 /** What the learner sees: every lock, the status line, the open panel's text and its option order. */
 async function snapshot(page: Page): Promise<ScreenSnapshot> {
   const locks = page.locator('.room-screen__lock-button');
-  const options = page.getByTestId('panel-slot').locator('input[type="radio"]');
+  const panel = page.getByTestId('panel-slot');
+  const options = panel.locator('input[type="radio"]');
   const optionValues = await options.evaluateAll((els) => els.map((el) => (el as HTMLInputElement).value));
   const optionLabels = await options.evaluateAll((els) => els.map((el) => (el as HTMLInputElement).labels?.[0]?.textContent?.trim() ?? ''));
   return {
@@ -24,7 +25,8 @@ async function snapshot(page: Page): Promise<ScreenSnapshot> {
     lockStatuses: await locks.evaluateAll((els) => els.map((el) => el.getAttribute('data-status'))),
     status: ((await page.getByTestId('slot-status').innerText()) ?? '').trim(),
     ghostText: (await page.getByTestId('ghost-list').allInnerTexts()).join('|').trim(),
-    panelText: (await page.getByTestId('panel-slot').innerText()).trim(),
+    // Transient screen-reader announcements now share the dialog, but are not part of the restored question.
+    panelText: (await panel.locator('.lock-overlay__hud, .lock-overlay__paper, .lock-overlay__ledge').allInnerTexts()).join('\n').trim(),
     optionValues,
     optionLabels,
   };

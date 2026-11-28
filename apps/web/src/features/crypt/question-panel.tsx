@@ -1,9 +1,11 @@
-import { createElement, useEffect, useRef } from 'react';
+import { createElement, useContext, useEffect, useRef } from 'react';
 import type { KeyboardEvent, ReactNode, RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import type { LockType } from '@escape-the-crypt/core';
 import { LOCK_PANELS } from './lock-panel-registry';
 import type { LockPanelRegistry } from './lock-panel-registry';
+import { LockActionHost } from './lock-overlay-context';
 import './question-panel.css';
 
 export interface QuestionPanelProps {
@@ -50,6 +52,7 @@ function PanelShell({
 }: QuestionPanelProps): ReactNode {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const wasOpen = useRef(false);
+  const actionHost = useContext(LockActionHost);
 
   useEffect(() => {
     if (open && !wasOpen.current) headingRef.current?.focus();
@@ -60,10 +63,21 @@ function PanelShell({
   function onKeyDown(event: KeyboardEvent<HTMLElement>): void {
     if (event.key !== 'Escape' || awaitingContinue) return;
     event.preventDefault();
+    event.stopPropagation();
     onClose();
   }
 
   const LockPanel = panels[questionType];
+  const secondary = (
+    <div className="question-panel__actions">
+      {children}
+      {awaitingContinue ? null : (
+        <button type="button" className="question-panel__close" onClick={onClose}>
+          {ROOM_PLAY_LABELS.closePanel}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <section
@@ -82,12 +96,7 @@ function PanelShell({
       ) : (
         createElement(LockPanel, { slotId, questionId, questionType })
       )}
-      {children}
-      {awaitingContinue ? null : (
-        <button type="button" className="question-panel__close" onClick={onClose}>
-          {ROOM_PLAY_LABELS.closePanel}
-        </button>
-      )}
+      {actionHost === null ? secondary : createPortal(secondary, actionHost)}
     </section>
   );
 }

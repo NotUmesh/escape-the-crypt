@@ -1,5 +1,8 @@
 # Build log
 
+## Costume Step 3
+- Implemented outside Kiro with GitHub Copilot. The six room locks use a keyboard-modal overlay with the close-up on the left and parchment on the right, stacked on narrow screens. A stone action ledge holds the question actions; evidence replaces the question without moving to another surface. Lock controls remain HTML and use the existing judgments, hints, and evidence.
+
 ## Costume Step 2
 - Implemented outside Kiro with GitHub Copilot. The playable room now fills the page below a stone HUD. The stock art, hotspots and lights share one crop; hover and keyboard focus trace the lock shapes, and a wax seal by the door advances the run. The existing lock close-up and final-door scenes remain separate.
 

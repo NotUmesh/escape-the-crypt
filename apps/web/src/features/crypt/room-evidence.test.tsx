@@ -92,10 +92,24 @@ describe('Evidence_Panel in the room screen', () => {
     expect(binding.state?.rooms[0]?.lockSlots[0]?.evidencePanelOpen).toBe(true);
     const panel = mount.container.querySelector('.evidence-panel');
     expect(panel).not.toBeNull();
+    expect(panel?.closest('.lock-overlay__paper')?.closest('dialog')?.open).toBe(true);
     expect(document.activeElement).toBe(panel);
     const names = Array.from(mount.container.querySelectorAll('button')).map((b) => b.textContent);
     expect(names).toContain(ROOM_PLAY_LABELS.continue);
     for (const hidden of [ROOM_PLAY_LABELS.skip, ROOM_PLAY_LABELS.challenge]) expect(names).not.toContain(hidden);
+  });
+
+  it('keeps the parchment surface in place when evidence replaces the question', async () => {
+    await setup();
+    const opener = mount.container.querySelector<HTMLButtonElement>('.room-screen__lock-button');
+    act(() => opener?.click());
+    const parchment = mount.container.querySelector('.lock-overlay__paper');
+    const input = parchment?.querySelector('input');
+    if (input === null || input === undefined) throw new Error('No rune answer input');
+    type(input, 'not an answer');
+    act(() => buttonByText(mount.container, ROOM_PLAY_LABELS.submitAnswer).click());
+    expect(parchment?.querySelector('.evidence-panel')).not.toBeNull();
+    expect(parchment?.querySelector('.question-panel')).toBeNull();
   });
 
   it('Continue dispatches continueEvidence, closes the panel and returns focus to the slot button', async () => {

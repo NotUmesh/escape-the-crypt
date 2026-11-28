@@ -103,7 +103,6 @@ export function CryptRunView({
               dispatch={dispatch}
               openerRef={controls.openerRef}
               onClose={controls.onClose}
-              side={controls.side}
             />
           )
         }

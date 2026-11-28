@@ -12,6 +12,7 @@ import type { CursedObjectQuestion } from '@escape-the-crypt/core';
 import type { LockPanelContextValue } from './lock-panel-context';
 import { hintEffectFor, itemText, useHintAnnouncement, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
 import type { LockPanelProps } from './lock-panel-registry';
+import { LockSubmit } from './lock-submit';
 import './lock-panels.css';
 
 /**
@@ -74,7 +75,7 @@ function CursedObjectBody({ slotId, questionId, env, payload }: BodyProps): Reac
       <p id={promptId} className="cursed-object-panel__prompt">
         {env.content.questions[questionId]?.prompt ?? ''}
       </p>
-      <div role="radiogroup" aria-labelledby={`${groupId}-label`} aria-describedby={promptId} onKeyDown={onKeyDown}>
+      <div className="cursed-object-panel__choices" role="radiogroup" aria-labelledby={`${groupId}-label`} aria-describedby={promptId} onKeyDown={onKeyDown}>
         <p id={`${groupId}-label`}>{LOCK_PANEL_LABELS.cursedGroupLabel}</p>
         {draft.itemIds.map((id) => {
           const removed = id === draft.removedId;
@@ -100,9 +101,7 @@ function CursedObjectBody({ slotId, questionId, env, payload }: BodyProps): Reac
         })}
       </div>
       {showMessage ? <p role="alert">{ROOM_PLAY_LABELS.chooseOption}</p> : null}
-      <button type="button" className="costume-seal" onClick={submit}>
-        {ROOM_PLAY_LABELS.submitAnswer}
-      </button>
+      <LockSubmit onClick={submit} />
     </div>
   );
 }

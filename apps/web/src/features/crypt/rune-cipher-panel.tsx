@@ -4,6 +4,7 @@ import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import type { LockSlotState } from '@escape-the-crypt/core';
 import { useLockPanelContext } from './lock-panel-context';
 import type { LockPanelProps } from './lock-panel-registry';
+import { LockSubmit } from './lock-submit';
 
 /** Reads "first letter" and "length" out of the hint, tolerating a missing or other hint. */
 function firstLetterHint(
@@ -36,6 +37,7 @@ export function RuneCipherPanel({ slotId, questionId }: LockPanelProps): ReactNo
   const hint = firstLetterHint(context.appliedHintFor(slotId), questionId);
   // Apprentice and Gravedigger see the letter count from the start; a used hint says it too.
   const letterCount = context.showAnswerLength === true ? (context.answerLengthFor?.(questionId) ?? null) : null;
+  const slots = hint?.length ?? letterCount;
 
   function submit(): void {
     if (context === null) return;
@@ -71,6 +73,11 @@ export function RuneCipherPanel({ slotId, questionId }: LockPanelProps): ReactNo
           {ROOM_PLAY_LABELS.runeHint(hint.firstLetter, hint.length)}
         </p>
       )}
+      {slots === null ? null : (
+        <div className="rune-cipher-panel__carving" aria-hidden="true">
+          {Array.from({ length: slots }, (_, index) => <span key={index}>{index === 0 ? hint?.firstLetter : null}</span>)}
+        </div>
+      )}
       <label htmlFor={inputId}>Your answer</label>
       <input
         id={inputId}
@@ -81,9 +88,7 @@ export function RuneCipherPanel({ slotId, questionId }: LockPanelProps): ReactNo
         onChange={onChange}
         onKeyDown={onKeyDown}
       />
-      <button type="button" className="costume-seal" onClick={submit}>
-        {ROOM_PLAY_LABELS.submitAnswer}
-      </button>
+      <LockSubmit onClick={submit} />
       {showMessage ? (
         <p id={messageId} role="alert" className="rune-cipher-panel__message">
           {ROOM_PLAY_LABELS.emptyAnswer}

@@ -117,6 +117,7 @@ export const ROOM_PLAY_LABELS = {
   openAutopsy: 'Open the Autopsy',
   /** Visible close control on an open lock (touch users have no Escape key). Closing keeps the draft. */
   closePanel: 'Close',
+  backToRoom: '\u2190 Back to the room',
   playAgain: 'Play again',
   submitAnswer: 'Submit answer',
   hint: 'Hint',

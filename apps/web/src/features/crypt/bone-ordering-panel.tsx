@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
-import { LOCK_PANEL_LABELS, ROOM_PLAY_LABELS, applyBoneHint, boneOrderingSubmission, initBoneOrderingDraft, moveBone } from '@escape-the-crypt/core';
+import { LOCK_PANEL_LABELS, applyBoneHint, boneOrderingSubmission, initBoneOrderingDraft, moveBone } from '@escape-the-crypt/core';
 import type { BoneDirection, BoneOrderingQuestion } from '@escape-the-crypt/core';
 import { boneMoveName } from './accessible-names';
 import type { LockPanelContextValue } from './lock-panel-context';
 import { hintEffectFor, itemText, useHintAnnouncement, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
 import type { LockPanelProps } from './lock-panel-registry';
+import { LockSubmit } from './lock-submit';
 import './lock-panels.css';
 import { ParchmentTag } from '../costume/ornaments';
 
@@ -91,22 +92,22 @@ function BoneOrderingBody({ slotId, questionId, env, payload }: BodyProps): Reac
               }}
               onClick={() => (pinned ? undefined : move(id, direction))}
             >
-              {direction === 'up' ? LOCK_PANEL_LABELS.moveUp : LOCK_PANEL_LABELS.moveDown}
+              {direction === 'up' ? '\u25b2' : '\u25bc'}
             </button>
           );
           return (
             <li key={id} className="bone-ordering-panel__row" data-pinned={pinned} onKeyDown={(e) => onKeyDown(e, id, index)}>
-              <ParchmentTag className="bone-ordering-panel__text">{text}</ParchmentTag>
-              {pinned ? <span>({LOCK_PANEL_LABELS.boneFixed})</span> : null}
-              {button('up')}
-              {button('down')}
+              <div className="bone-ordering-panel__parts">
+                <ParchmentTag className="bone-ordering-panel__text">{text}</ParchmentTag>
+                {button('up')}
+                {button('down')}
+              </div>
+              {pinned ? <span className="bone-ordering-panel__fixed">({LOCK_PANEL_LABELS.boneFixed})</span> : null}
             </li>
           );
         })}
       </ol>
-      <button type="button" className="costume-seal" onClick={submit}>
-        {ROOM_PLAY_LABELS.submitAnswer}
-      </button>
+      <LockSubmit onClick={submit} />
     </div>
   );
 }

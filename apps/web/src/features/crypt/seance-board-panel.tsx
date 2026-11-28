@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { FormEvent, KeyboardEvent, ReactNode } from 'react';
 import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import { useLockPanelContext } from './lock-panel-context';
 import type { LockPanelProps } from './lock-panel-registry';
+import { LockSubmit } from './lock-submit';
 
 const GROUP_LABEL = ROOM_PLAY_LABELS.seanceGroupLabel;
 const REMOVED_LABEL = ROOM_PLAY_LABELS.removedByHint;
@@ -18,6 +19,7 @@ export function SeanceBoardPanel({ slotId, questionId }: LockPanelProps): ReactN
   const [choice, setChoice] = useState<string | null>(null);
   const [showMessage, setShowMessage] = useState(false);
   const refs = useRef(new Map<string, HTMLInputElement>());
+  const formId = useId();
 
   const entry = env?.content.questions[questionId];
   if (env === null || entry === undefined) {
@@ -61,13 +63,13 @@ export function SeanceBoardPanel({ slotId, questionId }: LockPanelProps): ReactN
   }
 
   return (
-    <form className="seance-board-panel" onSubmit={onSubmit} noValidate>
+    <form id={formId} className="seance-board-panel" onSubmit={onSubmit} noValidate>
       <p id={promptId} className="seance-board-panel__prompt">
         {entry.prompt}
       </p>
       <div role="radiogroup" aria-labelledby={`${groupId}-label`} aria-describedby={promptId} onKeyDown={onKeyDown}>
         <p id={`${groupId}-label`}>{GROUP_LABEL}</p>
-        {options.map(([id, text]) => {
+        {options.map(([id, text], index) => {
           const removed = id === removedId;
           return (
             <label key={id} className="seance-board-panel__option">
@@ -84,6 +86,7 @@ export function SeanceBoardPanel({ slotId, questionId }: LockPanelProps): ReactN
                 }}
                 onChange={() => select(id)}
               />{' '}
+              <span className="seance-board-panel__letter" aria-hidden="true">{String.fromCharCode(65 + index)}</span>
               <span>{text}</span>
               {removed ? <span> ({REMOVED_LABEL})</span> : null}
             </label>
@@ -91,7 +94,7 @@ export function SeanceBoardPanel({ slotId, questionId }: LockPanelProps): ReactN
         })}
       </div>
       {showMessage ? <p role="alert">{ROOM_PLAY_LABELS.chooseOption}</p> : null}
-      <button type="submit">{ROOM_PLAY_LABELS.submitAnswer}</button>
+      <LockSubmit form={formId} />
     </form>
   );
 }

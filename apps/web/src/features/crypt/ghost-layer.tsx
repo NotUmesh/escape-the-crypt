@@ -17,6 +17,19 @@ export interface GhostLayerProps {
   readonly effects: ArtEffects;
 }
 
+export function GhostFigure(): ReactNode {
+  return (
+    <svg className="ghost-art__body" viewBox="0 0 40 52" focusable="false">
+      <path
+        className="ghost-art__shape"
+        d="M20 2 C 9 2 4 11 4 22 L 4 50 L 10 44 L 15 50 L 20 44 L 25 50 L 30 44 L 36 50 L 36 22 C 36 11 31 2 20 2 Z"
+      />
+      <circle className="ghost-art__eye" cx="14" cy="22" r="2.5" />
+      <circle className="ghost-art__eye" cx="26" cy="22" r="2.5" />
+    </svg>
+  );
+}
+
 /**
  * Ghosts and Spirit_Candle flames at the Ghost_Anchors. Drawn for sight only: the text list carries the
  * names, nothing here takes pointer events, and the layer sits under the controls (Requirement 18.10).
@@ -41,14 +54,7 @@ export function GhostLayer({ anchors, frameWidth, ghosts, spiritCandleCount, eff
             title={ghostName(ghost.returnNumber)}
             style={{ left: anchor.x, top: anchor.y, width: ghostWidth, height: ghostWidth * 1.3 }}
           >
-            <svg className="ghost-art__body" viewBox="0 0 40 52" focusable="false">
-              <path
-                className="ghost-art__shape"
-                d="M20 2 C 9 2 4 11 4 22 L 4 50 L 10 44 L 15 50 L 20 44 L 25 50 L 30 44 L 36 50 L 36 22 C 36 11 31 2 20 2 Z"
-              />
-              <circle className="ghost-art__eye" cx="14" cy="22" r="2.5" />
-              <circle className="ghost-art__eye" cx="26" cy="22" r="2.5" />
-            </svg>
+            <GhostFigure />
           </span>
         );
       })}

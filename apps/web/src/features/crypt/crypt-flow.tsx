@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { GENERATION_COPY, SAMPLE_CRYPT_LABEL } from '@escape-the-crypt/core';
 import type { RunSettings } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
@@ -21,6 +22,7 @@ import { RunConflictNotice } from './conflict-notice';
 import { useGeneratedNotices } from './use-generated-notices';
 import { useEndgameClips } from './use-endgame-clips';
 import { LiveRegion } from './live-region';
+import { OverlayStatusHost } from './lock-overlay-context';
 import { LockAnnounceContext } from './lock-panel-payload';
 import { ReadOnlyScreenContainer } from '../start/read-only-screen';
 import { SaveBanner } from '../start/save-banner';
@@ -98,6 +100,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
     beginDescent,
   );
   const [messages, setMessages] = useState<readonly string[]>(NO_MESSAGES);
+  const [overlayStatus, setOverlayStatus] = useState<HTMLDivElement | null>(null);
   const announceFromPanel = useCallback((message: string): void => setMessages([message]), []);
   const previous = useRef<AnnounceTracker>(EMPTY_TRACKER);
 
@@ -248,22 +251,20 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   }, [phase, descentVariant, endDescent]);
 
   // Another tab owns the run: show it read-only. cquiring (first grant pending) shows the normal screen.
-  // This return comes after every hook above.
   const lockState = binding.lockState;
   if ((lockState === 'waiting' || lockState === 'lost') && binding.runId !== undefined) {
     const readOnly = <ReadOnlyScreenContainer deps={deps} runId={binding.runId} onTakeOver={onTakeOver} />;
     return renderStart === undefined ? readOnly : <main className="screen">{readOnly}</main>;
   }
 
+  const saveBanner = phase === 'running' && state !== null ? <SaveBanner
+    saveFailed={binding.saveFailed === true}
+    exportSlot={exportSlotFor(binding, state, deps, renderStart === undefined ? undefined : announceFromPanel)}
+  /> : null;
   const body = (
-    <>
+    <OverlayStatusHost.Provider value={setOverlayStatus}>
       {showLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
-      {phase === 'running' && state !== null ? (
-        <SaveBanner
-          saveFailed={binding.saveFailed === true}
-          exportSlot={exportSlotFor(binding, state, deps, renderStart === undefined ? undefined : announceFromPanel)}
-        />
-      ) : null}
+      {overlayStatus === null ? saveBanner : createPortal(saveBanner, overlayStatus)}
       <RunConflictNotice
         held={heldNotices}
         state={state}
@@ -272,8 +273,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
         ready={descent.variant === null}
       />
       <LockAnnounceContext.Provider value={announceFromPanel}>{view}</LockAnnounceContext.Provider>
-    </>
-  );
+    </OverlayStatusHost.Provider>);
   // With a host start screen the room's region exists only while a run plays; the host's announcer covers the rest.
   const showRegion = renderStart === undefined ? !isGenerating(generationState) : phase === 'running';
   return (
@@ -285,7 +285,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
           {body}
         </DescentLayer>
       )}
-      {showRegion ? <LiveRegion messages={messages} /> : null}
+      {showRegion ? <LiveRegion messages={messages} host={overlayStatus} /> : null}
     </>
   );
 }

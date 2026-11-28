@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   LOCK_PANEL_LABELS,
-  ROOM_PLAY_LABELS,
   applyThreadHint,
   boundThreadsSubmission,
   initBoundThreadsDraft,
@@ -17,6 +16,8 @@ import { threadStateName } from './accessible-names';
 import type { LockPanelContextValue } from './lock-panel-context';
 import { hintEffectFor, itemText, useHintAnnouncement, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
 import type { LockPanelProps } from './lock-panel-registry';
+import { LockSubmit } from './lock-submit';
+import { ThreadLines } from './thread-lines';
 import './lock-panels.css';
 
 /**
@@ -43,6 +44,7 @@ function BoundThreadsBody({ slotId, questionId, env, payload }: BodyProps): Reac
   const draft = applyThreadHint(stored, hint);
   const [message, setMessage] = useState<string | null>(null);
   const leftButtons = useRef(new Map<string, HTMLButtonElement>());
+  const rightButtons = useRef(new Map<string, HTMLButtonElement>());
   const refocusLeft = useRef<string | null>(null);
   useEffect(() => {
     if (refocusLeft.current === null) return;
@@ -130,10 +132,14 @@ function BoundThreadsBody({ slotId, questionId, env, payload }: BodyProps): Reac
               <button
                 key={id}
                 type="button"
-                className="bound-threads-panel__item"
+                className="bound-threads-panel__item bound-threads-panel__slip"
                 aria-disabled={tied ? 'true' : undefined}
                 data-tied={tied}
                 aria-label={threadStateName(textOf(id), tied ? 'tied' : 'untied', partner === undefined ? undefined : textOf(partner))}
+                ref={(node) => {
+                  if (node === null) rightButtons.current.delete(id);
+                  else rightButtons.current.set(id, node);
+                }}
                 onClick={() => pickRight(id)}
               >
                 {textOf(id)}
@@ -141,6 +147,7 @@ function BoundThreadsBody({ slotId, questionId, env, payload }: BodyProps): Reac
             );
           })}
         </div>
+        <ThreadLines pairs={draft.pairs} hintedPair={draft.hintedPair} leftButtons={leftButtons} rightButtons={rightButtons} />
       </div>
       <p className="bound-threads-panel__tied-heading" id={`threads-tied-${slotId}`}>
         {LOCK_PANEL_LABELS.threadsTiedLabel}
@@ -169,9 +176,7 @@ function BoundThreadsBody({ slotId, questionId, env, payload }: BodyProps): Reac
         </ul>
       )}
       {message === null ? null : <p role="alert">{message}</p>}
-      <button type="button" className="costume-seal" onClick={submit}>
-        {ROOM_PLAY_LABELS.submitAnswer}
-      </button>
+      <LockSubmit onClick={submit} />
     </div>
   );
 }

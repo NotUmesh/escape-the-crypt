@@ -7,7 +7,7 @@ import { enterDoor, panelSlot, startSample } from './sample-nav';
 // Decorative art never takes the pointer or focus; playing a sample never calls an AI provider.
 const HIT_SELECTORS = {
   room: '.room-hotspot, .room-screen__lock-button',
-  panel: '.question-panel button, .question-panel input, .question-panel [role="spinbutton"]',
+  panel: '[data-testid="panel-slot"] :is(button, input, [role="spinbutton"])',
   seals: '.final-door__seal-button',
 };
 

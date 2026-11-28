@@ -41,7 +41,7 @@ export function QuestionControls({
               aria-describedby={countId}
               onClick={() => dispatch({ type: 'useHint', slotId })}
             >
-              {ROOM_PLAY_LABELS.hint}
+              <CandleIcon lit={!noHints} />{ROOM_PLAY_LABELS.hint}
             </button>
             <span id={countId} className="question-controls__count">
               <CandleIcon lit={!noHints} />{countText}
