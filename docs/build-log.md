@@ -264,3 +264,11 @@ Vitest ran with `--maxWorkers=50%`. No e2e suite was run.
 | six cassette e2e tests | Pass | 6 files, 17 tests; no digest edits |
 | cassette and contract diff | Empty | `git diff --stat -- packages/core/src/test-support/cassettes packages/core/src/test-support/contract` prints nothing; `job-completed.json` has no diff |
 | files over 300 lines | None | Largest touched file: `orchestrator.ts`, 299 lines |
+
+## Rater tooling and the holdout guard (record only)
+- Added `eval export-ratings` and `eval import-ratings` to the evaluation CLI. Export writes one CSV row per accepted or rejected question of a result file (lock type, prompt, answer key, options, cited quotes, rejection reason) with blank rater, verdict and comment columns; `--blind` drops the outcome columns and shuffles. Import reads one or two filled CSVs and writes a new `<result>-rated.json`: Wrong_Accepted and Correct_Rejected per lock type for each rater and for the questions both rated alike, agreement, Cohen's kappa, and every disagreement listed. The original result file is never changed.
+- No real ratings exist yet. The numbers in the tests come from fixture CSVs, so the result files still carry no Wrong_Accepted or Correct_Rejected figure.
+- Limits. The result file does not link a candidate to its cassette entry, so export matches generation replies to concepts by order and refuses any note whose counts or lock types do not line up (a retried call, a re-recorded cassette). "Unsure" is never counted as wrong or as correct; a separate worst-case rate counts it against the pipeline. Rater CSVs hold question text, so `eval/results/*.csv` is git-ignored.
+- `eval holdout` is the only way to run the final test set. It refuses when the results folder already holds a holdout result or `ledger-holdout.json`, or without `--confirm-final-run`. It has not been run.
+- Deliberate guard change: `apps/worker/src/boundary.test.ts` used to forbid any mention of the holdout folder path. It now allows exactly one file, `evaluation/paths.ts`, and `holdout-isolation.test.ts` checks that no other mode reads that folder. The holdout notes are assumed to sit in a `notes` subfolder, like the dev set; this is unconfirmed.
+- The result file's `set` field is now `dev` or `holdout`, and an optional `ratings` section was added; older result files still parse.
