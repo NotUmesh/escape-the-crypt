@@ -1,4 +1,5 @@
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
+import { hashesEqual, requestDigest, sha256Hex } from './job-hash';
 import type { JobFailureKindName, JobStatusName, PipelineResult, RunLength } from '@escape-the-crypt/core';
 
 /** `cancelling` is non-terminal: cancel was requested and the pipeline has not returned yet. */
@@ -44,6 +45,8 @@ export interface Job {
   /** Set when the status first becomes terminal. Starts the Job_TTL. */
   readonly terminalAtMs: number | null;
   readonly failure: JobFailureKind | null;
+  /** Count of askable topics found when the run stopped for too few. A number only, never content. */
+  readonly goodConcepts: number | null;
   /** Sets the crypt size the pipeline aims for (`cryptTargetFor`). */
   readonly runLength: RunLength;
   /** Needed to run the pipeline. Deleted at the Job_TTL. */
@@ -82,6 +85,7 @@ export type CancelRequestResult =
 
 export interface JobStatusPatch {
   readonly failure?: JobFailureKind | null;
+  readonly goodConcepts?: number | null;
   readonly result?: PipelineResult | null;
 }
 
@@ -111,33 +115,9 @@ export interface JobStoreConfig {
   readonly newId?: () => string;
 }
 
-export function sha256Hex(value: string): string {
-  return createHash('sha256').update(value, 'utf8').digest('hex');
-}
+export { requestDigest, sha256Hex };
 
-function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
-  if (value !== null && typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>)
-      .filter(([, v]) => v !== undefined)
-      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-      .map(([k, v]) => `${JSON.stringify(k)}:${canonicalJson(v)}`);
-    return `{${entries.join(',')}}`;
-  }
-  return JSON.stringify(value) ?? 'null';
-}
-
-/** sha-256 over key-sorted canonical JSON, so key order never changes the digest. */
-export function requestDigest(body: unknown): string {
-  return sha256Hex(canonicalJson(body));
-}
-
-function hashesEqual(a: string, b: string): boolean {
-  const left = Buffer.from(a, 'utf8');
-  const right = Buffer.from(b, 'utf8');
-  return left.length === right.length && timingSafeEqual(left, right);
-}
-
+/** Key of the idempotency slot for one session and key pair. */
 const slot = (sessionHash: string, keyHash: string): string => `${sessionHash}:${keyHash}`;
 
 export function createJobStore(config: JobStoreConfig): JobStore {
@@ -188,6 +168,7 @@ export function createJobStore(config: JobStoreConfig): JobStore {
         createdAtMs: config.now(),
         terminalAtMs: null,
         failure: null,
+        goodConcepts: null,
         runLength: input.runLength,
         notesText: input.notesText,
         result: null,
@@ -251,6 +232,7 @@ export function createJobStore(config: JobStoreConfig): JobStore {
         status,
         terminalAtMs: terminal ? config.now() : null,
         failure: patch?.failure !== undefined ? patch.failure : job.failure,
+        goodConcepts: patch?.goodConcepts !== undefined ? patch.goodConcepts : job.goodConcepts,
         result: patch?.result !== undefined ? patch.result : job.result,
       });
       return true;

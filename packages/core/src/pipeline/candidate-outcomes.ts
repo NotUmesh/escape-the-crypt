@@ -15,6 +15,8 @@ export interface ConceptGenerationOutcome {
   readonly conceptIndex: number;
   readonly conceptId: string;
   readonly generation: GenerationOutcome;
+  /** Words in the concept's distinct cited chunks (a count; no text). */
+  readonly sourceWords: number;
 }
 
 export type CandidateResult =

@@ -20,4 +20,6 @@ export type PipelineStageError =
   /** The caller's signal was aborted before a reservation or call could start. */
   | { readonly kind: 'cancelled' }
   /** Every room the conflict check attempted failed, so nothing could be checked clean. */
-  | { readonly kind: 'conflict-check-failed' };
+  | { readonly kind: 'conflict-check-failed' }
+  /** Too few concepts with enough source text to build a crypt of the requested size. */
+  | { readonly kind: 'insufficient-concepts'; readonly found: number };

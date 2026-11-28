@@ -13,6 +13,11 @@ export const FAILURE_COPY: Readonly<Record<JobFailureKind, string>> = {
   expired: 'This crypt is gone from the server. Your notes are still on your device, so you can build it again.',
 };
 
+/** Appended to the 'not-enough-material' message when a run stopped for too few topics (design 1e, first sentence). */
+export function topicCountSentence(found: number): string {
+  return `Your notes gave us ${found} ${found === 1 ? 'topic' : 'topics'} we could ask about.`;
+}
+
 export const ERROR_COPY = {
   'invalid-session-token': 'This request is missing a valid session token. Please reload the page and try again.',
   'invalid-idempotency-key': 'This request is missing a valid idempotency key. Please reload the page and try again.',

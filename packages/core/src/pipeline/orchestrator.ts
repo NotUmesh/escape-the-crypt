@@ -1,4 +1,3 @@
-import type { AuthoringQuestion } from '../authoring/schema';
 import type { BudgetLedger } from '../budget/types';
 import { CHECK_VERSION } from '../checks/registry';
 import type { CryptContent } from '../mapper/crypt-content';
@@ -8,14 +7,14 @@ import type { CryptTarget } from '../run-length';
 import type { Result } from '../types';
 import { blindReview, type ReviewVerdict } from './blind-review';
 import {
-  generationOutcome,
   newOutcomeLog,
   recordPlacements,
   snapshotOutcomes,
 } from './candidate-outcomes';
 import { runCodeCheckStage } from './code-check-stage';
-import { conceptsForTarget } from './concept-spread';
+import { collectCandidates, SKIPPED, type Slot } from './orchestrator-candidates';
 import { runAssemblyPhase } from './orchestrator-conflict';
+import { selectRunConcepts } from './orchestrator-sufficiency';
 import { progressReporter, type PipelineProgress } from './pipeline-progress';
 import { tallyReviews } from './review-tally';
 import { extractConcepts, type ExtractedConcept } from './concept-extraction';
@@ -28,11 +27,7 @@ import {
 import type { PipelineNotices } from './pipeline-notices';
 import { prepareDocument } from './prepare-input';
 import { recordCalls } from './recording-provider';
-import {
-  type AssemblyPolicy,
-  type RoomAssemblyError,
-  type UnplacedAccepted,
-} from './room-assembly';
+import type { AssemblyPolicy, RoomAssemblyError, UnplacedAccepted } from './room-assembly';
 import {
   TIMED_STAGES,
   buildRunMetadata,
@@ -106,15 +101,6 @@ export interface PipelineJobFailure {
   readonly metadata: PipelineRunMetadata;
 }
 
-interface Candidate {
-  readonly conceptIndex: number;
-  readonly role: 'primary' | 'alternate';
-  readonly question: AuthoringQuestion;
-}
-
-type Slot<T> = { readonly skipped: true } | { readonly skipped: false; readonly value: T };
-const SKIPPED = { skipped: true } as const;
-
 /**
  * Notes text in, published room out. Stages run in order: prepare, concept extraction,
  * generation, Code_Checks, blind review, assembly. Generation and review run under
@@ -182,9 +168,13 @@ export async function runRoomPipeline(
   );
   if (aborted()) return cancelled();
   if (!extracted.ok) return fail(extracted.error);
-  const concepts: readonly ExtractedConcept[] = conceptsForTarget(extracted.value, options.target, doc);
+  const selection = selectRunConcepts(extracted.value, doc, options.target, options.sufficiency, counts);
+  if (selection.insufficient !== null) {
+    return fail({ kind: 'insufficient-concepts', found: selection.insufficient.found });
+  }
+  const concepts: readonly ExtractedConcept[] = selection.concepts;
   counts.concepts = concepts.length;
-  counts.conceptsNotSelected = extracted.value.length - concepts.length;
+  counts.conceptsNotSelected = selection.candidates - concepts.length;
 
   // Generation: one task per concept, in extraction order.
   const generatedOne = progress.counted('generating', concepts.length);
@@ -210,29 +200,7 @@ export async function runRoomPipeline(
   if (aborted()) return cancelled();
   if (halt.error !== null) return fail(halt.error);
 
-  const candidates: Candidate[] = [];
-  generated.forEach((outcome, conceptIndex) => {
-    const slot = outcome.ok ? outcome.value : SKIPPED;
-    outcomes.concepts.push({
-      conceptIndex,
-      conceptId: concepts[conceptIndex]?.conceptId ?? '',
-      generation: generationOutcome(slot),
-    });
-    if (slot.skipped || !slot.value.ok) {
-      if (!slot.skipped && !slot.value.ok && slot.value.error.kind === 'schema-rejected') {
-        counts.schemaRejected += 1;
-      }
-      counts.conceptsSetAside += 1;
-      return;
-    }
-    const pair = slot.value.value;
-    if (pair === null) return; // the model chose no lock: not a failure
-    candidates.push({ conceptIndex, role: 'primary', question: pair.primary });
-    if (pair.alternate !== null) {
-      candidates.push({ conceptIndex, role: 'alternate', question: pair.alternate });
-    }
-  });
-  counts.candidates = candidates.length;
+  const candidates = collectCandidates(generated, concepts, doc, counts, outcomes);
 
   // Code_Checks, once per question. Blind review is only asked about questions that pass.
   const conceptIdOf = (i: number): string => concepts[i]?.conceptId ?? '';

@@ -7,6 +7,7 @@ import { runConflictStage } from './conflict-stage';
 import { assembleForTarget } from './crypt-assembly';
 import { manifestIdOf } from './crypt-manifest-id';
 import type { PipelineOptions } from './orchestrator';
+import { withSufficiencyNotice } from './orchestrator-sufficiency';
 import type { PipelineNotices } from './pipeline-notices';
 import type { PreparedDocument } from './prepare-input';
 import type { AssemblyConcept, RoomAssembly, RoomAssemblyError } from './room-assembly';
@@ -56,12 +57,19 @@ export async function runAssemblyPhase(
       options.target,
     );
 
+  const good = assemblyConcepts.filter((c) => c.primary !== null || c.alternate !== null).length;
+  const withNotice = (assembly: RoomAssembly, notices?: PipelineNotices): AssemblyPhaseOutput => {
+    const merged = withSufficiencyNotice(notices, options.sufficiency, options.target, good, assembly.manifest.rooms.length);
+    return { assembly, ...(merged !== undefined && { notices: merged }) };
+  };
+
   if (options.conflictCheck !== true) {
+    if (options.sufficiency === true) counts.goodConcepts = good;
     const assembled = await input.timed('assembly', () => assemble(assemblyConcepts));
-    return assembled.ok ? { ok: true, value: { assembly: assembled.value } } : assembled;
+    return assembled.ok ? { ok: true, value: withNotice(assembled.value) } : assembled;
   }
 
-  counts.goodConcepts = assemblyConcepts.filter((c) => c.primary !== null || c.alternate !== null).length;
+  counts.goodConcepts = good;
   const staged = await input.timed('conflict-check', () =>
     runConflictStage({
       concepts: assemblyConcepts,
@@ -84,6 +92,6 @@ export async function runAssemblyPhase(
   });
   return {
     ok: true,
-    value: { assembly, ...(excluded.length > 0 && { notices: { excluded, sufficiency: null } }) },
+    value: withNotice(assembly, excluded.length > 0 ? { excluded, sufficiency: null } : undefined),
   };
 }

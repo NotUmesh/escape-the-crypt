@@ -83,6 +83,18 @@
     "44.17 Write the budget and concurrency property test and the unchanged-rules test": {
       "status": "passed",
       "lastRunTimestamp": 1795857432403
+    },
+    "46.2 Write property test for the thin filter": {
+      "status": "passed",
+      "lastRunTimestamp": 1795860085723
+    },
+    "46.3 Write property test for sufficiency accounting (pure half)": {
+      "status": "passed",
+      "lastRunTimestamp": 1795860085933
+    },
+    "46.7 Write the never-lower-a-check property test": {
+      "status": "passed",
+      "lastRunTimestamp": 1795863502259
     }
   },
   "executionHistory": {
@@ -2540,6 +2552,16 @@
         "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795853477893
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795859698035
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795859953694
       }
     ],
     "42.5 Write property test for the effective set": [
@@ -2857,6 +2879,16 @@
         "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795857973730
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795859698182
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795859953864
       }
     ],
     "44.21 Confirm `CHECK_VERSION` is unchanged": [
@@ -2910,6 +2942,119 @@
         "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795859331890
+      }
+    ],
+    "46.1 Implement the thin-concept filter and sufficiency notice": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795859963870
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860026020
+      }
+    ],
+    "46.2 Write property test for the thin filter": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860026766
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860483474
+      }
+    ],
+    "46.3 Write property test for sufficiency accounting (pure half)": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860027566
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860483979
+      }
+    ],
+    "46.4 Wire the thin filter and early stop into the orchestrator": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860028246
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860484783
+      }
+    ],
+    "46.5 Map the early stop in the worker and turn sufficiency on": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860485580
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860661305
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860939660
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795863572174
+      }
+    ],
+    "46.6 Write property test for the pipeline half of sufficiency": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860487376
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860661435
+      }
+    ],
+    "46.7 Write the never-lower-a-check property test": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860487452
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795863572303
+      }
+    ],
+    "46.8 ES-1: record per-concept source words (eval/dev only, free replay)": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795860661526
+      }
+    ],
+    "47. Checkpoint - sufficiency group": [
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795863572504
+      },
+      {
+        "executionId": "b17df8dd-8022-4056-a0b2-3921741c398f",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795864303677
       }
     ]
   }

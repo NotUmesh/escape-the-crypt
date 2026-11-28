@@ -1040,47 +1040,47 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
   - Remind the user that the golden fixture step in task 44.20 is theirs
 
 - [ ] 46. Phase 6: sufficiency
-  - [ ] 46.1 Implement the thin-concept filter and sufficiency notice
+  - [x] 46.1 Implement the thin-concept filter and sufficiency notice
     - Complete `packages/core/src/pipeline/sufficiency.ts` (the `SufficiencyNotice` type exists from task 44.11): `MIN_CONCEPT_SOURCE_WORDS = 12` (provisional: below the smallest gold value, rejects 0 of 58 gold concepts; ES-1 in task 46.8 may lower it; Open decision D8), `conceptSourceWords` (sum of words over the concept's distinct cited chunks), `splitThinConcepts` (kept and thin each in input order, `conceptId` unchanged), `conceptsNeeded(target)` (`rooms * locksPerRoom`) and `sufficiencyNotice(goodConcepts, target, builtRooms)` (a notice exactly when a target is present and `builtRooms < target.rooms`)
     - Add `{ kind: 'insufficient-concepts'; found: number }` to `packages/core/src/pipeline/stage-error.ts`. Pure functions, no provider call, no change to any file under `checks/`
     - _Requirements: 17.1, 17.2_
 
-  - [ ] 46.2 Write property test for the thin filter
+  - [x] 46.2 Write property test for the thin filter
     - **Property 35: The thin-concept filter keeps exactly the concepts with enough source text**
     - **Validates: Requirements 17.1**
     - Add `notEnoughConceptsArb` to `packages/core/src/test-support/`; also assert the filter is idempotent on `kept`
 
-  - [ ] 46.3 Write property test for sufficiency accounting (pure half)
+  - [x] 46.3 Write property test for sufficiency accounting (pure half)
     - **Property 36: Sufficiency accounting matches the rooms built**
     - **Validates: Requirements 17.1, 17.2**
     - This task covers `sufficiencyNotice` and `conceptsNeeded`; the pipeline half is task 46.6
 
-  - [ ] 46.4 Wire the thin filter and early stop into the orchestrator
+  - [x] 46.4 Wire the thin filter and early stop into the orchestrator
     - In `orchestrator.ts`, read `options.sufficiency` (absent means off, D3): right after `extractConcepts` succeeds, apply `splitThinConcepts` (count `conceptsTooThin`), then `conceptsForTarget` as today so a thin concept never takes a `maxConcepts` slot. With a `target`, fewer than `target.locksPerRoom` concepts ends the run `insufficient-concepts` before any generation call; without a `target` (legacy one-room path) there is no early stop. Fill `goodConcepts` and set `notices.sufficiency` from the built room count. Keep the file under ~300 lines
     - _Requirements: 17.1, 17.2, 17.3_
 
-  - [ ] 46.5 Map the early stop in the worker and turn sufficiency on
+  - [x] 46.5 Map the early stop in the worker and turn sufficiency on
     - `apps/worker/src/http/job-runner.ts`: `mapFailure` maps `insufficient-concepts` to the existing `not-enough-material`; the job record gains a non-content `goodConcepts: number | null` set with the terminal status and `jobBody` appends the count sentence to the failure `message` (`JobFailureSchema` and `JOB_FAILURE_KINDS` unchanged). `start.ts`: set `sufficiency: true`. Log the error kind and counts only
     - Extend worker tests: the failure kind, the count sentence, and a body without a count when `goodConcepts` is null
     - _Requirements: 17.2, 25.8_
 
-  - [ ] 46.6 Write property test for the pipeline half of sufficiency
+  - [x] 46.6 Write property test for the pipeline half of sufficiency
     - **Property 36: Sufficiency accounting matches the rooms built** (pipeline half)
     - **Validates: Requirements 17.1, 17.2**
     - For any run with a target, rooms built never exceed `min(target.rooms, floor(goodConcepts / 2))`, and a run left with fewer than `locksPerRoom` concepts ends `insufficient-concepts` with zero generation and review calls (scripted provider, mock ledger)
 
-  - [ ] 46.7 Write the never-lower-a-check property test
+  - [x] 46.7 Write the never-lower-a-check property test
     - **Property 37: The gates never lower a check**
     - **Validates: Requirements 17.3**
     - Over the same scripted replies, the questions accepted with `sufficiency` and `conflictCheck` on are a subset of those accepted with both off, with identical Code_Check results and review verdicts. Add one example test that `MIN_QUOTE_WORDS` (4), `MAX_QUOTE_WORDS` (25) and the registry Check_ID list are unchanged by Phase 6
 
-  - [ ] 46.8 ES-1: record per-concept source words (eval/dev only, free replay)
+  - [-] 46.8 ES-1: record per-concept source words (eval/dev only, free replay)
     - `apps/worker/src/evaluation/cli.ts`: add `--sufficiency on|off`, default `off`. `result-file.ts`: additive `sourceWords` number per concept and run-level `sufficiency: boolean`, with Zod defaults so older files parse (no concept text). Extend the CLI and result-file tests
     - Run a free `replay` over the existing `eval/dev` cassettes (flags that reproduce the recorded runs, per the Phase 5 eval replay rule), write the distribution of `sourceWords` for concepts that produced accepted questions next to the rest into `docs/build-log.md`, and propose the floor as the largest value below the smallest source-word count of any concept that produced an accepted question (stay at 12 unless the report shows thin concepts being accepted). Do not change `MIN_CONCEPT_SOURCE_WORDS` in this task; report the proposal and ask the user
     - Any paid run for this tuning goes only through the evaluation skill (`.kiro/skills/evaluation/`) and is run by the user in their own shell: write the command, never run `eval record`. Never read `eval/holdout`; freeze the floor before any holdout use
     - _Requirements: 17.1, 26.5_
 
-- [ ] 47. Checkpoint - sufficiency group
+- [x] 47. Checkpoint - sufficiency group
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
 

@@ -18,6 +18,8 @@ export interface RecordContext {
   readonly lockTypes: readonly LockType[];
   /** Runs the conflict check stage. Absent means off. */
   readonly conflictCheck?: boolean;
+  /** Runs the thin-concept filter. Absent means off. */
+  readonly sufficiency?: boolean;
   /** Which set this run belongs to; it is written into the result file. */
   readonly set: 'dev' | 'holdout';
   /** The ledger file name inside the results folder. */
@@ -78,7 +80,7 @@ export async function runRecord(ctx: RecordContext): Promise<number> {
   }
   const budget = capped.value;
   io.out(`Budget: cap $${budget.capUsd.toFixed(2)}, spent before $${budget.spentBeforeUsd.toFixed(4)}, remaining $${budget.remainingUsd().toFixed(4)}.`);
-  const settings = settingsFor(modelId, { inputUsdPerMTok: prices.inputUsdPerMTok, outputUsdPerMTok: prices.outputUsdPerMTok }, ctx.lockTypes, undefined, ctx.conflictCheck ?? false);
+  const settings = settingsFor(modelId, { inputUsdPerMTok: prices.inputUsdPerMTok, outputUsdPerMTok: prices.outputUsdPerMTok }, ctx.lockTypes, undefined, ctx.conflictCheck ?? false, ctx.sufficiency ?? false);
   mkdirSync(ctx.cassettesDir, { recursive: true });
   const run = await runDevSet({
     notes,
@@ -104,6 +106,7 @@ export async function runRecord(ctx: RecordContext): Promise<number> {
     temperature: settings.temperature,
     checkVersion: CHECK_VERSION,
     conflictCheck: ctx.conflictCheck ?? false,
+    sufficiency: ctx.sufficiency ?? false,
     assemblyPolicy: DEFAULT_ASSEMBLY_POLICY,
     prices: { inputUsdPerMTok: prices.inputUsdPerMTok, outputUsdPerMTok: prices.outputUsdPerMTok },
     budget: { capUsd: budget.capUsd, spentBeforeUsd: budget.spentBeforeUsd, spentThisRunUsd: budget.spentThisRunUsd(), reservationRefused: budget.refused() },

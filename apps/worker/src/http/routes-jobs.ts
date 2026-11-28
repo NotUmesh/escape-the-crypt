@@ -3,7 +3,7 @@ import { RUN_LENGTHS, checkWordCount, countWords, z } from '@escape-the-crypt/co
 import type { JobAckResponse, JobStatusResponse, PipelineProgress } from '@escape-the-crypt/core';
 import { requestDigest, sha256Hex, type Job, type JobStore, type JobView } from '../jobs/job-store';
 import { readBody } from './body';
-import { ERROR_COPY, FAILURE_COPY, type ErrorKind } from './copy';
+import { ERROR_COPY, FAILURE_COPY, topicCountSentence, type ErrorKind } from './copy';
 import { runJob, type JobRunnerDeps } from './job-runner';
 import { MAX_ACTIVE_JUDGE_JOBS, type JudgeAccess } from './judge-access';
 import { clientAddress, type RateLimiter } from './rate-limit';
@@ -155,7 +155,9 @@ function jobBody(job: Job, progress: PipelineProgress | undefined, wantsNotices:
   }
   if (job.status === 'failed' || job.status === 'cancelled') {
     const kind = job.failure ?? (job.status === 'cancelled' ? 'cancelled' : 'generation-failed');
-    return { jobId: job.id, status: job.status, failure: { kind, message: FAILURE_COPY[kind] } };
+    const message =
+      job.goodConcepts === null ? FAILURE_COPY[kind] : `${FAILURE_COPY[kind]} ${topicCountSentence(job.goodConcepts)}`;
+    return { jobId: job.id, status: job.status, failure: { kind, message } };
   }
   if (job.status === 'completed') {
     // Not reachable through the store (a completed job holds a result). The contract has no

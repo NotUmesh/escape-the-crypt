@@ -47,6 +47,7 @@ export function mapFailure(error: PipelineJobError): JobFailureKind {
       return 'cancelled';
     case 'empty-room':
     case 'input-too-long':
+    case 'insufficient-concepts':
       return 'not-enough-material';
     default:
       return 'generation-failed';
@@ -99,12 +100,15 @@ export async function runJob(deps: JobRunnerDeps, job: Job): Promise<void> {
     }
     const failure = mapFailure(result.error.error);
     const finalStatus = failure === 'cancelled' ? 'cancelled' : 'failed';
-    deps.jobStore.setStatus(job.id, finalStatus, { failure });
+    const stopped = result.error.error;
+    const goodConcepts = stopped.kind === 'insufficient-concepts' ? stopped.found : null;
+    deps.jobStore.setStatus(job.id, finalStatus, { failure, goodConcepts });
     deps.logger.info({
       event: 'job',
       status: finalStatus,
       failure,
-      errorKind: result.error.error.kind,
+      errorKind: stopped.kind,
+      ...(goodConcepts === null ? {} : { goodConcepts }),
       durationMs: deps.now() - started,
       calls: result.error.metadata.calls.length,
     });

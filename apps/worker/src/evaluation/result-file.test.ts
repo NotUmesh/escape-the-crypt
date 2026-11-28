@@ -32,7 +32,7 @@ const noteArb = fc.record({
   stageTimingsMs: fc.dictionary(fc.constantFrom('prepare', 'generation', 'review'), fc.nat({ max: 60_000 })),
   tokens: fc.record({ inputTokens: nat, outputTokens: nat }),
   costUsd: usd,
-  concepts: fc.array(fc.record({ conceptIndex: fc.nat({ max: 20 }), conceptId: id, generation: fc.constantFrom('questions', 'no-lock', 'schema-rejected') }), { maxLength: 4 }),
+  concepts: fc.array(fc.record({ conceptIndex: fc.nat({ max: 20 }), conceptId: id, generation: fc.constantFrom('questions', 'no-lock', 'schema-rejected'), sourceWords: fc.nat({ max: 400 }) }), { maxLength: 4 }),
   candidates: fc.array(candidateArb, { maxLength: 6 }),
   codeCheckRejections: fc.dictionary(fc.constantFrom('quote-not-found', 'option-count'), nat),
   conflict: fc.record({ roomsChecked: nat, roomsUnchecked: nat, conceptsExcluded: nat, reportsIgnored: nat }),
@@ -65,6 +65,7 @@ const resultArb: fc.Arbitrary<EvaluationResult> = fc.record({
   temperature: fc.constantFrom(0, 0.2),
   checkVersion: fc.constant('2026-11-27.1'),
   conflictCheck: fc.boolean(),
+  sufficiency: fc.boolean(),
   assemblyPolicy: fc.record({ promoteAlternates: fc.boolean(), dedupeAnswers: fc.boolean() }),
   prices: fc.record({ inputUsdPerMTok: usd, outputUsdPerMTok: usd }),
   budget: fc.record({ capUsd: usd, spentBeforeUsd: usd, spentThisRunUsd: usd, reservationRefused: fc.boolean() }),
@@ -91,6 +92,26 @@ describe('Property: evaluation result files round-trip', () => {
         expect(parseEvaluationResult({ ...result, notesText: 'x' }).ok).toBe(false);
       }),
       { numRuns: 20 },
+    );
+  });
+});
+
+describe('sufficiency fields are additive', () => {
+  it('an older file without sufficiency or sourceWords parses as off and zero words', () => {
+    fc.assert(
+      fc.property(resultArb, (result) => {
+        const older: Record<string, unknown> = JSON.parse(JSON.stringify(result));
+        delete older['sufficiency'];
+        for (const note of older['notes'] as { concepts: Record<string, unknown>[] }[]) {
+          for (const c of note.concepts) delete c['sourceWords'];
+        }
+        const parsed = parseEvaluationResult(older);
+        expect(parsed.ok).toBe(true);
+        if (!parsed.ok) return;
+        expect(parsed.value.sufficiency).toBe(false);
+        for (const note of parsed.value.notes) for (const c of note.concepts) expect(c.sourceWords).toBe(0);
+      }),
+      { numRuns: 30 },
     );
   });
 });

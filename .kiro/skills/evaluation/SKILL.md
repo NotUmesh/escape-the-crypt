@@ -47,6 +47,9 @@ folder per model, so a Gemini run never rewrites or replays the OpenAI cassettes
 
 Add `--only "dev-01,dev-07"` to limit the notes (quote it in PowerShell).
 Add `--allowed-lock-types "rune-cipher,seance-board"` to choose the lock types (record and replay; default is the evaluation list in `config.ts`).
+Add `--conflict-check on|off` (default off) to run the Phase 6 conflict check (one extra model call per provisional room) in record and replay. Replay of cassettes recorded without it must use off, or the conflict-check calls will miss the cassette. The flag is recorded in the result file as `conflictCheck`.
+
+The dev cassettes were re-recorded with the conflict check on (commit 21d1cf1, "Dev re-record with conflict check on (six types)"), so replaying the dev set now needs `--conflict-check on` and all six `--allowed-lock-types`.
 
 ## Rater tooling (no model calls, no key)
 

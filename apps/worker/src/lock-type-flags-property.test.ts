@@ -108,13 +108,19 @@ describe('Property 38: DISABLED_LOCK_TYPES parses to exactly the named set, and 
   it('an entry outside the six returns the typed error; the error contains no part of the input', () => {
     // Validates: Requirements 25.3, 25.8
     // Requirement 25.8: the raw env value is intentionally absent from the error.
-    // We check entries of length ≥ 2 so that single characters that coincidentally
-    // appear in the fixed field names ("i" in "DISABLED_LOCK_TYPES") don't cause false
-    // positives. The meaningful check is that the user-supplied value never leaks.
+    // Unknown entries are sentinels: 'zz' + >= 4 alphanumerics (length >= 6, no commas,
+    // ASCII only so case-folding is stable). They are filtered so they cannot be a
+    // substring of the fixed error text, nor equal a lock type. Short junk like 'me'
+    // would legitimately match the fixed text ("unknown-lock-type") and false-positive.
+    const fixedErrorText = JSON.stringify({
+      kind: 'unknown-lock-type',
+      variableName: 'DISABLED_LOCK_TYPES',
+    }).toLowerCase();
     const unknownEntryArb = fc
-      .string({ minLength: 2 })
-      .filter((s) => s.trim().length >= 2)
-      .filter((s) => !(LOCK_TYPES as readonly string[]).includes(s.trim().toLowerCase()));
+      .stringMatching(/^[a-z0-9]{4,12}$/)
+      .map((s) => `zz${s}`)
+      .filter((s) => !fixedErrorText.includes(s))
+      .filter((s) => !(LOCK_TYPES as readonly string[]).includes(s));
 
     // Combine a valid subset (possibly empty) with the unknown entry.
     const mixedArb = fc.tuple(
@@ -137,18 +143,26 @@ describe('Property 38: DISABLED_LOCK_TYPES parses to exactly the named set, and 
           // Check that each meaningful (length ≥ 2) trimmed entry does not appear in
           // the serialised error. Only the fixed variable name is allowed there.
           const errorJson = JSON.stringify(result.error);
-          const rawParts = raw
-            .split(',')
-            .map((s) => s.trim().toLowerCase())
-            .filter((s) => s.length >= 2);
-          for (const part of rawParts) {
-            // Skip parts that are substrings of the fixed variable name itself.
-            if ('DISABLED_LOCK_TYPES'.toLowerCase().includes(part)) continue;
-            expect(errorJson.toLowerCase()).not.toContain(part);
-          }
+          // The unknown sentinel can never occur in the fixed text, so any hit is a leak.
+          expect(errorJson.toLowerCase()).not.toContain(unknown);
+          expect(errorJson.toLowerCase()).not.toContain(raw.trim().toLowerCase());
         }
       }),
     );
+  });
+
+  it('a recognisable secret-looking value never appears in the error', () => {
+    // Validates: Requirement 25.8
+    for (const raw of ['SECRET-xyzzy-123', 'rune-cipher,SECRET-xyzzy-123', ' Secret-XYZZY-123 ,']) {
+      const result = parseDisabledLockTypes(raw);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        const json = JSON.stringify(result.error).toLowerCase();
+        expect(json).not.toContain('secret');
+        expect(json).not.toContain('xyzzy');
+        expect(json).not.toContain('123');
+      }
+    }
   });
 
   it('unset (undefined) returns ok []', () => {

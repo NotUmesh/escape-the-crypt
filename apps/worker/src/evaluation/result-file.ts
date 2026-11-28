@@ -36,7 +36,13 @@ export const NoteRunSchema = z.strictObject({
   tokens: z.strictObject({ inputTokens: nonNegInt, outputTokens: nonNegInt }),
   costUsd: usd,
   concepts: z.array(
-    z.strictObject({ conceptIndex: nonNegInt, conceptId: z.string(), generation: z.string().min(1) }),
+    z.strictObject({
+      conceptIndex: nonNegInt,
+      conceptId: z.string(),
+      generation: z.string().min(1),
+      /** Added with the sufficiency evaluation (a word count, no text); older result files parse as 0. */
+      sourceWords: nonNegInt.default(0),
+    }),
   ),
   candidates: z.array(CandidateOutcomeSchema),
   codeCheckRejections: z.record(z.string(), nonNegInt),
@@ -80,6 +86,8 @@ export const EvaluationResultSchema = z.strictObject({
   checkVersion: z.string().min(1),
   /** Added with the conflict check; older result files parse as off. */
   conflictCheck: z.boolean().default(false),
+  /** Added with the sufficiency evaluation; older result files parse as off. */
+  sufficiency: z.boolean().default(false),
   assemblyPolicy: z.strictObject({ promoteAlternates: z.boolean(), dedupeAnswers: z.boolean() }),
   prices: z.strictObject({ inputUsdPerMTok: usd, outputUsdPerMTok: usd }),
   budget: z.strictObject({

@@ -65,15 +65,28 @@ export function parseConflictCheck(
   return { ok: false, error: { kind: 'invalid-conflict-check', value: raw } };
 }
 
+export type SufficiencyFlagError = { readonly kind: 'invalid-sufficiency'; readonly value: string };
+
+/** Parses `--sufficiency on|off`. Absent means off, so replay of the recorded cassettes is unchanged. */
+export function parseSufficiency(
+  raw: string | undefined,
+): { readonly ok: true; readonly value: boolean } | { readonly ok: false; readonly error: SufficiencyFlagError } {
+  if (raw === undefined || raw === 'off') return { ok: true, value: false };
+  if (raw === 'on') return { ok: true, value: true };
+  return { ok: false, error: { kind: 'invalid-sufficiency', value: raw } };
+}
+
 export function settingsFor(
   modelId: string,
   prices: TokenPrices,
   allowedLockTypes: readonly LockType[] = EVAL_ALLOWED_LOCK_TYPES,
   length?: RunLength,
   conflictCheck = false,
+  sufficiency = false,
 ): PipelineSettings {
   return {
     conflictCheck,
+    sufficiency,
     ...(length === undefined ? {} : { target: cryptTargetFor(length) }),
     modelId,
     temperature: GENERATION_TEMPERATURE,

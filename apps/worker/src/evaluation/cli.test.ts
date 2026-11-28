@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EVAL_ALLOWED_LOCK_TYPES } from '../config';
-import { main, parseAllowedLockTypes, parseConflictCheck, settingsFor, type Io } from './cli';
+import { main, parseAllowedLockTypes, parseConflictCheck, parseSufficiency, settingsFor, type Io } from './cli';
 import { DEV_CASSETTES_DIR, DEV_GEMINI_CASSETTES_DIR, DEV_NOTES_DIR, RESULTS_DIR, evaluationPaths } from './paths';
 
 const roots: string[] = [];
@@ -264,5 +264,34 @@ describe('evaluation CLI ignores DISABLED_LOCK_TYPES', () => {
     const withVar = await withDisabled('rune-cipher,seance-board,bone-ordering', (cli) => digests(cli, { DISABLED_LOCK_TYPES: 'rune-cipher,seance-board,bone-ordering' }));
     expect(baseline.length).toBeGreaterThan(0);
     expect(withVar).toEqual(baseline);
+  });
+});
+
+describe('--sufficiency', () => {
+  const PRICES = { inputUsdPerMTok: 0, outputUsdPerMTok: 0 };
+  it('parses on and off, defaults to off, and returns a typed error otherwise', () => {
+    expect(parseSufficiency(undefined)).toEqual({ ok: true, value: false });
+    expect(parseSufficiency('off')).toEqual({ ok: true, value: false });
+    expect(parseSufficiency('on')).toEqual({ ok: true, value: true });
+    expect(parseSufficiency('true')).toEqual({ ok: false, error: { kind: 'invalid-sufficiency', value: 'true' } });
+  });
+  it('settingsFor passes it into the pipeline settings, off by default', () => {
+    expect(settingsFor('m', PRICES).sufficiency).toBe(false);
+    expect(settingsFor('m', PRICES, EVAL_ALLOWED_LOCK_TYPES, undefined, false, true).sufficiency).toBe(true);
+  });
+  it('record and replay reject an invalid value with exit 1 before any call', async () => {
+    for (const argv of [[...RECORD, '--sufficiency', 'maybe'], ['replay', '--model', 'm', '--sufficiency', 'maybe']]) {
+      const out = io();
+      expect(await main(argv, { OPENAI_API_KEY: 'k' }, fakeRepo(), out)).toBe(1);
+      expect(out.lines[0]).toBe('Unknown --sufficiency value "maybe"; use on or off. Nothing was called.');
+    }
+  });
+  it('record and replay accept on and off', async () => {
+    for (const value of ['on', 'off']) {
+      const out = io();
+      expect(await main([...RECORD, '--sufficiency', value], {}, fakeRepo(), out)).toBe(1);
+      expect(out.lines).toEqual(['OPENAI_API_KEY is not set in this shell. Nothing was called.']);
+      expect(await main(['replay', '--model', 'm', '--sufficiency', value], {}, fakeRepo(), io())).toBe(0);
+    }
   });
 });

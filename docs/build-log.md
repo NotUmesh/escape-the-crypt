@@ -426,3 +426,16 @@ Haunting polish checkpoint (decision 2, tasks 9.2, 9.3, 11.1 to 11.3), clean wor
 | web e2e chromium, firefox, pixel (--workers=2) | 368 | 1 | 2 | skips: crypt-hotspots "door too small for placed seals"; lock-types-axe "combination dial, a number typed" on Firefox only |
 The one e2e failure is `import-crypt.e2e.ts` "importing the same file twice says it is a duplicate and changes nothing", Firefox only, not part of this work. It is flaky at the commit before mine too: 1 failure in 20 runs at 40b1beb, 3 in 20 at 8cb97e3 (a difference that 20 runs cannot tell apart). The test reads the book card text right after the import, before the "Continue your crypt" and "Start again" buttons have rendered, so `before` and `after` differ. Fix in that test: wait for the buttons before reading `before`. Not edited here (the import work belongs to the Default chat).
 New e2e files, 42 tests, all passing: haunting-lantern (3 tests x 3 projects), haunting-axe (6 x 3), haunting-input (5 x 3). `haunting-shots.e2e.ts` defines no tests unless HAUNTING_SCREENSHOTS=1.
+
+Phase 6 checkpoint 47 (sufficiency group), HEAD abf0b40 plus the uncommitted Phase 6 work, Node 22:
+| run | passed | failed | skipped | notes |
+| --- | --- | --- | --- | --- |
+| typecheck packages/core, apps/worker, apps/web | ok | 0 | 0 | |
+| pnpm lint (ESLint + structure check) | ok | 0 | 0 | structure check passed, no file over 300 lines |
+| vitest packages/core (--maxWorkers=50%) | 1768 (206 files) | 0 | 0 | plus 1 expected fail (the recorded reversed-pair gap) |
+| vitest apps/worker (--maxWorkers=50%) | 475 (39 files) | 0 | 0 | includes the dev-cassette replay digest tests in cli.test.ts |
+| vitest apps/web (--maxWorkers=50%) | 1368 (172 files) | 0 | 0 | |
+| worker build | ok | 0 | 0 | |
+| web e2e chromium, firefox, pixel (--workers=2) | 309 | 0 | 2 | port 4173 was free; no 30 s timeout and no connection refused, so no `--last-failed` re-run |
+Checks: the cassette e2e tests (e2e-pipeline, e2e-cassette-digest, bone-ordering, bound-threads, combination-dial, cursed-object, conflict-check-e2e) pass with no digest edit and no cassette file modified. job-completed.json has no diff. CHECK_VERSION is '2026-11-27.5'. DEFAULT_ALLOWED_LOCK_TYPES and ALLOWED_LOCK_TYPES are the six. Sufficiency is on in apps/worker/src/start.ts and false in the five cassette fixtures and HEART_SETTINGS. Task 46.8 stays open until the free replay distribution is run in the user's shell.
+Open product gap (found in 46.7, not fixed): when a conflict exclusion leaves no buildable room, `runConflictStage` returns the `empty-room` assembly error as it is, and `runAssemblyPhase` returns it before the stage counts are merged. The learner gets the generic not-enough-material failure with no conflict notice, and the run metadata has no conflict counts.

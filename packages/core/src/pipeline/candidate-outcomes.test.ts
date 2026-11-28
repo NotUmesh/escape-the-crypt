@@ -27,6 +27,15 @@ async function run(legacy = false) {
 }
 
 describe('run metadata: per-concept and per-question outcomes', () => {
+  it('records a positive source word count per concept, without text', async () => {
+    const { metadata } = await run();
+    expect(metadata.outcomes.concepts.length).toBeGreaterThan(0);
+    for (const c of metadata.outcomes.concepts) {
+      expect(Number.isInteger(c.sourceWords)).toBe(true);
+      expect(c.sourceWords).toBeGreaterThan(0);
+    }
+  });
+
   it('records lock type, role, result and placement for every generated question', async () => {
     const { metadata } = await run();
     expect(metadata.outcomes.concepts.map((c) => [c.conceptId, c.generation])).toEqual([
