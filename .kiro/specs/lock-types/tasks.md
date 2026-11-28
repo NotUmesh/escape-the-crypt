@@ -140,22 +140,22 @@ Rules for every task:
     - **Validates: Requirements 7.1, 13.9**
     - _Requirements: 13.2, 13.9_
 
-- [ ] 5. Manifest widening (Phase 1)
-  - [ ] 5.1 Add the three payload schemas to `runtime/manifest-schema.ts`
+- [x] 5. Manifest widening (Phase 1) (closed: the schemas and hint branches came from the other machine's phase 5; see each note)
+  - [x] 5.1 Add the three payload schemas to `runtime/manifest-schema.ts` (done by the other machine, 3e130dc and 745f33d; covered by `manifest-schema-six-types.test.ts`)
     - First run `git pull --rebase` and check that the Other_Machine has not changed the same lines of `manifest-schema.ts`, `manifest-hints.ts` or `mapper/crypt-bundle-parse.ts`. Report any collision before editing.
     - Add `BoundThreadsPayloadSchema`, `CursedObjectPayloadSchema` and `CombinationDialPayloadSchema` exactly as designed and make `payloadSchemaFor` return them. Keep the existing limits and the `manifest-schema-invalid` error shape.
     - Extend `manifest-schema.test.ts` with an accept case and a corrupted case per type (wrong arity, non-one-to-one `keyPairs`, `oddOneOutId` not in `optionIds`, `min > max`, negative `tolerance`, non-finite number), and a check that the error holds a path and no payload content.
     - _Requirements: 2.1, 2.2, 2.3, 2.8, 2.9, 2.12, 2.13_
-  - [ ] 5.2 Add the `narrowHint` branches in `runtime/manifest-hints.ts`
+  - [x] 5.2 Add the `narrowHint` branches in `runtime/manifest-hints.ts` (done by the other machine; answer-safety cases added in `manifest-hints-answer-safety.test.ts`)
     - `bound-threads`: only `tie-thread` with a pair from `keyPairs`, or `null`. `cursed-object`: only `remove-option` with an ID in `optionIds` that is not `oddOneOutId`, or `null`. `combination-dial`: only `null`.
     - Extend the hint tests with accept and reject cases for each branch, including a non-null hint on a combination dial question and an unknown pair or option.
     - _Requirements: 2.4, 2.5, 2.6, 2.13_
-  - [ ] 5.3 Write property tests for the manifest
+  - [x] 5.3 Write property tests for the manifest (round trip is Property 28 in `manifest-schema-six-types.test.ts`; hint narrowing is Property 28 plus `manifest-hints-answer-safety.test.ts`)
     - **Property 9: Manifest round trip for the three new payloads** (JSON round trip through the Manifest_Schema gives an equal manifest)
     - **Property 10: Hint narrowing** (for all six types, accepted hints pass the schema; other kinds, unknown pairs or options and a `remove-option` of `oddOneOutId` are rejected)
     - **Validates: Requirements 2.4, 2.5, 2.6, 2.10, 2.11**
     - _Requirements: 2.10, 2.11, 13.8, 13.11_
-  - [ ] 5.4 Check that the Crypt_Bundle_Parser needs no change
+  - [x] 5.4 Check that the Crypt_Bundle_Parser needs no change (no change needed: `sample-crypts.test.ts` parses the https and printing-press bundles, which hold bound threads, cursed object and a dial with no options)
     - Add a test in `crypt-bundle-parse.test.ts` with a bundle that holds a `bound-threads`, a `cursed-object` and a `combination-dial` question (the last with no `options`) and assert that `parseCryptBundle` accepts it unmodified.
     - Only if the test fails, make the smallest change to `mapper/crypt-bundle-parse.ts` or `mapper/crypt-content.ts` and report it to the user.
     - _Requirements: 2.7, 2.12_
