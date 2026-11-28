@@ -1,5 +1,6 @@
 :is(.costume-paper, .question-panel, .evidence-panel, .autopsy-view, .fh-panel--paper,
-    .book-pages, .ingest-preview, .dig__panel, .share-card),
+    .book-pages, .ingest-preview, .share-card),
+.fh-panel.dig__panel,
 .book-pages .ingest-panel {
   --costume-focus: var(--focus-ring-on-light);
   color: var(--ink-900);
@@ -172,6 +173,7 @@
       .book-pages, .ingest-panel, .ingest-preview, .bring__title, .question-controls, .final-door,
       .final-door__seals-fallback, .room-hotspot__note, .save-banner, .read-only-screen,
       .share-section, .share-card, .conflict-notice, .crypt-start, .crypt-generation--failed, .costume-tag),
+  .fh-panel.dig__panel,
   .book-pages .ingest-panel {
     background: Canvas;
     color: CanvasText;
