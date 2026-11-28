@@ -180,9 +180,16 @@ The wording hook on `packages/core/src/copy.ts` ran 1 test file, 9 tests, 0.482 
 | crypt-keeper on a result file | `Review eval/results/2026-11-27.json.` | `checkVersion` is `2026-11-27.1` while the code is at `2026-11-27.2`; 11 of 12 notes assembled 2 locks and `dev-12-pdf-feedback-and-motivation.txt` assembled 1; `duplicateAnswers` is 0 for every note; spend $0.330291 of the $1.20 cap; rejections by Check_ID. |
 | design-critic on the notes screen | Start `pnpm dev`, then: `Review the notes screen at http://localhost:5173/ingest in live mode, desktop and phone, then read apps/web/src/features/ingest/ for the source rules.` | A Tab sequence for the screen, measured contrast for the main text pairs, 44 px checks on the buttons, a reduced-motion check, screenshots saved under `docs/captures/design-critic-ingest-*.png`. |
 
-TODO (capture): one screenshot of each agent's report, and your own note on one finding you agreed with and one you did not. After the front-of-house integration lands, run design-critic again on the desk hub and the notes book; that is the before and after.
+**First real runs (2026-11-28, one Kiro session, screen-recorded).**
 
-**Gaps.** TODO (capture): the first real runs. Until they exist, say only that the agents are written and read-only, not what they found.
+*crypt-keeper* read `eval/results/2026-11-27-3.json` (six lock types) and its dev cassettes. Its own report says it read only part of the data (44 of 132 accepted questions in full), so its counts are a sample. What it found, and what happened next:
+- **A dial whose units gave the answer away** (dev-04 concept 5 alternate: answer 20, units "July 20"), and **no prompt-leak check for bone ordering**. Both became Code_Checks the same day: `units-reveal-number` and `steps-listed-in-prompt` (commit `7c7e328`, `CHECK_VERSION 2026-11-28.1`). A free replay showed the units check removing exactly that question.
+- **Odd-one-out prompts ("Which item is not…") rejected as negative questions.** The cursed-object exemption was widened in the same commit.
+- **A suggestion we rejected.** It proposed rejecting any contradicted séance option that cites the supported option's own quote. Tested against the dev and sample questions, that rule rejected good questions: one sentence ("The heart has four chambers") legitimately supports "four" and contradicts "three". The remaining séance cases it flagged are judgement calls left to the blind review. Recorded in `docs/build-log.md`.
+
+*design-critic* reviewed three live screens through Playwright MCP (below): the desk hub, the notes book and the first room of the HTTPS sample, on desktop and phone sizes. Real findings, fixed in commit `5e238bc`: lock-panel and resume buttons rendering as browser-default grey; the accessible status of a lock answered wrongly reading "settled, excluded from score", which was untrue (now "settled, not solved"); no `h1` on the room screen; no visible Close control on an open lock for touch users; a stale "Questions from your own notes are coming later" line; struck-through unavailable length options. One false alarm: a "1.78 px" focus ring came from the browser window's 0.9 device-pixel ratio, not from the 2 px token.
+
+- TODO (capture): your own one line on a finding you agreed with and one you did not.
 
 ---
 
@@ -220,12 +227,12 @@ Notes for the run:
 - The first approval prompt is for `browser_navigate`. Approve it for the session.
 - Lock buttons have accessible names such as "Coffin lock: rune cipher, unsolved" (accessibility steering), so the agent can find them in a snapshot. Answers are typed into the panel's input or chosen from its options.
 - The live app at https://escape-the-crypt.pages.dev can be used instead of the dev server. Do not paste personal notes into it through a browser tool.
-- After the front-of-house integration lands, the entry becomes the desk hub: start from `/`, choose "Enter the crypt: The human heart". TODO: update this prompt then.
+- The entry is the desk hub: start from `/`, then choose a sample crypt from the shelf.
 - The server also writes `page-*.yml` snapshots into `docs/captures/`. They are git-ignored; only the screenshots you name are kept.
 
 **Gaps.**
-- TODO (capture): the three screenshots above, plus a screenshot of the MCP server connected in Kiro.
-- TODO (capture): one sentence on what the MCP run showed that a unit test could not (a focus order, a contrast problem, a layout break).
+- Screenshots from the 2026-11-28 design-critic run are in `docs/captures/`: `design-critic-desk*.png`, `design-critic-ingest*.png` and `design-critic-room*.png` (desktop, Lantern mode and phone width).
+- **What it showed that unit tests could not:** the computed look of the buttons (unit tests checked class names and roles, and passed, while the real browser drew unstyled grey buttons); focus moving into the lock panel and back after Escape and Continue in the full app flow; the phone layout of the length options once every screen was put together.
 
 ---
 

@@ -11,15 +11,13 @@ Built for Kiroween 2026 (Costume Contest) with Kiro. Every spooky element carrie
 
 ## Try it in 60 seconds
 
-<!-- TODO (verify after the front-of-house integration lands): these steps describe the desk hub. Re-walk them on the live URL before submitting. -->
-
 1. Open the live app. You are at the desk.
-2. Choose **Enter the crypt: The human heart**. It is a bundled sample crypt and says "Sample crypt" on screen. No notes, no upload, and nothing is sent to a server.
-3. Pick a lock object in the room and answer its question. Every answer shows the source passage it came from.
+2. Choose a sample crypt from the shelf: **The human heart** (a gentle starter with two lock types), **How HTTPS keeps a connection private** or **The printing press** (both use all six lock types across two rooms and the final door). Samples say "Sample crypt" on screen. No notes, no upload, and nothing is sent to a server.
+3. Pick a lock object in the room and answer its question. Every lock works by keyboard, by screen reader and by tap; nothing needs dragging. Every answer shows the source passage it came from.
 4. A correct answer lights a candle. A wrong answer raises a ghost for that concept, and the concept comes back later as a different question. You can use a hint, skip, or **challenge** a question; a challenged question is excluded from your score.
 5. Open the final door. Escape is always possible. The Autopsy then shows five counts: first-try correct, assisted, retried, challenged, review due.
 
-To try your own notes, choose **Bring your notes** on the desk, paste text (or choose a text PDF), check the preview, confirm, then **Generate from my notes**. This needs the generation worker (see "Limits" for what is sent).
+To try your own notes, choose **Bring your notes** on the desk, paste text (or choose a text PDF), check the preview, confirm, pick a length (Short, Standard or Long: 2, 3 or 4 rooms) and a difficulty (Apprentice, Gravedigger or Lich: 3, 2 or 0 hints), then **Generate from my notes**. This needs the generation worker (see "Limits" for what is sent). Your crypt is saved in this browser: leave and **Continue your crypt** from the desk later, or export it and import it in another browser.
 
 ## How it works
 
@@ -29,9 +27,9 @@ your notes → concepts → questions checked against your notes → rooms
 
 1. **Notes.** Your text stays in your browser. PDF text is read on your device by pdf.js in a web worker. The text is split into chunks of up to 1,200 characters, and **code** assigns each chunk an ID.
 2. **Concepts.** A model finds the concepts and cites chunk IDs and exact quotes. Code keeps only quotes that resolve to exactly one cited chunk. The model never supplies character offsets.
-3. **Questions.** A model writes questions for each concept, each with chunk IDs and an exact quote. Generated crypts use two lock types today: rune cipher (fill in the blank) and séance board (choose the option your notes support). Choice questions are framed "According to your notes…" and every option must be supported or contradicted by the quote.
-4. **Checks.** Code rejects a question when, for example, the quote cannot be found or is too short or too long, the answer is not in the quote, the answer is leaked in the prompt, the question is negative, or the options are not exactly one supported answer. A second model call then answers the question from the notes without being told the intended answer (the blind review). If it disagrees, the question is set aside. When unsure, the pipeline sets a question aside; it never lowers a check to get more questions.
-5. **Rooms.** Accepted questions are placed into a room, at most one lock per lock type. The published room manifest is immutable. The game itself is a pure reducer over an event log, so a reload replays to the same state.
+3. **Questions.** A model writes questions for each concept, each with chunk IDs and an exact quote, in six lock types: rune cipher (fill in the blank), séance board (choose the option your notes support), bone ordering (put steps in order), bound threads (match pairs), cursed object (find the odd one out) and combination dial (a number or range from your notes; computed answers come only from fixed templates, never from a model-written formula). Choice questions are framed "According to your notes…" and every option must be supported or contradicted by the quote.
+4. **Checks.** Code rejects a question when, for example, the quote cannot be found or is too short or too long, the answer is not in the quote, the answer is leaked in the prompt, the question is negative, or the options are not exactly one supported answer. A second model call then answers the question from the notes without being told the intended answer (the blind review). If it disagrees, the question is set aside. Concepts whose cited notes are too thin (under 12 words) are dropped before any question is written. A conflict check then looks across each room: if two passages in your notes seem to say different things about a concept, that concept is left out and the crypt tells you which passages disagree. When unsure, the pipeline sets a question aside; it never lowers a check to get more questions.
+5. **Rooms.** Accepted questions are placed into 2–4 rooms, at most one lock per lock type in a room, with no two locks in the crypt sharing an answer. If your notes cannot fill the length you chose, you get the rooms they do fill and a line saying so; the crypt is never padded. The published room manifest is immutable. The game itself is a pure reducer over an event log, so a reload replays to the same state.
 
 On screen you will see these labels, and only when they are true: "Source excerpt matched", "Blind model review passed", "Challenged: excluded from score", "Review due". "Human-reviewed" is reserved for sample questions a person has reviewed, and none of the samples carry it yet.
 
@@ -126,7 +124,7 @@ scripts/         structure checks (file size, naming, imports, build contents)
 
 ## Measured quality
 
-Not measured yet. These cells are filled only from runs on the held-out set, after the configuration is frozen, and each links to its `eval/results/` file. Numbers from the dev set are tuning aids and are not reported as quality. The two recorded dev runs in `eval/results/` predate the current checks (Check_Version `2026-11-27.1`; the code is now `2026-11-27.2`) and need re-recording; one paid re-record is planned after phase 5.
+Not measured yet. These cells are filled only from the held-out set, run once after the configuration is frozen and rated by two people (see the evaluation skill), and each links to its `eval/results/` file. Numbers from the dev set are tuning aids and are not reported as quality. For reference, the latest dev runs (`eval/results/2026-11-27-3.json` with all six lock types, and `2026-11-28.json` with the conflict check on) published a crypt for 12 of 12 dev notes at about $0.03 per note; the code has since moved to Check_Version `2026-11-28.1`.
 
 | Measure | Set | Configuration (model, Check_Version, prompt versions) | Result | Source file |
 | --- | --- | --- | --- | --- |
@@ -142,7 +140,8 @@ Not measured yet. These cells are filled only from runs on the held-out set, aft
 
 - **Text-based PDFs only.** No OCR. A page with no readable text is flagged so you can remove it or paste the text instead. Limits: 5 MiB per file, 10 pages chosen, 6,000 words of notes, 20 seconds of reading.
 - **English prose notes.** Not built for maths-heavy, diagram-heavy or scanned material, and no non-English generation.
-- **Generated crypts are small today.** A generated crypt is one room with up to two lock types (rune cipher and séance board). The other four lock types (bone ordering, bound threads, cursed object, combination dial) are in the engine and being added to generation; the sample crypts show what the full set looks like. TODO: update this line when multi-room and the other lock types reach generation.
+- **Short notes make short crypts.** Each room needs two concepts of different lock types, so a note of a few hundred words usually fills a Short crypt (2 rooms) and may not fill Long (4 rooms); you get what your notes support. Any lock type can be switched off on the worker without a deploy (`DISABLED_LOCK_TYPES`, see `docs/deploy.md`).
+- **When contradictions empty a crypt, you are not told why.** If the conflict check removes so many concepts that no room can be built, the job ends with the general "not enough material" message rather than naming the passages that disagree.
 - **Questions can be wrong.** Code checks and the blind review reduce errors; they do not remove them. That is why every question shows its source and can be challenged.
 - **No claims about learning.** The app does not claim to improve results, mastery or exam performance.
 - **AI provider and what is sent.** Generation uses OpenAI through the worker, with the model named by `OPENAI_MODEL`. Only the text of the notes you confirm is sent (up to 6,000 words), plus the worker's own prompts. Your PDF file and its name never leave your device. The worker keeps job text and results only while the job runs and for 30 minutes after it ends by default, then keeps a content-free record for 24 hours. Its logs hold counts, timings and error types, never notes or model output. Under OpenAI's default API terms, data sent to the API is not used to train OpenAI's models, and OpenAI may keep it for up to 30 days for abuse monitoring. See [OpenAI's API data controls page](https://developers.openai.com/api/docs/guides/your-data) for the details, which can change. If the worker is switched to the Gemini fallback (`PROVIDER=gemini`), the same text goes to Google's Gemini API instead, through `generateContent`, which keeps no conversation state. On paid quota, Google's terms say prompts and responses are not used to improve its products and are logged for a limited time to detect policy violations; on unpaid quota, human reviewers may read them, so the fallback must use a billing-enabled project. See the [Gemini API terms](https://ai.google.dev/gemini-api/terms), which can change.

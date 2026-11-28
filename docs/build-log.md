@@ -450,3 +450,11 @@ The crypt-keeper agent's review of the six-type dev run (`eval/results/2026-11-2
 - Rejected suggestion: a code check that a contradicted séance option must not cite the supported option's quote. It would reject good questions: one sentence ("The heart has four chambers") legitimately supports "four" and contradicts "three". The agent's remaining séance cases are judgement calls left to blind review.
 - Free replay over the recorded dev cassettes (conflict check on): `units-reveal-number` removes 1 accepted question. dev-04 then fails in replay with `conflict-check-failed`, because its room changed and the recorded conflict-check call no longer matches (a replay artefact; a live run makes a new call).
 >>>>>>> theirs
+
+## Task 46.8: sufficiency floor checked on the dev replay (outside Kiro)
+
+Free replay of the conflict-check dev cassettes with `--sufficiency off` (all six lock types, conflict check on) gives `sourceWords` for all 92 extracted concepts: min 13, p10 30, p50 50, p90 88, max 95. The smallest accepted concept has 13 source words and the smallest placed one 15. A floor of 12 drops none; 15 would drop 2 accepted concepts, 20 would drop 3 and 30 would drop 7. `MIN_CONCEPT_SOURCE_WORDS` stays 12. Caveat: the dev set has no thin note, so the floor has not yet been seen rejecting a real thin concept; the holdout run is the next evidence.
+
+## Known gap: a conflict that leaves no buildable room (Requirement 18.4)
+
+When conflict exclusions leave no room that can be assembled, the run ends with the generic not-enough-material failure and the exclusion notice is not carried on the failure. The learner sees an honest failure but not the reason. Fixing it needs an optional notice on the failure body across core, worker, web client and UI; it is left for after the submission because the case needs many contradictions in one short note.
