@@ -853,77 +853,77 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
     - CPU rule (checkpoint): run the full core and worker suites with `--maxWorkers=50%`; no Playwright suite is needed for this task, but if one is run, first check that port 4173 is free (wait if busy) and use `--workers=2`
     - _Requirements: 14.9, 22.1, 22.2, 22.3, 22.4_
 
-- [ ] 40. Final checkpoint - Phase 5
+- [x] 40. Final checkpoint - Phase 5
   - Run `pnpm test`, `pnpm lint` (including the structure check) and `pnpm typecheck` for `packages/core` and `apps/worker`, and run the worker build (`pnpm --filter ./apps/worker build`). Ensure all pass, ask the user if questions arise.
   - CPU rule: run Vitest with `--maxWorkers=50%`. If e2e is run, first check that port 4173 is free and wait if it is busy, then run Playwright with `--workers=2`
 
-- [ ] 41. Phase 6 baseline: re-read, check for parallel work, record results, pin the new options off
-  - [ ] 41.1 Check for uncommitted work, then re-read the specs and steering
+- [x] 41. Phase 6 baseline: re-read, check for parallel work, record results, pin the new options off
+  - [x] 41.1 Check for uncommitted work, then re-read the specs and steering
     - First step, before anything else: run `git status --porcelain -- packages/core/src/pipeline/ packages/core/src/job-api/ apps/worker/src/config.ts apps/worker/src/start.ts apps/worker/src/http/ apps/worker/src/provider/ apps/worker/src/evaluation/`. If any file Phase 6 will edit shows an uncommitted change (modified, staged or untracked), STOP at once, list the dirty paths to the user and do nothing else; the user will get the other chat's work committed and then restart this task
     - Only when that check is clean: re-read `.kiro/specs/generation-and-evaluation/requirements.md` (Requirements 17, 18, 23, 24, 25, 26), the "# Phase 6" part of `design.md` (including its order of work, Properties 30 to 41, Testing Strategy, File boundaries, Reconciliation items (a) to (h) and Open decisions D1 to D14), `.kiro/steering/tech.md`, `.kiro/steering/structure.md` and `.kiro/steering/evidence-and-honesty.md`. Another chat may have edited any of them: never overwrite, revert or reformat those edits, and do not edit `requirements.md` or `design.md` in Phase 6
     - Run `git log -5 --oneline` over the paths above to confirm the parallel change there is committed. If the work is still moving, stop and ask the user. Note any difference between the live files and the design's Phase 6 snippets in `docs/build-log.md` (names and shapes only, no content)
     - _Requirements: 17.1, 18.1, 23.5, 26.1_
 
-  - [ ] 41.2 Record baseline test, lint, typecheck and build results
+  - [x] 41.2 Record baseline test, lint, typecheck and build results
     - Run `pnpm test`, `pnpm lint` and `pnpm typecheck` for `packages/core` and `apps/worker`, the worker build (`pnpm --filter ./apps/worker build`), and the cassette tests `e2e-pipeline.test.ts` and `e2e-cassette-digest.test.ts`. Write the pass/fail counts into `docs/build-log.md` as the Phase 6 baseline. Report failures that already exist as existing failures, not as Phase 6 regressions
     - CPU rule (checkpoint): run Vitest with `--maxWorkers=50%` (for example `pnpm exec vitest run --maxWorkers=50%`); run no Playwright suite in this task
     - _Requirements: 26.5_
 
-  - [ ] 41.3 Declare the two new pipeline options and pin them OFF in the five existing cassette fixtures
+  - [x] 41.3 Declare the two new pipeline options and pin them OFF in the five existing cassette fixtures
     - Before any behaviour lands: add `conflictCheck?: boolean` and `sufficiency?: boolean` to `PipelineOptions` in `packages/core/src/pipeline/orchestrator.ts` as declared fields that nothing reads yet (absent means off)
     - Set both to `false` explicitly in `HUMAN_HEART_E2E_OPTIONS` (`pipeline/e2e-cassette-fixtures.ts`), in the options object that each of `bone-ordering-e2e-fixtures.ts`, `bound-threads-e2e-fixtures.ts`, `cursed-object-e2e-fixtures.ts` and `combination-dial-e2e-fixtures.ts` passes to `runRoomPipeline`, and in `HEART_SETTINGS` in `apps/worker/src/http/http-test-support.ts`, so a later change of the default cannot silently break a recorded cassette (design section 4)
     - Re-run `e2e-pipeline.test.ts`, `e2e-cassette-digest.test.ts`, the four per-type e2e tests and the worker `job-contract.test.ts` (without `UPDATE_CONTRACT`) and confirm they pass unchanged: no cassette file, digest or golden fixture changes (check with `git status` that no file under `test-support/cassettes/` or `test-support/contract/` is modified)
     - _Requirements: 12.1, 12.2, 17.3, 18.2_
 
-- [ ] 42. Phase 6: release flags (`DISABLED_LOCK_TYPES`)
-  - [ ] 42.1 Export the `LOCK_TYPES` constant from core
+- [x] 42. Phase 6: release flags (`DISABLED_LOCK_TYPES`)
+  - [x] 42.1 Export the `LOCK_TYPES` constant from core
     - In `packages/core/src/index.ts`, export the runtime constant `LOCK_TYPES` (today only the `LockType` type is exported) so the worker validates env values against the same six-type list; add a small test that it holds exactly the six Lock_Types in their canonical order
     - _Requirements: 14.9, 23.5_
 
-  - [ ] 42.2 Implement `lock-type-flags.ts`
+  - [x] 42.2 Implement `lock-type-flags.ts`
     - Create `apps/worker/src/lock-type-flags.ts`, the only file that parses `DISABLED_LOCK_TYPES`: `parseDisabledLockTypes(raw: string | undefined): Result<readonly LockType[], LockTypeFlagError>` (split on commas, trim, lower-case, drop empty entries, drop duplicates; unset, empty or whitespace-only returns `[]`; any entry outside `LOCK_TYPES` returns `{ kind: 'invalid-disabled-lock-types' }` that carries no part of the input) and `effectiveLockTypes(all, disabled)` (all minus disabled in the original order; fewer than two remaining returns `{ kind: 'too-few-lock-types' }`)
     - Open decision D1: refusing to start when fewer than two types remain is the design's default and is pending the user's decision; if the user chooses another option (refuse jobs instead, or keep rune cipher), change only the `too-few-lock-types` handling here and in task 42.3
     - Never throw; never echo or log the raw value
     - _Requirements: 23.5, 25.3, 25.8_
 
-  - [ ] 42.3 Wire the flag into `config.ts` and `start.ts` (learner path only)
+  - [x] 42.3 Wire the flag into `config.ts` and `start.ts` (learner path only)
     - In `apps/worker/src/config.ts`, add `invalid-disabled-lock-types` and `too-few-lock-types` to `StartupError` with fixed `STARTUP_ERROR_COPY` text that names the variable `DISABLED_LOCK_TYPES` and never its value; `WorkerConfig` gains `allowedLockTypes` (the effective list) and `disabledLockTypes`. Keep the constants `ALLOWED_LOCK_TYPES` (every type this build can ask for before flags) and `EVAL_ALLOWED_LOCK_TYPES` as they are, so the existing equality assertions in `config.test.ts` still hold
     - In `start.ts`, pass `cfg.allowedLockTypes` to `pipelineSettings` instead of the constant; learner jobs and judge jobs both use it. `start` returns the typed error without listening, and the entry point logs the error kind only. The startup log line records the count of enabled types and the names of disabled ones (closed list, not user content). Samples and the evaluation CLI do not read the flag
     - Keep `config.ts` under ~300 lines (the flag logic stays in `lock-type-flags.ts`)
     - _Requirements: 23.5, 14.9, 25.3, 25.8_
 
-  - [ ] 42.4 Write property test for flag parsing
+  - [x] 42.4 Write property test for flag parsing
     - **Property 38: DISABLED_LOCK_TYPES parses to exactly the named set, and rejects anything else**
     - **Validates: Requirements 25.3, 23.5**
     - Add `disabledListArb` (subsets of the six in any order, with duplicates, surrounding spaces, empty entries and any letter case) next to the worker test, or in `packages/core/src/test-support/` if the worker can already import from there; any subset parses to exactly that subset; an entry outside the six returns the typed error and the error holds no part of the input; unset and empty return `[]`
 
-  - [ ] 42.5 Write property test for the effective set
+  - [x] 42.5 Write property test for the effective set
     - **Property 39: The effective lock-type set is all types minus the disabled ones**
     - **Validates: Requirements 14.9, 23.5**
     - Order preserved, no disabled type in the result, `too-few-lock-types` below two; assert `EVAL_ALLOWED_LOCK_TYPES` equals the six types whatever `DISABLED_LOCK_TYPES` holds
 
-  - [ ] 42.6 Write property test that a disabled type is never asked of the generator or published
+  - [x] 42.6 Write property test that a disabled type is never asked of the generator or published
     - **Property 40: A disabled type is never asked of the generator or published**
     - **Validates: Requirements 14.9, 23.5, 25.3**
     - With a scripted generator that proposes any type as primary and alternate and a reduced `allowedLockTypes` (at least two types), the generation system prompt and response schema name no disabled type, and no question in the manifest, content or `unplacedAccepted` has a disabled `lockType`. Scripted provider and mock ledger only
 
-  - [ ] 42.7 Write config and start example tests
+  - [x] 42.7 Write config and start example tests
     - Extend `config.test.ts`: `DISABLED_LOCK_TYPES` unset, one type, two types, an unknown entry (typed error, fixed text names the variable, the value is absent from the error), too few remaining; the existing `ALLOWED_LOCK_TYPES` and `EVAL_ALLOWED_LOCK_TYPES` equality assertions stay unchanged
     - Extend `start.test.ts`: a startup with a disabled type passes the reduced list to `pipelineSettings` (a test that `start.ts` uses the filtered list, not the constant); a startup with an invalid value returns the typed error without listening
     - _Requirements: 23.5, 25.3_
 
-  - [ ] 42.8 Write the evaluation-CLI and boundary tests
+  - [x] 42.8 Write the evaluation-CLI and boundary tests
     - Extend `evaluation/cli.test.ts`: the CLI ignores `DISABLED_LOCK_TYPES` (a value left in the shell cannot change a recorded digest) and `--allowed-lock-types` still works
     - Extend `packages/core/src/boundary.test.ts` (or a worker boundary test): `lock-type-flags.ts` is the only file under `apps/worker/src` that reads `DISABLED_LOCK_TYPES`, and no file under `packages/core/src` reads an environment variable
     - _Requirements: 23.5, 25.3_
 
-  - [ ] 42.9 Document the variable
+  - [x] 42.9 Document the variable
     - `.env.example`: this file may belong to another chat. Run `git status --porcelain -- .env.example` and re-read the file first; if it is dirty, STOP and report. Otherwise append exactly one commented line for `DISABLED_LOCK_TYPES` (comma-separated Lock_Types the learner path will not ask for; unset disables nothing) and edit nothing else in the file
     - Append a short entry to `docs/build-log.md`: what the variable does, that on Render a change needs an environment edit and a restart, that a restart loses in-memory Jobs and resets the Interim_Ledger day counter (Requirement 28.8), that fewer than two enabled types refuses to start (D1, design default), that samples and the evaluation CLI are unaffected, and that the flag only narrows: it implements the `samples-only` state for the learner path and does not mark any type "released" or evaluated (Requirement 23 is not implemented this round; no ratings exist)
     - If the README has a worker section and is clean in `git status`, add one line pointing to the variable; otherwise leave the README alone
     - _Requirements: 23.5, 26.1, 26.5_
 
-- [ ] 43. Checkpoint - release flags group
+- [x] 43. Checkpoint - release flags group
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
 
@@ -1121,7 +1121,8 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
 - Phase 6 file boundaries are the same as Phase 5: lock-type logic stays in `locks/<type>.ts` (Phase 6 changes none; the one new `locks/` file is the cross-type `answer-statement.ts`); `packages/core` gets no AI SDK, database, React or environment access; `DISABLED_LOCK_TYPES` is parsed only in `apps/worker/src/lock-type-flags.ts` and `config.ts`; no file over ~300 lines; no change in `apps/web`.
 - Phase 6 does not change `CHECK_VERSION` (no Code_Check changes) and adds no Check_ID; task 44.21 confirms this and says what to do if that proves wrong.
 - Out of this round: the final-door reservation (Requirement 19) and the evaluation-driven Release_Status with ratings (Requirement 23.1 to 23.4; D2). `DISABLED_LOCK_TYPES` only narrows the learner path and never labels a type "released".
-- Open decisions needing the user's confirmation, with the design default each task is written to: D1 fewer than two enabled lock types refuses to start (task 42.2, 42.3); D2 env switch only, evaluation-driven Release_Status deferred (task 42.9 wording, no task builds it); D3 `conflictCheck` and `sufficiency` off in core, on in the worker, pinned off in existing fixtures, `--conflict-check` default off until the re-record (tasks 41.3, 44.13, 44.14, 44.19, 46.4, 46.5); D4 one call per provisional room, no second round (task 44.10); D5 a failed conflict call fails closed (tasks 44.8, 44.10); D6 code layer is Requirement 18.1 literally (task 44.3); D7 "offer a shorter run" means build the shorter crypt and state the count (tasks 46.1, 46.4, 46.5); D8 `MIN_CONCEPT_SOURCE_WORDS = 12`, provisional, tuned by ES-1 on `eval/dev` (tasks 46.1, 46.8); D9 new sentences are messages, not Requirement 26.3 labels (task 44.9); D10 unplaced accepted questions stay in the bundle, never playable, not model-checked (task 44.10); D11 no env kill switch for the conflict stage (task 44.14); D12 optional `notices` only with `?notices=1` (tasks 44.11, 44.12, 44.14); D13 web side not changed here (task 48.1); D14 golden fixture not touched (task 44.20). Confirm the decision before starting the tasks that depend on it.
+- All of D1 to D14 are decided (see design, "Phase 6 decisions (decided)"): D1 refuse to start with fewer than two enabled lock types; D2 `DISABLED_LOCK_TYPES` only, Requirement 23 Release_Status deferred (no gold ratings, sample sizes too small); D3 off in core, on in the worker; D4 one conflict call per room; D5 fail closed; D7 build the shorter crypt and state the count; D13 hand-off notes for the web owner (other computer); D6, D8 to D12 and D14 as the design defaults.
+- Checkpoint: after tasks 42 and 43 (release flags) the run stops for a commit, so the kill switch ships early.
 
 ## Task Dependency Graph
 

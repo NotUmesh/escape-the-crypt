@@ -47,6 +47,9 @@ export const BONE_ORDERING_E2E_OPTIONS: Omit<PipelineOptions, 'provider' | 'ledg
   concurrency: 1,
   // Pinned explicitly: the recorded digests depend on this list, so it must not follow the shared constant.
   allowedLockTypes: ['rune-cipher', 'seance-board', 'bone-ordering'],
+  // Pinned off: a later default change must not silently alter recorded digests.
+  conflictCheck: false,
+  sufficiency: false,
 };
 
 export const boneE2eLedger = () => makeMockLedger({ dailyCapUsd: 1 });

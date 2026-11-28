@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { STARTUP_ERROR_COPY, readConfig, type Env } from './config';
+import { ALLOWED_LOCK_TYPES, STARTUP_ERROR_COPY, readConfig, type Env } from './config';
 import type { LogFields, Logger } from './http/respond';
 import { start } from './start';
 
@@ -48,6 +48,8 @@ describe('PROVIDER', () => {
         dailyBudgetUsd: 5,
         prices: { inputUsdPerMTok: 0.3, outputUsdPerMTok: 2.5 },
         warnings: [],
+        allowedLockTypes: ALLOWED_LOCK_TYPES,
+        disabledLockTypes: [],
       },
     });
   });

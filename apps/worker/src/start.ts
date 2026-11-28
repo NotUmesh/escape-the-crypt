@@ -2,7 +2,6 @@ import type { Server } from 'node:http';
 import type { ProviderUsage } from '@escape-the-crypt/core';
 import { costOfUsage, makeInterimLedger } from './budget/interim-ledger';
 import {
-  ALLOWED_LOCK_TYPES,
   GENERATION_TEMPERATURE,
   MAX_OUTPUT_TOKENS,
   PROVIDER_RETRY_LIMIT,
@@ -104,7 +103,7 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
       retryLimit: PROVIDER_RETRY_LIMIT,
       worstCaseUsd: configuredWorstCaseUsd(prices),
       costOf: (usage: ProviderUsage) => (prices === undefined ? Number.POSITIVE_INFINITY : costOfUsage(usage, prices)),
-      allowedLockTypes: ALLOWED_LOCK_TYPES,
+      allowedLockTypes: cfg.allowedLockTypes,
     },
     webOrigin: cfg.webOrigin,
     now,
@@ -136,7 +135,15 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
 
   const address = server.address();
   const port = typeof address === 'object' && address !== null ? address.port : cfg.port;
-  logger.info({ event: 'startup', note: 'listening', port, provider: cfg.provider, budgetConfigured: configured });
+  logger.info({
+    event: 'startup',
+    note: 'listening',
+    port,
+    provider: cfg.provider,
+    budgetConfigured: configured,
+    enabledLockTypeCount: cfg.allowedLockTypes.length,
+    disabledLockTypes: cfg.disabledLockTypes.join(','),
+  });
 
   let closing: Promise<void> | undefined;
   const close = (): Promise<void> => {

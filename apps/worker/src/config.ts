@@ -1,6 +1,7 @@
-import { MAX_EXTRACTED_WORDS, type LockType } from '@escape-the-crypt/core';
+import { MAX_EXTRACTED_WORDS, type LockType, type Result } from '@escape-the-crypt/core';
 import { parseDailyBudget, worstCaseUsd, type TokenPrices } from './budget/interim-ledger';
 import { isGeminiModelId } from './provider/gemini-provider';
+import { parseDisabledLockTypes, effectiveLockTypes as effectiveLockTypesFromConfig, type DisabledFlagsError } from './lock-type-flags';
 
 /**
  * Pipeline constants. The design names none of these, so they are conservative choices.
@@ -20,6 +21,14 @@ export const EVAL_ALLOWED_LOCK_TYPES: readonly LockType[] = [
   'cursed-object',
   'combination-dial',
 ];
+
+/**
+ * Parsed once at module load from `process.env.DISABLED_LOCK_TYPES`.
+ * Never throws. Errors carry no part of the env value (Requirement 25.8).
+ */
+export const parsedDisabledLockTypes: Result<LockType[], DisabledFlagsError> = parseDisabledLockTypes(
+  process.env['DISABLED_LOCK_TYPES'],
+) as Result<LockType[], DisabledFlagsError>;
 
 /** Sweep cadence: the design requires at least once a minute. */
 export const SWEEP_INTERVAL_MS = 60_000;
@@ -48,6 +57,8 @@ export type StartupError =
   | { readonly kind: 'invalid-gemini-output-price' }
   | { readonly kind: 'invalid-port' }
   | { readonly kind: 'invalid-job-ttl' }
+  | { readonly kind: 'invalid-disabled-lock-types' }
+  | { readonly kind: 'too-few-lock-types' }
   | { readonly kind: 'listen-failed' };
 
 /** Fixed, value-free text for each startup error. Env values are never included. */
@@ -62,6 +73,8 @@ export const STARTUP_ERROR_COPY: Readonly<Record<StartupError['kind'], string>> 
   'invalid-gemini-output-price': 'PROVIDER is gemini but GEMINI_PRICE_OUTPUT_USD_PER_MTOK is not set or is not a positive number',
   'invalid-port': 'PORT is not a valid port number',
   'invalid-job-ttl': 'JOB_TTL_MINUTES is not a positive number',
+  'invalid-disabled-lock-types': 'DISABLED_LOCK_TYPES contains an unrecognised lock type',
+  'too-few-lock-types': 'DISABLED_LOCK_TYPES leaves fewer than two lock types enabled',
   'listen-failed': 'the HTTP server could not listen on the configured port',
 };
 
@@ -82,6 +95,10 @@ export interface WorkerConfig {
   readonly prices: TokenPrices | undefined;
   /** Names of optional settings that are missing or invalid. Names only, never values. */
   readonly warnings: readonly string[];
+  /** Effective lock types after removing any `DISABLED_LOCK_TYPES` from `ALLOWED_LOCK_TYPES`. */
+  readonly allowedLockTypes: readonly LockType[];
+  /** Lock types removed by `DISABLED_LOCK_TYPES`. Empty when the variable is unset or empty. */
+  readonly disabledLockTypes: readonly LockType[];
 }
 
 function present(value: string | undefined): string | undefined {
@@ -161,6 +178,18 @@ export function readConfig(env: Env): Parsed<WorkerConfig> {
     jobTtlMinutes = parsed;
   }
 
+  // Parse and validate DISABLED_LOCK_TYPES. Errors carry no env value.
+  const disabledParsed = parseDisabledLockTypes(env['DISABLED_LOCK_TYPES']);
+  if (!disabledParsed.ok) {
+    return { ok: false, error: { kind: 'invalid-disabled-lock-types' } };
+  }
+  const disabledLockTypes = disabledParsed.value;
+  const effectiveResult = effectiveLockTypesFromConfig(ALLOWED_LOCK_TYPES, disabledLockTypes);
+  if (!effectiveResult.ok) {
+    return { ok: false, error: { kind: 'too-few-lock-types' } };
+  }
+  const allowedLockTypes = effectiveResult.value;
+
   const budget = parseDailyBudget(env);
   const dailyBudgetUsd = budget.ok ? budget.value : undefined;
   const warnings = [...(dailyBudgetUsd === undefined ? ['DAILY_BUDGET_USD'] : []), ...providerSettings.value.warnings];
@@ -177,6 +206,8 @@ export function readConfig(env: Env): Parsed<WorkerConfig> {
       dailyBudgetUsd,
       prices,
       warnings,
+      allowedLockTypes,
+      disabledLockTypes,
     },
   };
 }

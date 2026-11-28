@@ -75,6 +75,7 @@ VITE_WORKER_URL=http://localhost:8787 pnpm dev
 | `PORT` | no | Defaults to 8787. |
 | `JOB_TTL_MINUTES` | no | How long a finished job is kept. Defaults to 30. |
 | `JUDGE_ACCESS_TOKEN` | no | Judge access code for `POST /judge/jobs`, at least 24 characters. Unset: that route answers 404. |
+| `DISABLED_LOCK_TYPES` | no | Comma-separated lock types the learner path will not ask for. Unset disables nothing. See `docs/build-log.md`. |
 
 With `PROVIDER=gemini`, a missing or invalid Gemini setting stops the worker at startup with a message naming the variable. The OpenAI variables are not read.
 

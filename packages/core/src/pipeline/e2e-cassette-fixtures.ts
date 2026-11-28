@@ -42,6 +42,9 @@ export const HUMAN_HEART_E2E_OPTIONS: Omit<PipelineOptions, 'provider' | 'ledger
   concurrency: 1,
   // Pinned so recorded prompts and digests do not change if DEFAULT_ALLOWED_LOCK_TYPES widens.
   allowedLockTypes: ['rune-cipher', 'seance-board'],
+  // Pinned off: a later default change must not silently alter recorded digests.
+  conflictCheck: false,
+  sufficiency: false,
 };
 
 export const humanHeartE2eLedger = () => makeMockLedger({ dailyCapUsd: 1 });

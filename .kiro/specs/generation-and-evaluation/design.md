@@ -2588,7 +2588,7 @@ Nothing in `requirements.md` is edited. Each point below is a place where the te
 
 **(d) Req 17.1 and 17.2 say "good concepts against the chosen length" and "offer a shorter run".** "Good" is defined as a concept with at least one accepted question that the conflict stage did not exclude. "Offer" is read as "build the shorter crypt and say how many topics were found" (section 2d). The text could also mean a prompt before building; that is Open decision D7.
 
-**(e) Req 23.4 cannot be evaluated on the current data.** There are no ratings and no Wrong_Accepted counts, and two types cannot reach 10 rated accepted questions from one dev run (section 3d). Read literally, all six types are `samples-only` today, which contradicts the ungated state the code is in. Open decision D2.
+**(e) Req 23.4 cannot be evaluated on the current data.** There are no ratings and no Wrong_Accepted counts, and two types cannot reach 10 rated accepted questions from one dev run (section 3d). Read literally, all six types are `samples-only` today, which contradicts the ungated state the code is in. Decided (D2): **Requirement 23 is deferred this round.** No gold ratings exist in any result file, so Wrong_Accepted is unknown for every type, and sample sizes are too small to reach 10 rated accepted questions per type (cursed-object 4 and bound-threads 3 accepted in run 2026-11-27-3). `DISABLED_LOCK_TYPES` is the operational switch meanwhile.
 
 **(f) Req 26.3 lists the allowed user-facing labels; the new copy is sentences.** The Phase 6 strings are messages, not evidence labels, and add no label to the five. If 26.3 is read to cover every sentence the spec adds, the strings in 1e need approval. Open decision D9.
 
@@ -2596,26 +2596,26 @@ Nothing in `requirements.md` is edited. Each point below is a place where the te
 
 **(h) Req 13.4's quote rule is reused, not changed.** Conflict quotes go through the same `resolveQuote` and the same 4 and 25 word bounds. Nothing in the quote rules is relaxed.
 
-## Open decisions
+## Phase 6 decisions (decided)
 
-Each has a recommended default. The design is written to the default.
+All of D1 to D14 are decided by the user. The analysis below (default and alternative per decision) is kept as written; the "Decided" column records the outcome and a short reason. Other places in this part that say "Open decisions" or "pending the user's decision" refer to this table and are now settled.
 
-| ID | Decision | Default in this design | Alternative |
-| --- | --- | --- | --- |
-| D1 | Fewer than two enabled lock types | Refuse to start with `too-few-lock-types` | Start and refuse jobs (like a missing budget); or keep rune cipher |
-| D2 | Req 23.4 against the current ungated state and no ratings | Env switch only this round; evaluation-driven Release_Status deferred until a rated dev run exists | Add rating fields and `releaseStatusOf` now and rate the run-3 questions by hand |
-| D3 | Core default for `conflictCheck` and `sufficiency` | Off in core, on in the worker, pinned off in existing fixtures, `--conflict-check` default off until the re-record | On by default everywhere (every fixture and test that omits the option must then be re-recorded or pinned) |
-| D4 | Calls per room | One call per provisional room, then assemble from questions checked clean | A second round for refilled rooms (more calls, longer crypts after a conflict) |
-| D5 | Conflict call fails (provider error or schema failure twice) | Fail closed: that room is left out; all rooms failed gives `conflict-check-failed` | Publish unchecked (lowers the check, not recommended) |
-| D6 | Code layer scope | Req 18.1 literally: shared label, same unit, different number, different chunk | Extend to one concept with two numbers (more false positives) |
-| D7 | "Offer a shorter run" | Build the shorter crypt and state the count | Stop after extraction and ask the learner (needs an interactive step the job API does not have) |
-| D8 | `MIN_CONCEPT_SOURCE_WORDS` | 12, provisional, tuned by ES-1 on `eval/dev` only | No thin filter until ES-1 reports |
-| D9 | New sentences against Req 26.3 | Treated as messages, not labels | Add them to the approved list |
-| D10 | Unplaced accepted questions | Kept in the bundle, never playable, not model-checked; excluded concepts removed from them | Drop unplaced questions when the conflict check is on |
-| D11 | Env kill switch for the conflict stage | None: `start.ts` sets it on | `CONFLICT_CHECK=off` in the worker environment (a second flag to document and test) |
-| D12 | Notice delivery | Optional `notices` in the bundle, sent only with `?notices=1` | New contract version for every client |
-| D13 | The web side | Not changed here; the web owner makes the changes named in 1f | Include them in this phase's tasks |
-| D14 | Golden contract fixture | Not touched; the owner adds the notices case by `UPDATE_CONTRACT=1` after review | Regenerate it as part of the phase (not allowed: never a silent regeneration) |
+| ID | Decision | Default in this design | Alternative | Decided |
+| --- | --- | --- | --- | --- |
+| D1 | Fewer than two enabled lock types | Refuse to start with `too-few-lock-types` | Start and refuse jobs (like a missing budget); or keep rune cipher | **Yes: refuse to start.** A worker with one type cannot build a mixed crypt, so failing at boot is clearer than failing every job. |
+| D2 | Req 23.4 against the current ungated state and no ratings | Env switch only this round; evaluation-driven Release_Status deferred until a rated dev run exists | Add rating fields and `releaseStatusOf` now and rate the run-3 questions by hand | **The default: `DISABLED_LOCK_TYPES` is the operational switch; Requirement 23 (evaluation-driven Release_Status) is deferred this round.** No gold ratings exist in any result file, so Wrong_Accepted is unknown for every type. Sample sizes are too small to reach 10 rated accepted questions per type (cursed-object 4 and bound-threads 3 accepted in run 2026-11-27-3). |
+| D3 | Core default for `conflictCheck` and `sufficiency` | Off in core, on in the worker, pinned off in existing fixtures, `--conflict-check` default off until the re-record | On by default everywhere (every fixture and test that omits the option must then be re-recorded or pinned) | **Off in core, on in the worker.** Existing fixtures and cassettes stay valid. |
+| D4 | Calls per room | One call per provisional room, then assemble from questions checked clean | A second round for refilled rooms (more calls, longer crypts after a conflict) | **One conflict call per room.** Keeps the literal Req 18.2 call count and a bounded cost. |
+| D5 | Conflict call fails (provider error or schema failure twice) | Fail closed: that room is left out; all rooms failed gives `conflict-check-failed` | Publish unchecked (lowers the check, not recommended) | **Fail closed.** A room the conflict check could not run on is not published, because publishing an unchecked room is worse than dropping it. |
+| D6 | Code layer scope | Req 18.1 literally: shared label, same unit, different number, different chunk | Extend to one concept with two numbers (more false positives) | **The default.** Avoids flagging different quantities in one paragraph. |
+| D7 | "Offer a shorter run" | Build the shorter crypt and state the count | Stop after extraction and ask the learner (needs an interactive step the job API does not have) | **Build the shorter crypt and state the count.** The job API has no interactive step. |
+| D8 | `MIN_CONCEPT_SOURCE_WORDS` | 12, provisional, tuned by ES-1 on `eval/dev` only | No thin filter until ES-1 reports | **The default: 12, provisional.** Tuned on `eval/dev` only. |
+| D9 | New sentences against Req 26.3 | Treated as messages, not labels | Add them to the approved list | **The default.** They are messages and add no evidence label. |
+| D10 | Unplaced accepted questions | Kept in the bundle, never playable, not model-checked; excluded concepts removed from them | Drop unplaced questions when the conflict check is on | **The default.** Matches the bundle's existing "not playable" rule. |
+| D11 | Env kill switch for the conflict stage | None: `start.ts` sets it on | `CONFLICT_CHECK=off` in the worker environment (a second flag to document and test) | **The default: no kill switch.** One fewer flag to document and test. |
+| D12 | Notice delivery | Optional `notices` in the bundle, sent only with `?notices=1` | New contract version for every client | **The default.** Older web builds see an unchanged body. |
+| D13 | The web side | Not changed here; the web owner makes the changes named in 1f | Include them in this phase's tasks | **Yes: hand-off notes for the web owner**, who works on the other computer. No change in `apps/web` here. |
+| D14 | Golden contract fixture | Not touched; the owner adds the notices case by `UPDATE_CONTRACT=1` after review | Regenerate it as part of the phase (not allowed: never a silent regeneration) | **The default.** The fixture is never regenerated silently. |
 
 ## Phase 6 decisions
 

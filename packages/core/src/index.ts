@@ -73,6 +73,7 @@ export type { CryptManifest, RunSettings } from './runtime/manifest-types';
 export type { State, LockSlotState, ReturnSlotState, FinalDoorSlotState, SlotStatus, ConceptOutcome, ConceptRecord } from './runtime/state-types';
 export type { Outcome_Notice } from './runtime/notices';
 export type { Typed_Rejection, LockType } from './types';
+export { LOCK_TYPES } from './types';
 export {
   LOCK_OBJECT_NAMES,
   ROOM_DISPLAY_NAMES,

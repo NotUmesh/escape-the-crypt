@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, 
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EVAL_ALLOWED_LOCK_TYPES } from '../config';
 import { main, parseAllowedLockTypes, settingsFor, type Io } from './cli';
 import { DEV_CASSETTES_DIR, DEV_GEMINI_CASSETTES_DIR, DEV_NOTES_DIR, RESULTS_DIR, evaluationPaths } from './paths';
@@ -157,5 +157,54 @@ describe('evaluation CLI', () => {
     expect(await main(['replay', '--model', 'm'], {}, root, out)).toBe(0);
     expect(existsSync(join(root, RESULTS_DIR))).toBe(false);
     expect(out.lines.some((l) => l.includes('dev-01-x.txt: failed'))).toBe(true);
+  });
+});
+describe('evaluation CLI ignores DISABLED_LOCK_TYPES', () => {
+  const PRICES = { inputUsdPerMTok: 0.75, outputUsdPerMTok: 4.5 };
+  /** Loads a fresh cli (and config) module graph with the variable set, then restores the shell value. */
+  async function withDisabled<T>(value: string, run: (cli: typeof import('./cli')) => Promise<T>): Promise<T> {
+    const saved = process.env['DISABLED_LOCK_TYPES'];
+    process.env['DISABLED_LOCK_TYPES'] = value;
+    try {
+      vi.resetModules();
+      return await run(await import('./cli'));
+    } finally {
+      if (saved === undefined) delete process.env['DISABLED_LOCK_TYPES'];
+      else process.env['DISABLED_LOCK_TYPES'] = saved;
+      vi.resetModules();
+    }
+  }
+  it('keeps the parsed default list and settingsFor unchanged when the variable is set', async () => {
+    const baseline = settingsFor('m', PRICES).allowedLockTypes;
+    const seen = await withDisabled('rune-cipher,seance-board', async (cli) => ({
+      parsed: cli.parseAllowedLockTypes(undefined),
+      settings: cli.settingsFor('m', PRICES).allowedLockTypes,
+    }));
+    expect(seen.parsed).toEqual({ ok: true, value: EVAL_ALLOWED_LOCK_TYPES });
+    expect(seen.settings).toEqual(baseline);
+    expect(seen.settings).toEqual(EVAL_ALLOWED_LOCK_TYPES);
+  });
+  it('is not changed by an invalid value either, and --allowed-lock-types still narrows the list', async () => {
+    const seen = await withDisabled('not-a-lock-type', async (cli) => ({
+      defaults: cli.settingsFor('m', PRICES).allowedLockTypes,
+      chosen: cli.parseAllowedLockTypes('rune-cipher,seance-board'),
+      rejected: cli.parseAllowedLockTypes('ghost'),
+    }));
+    expect(seen.defaults).toEqual(EVAL_ALLOWED_LOCK_TYPES);
+    expect(seen.chosen).toEqual({ ok: true, value: ['rune-cipher', 'seance-board'] });
+    expect(seen.rejected.ok).toBe(false);
+  });
+  it('replay prompt digests are identical with the variable set in the shell and in the env argument', async () => {
+    const realRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
+    const digests = async (cli: typeof import('./cli'), env: Record<string, string>): Promise<string[]> => {
+      const out = io();
+      expect(await cli.main(['replay', '--model', 'gpt-5.4-mini', '--only', 'dev-01'], env, realRoot, out)).toBe(0);
+      const json = out.lines.find((l) => l.startsWith('{')) ?? '{}';
+      return (JSON.parse(json) as { notes: { promptDigests: string[] }[] }).notes[0]?.promptDigests ?? [];
+    };
+    const baseline = await digests(await import('./cli'), {});
+    const withVar = await withDisabled('rune-cipher,seance-board,bone-ordering', (cli) => digests(cli, { DISABLED_LOCK_TYPES: 'rune-cipher,seance-board,bone-ordering' }));
+    expect(baseline.length).toBeGreaterThan(0);
+    expect(withVar).toEqual(baseline);
   });
 });

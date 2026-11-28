@@ -59,6 +59,14 @@
     "37.2 Write property tests for six-type room assembly": {
       "status": "passed",
       "lastRunTimestamp": 1795808505652
+    },
+    "42.4 Write property test for flag parsing": {
+      "status": "passed",
+      "lastRunTimestamp": 1795852958013
+    },
+    "42.5 Write property test for the effective set": {
+      "status": "passed",
+      "lastRunTimestamp": 1795852960883
     }
   },
   "executionHistory": {
@@ -2415,6 +2423,186 @@
         "executionId": "b3edfbf6-38fc-4714-86ae-73435af61093",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795809753085
+      },
+      {
+        "executionId": "66c54ea6-e020-47b2-ba92-95e18ee26557",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795812838307
+      }
+    ],
+    "41.1 Check for uncommitted work, then re-read the specs and steering": [
+      {
+        "executionId": "66c54ea6-e020-47b2-ba92-95e18ee26557",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795812919360
+      },
+      {
+        "executionId": "66c54ea6-e020-47b2-ba92-95e18ee26557",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795812993829
+      }
+    ],
+    "41.2 Record baseline test, lint, typecheck and build results": [
+      {
+        "executionId": "66c54ea6-e020-47b2-ba92-95e18ee26557",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795813001094
+      },
+      {
+        "executionId": "66c54ea6-e020-47b2-ba92-95e18ee26557",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795847540090
+      }
+    ],
+    "41.3 Declare the two new pipeline options and pin them OFF in the five existing cassette fixtures": [
+      {
+        "executionId": "66c54ea6-e020-47b2-ba92-95e18ee26557",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795847545428
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795848219424
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795848423649
+      }
+    ],
+    "41. Phase 6 baseline: re-read, check for parallel work, record results, pin the new options off": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795848423760
+      }
+    ],
+    "42.1 Export the `LOCK_TYPES` constant from core": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795848432212
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795848780076
+      }
+    ],
+    "42.2 Implement `lock-type-flags.ts`": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795848789280
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795849531329
+      }
+    ],
+    "42.3 Wire the flag into `config.ts` and `start.ts` (learner path only)": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795849536162
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795850021992
+      }
+    ],
+    "42.4 Write property test for flag parsing": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795850026453
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853477893
+      }
+    ],
+    "42.5 Write property test for the effective set": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795850026823
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853478673
+      }
+    ],
+    "42.6 Write property test that a disabled type is never asked of the generator or published": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795850027455
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853479433
+      }
+    ],
+    "42.7 Write config and start example tests": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795850027757
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853480491
+      }
+    ],
+    "42.8 Write the evaluation-CLI and boundary tests": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853481087
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853573320
+      }
+    ],
+    "42.9 Document the variable": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853481718
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853573854
+      }
+    ],
+    "42. Phase 6: release flags (`DISABLED_LOCK_TYPES`)": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853573929
+      }
+    ],
+    "43. Checkpoint - release flags group": [
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853578869
+      },
+      {
+        "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795853918527
       }
     ]
   }

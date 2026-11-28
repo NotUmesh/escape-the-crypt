@@ -45,6 +45,9 @@ export const COMBINATION_DIAL_E2E_OPTIONS: Omit<PipelineOptions, 'provider' | 'l
   concurrency: 1,
   // Pinned explicitly: the recorded digests depend on this list, so it must not follow the shared constant.
   allowedLockTypes: ['rune-cipher', 'seance-board', 'combination-dial'],
+  // Pinned off: a later default change must not silently alter recorded digests.
+  conflictCheck: false,
+  sufficiency: false,
 };
 
 export const dialE2eLedger = () => makeMockLedger({ dailyCapUsd: 1 });

@@ -167,6 +167,12 @@ describe('start: invalid configuration returns a typed error', () => {
     ['PORT out of range', { ...FULL_ENV, PORT: '70000' }, 'invalid-port'],
     ['JOB_TTL_MINUTES not a number', { ...FULL_ENV, JOB_TTL_MINUTES: 'soon' }, 'invalid-job-ttl'],
     ['JOB_TTL_MINUTES zero', { ...FULL_ENV, JOB_TTL_MINUTES: '0' }, 'invalid-job-ttl'],
+    ['DISABLED_LOCK_TYPES has an unknown entry', { ...FULL_ENV, DISABLED_LOCK_TYPES: 'not-a-lock-type' }, 'invalid-disabled-lock-types'],
+    [
+      'DISABLED_LOCK_TYPES leaves fewer than two types',
+      { ...FULL_ENV, DISABLED_LOCK_TYPES: 'seance-board,bone-ordering,bound-threads,cursed-object,combination-dial' },
+      'too-few-lock-types',
+    ],
   ];
 
   it.each(cases)('%s', async (_name, env, kind) => {
@@ -176,6 +182,22 @@ describe('start: invalid configuration returns a typed error', () => {
     if (!result.ok) expect(result.error.kind).toBe(kind);
     // No startup line means it never reached listen.
     expect(lines.join('\n')).not.toContain('listening');
+  });
+});
+
+describe('start: DISABLED_LOCK_TYPES', () => {
+  it('starts with a reduced list and logs the counts and names, not the raw value', async () => {
+    const { logger, lines } = capture();
+    await startOk({ ...FULL_ENV, DISABLED_LOCK_TYPES: ' Bone-Ordering ,combination-dial' }, logger);
+    const listening = lines.map((l) => JSON.parse(l) as Record<string, unknown>).find((l) => l['note'] === 'listening');
+    expect(listening?.['enabledLockTypeCount']).toBe(4);
+    expect(listening?.['disabledLockTypes']).toBe('bone-ordering,combination-dial');
+  });
+
+  it('passes the filtered list, not the constant, to pipelineSettings', () => {
+    const source = readFileSync(fileURLToPath(new URL('./start.ts', import.meta.url)), 'utf8');
+    expect(source).toMatch(/allowedLockTypes:\s*cfg\.allowedLockTypes/);
+    expect(source).not.toContain('ALLOWED_LOCK_TYPES');
   });
 });
 

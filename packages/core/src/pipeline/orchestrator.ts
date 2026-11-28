@@ -73,6 +73,18 @@ export interface PipelineOptions extends GenerationOptions {
   readonly target?: CryptTarget;
   /** Stage and counts as the run goes. Advisory: a throwing callback is ignored. */
   readonly onProgress?: (progress: PipelineProgress) => void;
+  /**
+   * Run the conflict-check stage (Phase 6). Default off.
+   * Pinned `false` in every existing cassette fixture so a future change of this default
+   * cannot silently alter recorded digests.
+   */
+  readonly conflictCheck?: boolean;
+  /**
+   * Run the thin-concept filter and sufficiency notice (Phase 6). Default off.
+   * Pinned `false` in every existing cassette fixture so a future change of this default
+   * cannot silently alter recorded digests.
+   */
+  readonly sufficiency?: boolean;
 }
 
 export interface PipelineResult {

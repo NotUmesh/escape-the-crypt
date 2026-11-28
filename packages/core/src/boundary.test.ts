@@ -172,3 +172,11 @@ describe('no final-test-set references (Req 9.5)', () => {
     }
   });
 });
+describe('no environment reads in packages/core', () => {
+  // Patterns are assembled from parts so this file does not match itself.
+  const ENV_READ = new RegExp([['process', 'env'].join('\\.'), ['import\\.meta', 'env'].join('\\.')].join('|'));
+  it('no file under packages/core/src reads process or import.meta environment variables', () => {
+    const offenders = allFiles.filter((f) => ENV_READ.test(fs.readFileSync(f, 'utf8'))).map(rel);
+    expect(offenders).toEqual([]);
+  });
+});
