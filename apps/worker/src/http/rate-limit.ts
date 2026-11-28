@@ -14,9 +14,24 @@ export const RATE_LIMIT_MAX_TRACKED_IPS = 10_000;
 /**
  * Proxies in front of the worker that append to `X-Forwarded-For` (Render runs one). The client's
  * address is the entry this many places from the end; anything to its left is client-supplied and
- * could be forged, so it is never used.
+ * could be forged, so it is never used. This is the default; the `TRUSTED_PROXY_HOPS` env var
+ * overrides it (see `parseTrustedProxyHops`). 0 ignores the header and keys on the socket address.
  */
 export const TRUSTED_PROXY_HOPS = 1;
+export const MAX_TRUSTED_PROXY_HOPS = 3;
+
+/**
+ * Reads `TRUSTED_PROXY_HOPS`: unset or blank gives the default, otherwise exactly one digit from 0
+ * to `MAX_TRUSTED_PROXY_HOPS`. Anything else (`1.0`, `-1`, `4`, `two`) is null, which stops the
+ * worker at startup.
+ */
+export function parseTrustedProxyHops(raw: string | undefined): number | null {
+  const text = raw?.trim() ?? '';
+  if (text === '') return TRUSTED_PROXY_HOPS;
+  if (!/^\d$/.test(text)) return null;
+  const hops = Number(text);
+  return hops <= MAX_TRUSTED_PROXY_HOPS ? hops : null;
+}
 
 export interface RateLimitConfig {
   readonly windowMs: number;

@@ -50,6 +50,7 @@ describe('PROVIDER', () => {
         warnings: [],
         allowedLockTypes: ALLOWED_LOCK_TYPES,
         disabledLockTypes: [],
+        trustedProxyHops: 1,
       },
     });
   });

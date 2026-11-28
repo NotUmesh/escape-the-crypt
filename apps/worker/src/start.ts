@@ -13,7 +13,7 @@ import {
   type Env,
   type StartupError,
 } from './config';
-import { judgeAccessFromEnv } from './http/judge-access';
+import { judgeAccessFromEnv, judgeAccessStatus } from './http/judge-access';
 import { createServer } from './http/server';
 import type { Logger } from './http/respond';
 import { createJobStore } from './jobs/job-store';
@@ -110,6 +110,7 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
     logger,
     healthStatus: () => (configured ? 'ok' : 'budget-not-configured'),
     judge,
+    trustedProxyHops: cfg.trustedProxyHops,
   });
 
   const listening = await new Promise<boolean>((resolve) => {
@@ -132,6 +133,8 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
   timer.unref();
 
   if (!configured) logger.info({ event: 'startup', note: 'budget not configured: jobs refused', missing: cfg.warnings.join(',') });
+  // Whether POST /judge/jobs is on. The status names the rule only: never the code or its length.
+  logger.info({ event: 'startup', note: 'judge access', ...judgeAccessStatus(env['JUDGE_ACCESS_TOKEN']) });
 
   const address = server.address();
   const port = typeof address === 'object' && address !== null ? address.port : cfg.port;
@@ -141,6 +144,7 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
     port,
     provider: cfg.provider,
     budgetConfigured: configured,
+    trustedProxyHops: cfg.trustedProxyHops,
     enabledLockTypeCount: cfg.allowedLockTypes.length,
     disabledLockTypes: cfg.disabledLockTypes.join(','),
   });

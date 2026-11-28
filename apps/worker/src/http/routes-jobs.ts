@@ -33,6 +33,8 @@ export interface RouteDeps extends JobRunnerDeps {
   readonly maxBodyBytes: number;
   /** Per-IP limit on public `POST /jobs`. */
   readonly rateLimiter: RateLimiter;
+  /** Which `X-Forwarded-For` entry, counted from the end, is the client (`TRUSTED_PROXY_HOPS`). */
+  readonly trustedProxyHops: number;
   /** Null when `JUDGE_ACCESS_TOKEN` is not set: the judge route answers 404. */
   readonly judge: JudgeAccess | null;
 }
@@ -77,7 +79,7 @@ export async function handleCreateJob(
     if (deps.judge.active.size >= MAX_ACTIVE_JUDGE_JOBS) return fail(res, outcome, 429, 'capacity');
   } else {
     // Counted before the body is read, so a flood costs nothing to refuse.
-    const decision = deps.rateLimiter.attempt(clientAddress(req));
+    const decision = deps.rateLimiter.attempt(clientAddress(req, deps.trustedProxyHops));
     if (!decision.allowed) {
       res.setHeader('Retry-After', String(decision.retryAfterSeconds));
       return fail(res, outcome, 429, 'rate-limited');

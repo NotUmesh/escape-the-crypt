@@ -1,5 +1,6 @@
 import { MAX_EXTRACTED_WORDS, type LockType, type Result } from '@escape-the-crypt/core';
 import { parseDailyBudget, worstCaseUsd, type TokenPrices } from './budget/interim-ledger';
+import { MAX_TRUSTED_PROXY_HOPS, TRUSTED_PROXY_HOPS, parseTrustedProxyHops } from './http/rate-limit';
 import { isGeminiModelId } from './provider/gemini-provider';
 import { parseDisabledLockTypes, effectiveLockTypes as effectiveLockTypesFromConfig, type DisabledFlagsError } from './lock-type-flags';
 
@@ -59,6 +60,7 @@ export type StartupError =
   | { readonly kind: 'invalid-job-ttl' }
   | { readonly kind: 'invalid-disabled-lock-types' }
   | { readonly kind: 'too-few-lock-types' }
+  | { readonly kind: 'invalid-trusted-proxy-hops' }
   | { readonly kind: 'listen-failed' };
 
 /** Fixed, value-free text for each startup error. Env values are never included. */
@@ -75,6 +77,7 @@ export const STARTUP_ERROR_COPY: Readonly<Record<StartupError['kind'], string>> 
   'invalid-job-ttl': 'JOB_TTL_MINUTES is not a positive number',
   'invalid-disabled-lock-types': 'DISABLED_LOCK_TYPES contains an unrecognised lock type',
   'too-few-lock-types': 'DISABLED_LOCK_TYPES leaves fewer than two lock types enabled',
+  'invalid-trusted-proxy-hops': `TRUSTED_PROXY_HOPS must be a whole number from 0 to ${MAX_TRUSTED_PROXY_HOPS} (unset means ${TRUSTED_PROXY_HOPS})`,
   'listen-failed': 'the HTTP server could not listen on the configured port',
 };
 
@@ -99,6 +102,8 @@ export interface WorkerConfig {
   readonly allowedLockTypes: readonly LockType[];
   /** Lock types removed by `DISABLED_LOCK_TYPES`. Empty when the variable is unset or empty. */
   readonly disabledLockTypes: readonly LockType[];
+  /** From `TRUSTED_PROXY_HOPS`: which `X-Forwarded-For` entry, counted from the end, is the client. */
+  readonly trustedProxyHops: number;
 }
 
 function present(value: string | undefined): string | undefined {
@@ -190,6 +195,9 @@ export function readConfig(env: Env): Parsed<WorkerConfig> {
   }
   const allowedLockTypes = effectiveResult.value;
 
+  const trustedProxyHops = parseTrustedProxyHops(env['TRUSTED_PROXY_HOPS']);
+  if (trustedProxyHops === null) return { ok: false, error: { kind: 'invalid-trusted-proxy-hops' } };
+
   const budget = parseDailyBudget(env);
   const dailyBudgetUsd = budget.ok ? budget.value : undefined;
   const warnings = [...(dailyBudgetUsd === undefined ? ['DAILY_BUDGET_USD'] : []), ...providerSettings.value.warnings];
@@ -208,6 +216,7 @@ export function readConfig(env: Env): Parsed<WorkerConfig> {
       warnings,
       allowedLockTypes,
       disabledLockTypes,
+      trustedProxyHops,
     },
   };
 }

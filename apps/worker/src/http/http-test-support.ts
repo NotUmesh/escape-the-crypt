@@ -140,6 +140,8 @@ export interface HarnessOptions {
   /** Judge access, as `start` builds it from `JUDGE_ACCESS_TOKEN`. Default: off. */
   readonly judge?: JudgeAccess | null;
   readonly rateLimit?: RateLimitConfig;
+  /** As `start` passes it from `TRUSTED_PROXY_HOPS`. Default: the server's default. */
+  readonly trustedProxyHops?: number;
 }
 
 const open = new Set<Harness>();
@@ -178,6 +180,7 @@ export async function startHarness(options: HarnessOptions = {}): Promise<Harnes
     ...(options.maxBodyBytes === undefined ? {} : { limits: { maxBodyBytes: options.maxBodyBytes } }),
     ...(options.judge === undefined ? {} : { judge: options.judge }),
     ...(options.rateLimit === undefined ? {} : { rateLimit: options.rateLimit }),
+    ...(options.trustedProxyHops === undefined ? {} : { trustedProxyHops: options.trustedProxyHops }),
   });
   await new Promise<void>((resolve) => server.listen(0, LOOPBACK, resolve));
   const base = `http://${LOOPBACK}:${(server.address() as AddressInfo).port}`;

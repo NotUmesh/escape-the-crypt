@@ -34,8 +34,9 @@ Set these in the service's Environment tab. Never put values in the repo, in a c
 | `GEMINI_PRICE_INPUT_USD_PER_MTOK`, `GEMINI_PRICE_OUTPUT_USD_PER_MTOK` | when `PROVIDER=gemini` | Same as the OpenAI prices. Both are required, and a gap stops the worker at startup. Thinking tokens are counted as output. | Google's pricing page for that model. |
 | `WEB_ORIGIN` | yes | The one origin allowed by CORS. The comparison is exact. | `https://escape-the-crypt.pages.dev`, with no trailing slash and no path. A Cloudflare preview URL is a different origin and is refused. Confirm the live address first. |
 | `DAILY_BUDGET_USD` | to accept jobs | Spending cap per UTC day, for this process only. Missing, non-numeric or 0 or less: `budget-not-configured`. | An amount you accept losing. Each provider call reserves `(20,000 x input price + 4,096 x output price) / 1,000,000` dollars before it runs, and reservations for calls in flight count against the cap. A cap below that refuses every call. |
-| `JUDGE_ACCESS_TOKEN` | no | Turns on `POST /judge/jobs`. Only its SHA-256 is kept. Unset or shorter than 24 characters: that route answers 404 and no startup error is logged. | At least 24 random characters. In PowerShell: `$b = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); [Convert]::ToBase64String($b)`. Rotating it means a new value and a deploy. |
+| `JUDGE_ACCESS_TOKEN` | no | Turns on `POST /judge/jobs`. Only its SHA-256 is kept. Unset or shorter than 24 characters: that route answers 404. The worker still starts, and logs one line saying whether judge access is `enabled` or `disabled` (with `unset` or `shorter-than-24-characters`), never the code or its length. | At least 24 random characters. In PowerShell: `$b = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); [Convert]::ToBase64String($b)`. Rotating it means a new value and a deploy. |
 | `DISABLED_LOCK_TYPES` | no | Section 3. | Unset, or one name such as `combination-dial`. |
+| `TRUSTED_PROXY_HOPS` | no | Which `X-Forwarded-For` entry, counted from the end, the per-IP rate limit treats as the visitor. A whole number from 0 to 3; unset means 1. Anything else (`4`, `1.0`, `two`) stops the worker at startup with `TRUSTED_PROXY_HOPS must be a whole number from 0 to 3 (unset means 1)`. `0` ignores the header and uses the connection's address, which on Render is the proxy's, so every visitor would share one limit. | Leave it unset unless the section 7 test says otherwise. |
 | `JOB_TTL_MINUTES` | no | How long a finished job, with the notes text and the result, stays in memory. A positive number. Default 30. After that only a content-free record remains, for 24 hours. | Leave it unset. The README promises 30 minutes. |
 | `PORT` | no | See section 1. | Leave it to Render. |
 
@@ -45,7 +46,7 @@ Web build variable, on Cloudflare Pages and not Render: `VITE_WORKER_URL` is the
 
 - 20 live jobs in total, and 1 running job per session. Judge jobs skip both limits.
 - 3 judge jobs at once, counted apart from the public limit.
-- 6 `POST /jobs` per IP in any 15 minutes, with at most 10,000 IPs remembered.
+- 6 `POST /jobs` per IP in any 15 minutes, with at most 10,000 IPs remembered. (Which address counts as the IP is `TRUSTED_PROXY_HOPS`, above.)
 - A request body up to 256 KiB, and notes up to 6,000 words.
 - A provider call times out after 60 seconds, with 1 retry, and answers up to 4,096 tokens.
 - A job still queued or running after 10 minutes is failed by the sweep. The sweep runs every minute.
@@ -104,7 +105,7 @@ Logs are one JSON line per event on stdout, with counts, timings and closed-set 
 
 | `event` | Useful fields |
 | --- | --- |
-| `startup` | `provider`, `budgetConfigured`, `enabledLockTypeCount`, `disabledLockTypes`, `missing` |
+| `startup` | `provider`, `budgetConfigured`, `trustedProxyHops`, `enabledLockTypeCount`, `disabledLockTypes`, `missing`; a separate line with `note: "judge access"` and `judgeAccess`, plus `judgeAccessReason` when disabled |
 | `startup-failed` | `kind`, `message`: the worker exited and the deploy did not come up |
 | `request` | `route`, `status`, `durationMs`, `errorKind` |
 | `provider-call` | `provider`, `stage`, `outcome` (`ok`, `timeout`, `rate-limited`, `provider-error`, `invalid-response-shape`), token counts |
@@ -123,7 +124,7 @@ Logs are one JSON line per event on stdout, with counts, timings and closed-set 
    | Status 429 with `errorKind` `rate-limited` | One IP made 6 public starts in 15 minutes | Judges use `/judge/jobs`, which is not limited by IP. Others wait for `Retry-After`. |
    | 429 `capacity` | 20 live jobs. Finished jobs count until their 30 minutes are up. | Wait, or restart the worker to clear them. |
    | 429 `session-busy` | That browser already has a job running | Wait for it to finish, or cancel it. |
-   | `/judge/jobs` answers 403 or 404 | The code is wrong, or `JUDGE_ACCESS_TOKEN` is unset or under 24 characters | Fix the variable and deploy. |
+   | `/judge/jobs` answers 403 or 404 | 403: the code is wrong. 404: judge access is off; the `judge access` startup line says `disabled` and why | Fix the variable and deploy. |
    | The page shows a network error and the worker is healthy | `WEB_ORIGIN` is not exactly the page's origin, or `VITE_WORKER_URL` points elsewhere | Compare both, character for character. |
    | One lock type keeps producing bad or failing questions | A model problem with that type | Step 4 |
 
@@ -153,7 +154,7 @@ Repeat the last line until `status` is `completed` or `failed`.
 
 ## 7. Check these on the live service before judging
 
-1. **The client address behind Render.** The per-IP limit takes the last entry of `X-Forwarded-For` (`TRUSTED_PROXY_HOPS = 1`). Reports from Render's feedback board (2021) are mixed: one says Render only appends to the header and that Cloudflare is probably in front, another that the first entry is the client. If more than one proxy adds an address, every visitor would share one bucket and the public path would refuse most people after 6 starts in total. Test: from one network run `1..7 | ForEach-Object { curl.exe -s -o NUL -w '%{http_code}\n' -X POST https://<worker-host>/jobs }`. The requests have no headers, so they answer 400 and cost nothing, and the 7th should answer 429. Then send one from a second network, such as a phone hotspot. It must answer 400, not 429. If it answers 429, the fix is a code change to `TRUSTED_PROXY_HOPS` in `http/rate-limit.ts`. Judges are not affected, because `/judge/jobs` skips the IP limit.
+1. **The client address behind Render.** The per-IP limit takes the last entry of `X-Forwarded-For` (`TRUSTED_PROXY_HOPS`, default 1). Reports from Render's feedback board (2021) are mixed: one says Render only appends to the header and that Cloudflare is probably in front, another that the first entry is the client. If more than one proxy adds an address, every visitor would share one bucket and the public path would refuse most people after 6 starts in total. Test: from one network run `1..7 | ForEach-Object { curl.exe -s -o NUL -w '%{http_code}\n' -X POST https://<worker-host>/jobs }`. The requests have no headers, so they answer 400 and cost nothing, and the 7th should answer 429. Then send one from a second network, such as a phone hotspot. It must answer 400, not 429. If it answers 429, a second proxy is adding an address: set `TRUSTED_PROXY_HOPS=2` and choose **Save and deploy**. That needs no code change or rebuild, but it is a restart (section 4). Check that the `listening` line shows `trustedProxyHops: 2`, then run the test again. Judges are not affected, because `/judge/jobs` skips the IP limit.
 2. The listen host (section 1) and the build command (section 1).
 3. The instance type, and whether Auto-Deploy is on.
 4. The exact path for a manual rollback.

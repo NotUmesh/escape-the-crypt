@@ -20,6 +20,21 @@ export interface JudgeAccess {
   readonly active: Set<string>;
 }
 
+/**
+ * Whether `JUDGE_ACCESS_TOKEN` turns the judge route on, for the startup log. The reason names the
+ * rule, never the value or its length.
+ */
+export type JudgeAccessStatus =
+  | { readonly judgeAccess: 'enabled' }
+  | { readonly judgeAccess: 'disabled'; readonly judgeAccessReason: 'unset' | 'shorter-than-24-characters' };
+
+export function judgeAccessStatus(raw: string | undefined): JudgeAccessStatus {
+  const token = raw?.trim() ?? '';
+  if (token === '') return { judgeAccess: 'disabled', judgeAccessReason: 'unset' };
+  if (token.length < MIN_JUDGE_TOKEN_LENGTH) return { judgeAccess: 'disabled', judgeAccessReason: 'shorter-than-24-characters' };
+  return { judgeAccess: 'enabled' };
+}
+
 export function judgeAccessFromEnv(raw: string | undefined): JudgeAccess | null {
   const token = raw?.trim();
   if (token === undefined || token.length < MIN_JUDGE_TOKEN_LENGTH) return null;

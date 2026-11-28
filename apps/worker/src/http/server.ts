@@ -6,7 +6,7 @@ import { DEFAULT_MAX_BODY_BYTES, handleCreateJob, handleDeleteJob, handleGetJob,
 import { sendError, sendJson, silentLogger, type Logger, type RequestOutcome } from './respond';
 import type { PipelineProgress } from '@escape-the-crypt/core';
 import type { JudgeAccess } from './judge-access';
-import { DEFAULT_RATE_LIMIT, createRateLimiter, type RateLimitConfig } from './rate-limit';
+import { DEFAULT_RATE_LIMIT, TRUSTED_PROXY_HOPS, createRateLimiter, type RateLimitConfig } from './rate-limit';
 
 export interface ServerLimits {
   /** Hard cap on the `POST /jobs` body, in bytes. */
@@ -24,6 +24,8 @@ export interface ServerDeps extends Omit<JobRunnerDeps, 'logger'> {
   readonly judge?: JudgeAccess | null;
   /** Per-IP limit on public `POST /jobs`. Defaults to `DEFAULT_RATE_LIMIT`. */
   readonly rateLimit?: RateLimitConfig;
+  /** From `TRUSTED_PROXY_HOPS`: which `X-Forwarded-For` entry is the client. Defaults to `TRUSTED_PROXY_HOPS`. */
+  readonly trustedProxyHops?: number;
 }
 
 const JOB_PATH = /^\/jobs\/([^/]+)$/;
@@ -49,6 +51,7 @@ export function createServer(deps: ServerDeps): Server {
     progress: deps.progress ?? new Map<string, PipelineProgress>(),
     maxBodyBytes: deps.limits?.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES,
     rateLimiter: createRateLimiter(deps.rateLimit ?? DEFAULT_RATE_LIMIT, deps.now),
+    trustedProxyHops: deps.trustedProxyHops ?? TRUSTED_PROXY_HOPS,
     judge: deps.judge ?? null,
   };
 
