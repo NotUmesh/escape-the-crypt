@@ -6,6 +6,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { SAMPLE_CRYPT } from '../test-support/sample-bundle';
 import { usePersistedRoom } from './persisted-room';
 import type { BuildCrypt, RoomBinding } from './room-binding';
+import { waitFor } from '../test-support/wait-for';
 import { loadEvents } from './storage/run-repository';
 import type { LockManagerLike, RunLockState } from './storage/run-lock';
 
@@ -64,6 +65,10 @@ const settle = async (): Promise<void> => {
 };
 
 interface Harness {
+  /** Waits (polling) until the hook reports this lock state. */
+  readonly untilLock: (state: RunLockState) => Promise<void>;
+  /** Waits (polling) until every accepted event is stored, and returns how many that is. */
+  readonly untilSaved: () => Promise<number>;
   readonly locks: StubLocks;
   readonly binding: () => RoomBinding;
   readonly stored: () => Promise<number>;
@@ -111,8 +116,8 @@ const CASES: readonly GatingCase[] = [
       await settle();
       expect(await h.stored()).toBe(0);
       await act(async () => h.locks.grantPending());
-      await settle();
-      h.expectLock('held');
+      await h.untilLock('held');
+      await h.untilSaved();
       expect(await h.stored()).toBe(h.binding().eventLog.length);
     },
   },
@@ -123,6 +128,8 @@ const CASES: readonly GatingCase[] = [
       h.dispatch({ type: 'startRun' });
       await settle();
       h.dispatch({ type: 'openLock', slotId });
+      await h.untilLock('waiting');
+      // Nothing written cannot be polled for: the state that holds writes back is reached, then a grace.
       await settle();
       h.expectLock('waiting');
       expect(h.binding().eventLog.length).toBeGreaterThan(0);
@@ -137,10 +144,9 @@ const CASES: readonly GatingCase[] = [
       await settle();
       expect(await h.stored()).toBe(0);
       await act(async () => h.takeOver());
-      await settle();
-      h.expectLock('held');
+      await h.untilLock('held');
       h.dispatch({ type: 'openLock', slotId });
-      await settle();
+      await h.untilSaved();
       expect(await h.stored()).toBe(h.binding().eventLog.length);
     },
   },
@@ -149,10 +155,9 @@ const CASES: readonly GatingCase[] = [
     first: 'grant',
     run: async (h) => {
       h.dispatch({ type: 'startRun' });
-      await settle();
-      h.expectLock('held');
+      await h.untilLock('held');
       h.dispatch({ type: 'openLock', slotId });
-      await settle();
+      await h.untilSaved();
       const total = h.binding().eventLog.length;
       expect(total).toBeGreaterThan(0);
       expect(await h.stored()).toBe(total);
@@ -163,15 +168,15 @@ const CASES: readonly GatingCase[] = [
     first: 'grant',
     run: async (h) => {
       h.dispatch({ type: 'startRun' });
-      await settle();
-      h.expectLock('held');
-      const written = await h.stored();
+      await h.untilLock('held');
+      const written = await h.untilSaved();
       expect(written).toBeGreaterThan(0);
       await act(async () => h.locks.stealByOtherTab());
-      await settle();
-      h.expectLock('lost');
+      await h.untilLock('lost');
       const before = h.binding().eventLog.length;
       h.dispatch({ type: 'openLock', slotId });
+      // Nothing written after the loss cannot be polled for: the event is accepted in memory, then a grace.
+      await waitFor(() => h.binding().eventLog.length > before, { what: 'the event to be accepted in memory' });
       await settle();
       expect(h.binding().eventLog.length).toBeGreaterThan(before);
       expect(await h.stored()).toBe(written);
@@ -184,13 +189,12 @@ const CASES: readonly GatingCase[] = [
       h.dispatch({ type: 'startRun' });
       await settle();
       await act(async () => h.takeOver());
-      await settle();
-      h.expectLock('held');
-      const written = await h.stored();
+      await h.untilLock('held');
+      const written = await h.untilSaved();
       await act(async () => h.locks.stealByOtherTab());
-      await settle();
-      h.expectLock('lost');
+      await h.untilLock('lost');
       h.dispatch({ type: 'openLock', slotId });
+      // Nothing written after the loss cannot be polled for: a short grace.
       await settle();
       expect(await h.stored()).toBe(written);
     },
@@ -232,7 +236,16 @@ describe('usePersistedRoom write gating by run lock', () => {
 
   function harness(locks: StubLocks, factory: IDBFactory): Harness {
     const binding = mount(locks, factory);
+    const stored = async (): Promise<number> => {
+      const loaded = await loadEvents(factory, RUN_ID);
+      return loaded.ok ? loaded.value.length : 0;
+    };
     return {
+      untilLock: (state) => waitFor(() => binding().lockState === state, { what: `the run lock to be ${state}` }),
+      untilSaved: async () => {
+        await waitFor(async () => (await stored()) === binding().eventLog.length, { what: 'every accepted event to be stored' });
+        return stored();
+      },
       locks,
       binding,
       stored: async () => {
@@ -260,11 +273,15 @@ describe('usePersistedRoom write gating by run lock', () => {
     const factory = new IDBFactory();
     const binding = mount(undefined, factory);
     act(() => binding().dispatch({ type: 'startRun' }));
-    await settle();
     act(() => binding().dispatch({ type: 'openLock', slotId }));
-    await settle();
+    const stored = async (): Promise<number> => {
+      const loaded = await loadEvents(factory, RUN_ID);
+      return loaded.ok ? loaded.value.length : -1;
+    };
+    await waitFor(async () => binding().eventLog.length > 0 && (await stored()) === binding().eventLog.length, {
+      what: 'every accepted event to be stored',
+    });
     expect(binding().lockState).toBe('single-tab');
-    const loaded = await loadEvents(factory, RUN_ID);
-    expect(loaded.ok ? loaded.value.length : -1).toBe(binding().eventLog.length);
+    expect(await stored()).toBe(binding().eventLog.length);
   });
 });

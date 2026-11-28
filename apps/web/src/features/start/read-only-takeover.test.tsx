@@ -3,6 +3,7 @@ import { act, createElement, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { ENTER_CRYPT_LABEL } from '@escape-the-crypt/core';
+import { waitFor } from '../../test-support/wait-for';
 import { createIdbStore } from '../ingest/notes-store-idb';
 import { CryptFlow } from '../crypt/crypt-flow';
 import { usePersistedRoom } from '../../state/persisted-room';
@@ -10,6 +11,7 @@ import { useRoomBinding } from '../../state/room-binding';
 import type { BuildCrypt, RoomBinding } from '../../state/room-binding';
 import { buildSampleCrypt } from '../../state/sample-crypt-source';
 import { acquireRunLock } from '../../state/storage/run-lock';
+import { loadEvents } from '../../state/storage/run-repository';
 import type { LockManagerLike, RunLock } from '../../state/storage/run-lock';
 import { SAMPLE_CRYPT } from '../../test-support/sample-bundle';
 import { TAKE_OVER_LABEL } from './read-only-screen';
@@ -38,10 +40,6 @@ function makeSharedLocks(): LockManagerLike {
   };
 }
 
-const settle = (): Promise<void> =>
-  act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  });
 
 const okBuild: BuildCrypt = () => ({ ok: true, value: SAMPLE_CRYPT });
 const RUN_ID = 'run-two-tabs';
@@ -68,8 +66,16 @@ describe('second tab: read-only screen and "Take over here"', () => {
     const rootA = createRoot(document.createElement('div'));
     act(() => rootA.render(createElement(TabA)));
     act(() => tabA?.dispatch({ type: 'startRun' }));
-    await settle();
-    expect(tabA === null ? undefined : (tabA as RoomBinding).lockState).toBe('held');
+    await waitFor(() => (tabA as RoomBinding | null)?.lockState === 'held', { what: 'tab A to hold the run lock' });
+    expect((tabA as RoomBinding | null)?.lockState).toBe('held');
+    // Tab B shows what was saved, so tab A's events must be stored before tab B opens the run.
+    await waitFor(
+      async () => {
+        const stored = await loadEvents(factory, RUN_ID);
+        return stored.ok && stored.value.length > 0 && stored.value.length === (tabA as RoomBinding | null)?.eventLog.length;
+      },
+      { what: "tab A's events to be stored" },
+    );
 
     // Tab B opens the same run through the real lock, rendered by CryptFlow.
     let lockB: RunLock | null = null;
@@ -97,7 +103,7 @@ describe('second tab: read-only screen and "Take over here"', () => {
     const rootB = createRoot(container);
     const restoreDeps = { factory, notesStore: createIdbStore(factory) };
     act(() => rootB.render(createElement(CryptFlow, { useBinding: useTabB, restoreDeps })));
-    await settle();
+    await waitFor(() => container.querySelector('[data-testid="read-only-crypt"]') !== null, { what: 'the read-only screen to show the saved crypt' });
 
     const screen = container.querySelector('[data-testid="read-only-screen"]');
     expect(screen).not.toBeNull();
@@ -108,7 +114,7 @@ describe('second tab: read-only screen and "Take over here"', () => {
     const button = Array.from(container.querySelectorAll('button')).find((b) => b.textContent === TAKE_OVER_LABEL);
     expect(button).toBeDefined();
     await act(async () => button?.click());
-    await settle();
+    await waitFor(() => container.querySelector('[data-testid="read-only-screen"]') === null, { what: 'the take over to restore the crypt' });
 
     expect(container.querySelector('[data-testid="read-only-screen"]')).toBeNull();
     expect(container.textContent).toContain(ENTER_CRYPT_LABEL);

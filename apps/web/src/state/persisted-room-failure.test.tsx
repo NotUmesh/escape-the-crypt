@@ -11,6 +11,7 @@ import { usePersistedRoom } from './persisted-room';
 import type { BuildCrypt, RoomBinding } from './room-binding';
 import type { FailureKind } from './storage/persistence-arbitraries';
 import { failurePlanArb } from './storage/persistence-arbitraries';
+import { waitFor } from '../test-support/wait-for';
 import { loadEvents } from './storage/run-repository';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -107,7 +108,6 @@ function faultyFactory(kind: FailureKind): Faulty {
   return { factory, real };
 }
 
-const tick = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 type Move = { readonly open: number; readonly submit: boolean };
 const moveArb: fc.Arbitrary<Move> = fc.record({
@@ -155,11 +155,7 @@ async function runWithFailure(kind: FailureKind, moves: readonly Move[]): Promis
     }
 
     // Let every failing write settle, then the banner state must be on.
-    for (let i = 0; i < 40 && !binding().saveFailed; i += 1) {
-      await act(async () => {
-        await tick(10);
-      });
-    }
+    await waitFor(() => binding().saveFailed === true, { what: 'the save failure to be reported' });
     expect(binding().saveFailed).toBe(true);
     expect(binding().state).not.toBeNull();
     expect(binding().eventLog.length).toBeGreaterThanOrEqual(4);

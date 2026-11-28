@@ -8,6 +8,7 @@ import { buildHumanHeartSampleCrypt } from '@escape-the-crypt/core';
 import type { HumanHeartQuestionsFile, SampleCryptResult } from '@escape-the-crypt/core';
 import { usePersistedRoom } from './persisted-room';
 import type { BuildCrypt, RoomBinding } from './room-binding';
+import { waitFor } from '../test-support/wait-for';
 import { loadEvents, loadRun } from './storage/run-repository';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -26,7 +27,6 @@ function build(): SampleCryptResult {
 
 const CRYPT = build();
 const okBuild: BuildCrypt = () => ({ ok: true, value: CRYPT });
-const tick = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** Calls on a real IDB object keep their own `this`. */
 function wrap<T extends object>(target: T, override: (prop: string | symbol) => unknown): T {
@@ -107,31 +107,33 @@ describe('usePersistedRoom when marking the old run left fails', () => {
       await act(async () => {
         binding().dispatch({ type: 'startRun' });
       });
-      for (let i = 0; i < 10; i += 1) {
-        await act(async () => {
-          await tick(10);
-        });
-      }
+      // The first run's writes finish: poll until they are stored, then check no failure was reported.
+      await waitFor(
+        async () => {
+          const loaded = await loadEvents(real, 'run-old');
+          return loaded.ok && loaded.value.length === binding().eventLog.length;
+        },
+        { what: "the first run's events to be stored" },
+      );
       expect(binding().saveFailed).toBe(false);
 
       await act(async () => {
         binding().dispatch({ type: 'startRun' });
       });
-      for (let i = 0; i < 40 && !binding().saveFailed; i += 1) {
-        await act(async () => {
-          await tick(10);
-        });
-      }
+      await waitFor(() => binding().saveFailed === true, { what: 'the failed left write to be reported' });
       expect(binding().saveFailed).toBe(true);
       // Play continues: the new run has a state and accepts further actions.
       expect(binding().state).not.toBeNull();
       const length = binding().eventLog.length;
       expect(length).toBeGreaterThan(0);
-      for (let i = 0; i < 10; i += 1) {
-        await act(async () => {
-          await tick(10);
-        });
-      }
+      // The new run's own writes finish: poll until every accepted event is stored.
+      await waitFor(
+        async () => {
+          const loaded = await loadEvents(real, 'run-new');
+          return loaded.ok && loaded.value.length === binding().eventLog.length;
+        },
+        { what: "the new run's events to be stored" },
+      );
       // The banner stays on after the new run's own writes settle.
       expect(binding().saveFailed).toBe(true);
 

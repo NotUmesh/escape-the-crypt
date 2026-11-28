@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { SAMPLE_CRYPT } from '../test-support/sample-bundle';
 import { usePersistedRoom } from './persisted-room';
 import type { BuildCrypt, RoomBinding } from './room-binding';
+import { waitFor } from '../test-support/wait-for';
 import { loadEvents } from './storage/run-repository';
 import type { LockManagerLike } from './storage/run-lock';
 
@@ -48,6 +49,8 @@ describe('usePersistedRoom run lock', () => {
     };
 
     act(() => get().dispatch({ type: 'startRun' }));
+    await waitFor(() => get().lockState === 'waiting', { what: 'the run lock to report waiting' });
+    // "Nothing is written" cannot be polled for: wait for the state that should hold it back, then allow a short grace.
     await settle();
     expect(get().lockState).toBe('waiting');
     expect(get().eventLog.length).toBeGreaterThan(0);
@@ -57,8 +60,16 @@ describe('usePersistedRoom run lock', () => {
     await act(async () => {
       await get().takeOver?.();
     });
-    await settle();
+    await waitFor(() => get().lockState === 'held', { what: 'the takeover to hold the run lock' });
     expect(get().lockState).toBe('held');
+    // The held log is written once the lock is ours: poll until every event is stored.
+    await waitFor(
+      async () => {
+        const loaded = await loadEvents(factory, 'run-lock');
+        return loaded.ok && loaded.value.length === get().eventLog.length;
+      },
+      { what: 'the held events to be written after the takeover' },
+    );
     const stored = await loadEvents(factory, 'run-lock');
     expect(stored.ok).toBe(true);
     if (stored.ok) expect(stored.value.map((row) => row.event)).toEqual(get().eventLog);
