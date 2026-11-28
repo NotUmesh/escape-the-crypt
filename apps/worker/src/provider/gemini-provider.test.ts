@@ -179,7 +179,7 @@ describe('invalid, refused and blocked replies', () => {
 });
 
 describe('HTTP errors and retries', () => {
-  const cases: readonly [number, string, boolean][] = [
+  const cases: readonly (readonly [number, string, boolean])[] = [
     [429, 'rate-limited', true],
     ...[408, 409, 500, 503].map((s) => [s, 'provider-error', true] as const),
     ...[400, 401, 403, 404].map((s) => [s, 'provider-error', false] as const),
