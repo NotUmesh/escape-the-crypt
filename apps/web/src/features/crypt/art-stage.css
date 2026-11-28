@@ -11,6 +11,13 @@
   height: 100svh;
 }
 
+.art-stage.art-stage--full-bleed {
+  flex: 1;
+  height: auto;
+  min-height: min(18rem, 50svh);
+  background: var(--stone-950);
+}
+
 .art-layer {
   position: absolute;
   max-width: none;
@@ -74,6 +81,12 @@
   transform: none;
 }
 
+/* Only the foreground moves in the playable room; the mapped art and controls share one frame. */
+.art-stage--full-bleed[data-parallax='on'] .art-layer:not([data-layer='foreground']),
+.art-stage--full-bleed[data-parallax='on'] .art-stage__flames {
+  transform: none;
+}
+
 .art-stage__controls {
   position: absolute;
   inset: 0;
@@ -111,6 +124,30 @@
 .room-screen__lock-button.room-hotspot:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+}
+
+.room-hotspot__contour {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  fill: none;
+  stroke: var(--spectre-300);
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 1px var(--stone-950));
+}
+
+.room-hotspot:is(:hover, :focus) + .room-hotspot__contour {
+  opacity: 1;
+}
+
+@media (forced-colors: active) {
+  .room-hotspot__contour {
+    stroke: Highlight;
+    filter: none;
+  }
 }
 
 /* Fresh candle and door changes fade over about 600 ms (Requirements 8.5, 9.3, 18.11). */

@@ -79,6 +79,17 @@ async function clipOf(page: Page, button: Locator) {
 test('every lock hotspot is see-through and the lock art shows under it', async ({ page }) => {
   await enterCrypt(page);
   await waitForArtStage(page);
+  const stageEdges = await page.getByTestId('art-stage').evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    return {
+      left: box.left,
+      rightGap: document.documentElement.clientWidth - box.right,
+      bottomGap: window.innerHeight - (box.bottom + window.scrollY),
+    };
+  });
+  expect(stageEdges.left).toBeCloseTo(0);
+  expect(stageEdges.rightGap).toBeCloseTo(0);
+  expect(Math.abs(stageEdges.bottomGap)).toBeLessThan(2);
   const buttons = page.locator('.room-hotspot');
   const count = await buttons.count();
   expect(count).toBeGreaterThan(0);
@@ -115,6 +126,7 @@ test('a hotspot reached by keyboard shows its focus ring', async ({ page }) => {
     focused = await target.evaluate((el) => el === document.activeElement);
   }
   expect(focused).toBe(true);
+  await expect(target.locator('+ .room-hotspot__contour')).toHaveCSS('opacity', '1');
   const ring = await target.evaluate((el) => {
     const cs = getComputedStyle(el);
     return { style: cs.outlineStyle, width: cs.outlineWidth, shadow: cs.boxShadow };

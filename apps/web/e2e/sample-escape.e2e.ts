@@ -41,6 +41,7 @@ for (const id of SAMPLE_IDS) {
     }
     await expect(page.getByTestId('descent-gate')).toHaveCount(0);
     await page.locator('.room-screen__lock-button').first().waitFor();
+    await expect(page.locator('.room-screen__entrance-hint')).toHaveText(ROOM_PLAY_LABELS.chooseLock);
 
     // The rooms, in order. After the last, the final door.
     for (const [index, room] of crypt.manifest.rooms.entries()) {
@@ -53,7 +54,10 @@ for (const id of SAMPLE_IDS) {
         await expect(page.locator('.evidence-panel')).toHaveCount(0);
       }
       if (index < crypt.manifest.rooms.length - 1) {
-        await tabTo(page, button(page, ROOM_PLAY_LABELS.nextRoom));
+        const nextRoom = button(page, ROOM_PLAY_LABELS.nextRoom);
+        await expect(nextRoom).toHaveClass(/costume-seal/);
+        await expect(page.getByTestId('art-stage').getByRole('button', { name: ROOM_PLAY_LABELS.nextRoom, exact: true })).toBeVisible();
+        await tabTo(page, nextRoom);
         await page.keyboard.press('Enter');
         const next = crypt.manifest.rooms[index + 1]?.lockSlots[0];
         if (next === undefined) throw new Error('next room has no lock');

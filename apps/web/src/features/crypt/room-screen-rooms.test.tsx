@@ -62,6 +62,14 @@ describe('RoomScreen in a crypt of several rooms', () => {
     expect(buttons(mount.container)).not.toContain(FINAL_DOOR_BUTTON_TEXT);
   });
 
+  it('shows the entrance hint only until the first lock is opened', async () => {
+    await setup(mount, twoRoomCrypt(runSettingsFor('short', 'apprentice')));
+    const hint = () => mount.container.querySelector('.room-screen__entrance-hint');
+    expect(hint()?.textContent).toBe(ROOM_PLAY_LABELS.chooseLock);
+    act(() => mount.container.querySelector<HTMLButtonElement>('.room-screen__lock-button')?.click());
+    expect(hint()).toBeNull();
+  });
+
   it('enters the next room, moves focus to its title, and offers the final door after the last room', async () => {
     await setup(mount, twoRoomCrypt(runSettingsFor('short', 'apprentice')));
     clearCurrentRoom();

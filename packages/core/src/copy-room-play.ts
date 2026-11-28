@@ -133,6 +133,7 @@ export const ROOM_PLAY_LABELS = {
   /** Shown on a rune tablet from the start for Apprentice and Gravedigger. */
   runeLetterCount: (length: number): string => (length === 1 ? 'The answer has 1 letter.' : `The answer has ${length} letters.`),
   nextRoom: 'Go to the next room',
+  chooseLock: 'Choose a lock object to begin',
   /** The room count a crypt has, in a heading-style line under the room title. */
   roomOf: (position: number, total: number): string => `Room ${position} of ${total}`,
   /** When the notes could not fill the chosen length. */

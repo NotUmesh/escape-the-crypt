@@ -37,8 +37,11 @@ oomCleared notices. */
   readonly notices?: readonly Outcome_Notice[];
   readonly ghosts?: readonly GhostItem[];
   readonly spiritCandleCount?: number;
+  readonly fullBleed?: boolean;
   /** Drawn in the controls layer, above the art (the seals). */
   readonly overlay?: (layout: SceneLayout) => ReactNode;
+  /** Room progression follows the lock buttons in tab order. */
+  readonly exit?: (door: SceneLayout['door']) => ReactNode;
   /** Window size; the real window when omitted. Tests pass one. */
   readonly viewport?: Viewport;
 }
@@ -68,7 +71,9 @@ export function ArtStage({
   notices = NO_NOTICES,
   ghosts = NO_GHOSTS,
   spiritCandleCount = 0,
+  fullBleed = false,
   overlay,
+  exit,
   viewport,
 }: ArtStageProps): ReactNode {
   const windowSize = useWindowViewport(viewport);
@@ -77,13 +82,13 @@ export function ArtStage({
   const stageRef = useRef<HTMLDivElement | null>(null);
   const fallback = useMemo<Viewport>(
     () =>
-      phone ? windowSize : { width: windowSize.width, height: (windowSize.width * block.size[1]) / block.size[0] },
-    [phone, windowSize, block.size],
+      phone || fullBleed ? windowSize : { width: windowSize.width, height: (windowSize.width * block.size[1]) / block.size[0] },
+    [phone, fullBleed, windowSize, block.size],
   );
   const stage = useElementSize(stageRef, fallback);
   const reducedMotion = usePrefersReducedMotion();
   useParallax(stageRef, !reducedMotion);
-  const layout = useMemo(() => layoutScene(scene, slots, stage, phone), [scene, slots, stage, phone]);
+  const layout = useMemo(() => layoutScene(scene, slots, stage, phone, fullBleed), [scene, slots, stage, phone, fullBleed]);
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
   const [hovering, setHovering] = useState<ReadonlySet<LockType>>(new Set());
   const [focused, setFocused] = useState<ReadonlySet<LockType>>(new Set());
@@ -103,7 +108,7 @@ export function ArtStage({
   });
   const doorAnimates = cleared && roomId !== undefined && effects.clearedRooms.has(roomId);
   const stageStyle = {
-    ...(phone ? {} : { aspectRatio: `${block.size[0]} / ${block.size[1]}` }),
+    ...(phone || fullBleed ? {} : { aspectRatio: `${block.size[0]} / ${block.size[1]}` }),
     '--parallax-background': String(block.parallax.background),
     '--parallax-locks': String(block.parallax.locks),
     '--parallax-door': String(block.parallax.door ?? block.parallax.locks),
@@ -115,7 +120,7 @@ export function ArtStage({
   return (
     <div
       ref={stageRef}
-      className={`art-stage${phone ? ' art-stage--phone' : ''}`}
+      className={`art-stage${phone ? ' art-stage--phone' : ''}${fullBleed ? ' art-stage--full-bleed' : ''}`}
       data-testid="art-stage"
       data-cropped={layout.cropped ? 'true' : 'false'}
       data-directory={layout.directory}
@@ -189,12 +194,14 @@ export function ArtStage({
           <HotspotButton
             key={lock.slot.slotId}
             lock={lock}
+            showContour={fullBleed}
             zIndex={layout.stacked.indexOf(lock) + 1}
             onActivate={(opener) => onActivate(lock.slot, opener)}
             onHoverChange={(on) => setHovering((prev) => toggled(prev, lock.lockType, on))}
             onFocusChange={(on) => setFocused((prev) => toggled(prev, lock.lockType, on))}
           />
         ))}
+        {exit?.(layout.door)}
       </div>
     </div>
   );

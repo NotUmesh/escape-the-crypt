@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ReactNode, RefObject } from 'react';
+import type { CSSProperties, ReactNode, RefObject } from 'react';
 import {
   ROOM_PLAY_LABELS,
   SAMPLE_CRYPT_LABEL,
@@ -14,6 +14,7 @@ import { CandleIcon } from '../costume/ornaments';
 import { doorButtonName, lockName, returnSlotName } from './accessible-names';
 import { ArtStage } from './art-stage';
 import type { Viewport } from './crop-mapping';
+import type { Box } from './hotspot-geometry';
 import { drawnGhosts } from './drawn-ghosts';
 import { GhostList } from './ghost-list';
 import { LockCloseUp } from './lock-closeup';
@@ -54,6 +55,7 @@ export interface RoomScreenProps {
 export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel, loadSceneImpl, viewport, showSampleLabel = true }: RoomScreenProps): ReactNode {
   const [openSlotId, setOpenSlotId] = useState<string | null>(null);
   const [statusText, setStatusText] = useState<string>('');
+  const [hasOpenedLock, setHasOpenedLock] = useState(false);
   const openerRef = useRef<HTMLElement | null>(null);
 
   const room = state.rooms.find((r) => r.roomId === state.currentRoomId);
@@ -66,6 +68,8 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
   const shortened = !showSampleLabel && rooms < requested;
   const nextRoom = room?.cleared === true ? state.rooms[roomIndex + 1] : undefined;
   const canGoOn = nextRoom !== undefined && nextRoom.published && roomIndex + 1 < rooms;
+  const canEnterDoor = selectFinalDoor(state).available && !state.atFinalDoor;
+  const showEntranceHint = !hasOpenedLock && roomIndex === 0 && slots.length > 0 && slots.every((s) => s.status === 'open');
   // A new room moves focus to its title, so a keyboard or screen-reader user starts at the top.
   const titleRef = useRef<HTMLHeadingElement>(null);
   const shownRoom = useRef(state.currentRoomId);
@@ -111,12 +115,14 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
       return;
     }
     setStatusText('');
+    setHasOpenedLock(true);
     openerRef.current = opener;
     dispatch({ type: 'openLock', slotId: slot.slotId });
     setOpenSlotId(slot.slotId);
   }
 
   const scene = sceneState.status === 'ready' ? sceneState.scene : null;
+  const hasStage = scene !== null && artRoom !== null && drawn.length > 0;
   const phone = isPhoneViewport(viewport ?? { width: window.innerWidth, height: window.innerHeight });
   let panel: ReactNode = null;
   if (openSlot !== undefined && renderPanel !== undefined) {
@@ -132,111 +138,127 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
       );
   }
 
+  function exits(box?: Box): ReactNode {
+    if (!canGoOn && !canEnterDoor) return null;
+    return (
+      <div
+        className={`room-screen__exits${box === undefined ? '' : ' room-screen__exits--placed'}`}
+        style={box === undefined ? undefined : {
+          '--exit-x': `${box.x + box.width / 2}px`,
+          '--exit-y': `${box.y + box.height * 0.75}px`,
+        } as CSSProperties}
+      >
+        {canGoOn ? (
+          <button type="button" className="room-screen__next-room costume-seal" onClick={() => dispatch({ type: 'enterRoom', roomId: nextRoom.roomId })}>
+            {ROOM_PLAY_LABELS.nextRoom}
+          </button>
+        ) : null}
+        {canEnterDoor ? (
+          <button
+            type="button"
+            className={`room-screen__door-button${canGoOn ? '' : ' costume-seal'}`}
+            aria-label={doorButtonName()}
+            onClick={() => dispatch({ type: 'enterFinalDoor' })}
+          >
+            {doorButtonName()}
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <section className="room-screen" aria-labelledby="room-screen-title">
-      <header className="costume-stone">
-        <h1 id="room-screen-title" className="room-screen__title" ref={titleRef} tabIndex={-1}>
-          {room === undefined ? '' : roomDisplayName(roomIndex)}
-          {slots.length === 0 ? null : (
+      <div className={`room-screen__scene${hasStage ? ' room-screen__scene--full-bleed' : ''}`}>
+        <header className="costume-stone room-screen__hud">
+          <h1 id="room-screen-title" className="room-screen__title" ref={titleRef} tabIndex={-1}>
+            {room === undefined ? '' : roomDisplayName(roomIndex)}
+          </h1>
+          <div className="room-screen__hud-progress">
+            {roomIndex >= 0 ? <p className="room-screen__position">{ROOM_PLAY_LABELS.roomOf(roomIndex + 1, rooms)}</p> : null}
+            {state.settings.hintAllowance > 0 ? (
+              <p className="room-screen__hints">
+                <CandleIcon lit={state.remainingHints > 0} />{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}
+              </p>
+            ) : null}
             <span className="room-screen__candles" aria-hidden="true">
               {slots.map((slot) => <CandleIcon key={slot.slotId} lit={slot.candleLit} />)}
             </span>
-          )}
-        </h1>
-        {rooms > 1 ? <p className="room-screen__position">{ROOM_PLAY_LABELS.roomOf(roomIndex + 1, rooms)}</p> : null}
-        {shortened && roomIndex === 0 ? (
-          <p className="room-screen__shortened" data-testid="crypt-shortened">
-            {ROOM_PLAY_LABELS.cryptShortened(rooms, requested)}
-          </p>
+          </div>
+          {shortened && roomIndex === 0 ? (
+            <p className="room-screen__shortened" data-testid="crypt-shortened">
+              {ROOM_PLAY_LABELS.cryptShortened(rooms, requested)}
+            </p>
+          ) : null}
+          {showSampleLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
+          {showEntranceHint ? <p className="room-screen__entrance-hint">{ROOM_PLAY_LABELS.chooseLock}</p> : null}
+        </header>
+        {hasStage ? (
+          <ArtStage
+            key={room?.roomId}
+            artRoom={artRoom}
+            scene={scene}
+            slots={drawn}
+            cleared={room?.cleared ?? false}
+            roomId={room?.roomId}
+            log={log}
+            onActivate={activate}
+            notices={notices}
+            ghosts={ghosts}
+            spiritCandleCount={spiritCandleCount}
+            viewport={viewport}
+            fullBleed
+            exit={({ box }) => exits(box)}
+          />
         ) : null}
-        {showSampleLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
-        {state.settings.hintAllowance > 0 ? (
-          <p className="room-screen__hints">
-            <CandleIcon lit={state.remainingHints > 0} />{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}
-          </p>
-        ) : null}
-      </header>
-      {sceneState.status === 'ready' && artRoom !== null && drawn.length > 0 ? (
-        <ArtStage
-          artRoom={artRoom}
-          scene={sceneState.scene}
-          slots={drawn}
-          cleared={room?.cleared ?? false}
-          roomId={room?.roomId}
-          log={log}
-          onActivate={activate}
-          notices={notices}
-          ghosts={ghosts}
-          spiritCandleCount={spiritCandleCount}
-          viewport={viewport}
-        />
-      ) : null}
-      {plain.length > 0 ? (
-      <ul className="room-screen__locks">
-        {plain.map((slot) => (
-          <li key={slot.slotId} className="room-screen__lock">
-            <button
-              type="button"
-              className="room-screen__lock-button"
-              data-status={slot.status}
-              aria-label={lockName(slot.stationType, slot.status)}
-              onClick={(event) => activate(slot, event.currentTarget)}
-            >
-              {lockName(slot.stationType, slot.status)}
-            </button>
-            {slot.status === 'challenged' ? (
-              <span className="room-screen__challenged">{ROOM_PLAY_LABELS.challengedLabel}</span>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-      ) : null}
-      {returnSlots.length > 0 ? (
-        <ul className="room-screen__returns" data-testid="return-slots">
-          {returnSlots.map((slot) => {
-            const name = returnSlotName(slot.label === 'review', slot.status);
-            return (
+      </div>
+      <div className="room-screen__details">
+        {plain.length > 0 ? (
+          <ul className="room-screen__locks">
+            {plain.map((slot) => (
               <li key={slot.slotId} className="room-screen__lock">
                 <button
                   type="button"
-                  className="room-screen__return-button"
+                  className="room-screen__lock-button"
                   data-status={slot.status}
-                  aria-label={name}
+                  aria-label={lockName(slot.stationType, slot.status)}
                   onClick={(event) => activate(slot, event.currentTarget)}
                 >
-                  {name}
+                  {lockName(slot.stationType, slot.status)}
                 </button>
+                {slot.status === 'challenged' ? (
+                  <span className="room-screen__challenged">{ROOM_PLAY_LABELS.challengedLabel}</span>
+                ) : null}
               </li>
-            );
-          })}
-        </ul>
-      ) : null}
-      {canGoOn ? (
-        <button
-          type="button"
-          className="room-screen__next-room costume-seal"
-          onClick={() => dispatch({ type: 'enterRoom', roomId: nextRoom.roomId })}
-        >
-          {ROOM_PLAY_LABELS.nextRoom}
-        </button>
-      ) : null}
-      {selectFinalDoor(state).available && !state.atFinalDoor ? (
-        <button
-          type="button"
-          className={`room-screen__door-button${canGoOn ? '' : ' costume-seal'}`}
-          aria-label={doorButtonName()}
-          onClick={() => dispatch({ type: 'enterFinalDoor' })}
-        >
-          {doorButtonName()}
-        </button>
-      ) : null}
-      <GhostList
-        ghosts={ghosts}
-        spiritCandleCount={spiritCandleCount}
-      />
-      <p className="room-screen__status" data-testid="slot-status">
-        {statusText}
-      </p>
+            ))}
+          </ul>
+        ) : null}
+        {returnSlots.length > 0 ? (
+          <ul className="room-screen__returns" data-testid="return-slots">
+            {returnSlots.map((slot) => {
+              const name = returnSlotName(slot.label === 'review', slot.status);
+              return (
+                <li key={slot.slotId} className="room-screen__lock">
+                  <button
+                    type="button"
+                    className="room-screen__return-button"
+                    data-status={slot.status}
+                    aria-label={name}
+                    onClick={(event) => activate(slot, event.currentTarget)}
+                  >
+                    {name}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+        {hasStage ? null : exits()}
+        <GhostList ghosts={ghosts} spiritCandleCount={spiritCandleCount} />
+        <p className="room-screen__status" data-testid="slot-status">
+          {statusText}
+        </p>
+      </div>
       <div className="room-screen__panel-slot" data-testid="panel-slot">
         {panel}
       </div>

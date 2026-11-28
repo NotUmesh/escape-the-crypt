@@ -28,7 +28,7 @@ export interface DrawnLock {
 }
 
 export interface SceneLayout {
-  /** True when the art is drawn with `object-fit: cover` (a Phone_Viewport). */
+  /** True when the stage uses cover framing rather than the scene's aspect ratio. */
   readonly cropped: boolean;
   readonly directory: ArtDirectory;
   /** Where every full-frame art layer is drawn, in stage px. */
@@ -86,13 +86,14 @@ export function fitBoxInside(box: Box, stage: Viewport): Box {
 }
 /**
  * Every coordinate in the scene, in stage px, through the one Crop_Mapping (Requirement 11.3).
- * On a desktop stage the bounds are the whole scene, so the mapping is plain scaling.
+ * The full-bleed room keeps the playable area in view; the final door keeps its original framing.
  */
 export function layoutScene(
   scene: SceneFile,
   drawnSlots: readonly LockSlotState[],
   stage: Viewport,
   phone: boolean,
+  fullBleed = false,
 ): SceneLayout {
   const { block, directory } = chooseBlock(scene, phone);
   const sceneSize: Viewport = { width: block.size[0], height: block.size[1] };
@@ -100,29 +101,35 @@ export function layoutScene(
     const entry = block.locks[slot.stationType];
     return entry === undefined ? [] : [{ slot, entry }];
   });
-  const bounds: Bounds = phone
-    ? hotspotUnionBounds(entries.map(({ entry }) => toPoints(entry.hotspot)))
-    : { minX: 0, minY: 0, maxX: 1, maxY: 1 };
-  const map = (p: ScenePoint): ViewportPoint => mapCropPoint(p, sceneSize, bounds, stage);
+  const doorPoints = toPoints(block.door.hotspot);
+  const lockPoints = entries.map(({ entry }) => toPoints(entry.hotspot));
+  const bounds: Bounds = hotspotUnionBounds(phone ? lockPoints : fullBleed ? [...lockPoints, doorPoints] : []);
+  const frame = cropFrame(sceneSize, bounds, stage);
+  const visible = (p: ScenePoint): ViewportPoint => mapCropPoint(p, sceneSize, bounds, stage);
+  // Clip artwork and contours at the stage edge, but keep the native button targets reachable.
+  const map = fullBleed
+    ? ({ x, y }: ScenePoint): ViewportPoint => ({ x: frame.x + x * frame.width, y: frame.y + y * frame.height })
+    : visible;
   const drawn: DrawnLock[] = entries.map(({ slot, entry }) => {
     const polygon = toPoints(entry.hotspot).map(map);
-    const xs = polygon.map((p) => p.x);
+    const boxPoints = fullBleed ? toPoints(entry.hotspot).map(visible) : polygon;
+    const xs = boxPoints.map((p) => p.x);
     return {
       slot,
       lockType: slot.stationType,
       depth: entry.depth,
       panelSide: entry.panelSide,
       polygon,
-      box: fitBoxInside(hotspotBox(polygon), stage),
+      box: fitBoxInside(hotspotBox(boxPoints), stage),
       hotspotCenterX: (Math.min(...xs) + Math.max(...xs)) / 2,
       candle: { ...map(entry.candle), scale: entry.candle.scale },
     };
   });
-  const doorPolygon = toPoints(block.door.hotspot).map(map);
+  const doorPolygon = doorPoints.map(visible);
   return {
-    cropped: phone,
+    cropped: phone || fullBleed,
     directory,
-    frame: cropFrame(sceneSize, bounds, stage),
+    frame,
     locks: tabOrder(drawn),
     stacked: stackOrder(drawn),
     ambientCandles: block.ambientCandles.map((c) => ({ ...map(c), scale: c.scale })),

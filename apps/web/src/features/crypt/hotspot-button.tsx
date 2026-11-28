@@ -5,6 +5,7 @@ import type { DrawnLock } from './scene-layout';
 
 export interface HotspotButtonProps {
   readonly lock: DrawnLock;
+  readonly showContour?: boolean;
   /** Stack position: higher is on top, so the lock with the smaller depth wins (Requirement 10.4). */
   readonly zIndex: number;
   readonly onActivate: (opener: HTMLButtonElement) => void;
@@ -16,7 +17,7 @@ export interface HotspotButtonProps {
  * One native button over a lock's hotspot (Requirements 10.1, 10.2). Its name is the same
  * `lockName` the plain list uses. Hover and focus only change the picture, never what the button does.
  */
-export function HotspotButton({ lock, zIndex, onActivate, onHoverChange, onFocusChange }: HotspotButtonProps): ReactNode {
+export function HotspotButton({ lock, showContour = false, zIndex, onActivate, onHoverChange, onFocusChange }: HotspotButtonProps): ReactNode {
   const { slot, box } = lock;
   const name = lockName(slot.stationType, slot.status);
   return (
@@ -34,6 +35,11 @@ export function HotspotButton({ lock, zIndex, onActivate, onHoverChange, onFocus
         onFocus={() => onFocusChange(true)}
         onBlur={() => onFocusChange(false)}
       />
+      {showContour ? (
+        <svg className="room-hotspot__contour" aria-hidden="true" focusable="false" style={{ zIndex }}>
+          <polygon points={lock.polygon.map(({ x, y }) => `${x},${y}`).join(' ')} />
+        </svg>
+      ) : null}
       {slot.status === 'challenged' ? (
         <span
           className="room-screen__challenged room-hotspot__note"

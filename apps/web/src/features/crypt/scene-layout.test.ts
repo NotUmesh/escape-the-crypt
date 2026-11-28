@@ -56,6 +56,23 @@ describe('layoutScene on a desktop stage', () => {
   });
 });
 
+it('covers a non-native desktop ratio and projects the stock hotspot in the same frame', () => {
+  const scene = realScene();
+  const stage = { width: 1280, height: 800 };
+  const layout = layoutScene(scene, [slotOf('rune-cipher')], stage, false, true);
+  const { frame } = layout;
+  expect(frame.height).toBe(stage.height);
+  expect(frame.width / frame.height).toBeCloseTo(scene.desktop.size[0] / scene.desktop.size[1]);
+  expect(frame.width).toBeGreaterThan(stage.width);
+  expect(frame.x).toBeLessThanOrEqual(0);
+  expect(frame.x + frame.width).toBeGreaterThanOrEqual(stage.width);
+  const point = scene.desktop.locks['rune-cipher']?.hotspot[0];
+  if (point === undefined) throw new Error('Missing stock rune hotspot');
+  const actual = layout.locks[0]?.polygon[0];
+  expect(actual?.x).toBeCloseTo(frame.x + point[0] * frame.width);
+  expect(actual?.y).toBeCloseTo(frame.y + point[1] * frame.height);
+});
+
 describe('layoutScene on a phone stage without a mobile block', () => {
   const scene = realScene();
   const slots = [slotOf('rune-cipher'), slotOf('seance-board')];

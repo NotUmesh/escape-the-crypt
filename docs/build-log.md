@@ -1,5 +1,8 @@
 # Build log
 
+## Costume Step 2
+- Implemented outside Kiro with GitHub Copilot. The playable room now fills the page below a stone HUD. The stock art, hotspots and lights share one crop; hover and keyboard focus trace the lock shapes, and a wax seal by the door advances the run. The existing lock close-up and final-door scenes remain separate.
+
 ## Costume Step 1
 - Implemented outside Kiro with GitHub Copilot. Added shared code-drawn parchment, stone, brass, wax, tags and candle ornaments to the existing screens, with keyboard focus and forced-colors treatments. Kept the gameplay, art placement and screen flow unchanged.
 
