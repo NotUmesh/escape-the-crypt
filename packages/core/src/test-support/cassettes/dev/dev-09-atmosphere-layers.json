@@ -336,63 +336,6 @@
       }
     },
     {
-      "digest": "9aea2e59fdbd4d47f4c22c388e87966f0c76a455c407bf66417a88d1e78eb076",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: the stratosphere contains the ozone layer.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "The stratosphere contains the ______.",
-            "answer": "ozone layer",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_38f2163ec946_3",
-                "quote": "The stratosphere contains the ozone layer"
-              }
-            ],
-            "explanation": "The notes state the missing term directly in one sentence.",
-            "hint": null
-          },
-          "alternate": {
-            "lockType": "combination-dial",
-            "prompt": "According to your notes, how many atmospheric layers are named in the passage?",
-            "answer": {
-              "kind": "exact",
-              "value": 4
-            },
-            "units": "layers",
-            "evidence": [
-              {
-                "chunkId": "chk_38f2163ec946_3",
-                "quote": "The troposphere is where almost all weather happens."
-              },
-              {
-                "chunkId": "chk_38f2163ec946_3",
-                "quote": "The stratosphere contains the ozone layer"
-              },
-              {
-                "chunkId": "chk_38f2163ec946_3",
-                "quote": "The mesosphere is where most meteors burn up."
-              },
-              {
-                "chunkId": "chk_38f2163ec946_3",
-                "quote": "The thermosphere is where auroras appear"
-              }
-            ],
-            "explanation": "The passage names four layers of the atmosphere."
-          }
-        },
-        "usage": {
-          "inputTokens": 2745,
-          "outputTokens": 279
-        }
-      }
-    },
-    {
       "digest": "4edca78e239821611d606429455af93732923c69c79858f9888039a10c40de27",
       "origin": "recorded",
       "response": {
@@ -454,6 +397,63 @@
         "usage": {
           "inputTokens": 2797,
           "outputTokens": 358
+        }
+      }
+    },
+    {
+      "digest": "9aea2e59fdbd4d47f4c22c388e87966f0c76a455c407bf66417a88d1e78eb076",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact: the stratosphere contains the ozone layer.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "The stratosphere contains the ______.",
+            "answer": "ozone layer",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The stratosphere contains the ozone layer"
+              }
+            ],
+            "explanation": "The notes state the missing term directly in one sentence.",
+            "hint": null
+          },
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many atmospheric layers are named in the passage?",
+            "answer": {
+              "kind": "exact",
+              "value": 4
+            },
+            "units": "layers",
+            "evidence": [
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The troposphere is where almost all weather happens."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The stratosphere contains the ozone layer"
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The mesosphere is where most meteors burn up."
+              },
+              {
+                "chunkId": "chk_38f2163ec946_3",
+                "quote": "The thermosphere is where auroras appear"
+              }
+            ],
+            "explanation": "The passage names four layers of the atmosphere."
+          }
+        },
+        "usage": {
+          "inputTokens": 2745,
+          "outputTokens": 279
         }
       }
     },
@@ -721,34 +721,6 @@
       }
     },
     {
-      "digest": "7526826da7391d57eb51b12c0a453927b97275a78d70e280a40e7dd8e53c34ae",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
-              "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "c",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 384,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
       "digest": "30cc99f2d0b35df9e7eb0e2d76138e6d247a91280d0721bf65ddddd89447cf53",
       "origin": "recorded",
       "response": {
@@ -772,6 +744,34 @@
         },
         "usage": {
           "inputTokens": 378,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "7526826da7391d57eb51b12c0a453927b97275a78d70e280a40e7dd8e53c34ae",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 384,
           "outputTokens": 47
         }
       }
@@ -803,6 +803,21 @@
         "usage": {
           "inputTokens": 346,
           "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "eb892b7032fbec4507afaf4e90aea7ce6655ada1e382cc6727c9d787ef58697d",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "meteors",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 348,
+          "outputTokens": 17
         }
       }
     },
@@ -852,17 +867,53 @@
       }
     },
     {
-      "digest": "eb892b7032fbec4507afaf4e90aea7ce6655ada1e382cc6727c9d787ef58697d",
+      "digest": "29ab5dcbcbc0b6f810cef803df45859302a922719bc63a24e7be94e7c69734ac",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "meteors",
-          "optionLabels": null
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q6",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
         },
         "usage": {
-          "inputTokens": 348,
-          "outputTokens": 17
+          "inputTokens": 963,
+          "outputTokens": 127
         }
       }
     }

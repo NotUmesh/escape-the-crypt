@@ -285,6 +285,63 @@
       }
     },
     {
+      "digest": "0851983ea879f42c821811484dabb048ed8dcb2d29bc7277165d21bc619e55b1",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes explicitly describe a two-stage sequence for photosynthesis, so a bone-ordering question fits best.",
+          "primary": {
+            "lockType": "bone-ordering",
+            "prompt": "Put the two stages of photosynthesis in order:",
+            "steps": [
+              "light-dependent reactions",
+              "light-independent reactions, also called the Calvin cycle",
+              "stroma"
+            ],
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_4",
+                "quote": "Photosynthesis happens in two stages."
+              },
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_4",
+                "quote": "The light-dependent reactions take place in the thylakoid membranes"
+              },
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_4",
+                "quote": "The light-independent reactions, also called the Calvin cycle"
+              }
+            ],
+            "explanation": "The notes state that photosynthesis happens in two stages and name the two stages in sequence."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "Photosynthesis happens in two stages. The ______ reactions take place in the thylakoid membranes.",
+            "answer": "light-dependent",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_4",
+                "quote": "The light-dependent reactions take place in the thylakoid membranes"
+              }
+            ],
+            "explanation": "The notes give the exact term that completes the sentence.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "l",
+              "length": 15
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 2741,
+          "outputTokens": 314
+        }
+      }
+    },
+    {
       "digest": "e2b32b7062a425a95320dcfea9defd7172292b2aed94f37d6d725541d7687fce",
       "origin": "recorded",
       "response": {
@@ -343,59 +400,60 @@
       }
     },
     {
-      "digest": "0851983ea879f42c821811484dabb048ed8dcb2d29bc7277165d21bc619e55b1",
+      "digest": "2a23b090484ef5dd953f67ba1009383ab431bbbe584cd04494b7eef9891be8d3",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes explicitly describe a two-stage sequence for photosynthesis, so a bone-ordering question fits best.",
+          "justification": "Primary fits bone-ordering because the notes give an explicit first/next/then/finally sequence about the light-dependent stage and Calvin cycle. Alternate fits rune-cipher because the notes contain a short phrase that completes a sentence on its own.",
           "primary": {
             "lockType": "bone-ordering",
-            "prompt": "Put the two stages of photosynthesis in order:",
+            "prompt": "Put the stages in order from the notes: chlorophyll absorbs light energy; water is split and oxygen is released; ATP and NADPH are stored; ATP and NADPH move to the stroma and the Calvin cycle uses them.",
             "steps": [
-              "light-dependent reactions",
-              "light-independent reactions, also called the Calvin cycle",
-              "stroma"
+              "chlorophyll absorbs light energy",
+              "that energy is used to split water molecules, which releases oxygen",
+              "the energy is stored in two carrier molecules, ATP and NADPH",
+              "ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide"
             ],
             "evidence": [
               {
-                "chunkId": "chk_a2d4d1f7c9c3_4",
-                "quote": "Photosynthesis happens in two stages."
+                "chunkId": "chk_a2d4d1f7c9c3_5",
+                "quote": "First, chlorophyll absorbs light energy."
               },
               {
-                "chunkId": "chk_a2d4d1f7c9c3_4",
-                "quote": "The light-dependent reactions take place in the thylakoid membranes"
+                "chunkId": "chk_a2d4d1f7c9c3_5",
+                "quote": "Next, that energy is used to split water molecules, which releases oxygen."
               },
               {
-                "chunkId": "chk_a2d4d1f7c9c3_4",
-                "quote": "The light-independent reactions, also called the Calvin cycle"
+                "chunkId": "chk_a2d4d1f7c9c3_5",
+                "quote": "Then the energy is stored in two carrier molecules, ATP and NADPH."
+              },
+              {
+                "chunkId": "chk_a2d4d1f7c9c3_5",
+                "quote": "Finally, ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide."
               }
             ],
-            "explanation": "The notes state that photosynthesis happens in two stages and name the two stages in sequence."
+            "explanation": "The notes explicitly mark the sequence with First, Next, Then, and Finally."
           },
           "alternate": {
             "lockType": "rune-cipher",
-            "prompt": "Photosynthesis happens in two stages. The ______ reactions take place in the thylakoid membranes.",
-            "answer": "light-dependent",
+            "prompt": "Finally, ATP and NADPH move to the stroma, where the Calvin cycle uses them to build ______.",
+            "answer": "glucose",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
-                "chunkId": "chk_a2d4d1f7c9c3_4",
-                "quote": "The light-dependent reactions take place in the thylakoid membranes"
+                "chunkId": "chk_a2d4d1f7c9c3_5",
+                "quote": "Finally, ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide."
               }
             ],
-            "explanation": "The notes give the exact term that completes the sentence.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "l",
-              "length": 15
-            }
+            "explanation": "The notes state that the Calvin cycle uses ATP and NADPH to build glucose.",
+            "hint": null
           }
         },
         "usage": {
-          "inputTokens": 2741,
-          "outputTokens": 314
+          "inputTokens": 2758,
+          "outputTokens": 473
         }
       }
     },
@@ -464,64 +522,6 @@
         "usage": {
           "inputTokens": 2743,
           "outputTokens": 379
-        }
-      }
-    },
-    {
-      "digest": "2a23b090484ef5dd953f67ba1009383ab431bbbe584cd04494b7eef9891be8d3",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "Primary fits bone-ordering because the notes give an explicit first/next/then/finally sequence about the light-dependent stage and Calvin cycle. Alternate fits rune-cipher because the notes contain a short phrase that completes a sentence on its own.",
-          "primary": {
-            "lockType": "bone-ordering",
-            "prompt": "Put the stages in order from the notes: chlorophyll absorbs light energy; water is split and oxygen is released; ATP and NADPH are stored; ATP and NADPH move to the stroma and the Calvin cycle uses them.",
-            "steps": [
-              "chlorophyll absorbs light energy",
-              "that energy is used to split water molecules, which releases oxygen",
-              "the energy is stored in two carrier molecules, ATP and NADPH",
-              "ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide"
-            ],
-            "evidence": [
-              {
-                "chunkId": "chk_a2d4d1f7c9c3_5",
-                "quote": "First, chlorophyll absorbs light energy."
-              },
-              {
-                "chunkId": "chk_a2d4d1f7c9c3_5",
-                "quote": "Next, that energy is used to split water molecules, which releases oxygen."
-              },
-              {
-                "chunkId": "chk_a2d4d1f7c9c3_5",
-                "quote": "Then the energy is stored in two carrier molecules, ATP and NADPH."
-              },
-              {
-                "chunkId": "chk_a2d4d1f7c9c3_5",
-                "quote": "Finally, ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide."
-              }
-            ],
-            "explanation": "The notes explicitly mark the sequence with First, Next, Then, and Finally."
-          },
-          "alternate": {
-            "lockType": "rune-cipher",
-            "prompt": "Finally, ATP and NADPH move to the stroma, where the Calvin cycle uses them to build ______.",
-            "answer": "glucose",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_a2d4d1f7c9c3_5",
-                "quote": "Finally, ATP and NADPH move to the stroma, where the Calvin cycle uses them to build glucose from carbon dioxide."
-              }
-            ],
-            "explanation": "The notes state that the Calvin cycle uses ATP and NADPH to build glucose.",
-            "hint": null
-          }
-        },
-        "usage": {
-          "inputTokens": 2758,
-          "outputTokens": 473
         }
       }
     },
@@ -641,21 +641,6 @@
       }
     },
     {
-      "digest": "60874a0e0bc4041fa75ca46c5ac8147dd548c251b5714ed65398cb5d053a8575",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "6",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 399,
-          "outputTokens": 16
-        }
-      }
-    },
-    {
       "digest": "d9d80d3892ae0fa49aaa63bb541fda11fe523873d97d02a2c9fc4f6a7ed19705",
       "origin": "recorded",
       "response": {
@@ -667,6 +652,21 @@
         "usage": {
           "inputTokens": 355,
           "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "60874a0e0bc4041fa75ca46c5ac8147dd548c251b5714ed65398cb5d053a8575",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "6",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 399,
+          "outputTokens": 16
         }
       }
     },
@@ -731,6 +731,34 @@
       }
     },
     {
+      "digest": "a53461bb53bb3e6aa70d74db381475eee85e5b60c13f7e8970bcfbf687c3d200",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a",
+          "optionLabels": [
+            {
+              "optionId": "a",
+              "label": "supported"
+            },
+            {
+              "optionId": "b",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "c",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 376,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
       "digest": "363cfc688d8bf0da98c2f18c9bf73b7c6a42a8310ea2d0d6e762772f2f007242",
       "origin": "recorded",
       "response": {
@@ -774,34 +802,6 @@
       }
     },
     {
-      "digest": "a53461bb53bb3e6aa70d74db381475eee85e5b60c13f7e8970bcfbf687c3d200",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "a",
-          "optionLabels": [
-            {
-              "optionId": "a",
-              "label": "supported"
-            },
-            {
-              "optionId": "b",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "c",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 376,
-          "outputTokens": 47
-        }
-      }
-    },
-    {
       "digest": "c2aaa14f184170faa118ad1d21b0875263662b4409c5fd822e0d380969f976b8",
       "origin": "recorded",
       "response": {
@@ -813,6 +813,39 @@
         "usage": {
           "inputTokens": 329,
           "outputTokens": 26
+        }
+      }
+    },
+    {
+      "digest": "fedd591194fbc3e466bca977ded26f04d19eaa7bae56b0a8f52a0f1ba9bb4423",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 1044,
+          "outputTokens": 70
         }
       }
     }

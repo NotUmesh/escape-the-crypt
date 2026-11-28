@@ -160,55 +160,6 @@
       }
     },
     {
-      "digest": "47b08e17e4d31bb5650bf2002fb36a937b022b7d163a729c33063ac84fdd9ffd",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank fact about what an antigen is, with a direct quoted phrase available.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "An antigen is a molecule the immune system can recognise as ______.",
-            "answer": "foreign",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_862271b08b29_1",
-                "quote": "a molecule the immune system can recognise as foreign"
-              }
-            ],
-            "explanation": "The notes directly define an antigen as something the immune system can recognise as foreign.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "f",
-              "length": 7
-            }
-          },
-          "alternate": {
-            "lockType": "combination-dial",
-            "prompt": "According to your notes, how many kinds of molecules are most antigens used in vaccines?",
-            "answer": {
-              "kind": "exact",
-              "value": 2
-            },
-            "units": "kinds",
-            "evidence": [
-              {
-                "chunkId": "chk_862271b08b29_1",
-                "quote": "Most antigens used in vaccines are proteins or sugars"
-              }
-            ],
-            "explanation": "The notes list two kinds: proteins and sugars."
-          }
-        },
-        "usage": {
-          "inputTokens": 2741,
-          "outputTokens": 232
-        }
-      }
-    },
-    {
       "digest": "5ffcbe2f18a637f4816feb3af81fe6dfad49a8267b443532b8e00b22ffe4a716",
       "origin": "recorded",
       "response": {
@@ -278,6 +229,55 @@
         "usage": {
           "inputTokens": 2739,
           "outputTokens": 408
+        }
+      }
+    },
+    {
+      "digest": "47b08e17e4d31bb5650bf2002fb36a937b022b7d163a729c33063ac84fdd9ffd",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact about what an antigen is, with a direct quoted phrase available.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "An antigen is a molecule the immune system can recognise as ______.",
+            "answer": "foreign",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_1",
+                "quote": "a molecule the immune system can recognise as foreign"
+              }
+            ],
+            "explanation": "The notes directly define an antigen as something the immune system can recognise as foreign.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "f",
+              "length": 7
+            }
+          },
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many kinds of molecules are most antigens used in vaccines?",
+            "answer": {
+              "kind": "exact",
+              "value": 2
+            },
+            "units": "kinds",
+            "evidence": [
+              {
+                "chunkId": "chk_862271b08b29_1",
+                "quote": "Most antigens used in vaccines are proteins or sugars"
+              }
+            ],
+            "explanation": "The notes list two kinds: proteins and sugars."
+          }
+        },
+        "usage": {
+          "inputTokens": 2741,
+          "outputTokens": 232
         }
       }
     },
@@ -1134,21 +1134,6 @@
       }
     },
     {
-      "digest": "a3e45e48a4d8ae18242c759dabf346ff9ce899b9408941da635a615abab578f3",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "foreign",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 344,
-          "outputTokens": 16
-        }
-      }
-    },
-    {
       "digest": "c3af288b5d222a07cf71df90b92ec67130a3669078ad0bb48a5edae1eb1d9d80",
       "origin": "recorded",
       "response": {
@@ -1177,6 +1162,21 @@
         "usage": {
           "inputTokens": 389,
           "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "a3e45e48a4d8ae18242c759dabf346ff9ce899b9408941da635a615abab578f3",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "foreign",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 344,
+          "outputTokens": 16
         }
       }
     },
@@ -1239,21 +1239,6 @@
       }
     },
     {
-      "digest": "d01cb9b30fcf0a44a1cf1b069abb345452c8c744545e733e31f6ac317bb0fc6a",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "T cells",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 380,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
       "digest": "29655cd0abd654a9414ad10077c39691945d7e8dda3f22f337596ac5fa7671cc",
       "origin": "recorded",
       "response": {
@@ -1265,6 +1250,21 @@
         "usage": {
           "inputTokens": 435,
           "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "d01cb9b30fcf0a44a1cf1b069abb345452c8c744545e733e31f6ac317bb0fc6a",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "T cells",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 380,
+          "outputTokens": 17
         }
       }
     },
@@ -1299,21 +1299,6 @@
       }
     },
     {
-      "digest": "29ccb09655d41de97189a5cc9dfffc516525f556e771f219538c9181d001d6d2",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "memory cells",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 380,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
       "digest": "58ff81323daf5221b1974bc14fe6fc9c82651c61f8460dd290f35123f9a73029",
       "origin": "recorded",
       "response": {
@@ -1329,16 +1314,16 @@
       }
     },
     {
-      "digest": "d92165e59caf2337a5a11b51b0ae292968b0d4c172a295cce8f2b94f1273deb2",
+      "digest": "29ccb09655d41de97189a5cc9dfffc516525f556e771f219538c9181d001d6d2",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "two weeks",
+          "answer": "memory cells",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 328,
+          "inputTokens": 380,
           "outputTokens": 17
         }
       }
@@ -1355,6 +1340,21 @@
         "usage": {
           "inputTokens": 395,
           "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "d92165e59caf2337a5a11b51b0ae292968b0d4c172a295cce8f2b94f1273deb2",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "two weeks",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 328,
+          "outputTokens": 17
         }
       }
     },
@@ -1406,21 +1406,6 @@
       }
     },
     {
-      "digest": "20c91f12165ce1cab1c5cc3b6855a8f47eb5cf9dea00261d69a72adec09b24de",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "a germ that has been killed",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 400,
-          "outputTokens": 21
-        }
-      }
-    },
-    {
       "digest": "4c85c4e0150a02e15e1c6450f3bfb5a7cc2e2942dafba1300b4211dd4d8c459b",
       "origin": "recorded",
       "response": {
@@ -1449,6 +1434,21 @@
         "usage": {
           "inputTokens": 465,
           "outputTokens": 58
+        }
+      }
+    },
+    {
+      "digest": "20c91f12165ce1cab1c5cc3b6855a8f47eb5cf9dea00261d69a72adec09b24de",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "a germ that has been killed",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 400,
+          "outputTokens": 21
         }
       }
     },
@@ -1642,6 +1642,63 @@
         "usage": {
           "inputTokens": 361,
           "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "bceba5c5bd121e91c3f17636812748370551bf5dbf5f95baf9a6dee26d3ea417",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q6",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q7",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 1330,
+          "outputTokens": 146
         }
       }
     }

@@ -525,21 +525,6 @@
       }
     },
     {
-      "digest": "b511882cdae93836f31fe49c7e696a19d35ae41eccd3969ca0bda0826ea0d466",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "red blood cells",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 358,
-          "outputTokens": 18
-        }
-      }
-    },
-    {
       "digest": "5fcfa85483d4b8aa9122648e476f09b0e95a7e8585ed1d54e72f9c85e20e06c8",
       "origin": "recorded",
       "response": {
@@ -551,6 +536,21 @@
         "usage": {
           "inputTokens": 423,
           "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "b511882cdae93836f31fe49c7e696a19d35ae41eccd3969ca0bda0826ea0d466",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "red blood cells",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 358,
+          "outputTokens": 18
         }
       }
     },
@@ -587,21 +587,6 @@
       }
     },
     {
-      "digest": "9f2eefbeab02a40eb8ac81d763b52527cd6bf4c60a4ec613ab401544af191116",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "haemostasis",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 404,
-          "outputTokens": 18
-        }
-      }
-    },
-    {
       "digest": "ab2fa01d58f170d3f58e163232c5f01c41f88d513ea272d867bb298a914d04de",
       "origin": "recorded",
       "response": {
@@ -617,16 +602,16 @@
       }
     },
     {
-      "digest": "95b46c680e77a7da1667c3ce7bef734b9869984671b2ee69fcfaa689e3401b4b",
+      "digest": "9f2eefbeab02a40eb8ac81d763b52527cd6bf4c60a4ec613ab401544af191116",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "fibrin",
+          "answer": "haemostasis",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 402,
+          "inputTokens": 404,
           "outputTokens": 18
         }
       }
@@ -647,17 +632,17 @@
       }
     },
     {
-      "digest": "23d79f88b764ce9d809475eb9acd6c565d62c416d644317c972e7df34951c279",
+      "digest": "95b46c680e77a7da1667c3ce7bef734b9869984671b2ee69fcfaa689e3401b4b",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "7 to 10",
+          "answer": "fibrin",
           "optionLabels": null
         },
         "usage": {
-          "inputTokens": 325,
-          "outputTokens": 19
+          "inputTokens": 402,
+          "outputTokens": 18
         }
       }
     },
@@ -677,6 +662,21 @@
       }
     },
     {
+      "digest": "23d79f88b764ce9d809475eb9acd6c565d62c416d644317c972e7df34951c279",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "7 to 10",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 325,
+          "outputTokens": 19
+        }
+      }
+    },
+    {
       "digest": "4b39062b9206df6cce7c18ad66c1f17e34e1d450f38a521c7604c3e276354156",
       "origin": "recorded",
       "response": {
@@ -688,6 +688,21 @@
         "usage": {
           "inputTokens": 381,
           "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "fd752617da7d30d1702d97f60c27f01e62f595b7255a5628ca5e34b364d0f1f0",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "150,000",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 319,
+          "outputTokens": 18
         }
       }
     },
@@ -707,17 +722,53 @@
       }
     },
     {
-      "digest": "fd752617da7d30d1702d97f60c27f01e62f595b7255a5628ca5e34b364d0f1f0",
+      "digest": "7d0115071fe96dc8561ce3df5889b29a8957bf162ff0bf64a4cd2b8c2d3bc889",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "150,000",
-          "optionLabels": null
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q6",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
         },
         "usage": {
-          "inputTokens": 319,
-          "outputTokens": 18
+          "inputTokens": 1079,
+          "outputTokens": 127
         }
       }
     }

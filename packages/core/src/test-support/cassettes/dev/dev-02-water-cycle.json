@@ -172,55 +172,6 @@
       }
     },
     {
-      "digest": "8eac51d90b2cf66831f499c50d3a454ee133ba9f3e5e7bd414aea7eec1e046f5",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank term/phrase: condensation is defined as the opposite of evaporation, and clouds form from droplets gathering around dust specks. A rune-cipher question fits best because the answer is a short phrase copied from the notes.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "According to your notes, ______ is the opposite of evaporation.",
-            "answer": "Condensation",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_23a1ecfc6522_4",
-                "quote": "Condensation is the opposite of evaporation: water vapour cools and turns back into tiny liquid droplets."
-              }
-            ],
-            "explanation": "The notes explicitly state that condensation is the opposite of evaporation.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "C",
-              "length": 12
-            }
-          },
-          "alternate": {
-            "lockType": "combination-dial",
-            "prompt": "According to your notes, how many days does a single molecule of water stay in the atmosphere on average before it falls again?",
-            "answer": {
-              "kind": "exact",
-              "value": 9
-            },
-            "units": "days",
-            "evidence": [
-              {
-                "chunkId": "chk_23a1ecfc6522_4",
-                "quote": "A single molecule of water stays in the atmosphere for about nine days on average before it falls again."
-              }
-            ],
-            "explanation": "The notes give the average time as about nine days."
-          }
-        },
-        "usage": {
-          "inputTokens": 2737,
-          "outputTokens": 288
-        }
-      }
-    },
-    {
       "digest": "ae763b3b9d4812f796af67dd25551faf9863b157535dffbe1bcee9774f6ffd3c",
       "origin": "recorded",
       "response": {
@@ -289,36 +240,51 @@
       }
     },
     {
-      "digest": "21d9d697b75def1b7e03570d98cafbad8599142d07f63e90eba0308aad04f1f1",
+      "digest": "8eac51d90b2cf66831f499c50d3a454ee133ba9f3e5e7bd414aea7eec1e046f5",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes define three related terms, but they do not support a single lock type with one unambiguous study question better than the others. A simple fill-in-the-blank could work for one term, but the prompt asks for one study question about a single concept, and the evidence is broad enough that no stronger structured lock is necessary.",
-          "primary": null,
-          "alternate": {
+          "justification": "The notes support a single fill-in-the-blank term/phrase: condensation is defined as the opposite of evaporation, and clouds form from droplets gathering around dust specks. A rune-cipher question fits best because the answer is a short phrase copied from the notes.",
+          "primary": {
             "lockType": "rune-cipher",
-            "prompt": "Once water reaches the land, it can take several paths. ______ is water soaking down into the soil.",
-            "answer": "Infiltration",
+            "prompt": "According to your notes, ______ is the opposite of evaporation.",
+            "answer": "Condensation",
             "aliases": [],
-            "caseSensitive": true,
+            "caseSensitive": false,
             "evidence": [
               {
-                "chunkId": "chk_23a1ecfc6522_6",
-                "quote": "Infiltration is water soaking down into the soil."
+                "chunkId": "chk_23a1ecfc6522_4",
+                "quote": "Condensation is the opposite of evaporation: water vapour cools and turns back into tiny liquid droplets."
               }
             ],
-            "explanation": "The notes give a direct definition for infiltration, so a one-blank fill-in-the-blank fits.",
+            "explanation": "The notes explicitly state that condensation is the opposite of evaporation.",
             "hint": {
               "kind": "first-letter-and-length",
-              "firstLetter": "I",
+              "firstLetter": "C",
               "length": 12
             }
+          },
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many days does a single molecule of water stay in the atmosphere on average before it falls again?",
+            "answer": {
+              "kind": "exact",
+              "value": 9
+            },
+            "units": "days",
+            "evidence": [
+              {
+                "chunkId": "chk_23a1ecfc6522_4",
+                "quote": "A single molecule of water stays in the atmosphere for about nine days on average before it falls again."
+              }
+            ],
+            "explanation": "The notes give the average time as about nine days."
           }
         },
         "usage": {
-          "inputTokens": 2746,
-          "outputTokens": 206
+          "inputTokens": 2737,
+          "outputTokens": 288
         }
       }
     },
@@ -375,6 +341,40 @@
         "usage": {
           "inputTokens": 2720,
           "outputTokens": 319
+        }
+      }
+    },
+    {
+      "digest": "21d9d697b75def1b7e03570d98cafbad8599142d07f63e90eba0308aad04f1f1",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes define three related terms, but they do not support a single lock type with one unambiguous study question better than the others. A simple fill-in-the-blank could work for one term, but the prompt asks for one study question about a single concept, and the evidence is broad enough that no stronger structured lock is necessary.",
+          "primary": null,
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "Once water reaches the land, it can take several paths. ______ is water soaking down into the soil.",
+            "answer": "Infiltration",
+            "aliases": [],
+            "caseSensitive": true,
+            "evidence": [
+              {
+                "chunkId": "chk_23a1ecfc6522_6",
+                "quote": "Infiltration is water soaking down into the soil."
+              }
+            ],
+            "explanation": "The notes give a direct definition for infiltration, so a one-blank fill-in-the-blank fits.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "I",
+              "length": 12
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 2746,
+          "outputTokens": 206
         }
       }
     },
@@ -556,6 +556,63 @@
         "usage": {
           "inputTokens": 331,
           "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "a43ba0a8800a71d2964d9dffb44091a399b2d17a7cbb22a3cfb748b73efd373f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q6",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q7",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 1155,
+          "outputTokens": 146
         }
       }
     }

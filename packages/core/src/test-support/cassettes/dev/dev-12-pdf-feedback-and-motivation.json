@@ -386,21 +386,6 @@
       }
     },
     {
-      "digest": "3d1c8edc7a8f66d108fad2ca0b728e34a59ac9819ee666ab1d8ccab87540c722",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "Person",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 389,
-          "outputTokens": 16
-        }
-      }
-    },
-    {
       "digest": "61d09d607cc8a9d24f15226f38ba1c2719610761ce271a22736d62c7cf3dff67",
       "origin": "recorded",
       "response": {
@@ -425,6 +410,21 @@
         "usage": {
           "inputTokens": 424,
           "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "3d1c8edc7a8f66d108fad2ca0b728e34a59ac9819ee666ab1d8ccab87540c722",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Person",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 389,
+          "outputTokens": 16
         }
       }
     },
@@ -526,6 +526,45 @@
         "usage": {
           "inputTokens": 378,
           "outputTokens": 16
+        }
+      }
+    },
+    {
+      "digest": "e554a5a78283f95d226cac2dd522af8267e2c7a82ed189a18851cea179e78328",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 828,
+          "outputTokens": 89
         }
       }
     }

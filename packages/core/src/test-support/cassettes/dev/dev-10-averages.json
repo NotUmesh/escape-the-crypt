@@ -186,6 +186,68 @@
       }
     },
     {
+      "digest": "82bd0776d0b0205c793a70038a3d57038fdd0678e81aa5392b95f71eabaa299c",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes give an explicit step-by-step sequence for finding the median, so bone-ordering fits best.",
+          "primary": {
+            "lockType": "bone-ordering",
+            "prompt": "How to find the median: put these steps in order.",
+            "steps": [
+              "put the values in order from smallest to largest",
+              "count how many values there are",
+              "if the count is odd, pick the middle value",
+              "if the count is even, take the mean of the two middle values"
+            ],
+            "evidence": [
+              {
+                "chunkId": "chk_ebad88095b1d_3",
+                "quote": "First, put the values in order from smallest to largest."
+              },
+              {
+                "chunkId": "chk_ebad88095b1d_3",
+                "quote": "Next, count how many values there are."
+              },
+              {
+                "chunkId": "chk_ebad88095b1d_3",
+                "quote": "Then, if the count is odd, pick the middle value."
+              },
+              {
+                "chunkId": "chk_ebad88095b1d_3",
+                "quote": "Finally, if the count is even, take the mean of the two middle values."
+              }
+            ],
+            "explanation": "The notes explicitly use first, next, then, and finally to describe the median-finding procedure."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "To find the median, follow these steps in order. First, put the values in order from smallest to largest. Next, count how many values there are. Then, if the count is odd, pick the middle value. Finally, if the count is even, take the mean of the two middle values.",
+            "answer": "median",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_ebad88095b1d_3",
+                "quote": "To find the median, follow these steps in order."
+              }
+            ],
+            "explanation": "The notes name the concept being described as the median.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "m",
+              "length": 6
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 2741,
+          "outputTokens": 405
+        }
+      }
+    },
+    {
       "digest": "88004ba6737ea78488a869a469e62d81154e2bb11974935dc9cc84af22ee54fb",
       "origin": "recorded",
       "response": {
@@ -250,68 +312,6 @@
         "usage": {
           "inputTokens": 2728,
           "outputTokens": 387
-        }
-      }
-    },
-    {
-      "digest": "82bd0776d0b0205c793a70038a3d57038fdd0678e81aa5392b95f71eabaa299c",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes give an explicit step-by-step sequence for finding the median, so bone-ordering fits best.",
-          "primary": {
-            "lockType": "bone-ordering",
-            "prompt": "How to find the median: put these steps in order.",
-            "steps": [
-              "put the values in order from smallest to largest",
-              "count how many values there are",
-              "if the count is odd, pick the middle value",
-              "if the count is even, take the mean of the two middle values"
-            ],
-            "evidence": [
-              {
-                "chunkId": "chk_ebad88095b1d_3",
-                "quote": "First, put the values in order from smallest to largest."
-              },
-              {
-                "chunkId": "chk_ebad88095b1d_3",
-                "quote": "Next, count how many values there are."
-              },
-              {
-                "chunkId": "chk_ebad88095b1d_3",
-                "quote": "Then, if the count is odd, pick the middle value."
-              },
-              {
-                "chunkId": "chk_ebad88095b1d_3",
-                "quote": "Finally, if the count is even, take the mean of the two middle values."
-              }
-            ],
-            "explanation": "The notes explicitly use first, next, then, and finally to describe the median-finding procedure."
-          },
-          "alternate": {
-            "lockType": "rune-cipher",
-            "prompt": "To find the median, follow these steps in order. First, put the values in order from smallest to largest. Next, count how many values there are. Then, if the count is odd, pick the middle value. Finally, if the count is even, take the mean of the two middle values.",
-            "answer": "median",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_ebad88095b1d_3",
-                "quote": "To find the median, follow these steps in order."
-              }
-            ],
-            "explanation": "The notes name the concept being described as the median.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "m",
-              "length": 6
-            }
-          }
-        },
-        "usage": {
-          "inputTokens": 2741,
-          "outputTokens": 405
         }
       }
     },
@@ -430,6 +430,51 @@
         "usage": {
           "inputTokens": 353,
           "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "7dd6ed8df0ffcb3db8e39c6dd28b7cfda011f4a2971da0213c83314531e67615",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 1004,
+          "outputTokens": 108
         }
       }
     }

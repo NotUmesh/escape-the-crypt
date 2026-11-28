@@ -180,52 +180,6 @@
       }
     },
     {
-      "digest": "cad99965829a0c858722b3043f8878df36660bd9b1f104828d2eb2f03e850919",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes state a single age-based sleep recommendation with two numeric ranges, so a combination-dial question fits best.",
-          "primary": {
-            "lockType": "combination-dial",
-            "prompt": "According to your notes, how many hours of sleep do teenagers need?",
-            "answer": {
-              "kind": "range",
-              "min": 8,
-              "max": 10
-            },
-            "units": "hours",
-            "evidence": [
-              {
-                "chunkId": "chk_086e3ef6bbaa_7",
-                "quote": "teenagers need about eight to ten hours"
-              }
-            ],
-            "explanation": "The notes give the teenage sleep recommendation as a range of eight to ten hours."
-          },
-          "alternate": {
-            "lockType": "rune-cipher",
-            "prompt": "Adults need about ______ hours of sleep.",
-            "answer": "seven to nine",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_086e3ef6bbaa_7",
-                "quote": "Adults need about seven to nine hours of sleep"
-              }
-            ],
-            "explanation": "The blank is filled by the adult sleep range stated in the notes.",
-            "hint": null
-          }
-        },
-        "usage": {
-          "inputTokens": 2744,
-          "outputTokens": 216
-        }
-      }
-    },
-    {
       "digest": "55092048e1fa69f6978ba350554254fb53e6939fc30b730580e0ae8fa138c5b7",
       "origin": "recorded",
       "response": {
@@ -294,6 +248,52 @@
       }
     },
     {
+      "digest": "cad99965829a0c858722b3043f8878df36660bd9b1f104828d2eb2f03e850919",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state a single age-based sleep recommendation with two numeric ranges, so a combination-dial question fits best.",
+          "primary": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many hours of sleep do teenagers need?",
+            "answer": {
+              "kind": "range",
+              "min": 8,
+              "max": 10
+            },
+            "units": "hours",
+            "evidence": [
+              {
+                "chunkId": "chk_086e3ef6bbaa_7",
+                "quote": "teenagers need about eight to ten hours"
+              }
+            ],
+            "explanation": "The notes give the teenage sleep recommendation as a range of eight to ten hours."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "Adults need about ______ hours of sleep.",
+            "answer": "seven to nine",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_086e3ef6bbaa_7",
+                "quote": "Adults need about seven to nine hours of sleep"
+              }
+            ],
+            "explanation": "The blank is filled by the adult sleep range stated in the notes.",
+            "hint": null
+          }
+        },
+        "usage": {
+          "inputTokens": 2744,
+          "outputTokens": 216
+        }
+      }
+    },
+    {
       "digest": "7a265515afc0285e6436c659b8c0e398c6a0896261f875e299073961930fc319",
       "origin": "recorded",
       "response": {
@@ -339,21 +339,6 @@
       }
     },
     {
-      "digest": "9e10c9c41cd09f842c97175ae7f5327d89c76738fe6588718e8ed279c376c013",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "eight hours",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 380,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
       "digest": "1e3dc46d76bacc54b574d56dd95741dce822747b490af22263450227f1e31503",
       "origin": "recorded",
       "response": {
@@ -378,6 +363,21 @@
         "usage": {
           "inputTokens": 468,
           "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "9e10c9c41cd09f842c97175ae7f5327d89c76738fe6588718e8ed279c376c013",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "eight hours",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 380,
+          "outputTokens": 17
         }
       }
     },
@@ -408,6 +408,63 @@
         "usage": {
           "inputTokens": 347,
           "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "c52d255e960adc601ee66f22dd2e500f52e51612fb31cc6e5103040c11695cb7",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q6",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q7",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 1050,
+          "outputTokens": 146
         }
       }
     }

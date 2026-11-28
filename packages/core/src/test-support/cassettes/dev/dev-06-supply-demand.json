@@ -96,51 +96,6 @@
       }
     },
     {
-      "digest": "46369317d0d493b774be25c938c062078e14f6b252f1f10887a7cb18b56d98e2",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes define a single term with a direct fill-in-the-blank answer, so rune-cipher fits best.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "The market equilibrium is the price at which the quantity demanded equals the quantity supplied. At this price there is no pressure for the price to change. Market equilibrium is the price at which the quantity demanded equals the quantity ______.",
-            "answer": "supplied",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_11d6507268cd_2",
-                "quote": "The market equilibrium is the price at which the quantity demanded equals the quantity supplied."
-              }
-            ],
-            "explanation": "The notes explicitly state the missing word in the definition of market equilibrium.",
-            "hint": null
-          },
-          "alternate": {
-            "lockType": "combination-dial",
-            "prompt": "According to your notes, at market equilibrium, what is the price pressure to change?",
-            "answer": {
-              "kind": "exact",
-              "value": 0
-            },
-            "units": "pressure",
-            "evidence": [
-              {
-                "chunkId": "chk_11d6507268cd_2",
-                "quote": "At this price there is no pressure for the price to change."
-              }
-            ],
-            "explanation": "The notes say there is no pressure for the price to change, which corresponds to zero pressure."
-          }
-        },
-        "usage": {
-          "inputTokens": 2704,
-          "outputTokens": 263
-        }
-      }
-    },
-    {
       "digest": "896ae7416b24bddd51495c39b70cea0e424ec66578e11f1c7cdedf692685338d",
       "origin": "recorded",
       "response": {
@@ -205,70 +160,47 @@
       }
     },
     {
-      "digest": "9be10809458207848d16dacd17d63c427dd7efaa902e3ea0a99e0b12c1649a0f",
+      "digest": "46369317d0d493b774be25c938c062078e14f6b252f1f10887a7cb18b56d98e2",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "The notes state a direct fact that can be tested with a fill-in-the-blank prompt, and the answer is a short phrase copied from the notes. No other lock type fits as well.",
+          "justification": "The notes define a single term with a direct fill-in-the-blank answer, so rune-cipher fits best.",
           "primary": {
             "lockType": "rune-cipher",
-            "prompt": "A change in price moves the market along the ______.",
-            "answer": "demand curve",
+            "prompt": "The market equilibrium is the price at which the quantity demanded equals the quantity supplied. At this price there is no pressure for the price to change. Market equilibrium is the price at which the quantity demanded equals the quantity ______.",
+            "answer": "supplied",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
-                "chunkId": "chk_11d6507268cd_5",
-                "quote": "A change in price moves the market along the demand curve."
+                "chunkId": "chk_11d6507268cd_2",
+                "quote": "The market equilibrium is the price at which the quantity demanded equals the quantity supplied."
               }
             ],
-            "explanation": "The notes explicitly say that a change in price moves the market along the demand curve.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "d",
-              "length": 12
-            }
+            "explanation": "The notes explicitly state the missing word in the definition of market equilibrium.",
+            "hint": null
           },
           "alternate": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, what does a change in price do to the market?",
-            "options": [
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, at market equilibrium, what is the price pressure to change?",
+            "answer": {
+              "kind": "exact",
+              "value": 0
+            },
+            "units": "pressure",
+            "evidence": [
               {
-                "id": "A",
-                "text": "moves the market along the demand curve",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_11d6507268cd_5",
-                  "quote": "A change in price moves the market along the demand curve."
-                }
-              },
-              {
-                "id": "B",
-                "text": "shifts the whole curve",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_11d6507268cd_5",
-                  "quote": "A change in anything else that affects buyers shifts the whole curve."
-                }
-              },
-              {
-                "id": "C",
-                "text": "affects supply",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_11d6507268cd_5",
-                  "quote": "The cost of producing the good is not a demand shifter; it affects supply."
-                }
+                "chunkId": "chk_11d6507268cd_2",
+                "quote": "At this price there is no pressure for the price to change."
               }
             ],
-            "answer": "A",
-            "explanation": "Only option A matches the notes; the other options are contradicted by the quoted sentence."
+            "explanation": "The notes say there is no pressure for the price to change, which corresponds to zero pressure."
           }
         },
         "usage": {
-          "inputTokens": 2741,
-          "outputTokens": 373
+          "inputTokens": 2704,
+          "outputTokens": 263
         }
       }
     },
@@ -337,6 +269,74 @@
         "usage": {
           "inputTokens": 2716,
           "outputTokens": 443
+        }
+      }
+    },
+    {
+      "digest": "9be10809458207848d16dacd17d63c427dd7efaa902e3ea0a99e0b12c1649a0f",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state a direct fact that can be tested with a fill-in-the-blank prompt, and the answer is a short phrase copied from the notes. No other lock type fits as well.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "A change in price moves the market along the ______.",
+            "answer": "demand curve",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_11d6507268cd_5",
+                "quote": "A change in price moves the market along the demand curve."
+              }
+            ],
+            "explanation": "The notes explicitly say that a change in price moves the market along the demand curve.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "d",
+              "length": 12
+            }
+          },
+          "alternate": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, what does a change in price do to the market?",
+            "options": [
+              {
+                "id": "A",
+                "text": "moves the market along the demand curve",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "A change in price moves the market along the demand curve."
+                }
+              },
+              {
+                "id": "B",
+                "text": "shifts the whole curve",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "A change in anything else that affects buyers shifts the whole curve."
+                }
+              },
+              {
+                "id": "C",
+                "text": "affects supply",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_11d6507268cd_5",
+                  "quote": "The cost of producing the good is not a demand shifter; it affects supply."
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "Only option A matches the notes; the other options are contradicted by the quoted sentence."
+          }
+        },
+        "usage": {
+          "inputTokens": 2741,
+          "outputTokens": 373
         }
       }
     },
@@ -624,6 +624,34 @@
       }
     },
     {
+      "digest": "a5285a073771f63242538b9a1b6ce6880dafc92965ee2abf7baec9f8014c1783",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "contradicted"
+            },
+            {
+              "optionId": "C",
+              "label": "contradicted"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 375,
+          "outputTokens": 47
+        }
+      }
+    },
+    {
       "digest": "d74f6ef01e703e7c75549b34df4d79c94a79c192f3f91ebe7c169095e1b01754",
       "origin": "recorded",
       "response": {
@@ -678,34 +706,6 @@
         "usage": {
           "inputTokens": 346,
           "outputTokens": 18
-        }
-      }
-    },
-    {
-      "digest": "a5285a073771f63242538b9a1b6ce6880dafc92965ee2abf7baec9f8014c1783",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "contradicted"
-            },
-            {
-              "optionId": "C",
-              "label": "contradicted"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 375,
-          "outputTokens": 47
         }
       }
     },
@@ -800,6 +800,34 @@
       }
     },
     {
+      "digest": "54f11aa5ab8bd381543e96fb7379ce6852a42fa10f0758c235b725da43d9d0d8",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "A",
+          "optionLabels": [
+            {
+              "optionId": "A",
+              "label": "supported"
+            },
+            {
+              "optionId": "B",
+              "label": "supported"
+            },
+            {
+              "optionId": "C",
+              "label": "supported"
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 376,
+          "outputTokens": 43
+        }
+      }
+    },
+    {
       "digest": "2c9053f732165efb276c8d45db97acaa74fb10dcc6e4720a6c6a36ddf865d72e",
       "origin": "recorded",
       "response": {
@@ -858,34 +886,6 @@
       }
     },
     {
-      "digest": "54f11aa5ab8bd381543e96fb7379ce6852a42fa10f0758c235b725da43d9d0d8",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "A",
-          "optionLabels": [
-            {
-              "optionId": "A",
-              "label": "supported"
-            },
-            {
-              "optionId": "B",
-              "label": "supported"
-            },
-            {
-              "optionId": "C",
-              "label": "supported"
-            }
-          ]
-        },
-        "usage": {
-          "inputTokens": 376,
-          "outputTokens": 43
-        }
-      }
-    },
-    {
       "digest": "3d17939748b892e2deafe88b58314e5a8203da489247820fd0c206e84e70ec5c",
       "origin": "recorded",
       "response": {
@@ -910,6 +910,57 @@
         "usage": {
           "inputTokens": 347,
           "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "38192a1040c56ea1d487dae35cb2d5214cfc1c38f64ea144383cbafb0bd53c86",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q6",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 1205,
+          "outputTokens": 127
         }
       }
     }

@@ -352,21 +352,6 @@
       }
     },
     {
-      "digest": "4a07871edda49786ae9ab5458d08a5f4fd498134762f3bf4afd3c11aded47c65",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "four",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 386,
-          "outputTokens": 16
-        }
-      }
-    },
-    {
       "digest": "385b3d1603bb2b6efa271d8c6739a9ff7bb91bdc92cf28614d0ed83900feabfb",
       "origin": "recorded",
       "response": {
@@ -378,6 +363,21 @@
         "usage": {
           "inputTokens": 508,
           "outputTokens": 23
+        }
+      }
+    },
+    {
+      "digest": "4a07871edda49786ae9ab5458d08a5f4fd498134762f3bf4afd3c11aded47c65",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "four",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 386,
+          "outputTokens": 16
         }
       }
     },
@@ -397,21 +397,6 @@
       }
     },
     {
-      "digest": "8e4bd5ac9ae9fd180044c4dd7ea4f82471b10c63564b1c9a98aab571056c5ac3",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "moulting",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 331,
-          "outputTokens": 18
-        }
-      }
-    },
-    {
       "digest": "6f4803a605935495ab7623387dbe036bdc9e21750f6093d2d9cc11ef728d1365",
       "origin": "recorded",
       "response": {
@@ -423,6 +408,21 @@
         "usage": {
           "inputTokens": 341,
           "outputTokens": 20
+        }
+      }
+    },
+    {
+      "digest": "8e4bd5ac9ae9fd180044c4dd7ea4f82471b10c63564b1c9a98aab571056c5ac3",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "moulting",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 331,
+          "outputTokens": 18
         }
       }
     },
@@ -489,6 +489,21 @@
       }
     },
     {
+      "digest": "5c47c50dcc6c364af33a3c0ffc4576cd0295c9094916b5ec9ee0f9d757c4c57a",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "4800",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 373,
+          "outputTokens": 17
+        }
+      }
+    },
+    {
       "digest": "2d40267d33ff8ad0ecd7c354df90f3cdf60931f49d82d7e18a5561b9134b366f",
       "origin": "recorded",
       "response": {
@@ -504,17 +519,71 @@
       }
     },
     {
-      "digest": "5c47c50dcc6c364af33a3c0ffc4576cd0295c9094916b5ec9ee0f9d757c4c57a",
+      "digest": "3f21ac2c2f048d048c802e3f64dda348135ff10eda6714208d247843fc11e1eb",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "answer": "4800",
-          "optionLabels": null
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q6",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q7",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q8",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q9",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
         },
         "usage": {
-          "inputTokens": 373,
-          "outputTokens": 17
+          "inputTokens": 1367,
+          "outputTokens": 184
         }
       }
     }

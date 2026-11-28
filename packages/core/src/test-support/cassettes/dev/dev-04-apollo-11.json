@@ -114,51 +114,6 @@
       }
     },
     {
-      "digest": "0451dd47892111298163e37925468c8f521ab6e9917f7eb891d203245392897c",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes state a single fact pairing the mission with its launch date and rocket, which fits a rune-cipher fill-in-the-blank question best.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "Apollo 11 launched from Kennedy Space Center in Florida on ______.",
-            "answer": "July 16, 1969, on a Saturn V rocket",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_57ddc74c3455_1",
-                "quote": "It launched from Kennedy Space Center in Florida on July 16, 1969, on a Saturn V rocket."
-              }
-            ],
-            "explanation": "The missing phrase is stated verbatim in the notes.",
-            "hint": null
-          },
-          "alternate": {
-            "lockType": "combination-dial",
-            "prompt": "According to your notes, on what date did Apollo 11 launch?",
-            "answer": {
-              "kind": "exact",
-              "value": 1969
-            },
-            "units": "year",
-            "evidence": [
-              {
-                "chunkId": "chk_57ddc74c3455_1",
-                "quote": "It launched from Kennedy Space Center in Florida on July 16, 1969, on a Saturn V rocket."
-              }
-            ],
-            "explanation": "The notes include the launch date, but this alternate asks only for the year."
-          }
-        },
-        "usage": {
-          "inputTokens": 2716,
-          "outputTokens": 261
-        }
-      }
-    },
-    {
       "digest": "26462e0dc5b550424fd40498e671932d5b76910e54a9c915ad2fc04ba450ba7c",
       "origin": "recorded",
       "response": {
@@ -227,70 +182,47 @@
       }
     },
     {
-      "digest": "025a789b9763f36f96f6ecdb41e932c690d6c9f37b4fdcef816e7fa0a1462007",
+      "digest": "0451dd47892111298163e37925468c8f521ab6e9917f7eb891d203245392897c",
       "origin": "recorded",
       "response": {
         "ok": true,
         "json": {
-          "justification": "A seance-board question fits because the notes support one correct option about Apollo 11 crew membership and contradict alternatives with different people or roles.",
+          "justification": "The notes state a single fact pairing the mission with its launch date and rocket, which fits a rune-cipher fill-in-the-blank question best.",
           "primary": {
-            "lockType": "seance-board",
-            "prompt": "According to your notes, who was part of Apollo 11?",
-            "options": [
-              {
-                "id": "A",
-                "text": "Neil Armstrong",
-                "label": "supported",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Neil Armstrong was the commander."
-                }
-              },
-              {
-                "id": "B",
-                "text": "Yuri Gagarin",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Yuri Gagarin was not part of Apollo 11:"
-                }
-              },
-              {
-                "id": "C",
-                "text": "Michael Collins",
-                "label": "contradicted",
-                "evidence": {
-                  "chunkId": "chk_57ddc74c3455_2",
-                  "quote": "Michael Collins was the command module pilot, who stayed in lunar orbit"
-                }
-              }
-            ],
-            "answer": "A",
-            "explanation": "The notes explicitly say Neil Armstrong was on the Apollo 11 crew, while Yuri Gagarin was not part of Apollo 11."
-          },
-          "alternate": {
             "lockType": "rune-cipher",
-            "prompt": "Yuri Gagarin was not part of ______",
-            "answer": "Apollo 11",
+            "prompt": "Apollo 11 launched from Kennedy Space Center in Florida on ______.",
+            "answer": "July 16, 1969, on a Saturn V rocket",
             "aliases": [],
             "caseSensitive": false,
             "evidence": [
               {
-                "chunkId": "chk_57ddc74c3455_2",
-                "quote": "Yuri Gagarin was not part of Apollo 11:"
+                "chunkId": "chk_57ddc74c3455_1",
+                "quote": "It launched from Kennedy Space Center in Florida on July 16, 1969, on a Saturn V rocket."
               }
             ],
-            "explanation": "The notes directly state the missing phrase.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "A",
-              "length": 8
-            }
+            "explanation": "The missing phrase is stated verbatim in the notes.",
+            "hint": null
+          },
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, on what date did Apollo 11 launch?",
+            "answer": {
+              "kind": "exact",
+              "value": 1969
+            },
+            "units": "year",
+            "evidence": [
+              {
+                "chunkId": "chk_57ddc74c3455_1",
+                "quote": "It launched from Kennedy Space Center in Florida on July 16, 1969, on a Saturn V rocket."
+              }
+            ],
+            "explanation": "The notes include the launch date, but this alternate asks only for the year."
           }
         },
         "usage": {
-          "inputTokens": 2765,
-          "outputTokens": 348
+          "inputTokens": 2716,
+          "outputTokens": 261
         }
       }
     },
@@ -359,6 +291,74 @@
         "usage": {
           "inputTokens": 2759,
           "outputTokens": 347
+        }
+      }
+    },
+    {
+      "digest": "025a789b9763f36f96f6ecdb41e932c690d6c9f37b4fdcef816e7fa0a1462007",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "A seance-board question fits because the notes support one correct option about Apollo 11 crew membership and contradict alternatives with different people or roles.",
+          "primary": {
+            "lockType": "seance-board",
+            "prompt": "According to your notes, who was part of Apollo 11?",
+            "options": [
+              {
+                "id": "A",
+                "text": "Neil Armstrong",
+                "label": "supported",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_2",
+                  "quote": "Neil Armstrong was the commander."
+                }
+              },
+              {
+                "id": "B",
+                "text": "Yuri Gagarin",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_2",
+                  "quote": "Yuri Gagarin was not part of Apollo 11:"
+                }
+              },
+              {
+                "id": "C",
+                "text": "Michael Collins",
+                "label": "contradicted",
+                "evidence": {
+                  "chunkId": "chk_57ddc74c3455_2",
+                  "quote": "Michael Collins was the command module pilot, who stayed in lunar orbit"
+                }
+              }
+            ],
+            "answer": "A",
+            "explanation": "The notes explicitly say Neil Armstrong was on the Apollo 11 crew, while Yuri Gagarin was not part of Apollo 11."
+          },
+          "alternate": {
+            "lockType": "rune-cipher",
+            "prompt": "Yuri Gagarin was not part of ______",
+            "answer": "Apollo 11",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_57ddc74c3455_2",
+                "quote": "Yuri Gagarin was not part of Apollo 11:"
+              }
+            ],
+            "explanation": "The notes directly state the missing phrase.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "A",
+              "length": 8
+            }
+          }
+        },
+        "usage": {
+          "inputTokens": 2765,
+          "outputTokens": 348
         }
       }
     },
@@ -633,21 +633,6 @@
       }
     },
     {
-      "digest": "d13655a3b23ebd412c258e29f8312cea9b7acad1650e2d5fa28e5869ed9d2270",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "July 16, 1969",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 325,
-          "outputTokens": 22
-        }
-      }
-    },
-    {
       "digest": "7b1e60e62e412a5bbafe8c208f6c2bebc9079c590a0668a1eed7658047699711",
       "origin": "recorded",
       "response": {
@@ -672,6 +657,21 @@
         "usage": {
           "inputTokens": 347,
           "outputTokens": 47
+        }
+      }
+    },
+    {
+      "digest": "d13655a3b23ebd412c258e29f8312cea9b7acad1650e2d5fa28e5869ed9d2270",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "July 16, 1969",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 325,
+          "outputTokens": 22
         }
       }
     },
@@ -706,21 +706,6 @@
       }
     },
     {
-      "digest": "e37f8e4794c53811594fc7d48dfeb824f27527469fbcb95d0c42921ca06cdb60",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "Columbia",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 333,
-          "outputTokens": 17
-        }
-      }
-    },
-    {
       "digest": "20cbaffa814220fceafcc5b15a258f42c9da39065dfb1f44bfe43828d7bad0ae",
       "origin": "recorded",
       "response": {
@@ -745,6 +730,21 @@
         "usage": {
           "inputTokens": 392,
           "outputTokens": 45
+        }
+      }
+    },
+    {
+      "digest": "e37f8e4794c53811594fc7d48dfeb824f27527469fbcb95d0c42921ca06cdb60",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Columbia",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 333,
+          "outputTokens": 17
         }
       }
     },
@@ -805,6 +805,51 @@
         "usage": {
           "inputTokens": 392,
           "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "2d96e870d81e937e1988b104bea9784f7cb1acb1706ef75dd7268497e801c3cc",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 1200,
+          "outputTokens": 108
         }
       }
     }

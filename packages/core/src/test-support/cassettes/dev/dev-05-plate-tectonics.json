@@ -463,55 +463,6 @@
       }
     },
     {
-      "digest": "b64865fb5f4b001c56f0f953c399b888e7700cb87ffc32e532a0f2db5ec4b9f6",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "justification": "The notes support a single fill-in-the-blank fact: the Ring of Fire is a belt of frequent earthquakes and volcanoes caused by subduction.",
-          "primary": {
-            "lockType": "rune-cipher",
-            "prompt": "According to your notes, the Ring of Fire around the Pacific Ocean is a belt of frequent earthquakes and volcanoes caused by ______.",
-            "answer": "subduction",
-            "aliases": [],
-            "caseSensitive": false,
-            "evidence": [
-              {
-                "chunkId": "chk_f03456069c54_6",
-                "quote": "The Ring of Fire around the Pacific Ocean is a belt of frequent earthquakes and volcanoes caused by subduction."
-              }
-            ],
-            "explanation": "The notes explicitly say the Ring of Fire is caused by subduction, so that word completes the sentence.",
-            "hint": {
-              "kind": "first-letter-and-length",
-              "firstLetter": "s",
-              "length": 10
-            }
-          },
-          "alternate": {
-            "lockType": "combination-dial",
-            "prompt": "According to your notes, how many kinds of natural events are described as occurring along plate boundaries?",
-            "answer": {
-              "kind": "exact",
-              "value": 2
-            },
-            "units": "kinds",
-            "evidence": [
-              {
-                "chunkId": "chk_f03456069c54_6",
-                "quote": "Most earthquakes and volcanoes occur along plate boundaries."
-              }
-            ],
-            "explanation": "The notes name two kinds of events: earthquakes and volcanoes."
-          }
-        },
-        "usage": {
-          "inputTokens": 2713,
-          "outputTokens": 272
-        }
-      }
-    },
-    {
       "digest": "b7880cdcafe63ec1ae32b84845f1710203cc6231294c3d5d9b0741446a2db180",
       "origin": "recorded",
       "response": {
@@ -590,6 +541,55 @@
       }
     },
     {
+      "digest": "b64865fb5f4b001c56f0f953c399b888e7700cb87ffc32e532a0f2db5ec4b9f6",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes support a single fill-in-the-blank fact: the Ring of Fire is a belt of frequent earthquakes and volcanoes caused by subduction.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, the Ring of Fire around the Pacific Ocean is a belt of frequent earthquakes and volcanoes caused by ______.",
+            "answer": "subduction",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_f03456069c54_6",
+                "quote": "The Ring of Fire around the Pacific Ocean is a belt of frequent earthquakes and volcanoes caused by subduction."
+              }
+            ],
+            "explanation": "The notes explicitly say the Ring of Fire is caused by subduction, so that word completes the sentence.",
+            "hint": {
+              "kind": "first-letter-and-length",
+              "firstLetter": "s",
+              "length": 10
+            }
+          },
+          "alternate": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, how many kinds of natural events are described as occurring along plate boundaries?",
+            "answer": {
+              "kind": "exact",
+              "value": 2
+            },
+            "units": "kinds",
+            "evidence": [
+              {
+                "chunkId": "chk_f03456069c54_6",
+                "quote": "Most earthquakes and volcanoes occur along plate boundaries."
+              }
+            ],
+            "explanation": "The notes name two kinds of events: earthquakes and volcanoes."
+          }
+        },
+        "usage": {
+          "inputTokens": 2713,
+          "outputTokens": 272
+        }
+      }
+    },
+    {
       "digest": "001af934f12a8bf2176b0e190736a997c15a26d93a5b3a4cf73a623c1d0f4371",
       "origin": "recorded",
       "response": {
@@ -663,21 +663,6 @@
       }
     },
     {
-      "digest": "be7aac0c258d093945dfeaf14102ce0b18b203ae46ae462ad67cfb7634b19a5c",
-      "origin": "recorded",
-      "response": {
-        "ok": true,
-        "json": {
-          "answer": "Alfred Wegener",
-          "optionLabels": null
-        },
-        "usage": {
-          "inputTokens": 335,
-          "outputTokens": 19
-        }
-      }
-    },
-    {
       "digest": "034cf64d61189544bb103728f3ac2414380cf139c4481883ac796aeae692e769",
       "origin": "recorded",
       "response": {
@@ -689,6 +674,21 @@
         "usage": {
           "inputTokens": 349,
           "outputTokens": 18
+        }
+      }
+    },
+    {
+      "digest": "be7aac0c258d093945dfeaf14102ce0b18b203ae46ae462ad67cfb7634b19a5c",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "Alfred Wegener",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 335,
+          "outputTokens": 19
         }
       }
     },
@@ -835,6 +835,51 @@
         "usage": {
           "inputTokens": 330,
           "outputTokens": 17
+        }
+      }
+    },
+    {
+      "digest": "b623d2f1e46e51d4ed023176b5060dcbfec213a6cd0169a557afd31004efe29a",
+      "origin": "recorded",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q3",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q4",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            },
+            {
+              "questionId": "q5",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 1235,
+          "outputTokens": 108
         }
       }
     }
