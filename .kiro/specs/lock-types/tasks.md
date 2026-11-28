@@ -291,7 +291,7 @@ Rules for every task:
     - **Validates: Requirements 12.15**
     - _Requirements: 13.6, 12.15_
 
-- [ ] 20. Final checkpoint
+- [x] 20. Final checkpoint
   - Run `git pull --rebase`. Run the full Vitest suite with `pnpm test -- --maxWorkers=50%` and the full Playwright suite with `pnpm e2e -- --workers=2`. Run `pnpm lint`, `pnpm typecheck` and the structure check.
   - Append one row per run to `docs/build-log.md` with the real pass, fail and skip counts, failures included.
   - Run `git pull --rebase` immediately before committing. Ensure all tests pass, ask the user if questions arise.
