@@ -1,5 +1,8 @@
 # Build log
 
+## Costume Step 1
+- Implemented outside Kiro with GitHub Copilot. Added shared code-drawn parchment, stone, brass, wax, tags and candle ornaments to the existing screens, with keyboard focus and forced-colors treatments. Kept the gameplay, art placement and screen flow unchanged.
+
 ## Costume Step 0
 - Implemented outside Kiro with GitHub Copilot. Removed the Lantern toggle and atmosphere overlays; retained painted art, candles, ghosts, contrast backing, and automatic reduced motion.
 - Connected the shipped final-door and escape clips to the existing skippable transition, with escape after the last answer's evidence. No game rules or worker behavior changed.

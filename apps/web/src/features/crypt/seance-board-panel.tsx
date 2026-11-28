@@ -77,6 +77,7 @@ export function SeanceBoardPanel({ slotId, questionId }: LockPanelProps): ReactN
                 value={id}
                 checked={choice === id}
                 disabled={removed}
+                aria-disabled={removed || undefined}
                 ref={(node) => {
                   if (node === null) refs.current.delete(id);
                   else refs.current.set(id, node);

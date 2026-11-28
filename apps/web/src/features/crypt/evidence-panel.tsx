@@ -100,7 +100,7 @@ export function EvidencePanel({
         </ul>
       ) : null}
       {entry !== undefined && entry.explanation !== '' ? <p className="evidence-panel__explanation">{entry.explanation}</p> : null}
-      <button type="button" onClick={onContinue}>
+      <button type="button" className="costume-seal" onClick={onContinue}>
         {ROOM_PLAY_LABELS.continue}
       </button>
     </section>

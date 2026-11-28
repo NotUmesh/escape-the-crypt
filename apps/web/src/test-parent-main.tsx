@@ -9,6 +9,7 @@ import { createCannedExtractionClient } from './test-support/canned-extraction-c
 import './styles/tokens.css';
 import './styles/fonts.css';
 import './styles/app.css';
+import './styles/costume.css';
 
 /** Hooks the layout test calls to let a held count or read go ahead. */
 export interface IngestTestHooks {

@@ -86,6 +86,7 @@ function CursedObjectBody({ slotId, questionId, env, payload }: BodyProps): Reac
                 value={id}
                 checked={draft.chosenId === id}
                 disabled={removed}
+                aria-disabled={removed || undefined}
                 ref={(node) => {
                   if (node === null) refs.current.delete(id);
                   else refs.current.set(id, node);
@@ -99,7 +100,7 @@ function CursedObjectBody({ slotId, questionId, env, payload }: BodyProps): Reac
         })}
       </div>
       {showMessage ? <p role="alert">{ROOM_PLAY_LABELS.chooseOption}</p> : null}
-      <button type="button" onClick={submit}>
+      <button type="button" className="costume-seal" onClick={submit}>
         {ROOM_PLAY_LABELS.submitAnswer}
       </button>
     </div>

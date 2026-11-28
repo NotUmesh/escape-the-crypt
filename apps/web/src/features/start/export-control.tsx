@@ -79,7 +79,7 @@ export function ExportControl(props: ExportControlProps): ReactNode {
   }, [state, assets, eventLog, runId, deps, finish]);
   return (
     <div className="export-control" data-testid="export-control">
-      <button type="button" className="export-control__button" onClick={onExport} disabled={status === 'working'}>
+      <button type="button" className="export-control__button" onClick={onExport} disabled={status === 'working'} aria-disabled={status === 'working' || undefined}>
         {EXPORT_BUTTON_LABEL}
       </button>
       <p

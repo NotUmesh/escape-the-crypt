@@ -63,7 +63,7 @@ export function ReadOnlyScreen({ state, onTakeOver, restoreFailed = false }: Rea
     <section className="read-only-screen" aria-labelledby="read-only-title" data-testid="read-only-screen">
       <h2 id="read-only-title">{READ_ONLY_TITLE}</h2>
       <p>{READ_ONLY_HINT}</p>
-      <button type="button" ref={buttonRef} className="read-only-screen__take-over" onClick={onTakeOver}>
+      <button type="button" ref={buttonRef} className="read-only-screen__take-over costume-seal" onClick={onTakeOver}>
         {TAKE_OVER_LABEL}
       </button>
       {restoreFailed ? <p role="status">{READ_ONLY_RESTORE_FAILED}</p> : null}

@@ -81,7 +81,7 @@ export function RuneCipherPanel({ slotId, questionId }: LockPanelProps): ReactNo
         onChange={onChange}
         onKeyDown={onKeyDown}
       />
-      <button type="button" onClick={submit}>
+      <button type="button" className="costume-seal" onClick={submit}>
         {ROOM_PLAY_LABELS.submitAnswer}
       </button>
       {showMessage ? (

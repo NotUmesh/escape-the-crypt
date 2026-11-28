@@ -70,7 +70,7 @@ function EscapedDoor({ onOpenAutopsy, state, loadSceneImpl, viewport }: EscapedF
     <section className="final-door final-door--escaped" data-testid="escape-view">
       {state === undefined ? null : <EscapeArt state={state} loadSceneImpl={loadSceneImpl} viewport={viewport} />}
       <p>{ESCAPE_COPY.message}</p>
-      <button ref={buttonRef} type="button" className="final-door__button" onClick={onOpenAutopsy}>
+      <button ref={buttonRef} type="button" className="final-door__button costume-seal" onClick={onOpenAutopsy}>
         {ROOM_PLAY_LABELS.openAutopsy}
       </button>
     </section>
@@ -134,7 +134,7 @@ function PlayingDoor({
         {playing ? (
           <button
             type="button"
-            className="final-door__button"
+            className="final-door__button costume-seal"
             aria-label={doorButtonName()}
             onClick={() => dispatch({ type: 'enterFinalDoor' })}
           >

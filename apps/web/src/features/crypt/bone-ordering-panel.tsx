@@ -7,6 +7,7 @@ import type { LockPanelContextValue } from './lock-panel-context';
 import { hintEffectFor, itemText, useHintAnnouncement, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
 import type { LockPanelProps } from './lock-panel-registry';
 import './lock-panels.css';
+import { ParchmentTag } from '../costume/ornaments';
 
 /**
  * Bone ordering: each bone has Move up and Move down buttons. Alt with the up or down arrow
@@ -95,7 +96,7 @@ function BoneOrderingBody({ slotId, questionId, env, payload }: BodyProps): Reac
           );
           return (
             <li key={id} className="bone-ordering-panel__row" data-pinned={pinned} onKeyDown={(e) => onKeyDown(e, id, index)}>
-              <span className="bone-ordering-panel__text">{text}</span>
+              <ParchmentTag className="bone-ordering-panel__text">{text}</ParchmentTag>
               {pinned ? <span>({LOCK_PANEL_LABELS.boneFixed})</span> : null}
               {button('up')}
               {button('down')}
@@ -103,7 +104,7 @@ function BoneOrderingBody({ slotId, questionId, env, payload }: BodyProps): Reac
           );
         })}
       </ol>
-      <button type="button" onClick={submit}>
+      <button type="button" className="costume-seal" onClick={submit}>
         {ROOM_PLAY_LABELS.submitAnswer}
       </button>
     </div>

@@ -169,7 +169,7 @@ function BoundThreadsBody({ slotId, questionId, env, payload }: BodyProps): Reac
         </ul>
       )}
       {message === null ? null : <p role="alert">{message}</p>}
-      <button type="button" onClick={submit}>
+      <button type="button" className="costume-seal" onClick={submit}>
         {ROOM_PLAY_LABELS.submitAnswer}
       </button>
     </div>

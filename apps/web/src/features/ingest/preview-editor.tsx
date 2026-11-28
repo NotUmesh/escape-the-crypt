@@ -46,8 +46,9 @@ export function PreviewEditor(props: PreviewEditorProps): React.JSX.Element {
         <div className="ingest-preview-actions">
           <button
             type="button"
-            className="ingest-button"
+            className="ingest-button costume-seal"
             disabled={!canConfirm}
+            aria-disabled={!canConfirm || undefined}
             aria-describedby={canConfirm ? undefined : `${id}-why`}
             onClick={props.onConfirm}
           >

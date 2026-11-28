@@ -47,10 +47,3 @@
   gap: 0.75rem;
   margin-top: 1rem;
 }
-
-.ingest-preview .ingest-button:disabled {
-  background-color: transparent;
-  color: var(--ink-900);
-  border-color: var(--ink-900);
-  border-style: dashed;
-}

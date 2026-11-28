@@ -35,12 +35,12 @@ export function StartView({ onEnter, generation, resume, settings }: StartViewPr
       ) : null}
       {running ? null : settings}
       {running || failed ? null : (
-        <button type="button" onClick={onEnter}>
+        <button type="button" className={generation === undefined ? 'crypt-start__primary' : undefined} onClick={onEnter}>
           {ENTER_CRYPT_LABEL}
         </button>
       )}
       {generation === undefined || running ? null : (
-        <button type="button" onClick={generation.onGenerate}>
+        <button type="button" className="crypt-start__primary" onClick={generation.onGenerate}>
           {GENERATION_COPY.generateButton}
         </button>
       )}

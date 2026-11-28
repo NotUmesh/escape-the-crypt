@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
+import { CandleIcon } from '../costume/ornaments';
 
 export interface QuestionControlsProps {
   readonly slotId: string;
@@ -36,13 +37,14 @@ export function QuestionControls({
             <button
               type="button"
               disabled={noHints || hintApplied}
+              aria-disabled={noHints || hintApplied || undefined}
               aria-describedby={countId}
               onClick={() => dispatch({ type: 'useHint', slotId })}
             >
               {ROOM_PLAY_LABELS.hint}
             </button>
             <span id={countId} className="question-controls__count">
-              {countText}
+              <CandleIcon lit={!noHints} />{countText}
             </span>
           </>
         ) : null}

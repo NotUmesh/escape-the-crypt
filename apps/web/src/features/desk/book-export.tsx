@@ -65,7 +65,7 @@ export function BookExport({
   }, [restore, prepare, download, deps, runId, finish]);
   return (
     <div className="book-export" data-testid="book-export">
-      <button type="button" className="fh-button" onClick={onExport} disabled={working}>
+      <button type="button" className="fh-button" onClick={onExport} disabled={working} aria-disabled={working || undefined}>
         {EXPORT_BUTTON_LABEL}
       </button>
       <p className="fh-note" data-testid="book-export-status">

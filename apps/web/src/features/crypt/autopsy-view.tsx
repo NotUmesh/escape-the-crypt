@@ -200,7 +200,7 @@ export function AutopsyView({ state, assets, dispatch, announce, sampleTitle = S
       />
       <ConceptsSection entries={entries} assets={assets} />
       <FinalDoorSection state={state} content={assets === null ? null : assets.content} />
-      <button type="button" onClick={() => dispatch({ type: 'playAgain' })}>
+      <button type="button" className="costume-seal" onClick={() => dispatch({ type: 'playAgain' })}>
         {ROOM_PLAY_LABELS.playAgain}
       </button>
     </section>

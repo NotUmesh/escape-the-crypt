@@ -136,8 +136,8 @@ describe('panel contrast over the art', () => {
 
   it('draws the panel on an opaque token surface, so the art never lowers its contrast', () => {
     const css = readFileSync(join(HERE, 'question-panel.css'), 'utf8');
-    expect(css).toMatch(/\.question-panel\s*\{[^}]*background:\s*var\(--stone-800\)/);
-    expect(css).toMatch(/\.question-panel\s*\{[^}]*color:\s*var\(--bone-50\)/);
+    expect(css).toMatch(/\.question-panel\s*\{[^}]*background:\s*var\(--parchment-100\)/);
+    expect(css).toMatch(/\.question-panel\s*\{[^}]*color:\s*var\(--ink-900\)/);
     const closeUpCss = readFileSync(join(HERE, 'lock-closeup.css'), 'utf8');
     expect(closeUpCss).not.toMatch(/\.lock-closeup__panel\s*\{[^}]*opacity/);
   });

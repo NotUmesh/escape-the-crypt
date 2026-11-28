@@ -121,7 +121,7 @@ function CombinationDialBody({ slotId, questionId, env, payload }: BodyProps): R
         onChange={onType}
         onKeyDown={onTypedKey}
       />
-      <button type="button" onClick={submit}>
+      <button type="button" className="costume-seal" onClick={submit}>
         {ROOM_PLAY_LABELS.submitAnswer}
       </button>
       {showMessage ? (

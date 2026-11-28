@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
+import { ParchmentTag } from '../costume/ornaments';
 import { bookLabel } from './shelf-entry';
 import type { ShelfEntry } from './shelf-entry';
 
@@ -37,7 +38,7 @@ export function BookSpine({ entry, index, selected, onSelect }: BookSpineProps):
     <button type="button" className="book-spine" aria-pressed={selected} onClick={onSelect}>
       <img className="book-spine__art" src={`/art/desk/books/book-${picture}.webp`} alt="" draggable={false} />
       <span className="book-spine__text">
-        <span className="book-spine__title">{label.title}</span>
+        <ParchmentTag className="book-spine__title">{label.title}</ParchmentTag>
         <span className="book-spine__meta">{label.meta}</span>
         <span className="book-spine__status">
           <StatusIcon status={entry.status} />

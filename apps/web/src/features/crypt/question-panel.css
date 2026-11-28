@@ -1,6 +1,6 @@
 .question-panel {
-  background: var(--stone-800);
-  color: var(--bone-50);
+  background: var(--parchment-100);
+  color: var(--ink-900);
   border: 1px solid var(--stone-300);
   padding: 1rem;
   font-family: var(--font-body);
@@ -14,7 +14,7 @@
 
 .question-panel__heading {
   font-family: var(--font-title);
-  color: var(--bone-50);
+  color: inherit;
   margin: 0 0 0.75rem;
 }
 
@@ -100,7 +100,7 @@
 
 .evidence-panel:focus-visible,
 .evidence-panel button:focus-visible {
-  outline: var(--focus-ring);
+  outline: var(--focus-ring-on-light);
   outline-offset: var(--focus-offset);
 }
 

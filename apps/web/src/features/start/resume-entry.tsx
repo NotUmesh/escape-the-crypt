@@ -41,11 +41,11 @@ export function ResumeEntryView({ onContinue, onStartAgain, failure, busy = fals
         </p>
       )}
       {failure === null ? (
-        <button type="button" className="resume-entry__button" onClick={onContinue} disabled={busy}>
+        <button type="button" className="resume-entry__button costume-seal" onClick={onContinue} disabled={busy} aria-disabled={busy || undefined}>
           {CONTINUE_LABEL}
         </button>
       ) : null}
-      <button type="button" className="resume-entry__button" onClick={onStartAgain} disabled={busy}>
+      <button type="button" className={`resume-entry__button${failure === null ? '' : ' costume-seal'}`} onClick={onStartAgain} disabled={busy} aria-disabled={busy || undefined}>
         {START_AGAIN_LABEL}
       </button>
     </div>

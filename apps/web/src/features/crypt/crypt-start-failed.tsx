@@ -22,7 +22,7 @@ export function StartFailed({
     <section className="crypt-start crypt-start--failed" role="alert" data-testid="start-failed">
       <p>{copy.what}</p>
       <p>{copy.next}</p>
-      <button type="button" onClick={() => dispatch({ type: 'startRun' })}>
+      <button type="button" className="costume-seal" onClick={() => dispatch({ type: 'startRun' })}>
         {ENTER_CRYPT_LABEL}
       </button>
     </section>

@@ -38,6 +38,7 @@ describe('QuestionControls', () => {
   it('Hint dispatches useHint and shows the remaining count', () => {
     const { dispatch } = setup();
     expect(mount.container.textContent).toContain(ROOM_PLAY_LABELS.hintsLeft(2));
+    expect(mount.container.querySelector('.question-controls__count svg[aria-hidden="true"] [data-lit]')).not.toBeNull();
     act(() => buttons(mount.container)[ROOM_PLAY_LABELS.hint]?.click());
     expect(dispatch).toHaveBeenCalledWith({ type: 'useHint', slotId: 's1' });
   });
@@ -46,6 +47,8 @@ describe('QuestionControls', () => {
     const { dispatch } = setup({ remainingHints: 0 });
     const hint = buttons(mount.container)[ROOM_PLAY_LABELS.hint];
     expect(hint?.disabled).toBe(true);
+    expect(hint?.getAttribute('aria-disabled')).toBe('true');
+    expect(mount.container.querySelector('.question-controls__count svg [data-lit]')).toBeNull();
     expect(mount.container.textContent).toContain('No hints left');
     act(() => hint?.click());
     expect(dispatch).not.toHaveBeenCalled();

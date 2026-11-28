@@ -52,6 +52,7 @@ export function PdfPicker(props: PdfPickerProps): React.JSX.Element {
         accept="application/pdf,.pdf"
         aria-describedby={`${id}-hint`}
         disabled={extracting || counting}
+        aria-disabled={extracting || counting || undefined}
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) props.onFileSelected(file);
@@ -86,8 +87,9 @@ export function PdfPicker(props: PdfPickerProps): React.JSX.Element {
           <div className="ingest-pdf-actions">
             <button
               type="button"
-              className="ingest-button"
+              className="ingest-button costume-seal"
               disabled={selectedPages.length === 0}
+              aria-disabled={selectedPages.length === 0 || undefined}
               onClick={props.onReadPages}
             >
               {INGEST_UI_COPY.readPages}

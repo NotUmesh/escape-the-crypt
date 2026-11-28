@@ -70,6 +70,7 @@ export function ImportCrypt({ deps, onImported, announce, importFile = importCry
         className="fh-button"
         onClick={() => input.current?.click()}
         disabled={working}
+        aria-disabled={working || undefined}
         aria-describedby={hintId}
       >
         {IMPORT_COPY.button}

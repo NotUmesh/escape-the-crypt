@@ -33,7 +33,7 @@ export function StartActions({ onEnter, generation }: StartActionsProps): ReactN
           </button>
         ) : null}
         {failed ? null : (
-          <button type="button" className="fh-button" onClick={onEnter}>
+          <button type="button" className={generation === undefined ? 'fh-button fh-button--primary' : 'fh-button'} onClick={onEnter}>
             {ENTER_CRYPT_LABEL}
           </button>
         )}

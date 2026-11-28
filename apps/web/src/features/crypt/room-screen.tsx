@@ -10,6 +10,7 @@ import {
 } from '@escape-the-crypt/core';
 import type { LockSlotState, Outcome_Notice, ReturnSlotState, State } from '@escape-the-crypt/core';
 import type { RoomAction } from '../../state/room-actions';
+import { CandleIcon } from '../costume/ornaments';
 import { doorButtonName, lockName, returnSlotName } from './accessible-names';
 import { ArtStage } from './art-stage';
 import type { Viewport } from './crop-mapping';
@@ -133,19 +134,28 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
 
   return (
     <section className="room-screen" aria-labelledby="room-screen-title">
-      <h1 id="room-screen-title" className="room-screen__title" ref={titleRef} tabIndex={-1}>
-        {room === undefined ? '' : roomDisplayName(roomIndex)}
-      </h1>
-      {rooms > 1 ? <p className="room-screen__position">{ROOM_PLAY_LABELS.roomOf(roomIndex + 1, rooms)}</p> : null}
-      {shortened && roomIndex === 0 ? (
-        <p className="room-screen__shortened" data-testid="crypt-shortened">
-          {ROOM_PLAY_LABELS.cryptShortened(rooms, requested)}
-        </p>
-      ) : null}
-      {showSampleLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
-      {state.settings.hintAllowance > 0 ? (
-        <p className="room-screen__hints">{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}</p>
-      ) : null}
+      <header className="costume-stone">
+        <h1 id="room-screen-title" className="room-screen__title" ref={titleRef} tabIndex={-1}>
+          {room === undefined ? '' : roomDisplayName(roomIndex)}
+          {slots.length === 0 ? null : (
+            <span className="room-screen__candles" aria-hidden="true">
+              {slots.map((slot) => <CandleIcon key={slot.slotId} lit={slot.candleLit} />)}
+            </span>
+          )}
+        </h1>
+        {rooms > 1 ? <p className="room-screen__position">{ROOM_PLAY_LABELS.roomOf(roomIndex + 1, rooms)}</p> : null}
+        {shortened && roomIndex === 0 ? (
+          <p className="room-screen__shortened" data-testid="crypt-shortened">
+            {ROOM_PLAY_LABELS.cryptShortened(rooms, requested)}
+          </p>
+        ) : null}
+        {showSampleLabel ? <p className="room-screen__sample-label">{SAMPLE_CRYPT_LABEL}</p> : null}
+        {state.settings.hintAllowance > 0 ? (
+          <p className="room-screen__hints">
+            <CandleIcon lit={state.remainingHints > 0} />{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}
+          </p>
+        ) : null}
+      </header>
       {sceneState.status === 'ready' && artRoom !== null && drawn.length > 0 ? (
         <ArtStage
           artRoom={artRoom}
@@ -204,7 +214,7 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
       {canGoOn ? (
         <button
           type="button"
-          className="room-screen__next-room"
+          className="room-screen__next-room costume-seal"
           onClick={() => dispatch({ type: 'enterRoom', roomId: nextRoom.roomId })}
         >
           {ROOM_PLAY_LABELS.nextRoom}
@@ -213,7 +223,7 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
       {selectFinalDoor(state).available && !state.atFinalDoor ? (
         <button
           type="button"
-          className="room-screen__door-button"
+          className={`room-screen__door-button${canGoOn ? '' : ' costume-seal'}`}
           aria-label={doorButtonName()}
           onClick={() => dispatch({ type: 'enterFinalDoor' })}
         >

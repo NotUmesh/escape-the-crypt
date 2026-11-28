@@ -58,7 +58,7 @@
   text-align: left;
 }
 .sample-shelf__label {
-  color: var(--stone-300);
+  justify-self: start;
 }
 /* The desk art is on the left of the screen on wide windows; the panels sit on the sides. */
 @media (min-width: 56rem) {
