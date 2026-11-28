@@ -54,18 +54,19 @@ Honest quality numbers need a human verdict per question. Two raters label the q
 result file; the tool counts Wrong_Accepted and Correct_Rejected per lock type.
 
 ```powershell
-pnpm --filter @escape-the-crypt/worker eval export-ratings --result <result>.json --blind
+pnpm --filter @escape-the-crypt/worker eval export-ratings --result <result>.json
 pnpm --filter @escape-the-crypt/worker eval import-ratings --result <result>.json --csv <rater-1>.csv --csv <rater-2>.csv
 ```
 
 - **Export** writes `<result>-ratings.csv` in the results folder: one row per accepted or rejected
-  question (not `not-reviewed`), with lock type, prompt, the answer key, options, cited quotes and the
-  rejection reason, and blank `rater`, `verdict` (`correct`, `wrong`, `unsure`) and `comment` columns.
-  Each rater gets their own copy and fills in their name. Use `--blind` for real rating: it drops the
-  `result` and `rejection_reason` columns and shuffles the rows, so a rater cannot tell accepted from
-  rejected. It never overwrites an existing CSV. A note whose cassette does not line up with the
-  result file (a retried call, a re-recorded cassette) is skipped with a reason, never guessed.
-- **Import** takes one or two filled CSVs, joins each row to the result file by note, concept index and
+  question (not `not-reviewed`), with lock type, prompt, the answer key, options and cited quotes,
+  and blank `rater`, `verdict` (`correct`, `wrong`, `unsure`) and `comment` columns. **It is blind by
+  default**: there are no `result` or `rejection_reason` columns and the rows are shuffled in a
+  repeatable order, so a rater cannot tell which questions the pipeline rejected. `--with-results`
+  adds those columns and keeps the original order; use it only to check the export, never for
+  raters. Each rater gets their own copy and fills in their name. It never overwrites an existing
+  CSV. A note whose cassette does not line up with the result file (a retried call, a re-recorded
+  cassette) is skipped with a reason, never guessed.- **Import** takes one or two filled CSVs, joins each row to the result file by note, concept index and
   role (accepted or rejected comes from the result file, never from the CSV), and writes
   `<result>-rated.json`: a copy of the run data plus a `ratings` section. Any bad row (unknown verdict,
   unknown question, duplicate, wrong run, two rater names in one file) stops the import and writes

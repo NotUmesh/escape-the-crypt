@@ -24,11 +24,11 @@ const exportArgs = (...extra: string[]): string[] => ['export-ratings', '--resul
 const readCsv = (dir: string, name: string) => parseCsv(readFileSync(join(dir, name), 'utf8'));
 
 describe('eval export-ratings', () => {
-  it('writes one row per accepted or rejected question, with blank rater columns, and skips not-reviewed', async () => {
+  it('--with-results writes one row per accepted or rejected question, with blank rater columns, and skips not-reviewed', async () => {
     const { root, resultsDir } = repo();
     const out = io();
-    expect(await main(exportArgs(), {}, root, out)).toBe(0);
-    expect(out.lines).toEqual(['Wrote 5 row(s) to fixture-ratings.csv.']);
+    expect(await main(exportArgs('--with-results'), {}, root, out)).toBe(0);
+    expect(out.lines).toEqual(['Wrote 5 row(s) to fixture-ratings.csv (with results: not for raters).']);
     const text = readFileSync(join(resultsDir, 'fixture-ratings.csv'), 'utf8');
     expect(text.startsWith('\uFEFFrun_id,note,concept_index,concept_id,role,lock_type,result,rejection_reason,prompt,answer,options,quotes,explanation,rater,verdict,comment')).toBe(true);
     const rows = readCsv(resultsDir, 'fixture-ratings.csv')?.rows ?? [];
@@ -44,7 +44,7 @@ describe('eval export-ratings', () => {
 
   it('shows each type as a rater needs it: answer key, options with labels, quotes, order', async () => {
     const { root, resultsDir } = repo();
-    await main(exportArgs(), {}, root, io());
+    await main(exportArgs('--with-results'), {}, root, io());
     const rows = readCsv(resultsDir, 'fixture-ratings.csv')?.rows ?? [];
     expect(rows[0]).toMatchObject({ prompt: RUNE_Q.prompt, answer: 'vaccine / a vaccine', quotes: 'A vaccine trains the immune system.' });
     expect(rows[1]?.['answer']).toBe('a: Vaccines train the immune system');
@@ -65,14 +65,19 @@ describe('eval export-ratings', () => {
 
   it('survives a prompt with a line break and neutralises a formula prompt', async () => {
     const { root, resultsDir } = repo(buildFixture({ gen0Primary: { ...RUNE_Q, prompt: '=HYPERLINK("x")\nsecond line' } }));
-    await main(exportArgs(), {}, root, io());
+    await main(exportArgs('--with-results'), {}, root, io());
     expect(readCsv(resultsDir, 'fixture-ratings.csv')?.rows[0]?.['prompt']).toBe('\'=HYPERLINK("x")\nsecond line');
   });
 
-  it('--blind drops the outcome columns and shuffles the same rows in a repeatable order', async () => {
+  it('is blind by default: no outcome columns, and the same rows shuffled in a repeatable order', async () => {
     const { root, resultsDir } = repo();
-    expect(await main(exportArgs('--blind', '--out', 'b1.csv'), {}, root, io())).toBe(0);
-    expect(await main(exportArgs('--blind', '--out', 'b2.csv'), {}, root, io())).toBe(0);
+    const out = io();
+    expect(await main(exportArgs('--out', 'b1.csv'), {}, root, out)).toBe(0);
+    expect(out.lines).toEqual(['Wrote 5 row(s) to b1.csv (blind).']);
+    expect(await main(exportArgs('--out', 'b2.csv'), {}, root, io())).toBe(0);
+    // The plain default file never says which questions were rejected, anywhere in it.
+    const text = readFileSync(join(resultsDir, 'b1.csv'), 'utf8');
+    for (const leak of ['rejected', 'accepted', 'negative-question', 'answer-mismatch']) expect(text).not.toContain(leak);
     const first = readCsv(resultsDir, 'b1.csv');
     expect(first?.header).not.toContain('result');
     expect(first?.header).not.toContain('rejection_reason');

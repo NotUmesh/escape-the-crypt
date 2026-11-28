@@ -11,10 +11,10 @@ import { parseEvaluationResult, type EvaluationResult } from './result-file';
 
 export const EXPORT_USAGE = [
   'Usage (from the repository root):',
-  '  pnpm --filter @escape-the-crypt/worker eval export-ratings --result <result.json> [--out <ratings.csv>] [--blind]',
+  '  pnpm --filter @escape-the-crypt/worker eval export-ratings --result <result.json> [--out <ratings.csv>] [--with-results]',
   'Writes one row per accepted or rejected question of a result file, from its cassettes, into the results folder.',
   'Raters fill the rater, verdict (correct, wrong or unsure) and comment columns.',
-  '--blind leaves out the result and rejection_reason columns and shuffles the rows, so a rater cannot tell accepted from rejected.',
+  'By default the export is blind: no result or rejection_reason columns and shuffled rows, so a rater cannot tell accepted from rejected. --with-results adds those columns and keeps the original order (for checking the export, never for raters).',
   'It never overwrites an existing CSV. The CSV holds question text: it is git-ignored, never commit it.',
 ].join('\n');
 
@@ -45,7 +45,7 @@ const shuffleKey = (runId: string, row: Row): string =>
 export async function runExportRatings(argv: readonly string[], repoRoot: string, io: Io): Promise<number> {
   const flags = parseFlags(argv);
   const resultName = flags['result']?.[0];
-  const blind = flags['blind'] !== undefined;
+  const blind = flags['with-results'] === undefined;
   if (resultName === undefined || !isPlainJsonName(resultName)) {
     io.out(EXPORT_USAGE);
     return 1;
@@ -120,7 +120,7 @@ export async function runExportRatings(argv: readonly string[], repoRoot: string
   const ordered = blind ? [...rows].sort((a, b) => shuffleKey(run.runId, a).localeCompare(shuffleKey(run.runId, b))) : rows;
   mkdirSync(paths.resultsDir, { recursive: true });
   writeFileSync(outPath, toCsv(columnsFor(blind), ordered));
-  io.out(`Wrote ${ordered.length} row(s) to ${outName}${blind ? ' (blind)' : ''}.`);
+  io.out(`Wrote ${ordered.length} row(s) to ${outName}${blind ? ' (blind)' : ' (with results: not for raters)'}.`);
   if (problems.length > 0) io.out(`${problems.length} note(s) were skipped, so the CSV is incomplete.`);
   return problems.length > 0 ? 2 : 0;
 }
