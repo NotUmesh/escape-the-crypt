@@ -22,7 +22,7 @@ export const DESK_ART_SIZE: Readonly<Record<DeskSet, Size>> = {
  * down it. The flame is drawn in code, so a few px of error is only cosmetic.
  */
 export const DESK_CANDLE_POINT: Readonly<Record<DeskSet, Point>> = {
-  desktop: { x: 1318, y: 612 },
+  desktop: { x: 1377, y: 648 },
   mobile: { x: 897, y: 1033 },
 };
 

@@ -18,6 +18,8 @@ export const FRONT_OF_HOUSE_COPY = {
     shelfEmpty: 'No crypts on this device yet. Bring your notes to start one.',
     moreCrypts: (n: number): string => `More crypts (${n})`,
     samplesTitle: 'Sample crypts',
+    menuLabel: 'Desk',
+    resumeLookupFailed: 'Saved crypts could not be checked on this device. You can still play a sample crypt.',
   },
   book: {
     fromNotes: 'Crypt from your notes',

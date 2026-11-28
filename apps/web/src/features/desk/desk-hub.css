@@ -1,79 +1,199 @@
-.desk-hub {
-  display: grid;
-  gap: 1rem;
-  align-content: start;
-  max-width: 60rem;
-  margin: 0 auto;
+.desk-scene[data-variant='hub'] .desk-scene__content {
+  padding: 0;
 }
+
+.desk-hub {
+  box-sizing: border-box;
+  min-height: 100svh;
+  display: grid;
+  align-content: space-between;
+  align-items: start;
+  justify-items: start;
+  gap: 2rem;
+  padding: 1rem;
+}
+
 .desk-hub__intro {
+  max-width: 22rem;
+}
+
+.desk-hub__intro p {
+  margin: 0;
+}
+
+.desk-menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.desk-menu[data-mapped='true'] {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.desk-menu__prop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0.35em 0.5em;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+:root .desk-menu .desk-menu__prop:not(.costume-seal) {
+  background: var(--stone-950);
+  color: var(--bone-50);
+  border: 1px solid var(--paper-edge);
+  border-radius: 0.25rem;
+}
+
+.desk-menu[data-mapped='true'] .desk-menu__prop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.desk-menu__tag {
+  position: relative;
+  font-size: 1em;
+}
+
+.desk-menu__outline {
+  position: absolute;
+  pointer-events: none;
+}
+
+.desk-menu__outline polygon {
+  fill: transparent;
+  pointer-events: fill;
+  stroke: transparent;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.desk-menu__prop:is(:hover, :focus-visible) polygon {
+  stroke: var(--spectre-300);
+}
+
+.desk-hub .desk-hub__dialog {
+  position: fixed;
+  width: min(36rem, calc(100% - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.desk-hub__dialog::backdrop {
+  background: color-mix(in srgb, var(--stone-950) 70%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.desk-hub__dialog-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.desk-hub__dialog-header h2,
+.desk-hub__panel > * {
+  margin: 0;
+}
+
+.desk-hub__panel,
+.desk-hub__card {
   display: grid;
   gap: 0.75rem;
   justify-items: start;
 }
-.desk-hub__intro p {
-  margin: 0;
-}
-.desk-hub__samples {
-  display: grid;
-  gap: 0.5rem;
+
+.desk-hub__panel .book-stack,
+.desk-hub__card {
   width: 100%;
 }
-.desk-hub__shelf {
-  display: grid;
-  gap: 0.75rem;
-  align-content: start;
-}
-.desk-hub__shelf > * {
-  margin: 0;
-}
+
 .desk-hub__card {
-  display: grid;
-  gap: 0.5rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--stone-300);
+  border-top: 1px solid var(--paper-edge);
 }
+
 .desk-hub__card-title {
   margin: 0;
   font-weight: 600;
   font-size: inherit;
 }
+
 .desk-hub__card-status {
   display: flex;
   align-items: center;
   gap: 0.25rem;
   margin: 0;
-  color: var(--stone-300);
 }
+
+.desk-hub__dialog .fh-note,
+.desk-hub__dialog .resume-entry__message {
+  color: var(--ink-900);
+}
+
 .sample-shelf {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.sample-shelf__button {
+
+:root .desk-hub .sample-shelf__button {
   display: grid;
-  gap: 0.125rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.125rem 0.75rem;
   width: 100%;
   text-align: left;
+  background: var(--parchment-100);
+  color: var(--ink-900);
+  border: 1px solid var(--paper-edge);
+  border-radius: 0.3rem;
+  text-shadow: none;
 }
+
+.sample-shelf__button::after {
+  content: '';
+  grid-area: 1 / 2 / span 2;
+  width: 1.5rem;
+  aspect-ratio: 1;
+  border: 2px double var(--wax-rim);
+  border-radius: 50%;
+  background: radial-gradient(var(--wax-700), var(--wax-950));
+}
+
 .sample-shelf__label {
   justify-self: start;
 }
-/* The desk art is on the left of the screen on wide windows; the panels sit on the sides. */
-@media (min-width: 56rem) {
-  .desk-hub {
-    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
-    grid-template-areas: 'intro shelf';
-    justify-content: space-between;
-    max-width: none;
+
+@media (forced-colors: active) {
+  :root .desk-menu .desk-menu__prop:not(.costume-seal),
+  :root .desk-hub .sample-shelf__button {
+    background: ButtonFace;
+    color: ButtonText;
+    border-color: ButtonText;
   }
-  .desk-hub__intro {
-    grid-area: intro;
+
+  .desk-hub__dialog .fh-note,
+  .desk-hub__dialog .resume-entry__message {
+    color: CanvasText;
   }
-  .desk-hub__shelf {
-    grid-area: shelf;
-    justify-self: end;
-    width: min(100%, 28rem);
+
+  .desk-menu__prop:is(:hover, :focus-visible) polygon {
+    stroke: Highlight;
   }
 }

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
+import { ENTER_CRYPT_LABEL, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import { buildSampleCrypt, correctAnswerFor, enterCrypt, openLockName, roomOneSlots, submitAnswer } from './crypt-helpers';
 
 interface ScreenSnapshot {
@@ -32,7 +32,7 @@ async function snapshot(page: Page): Promise<ScreenSnapshot> {
   };
 }
 
-test('reload mid-run, then Continue your crypt: the same screen comes back', async ({ page }) => {
+test('reload mid-run, then Enter the crypt: the same screen comes back', async ({ page }) => {
   const crypt = buildSampleCrypt();
   const [first, second] = roomOneSlots(crypt);
   if (first === undefined || second === undefined) throw new Error('room 1 needs two lock slots');
@@ -60,9 +60,9 @@ test('reload mid-run, then Continue your crypt: the same screen comes back', asy
 
   // Let the autosave settle, then reload.
   await page.waitForTimeout(500);
-  // The desk shows the saved crypt as a book; Continue goes straight in (a short fade, no clips).
+  // The desk stairs continue the active crypt (a short fade, no clips).
   await page.goto('/');
-  await page.getByRole('button', { name: 'Continue your crypt', exact: true }).click();
+  await page.getByRole('button', { name: ENTER_CRYPT_LABEL, exact: true }).click();
   await page.locator('.room-screen__lock-button').first().waitFor();
 
   // The run state is restored: same locks, same solved/open statuses, same candle and ghost lines.

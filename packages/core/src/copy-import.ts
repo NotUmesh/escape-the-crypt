@@ -27,6 +27,7 @@ const CHOOSE_AGAIN = 'Choose the file that "Export a copy" downloaded. Nothing w
 /** The "Import a crypt" action on the desk, and what it says when a file is refused. */
 export const IMPORT_COPY = {
   button: 'Import a crypt',
+  chooseFile: 'Choose a crypt file',
   working: 'Reading your copy.',
   hint: 'Choose a copy you exported from Escape the Crypt. The file is read on this device and goes nowhere else.',
   done: {

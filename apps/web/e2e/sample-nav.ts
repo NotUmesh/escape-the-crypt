@@ -56,6 +56,7 @@ export async function press(page: Page, target: Locator, mode: InputMode): Promi
 export async function startSample(page: Page, id: string, mode: InputMode): Promise<void> {
   const title = SAMPLE_LIST.find((entry) => entry.id === id)?.title ?? id;
   await page.goto('/');
+  await press(page, button(page, FRONT_OF_HOUSE_COPY.hub.samplesTitle), mode);
   await press(page, button(page, `${ENTER_CRYPT_LABEL}: ${title} ${SAMPLE_CRYPT_LABEL}`), mode);
   await page.locator('.room-screen, [data-testid="descent-gate"]').first().waitFor();
   const skip = button(page, FRONT_OF_HOUSE_COPY.descent.skip);

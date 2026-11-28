@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
 import type { Chunk } from '@escape-the-crypt/core';
 import type { CryptStartContext } from '../crypt/crypt-start-context';
 import { DigScreen } from '../dig/dig-screen';
@@ -8,7 +9,7 @@ import type { NotesStats } from '../dig/notes-stats';
 import { IngestFlow } from '../ingest/ingest-flow';
 import type { IngestFlowProps } from '../ingest/ingest-flow';
 import type { NotesStore } from '../ingest/notes-store';
-import { ResumeEntry } from '../start/resume-entry';
+import { ResumeEntry, restoreFailureText } from '../start/resume-entry';
 import { BookExport } from './book-export';
 import { JudgeAccess } from './judge-access';
 import { BringNotesScreen } from './bring-notes-screen';
@@ -23,6 +24,8 @@ import { ImportCrypt } from './import-crypt';
 import { useShelf } from './use-shelf';
 import type { ShelfLoader } from './use-shelf';
 import { listShelf } from '../../state/storage/shelf-repository';
+import { findResumable } from '../../state/storage/run-repository';
+import { restoreRun } from '../../state/storage/restore-run';
 import type { ImportedCrypt } from '../../state/storage/import-result';
 import type { ShelfEntry } from './shelf-entry';
 
@@ -101,6 +104,16 @@ export function FrontOfHouseStart({
   }, [announce, onNotesGone]);
 
   const { deps, onContinue, onStartAgain } = context;
+  const announcer = <ShellAnnouncer message={message} />;
+  const onEnter: NonNullable<React.ComponentProps<typeof DeskHub>['onEnter']> = async () => {
+    const found = await findResumable(factory);
+    if (!found.ok) return { panel: 'samples', notice: FRONT_OF_HOUSE_COPY.hub.resumeLookupFailed };
+    if (found.value === null) return { panel: 'samples' };
+    const restored = await restoreRun(deps, found.value.runId);
+    if (!restored.ok) return { panel: 'shelf', notice: restoreFailureText(restored.error.kind) };
+    onContinue(restored.value);
+    return null;
+  };
   const renderBookActions = (entry: ShelfEntry): ReactNode =>
     entry.runId === null ? null : (
       <>
@@ -124,9 +137,11 @@ export function FrontOfHouseStart({
           samples={samples}
           bringHref={ingestHref}
           onPlaySample={context.playSample}
+          onEnter={onEnter}
           renderBookActions={renderBookActions}
-          importSlot={<ImportCrypt deps={deps} onImported={onImported} announce={announce} />}
+          importSlot={<ImportCrypt deps={deps} onImported={onImported} announce={announce} inDeskPanel />}
           selectKey={importedKey}
+          announcer={announcer}
         />
       ) : null}
       {route === 'ingest' ? (
@@ -177,7 +192,7 @@ export function FrontOfHouseStart({
           announce={announce}
         />
       ) : null}
-      <ShellAnnouncer message={message} />
+      {screen === 'hub' ? null : announcer}
     </>
   );
 }

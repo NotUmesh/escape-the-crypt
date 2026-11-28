@@ -13,6 +13,7 @@ export interface ImportCryptProps {
   readonly announce: (message: string) => void;
   /** Test seam. Defaults to the real import. */
   readonly importFile?: (deps: ImportDeps, file: Blob) => Promise<ImportResult<ImportedCrypt>>;
+  readonly inDeskPanel?: boolean;
 }
 
 /** The sentence for a result. Fixed copy by kind: nothing from the file is ever shown. */
@@ -26,7 +27,7 @@ function sentenceFor(result: ImportResult<ImportedCrypt>): string {
  * verify and changes nothing when it does. The result sentence has no live role of its own: the
  * shell announcer reads it.
  */
-export function ImportCrypt({ deps, onImported, announce, importFile = importCryptFile }: ImportCryptProps): ReactNode {
+export function ImportCrypt({ deps, onImported, announce, importFile = importCryptFile, inDeskPanel = false }: ImportCryptProps): ReactNode {
   const hintId = useId();
   const input = useRef<HTMLInputElement>(null);
   const [working, setWorking] = useState(false);
@@ -67,13 +68,13 @@ export function ImportCrypt({ deps, onImported, announce, importFile = importCry
     <div className="import-crypt" data-testid="import-crypt">
       <button
         type="button"
-        className="fh-button"
+        className={`fh-button${inDeskPanel ? ' fh-button--primary' : ''}`}
         onClick={() => input.current?.click()}
         disabled={working}
         aria-disabled={working || undefined}
         aria-describedby={hintId}
       >
-        {IMPORT_COPY.button}
+        {inDeskPanel ? IMPORT_COPY.chooseFile : IMPORT_COPY.button}
       </button>
       <input
         ref={input}

@@ -24,7 +24,7 @@ test('resume entry: no axe violations, 44 by 44 px targets, keyboard reachable',
 
   // Back to the desk: the saved crypt is a book on the stack, and its card shows the resume entry.
   await page.goto('/');
-  await page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.hub.bringNotes }).waitFor();
+  await page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.shelfTitle }).click();
   const entry = page.getByTestId('resume-entry');
   const continueButton = entry.getByRole('button', { name: CONTINUE_LABEL, exact: true });
   const startAgain = entry.getByRole('button', { name: START_AGAIN_LABEL, exact: true });
@@ -46,8 +46,7 @@ test('resume entry: no axe violations, 44 by 44 px targets, keyboard reachable',
     expect(box.height).toBeGreaterThanOrEqual(44);
   }
 
-  // Tab from the top of the page reaches both buttons, "Continue your crypt" first.
-  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  // Tab from the shelf heading reaches both buttons, "Continue your crypt" first.
   const reached: string[] = [];
   for (let i = 0; i < 30 && reached.length < 2; i += 1) {
     await page.keyboard.press('Tab');

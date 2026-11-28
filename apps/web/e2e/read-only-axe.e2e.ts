@@ -9,7 +9,7 @@ import { NOTES_TEXT, skipDescent } from './crypt-helpers';
 //
 // Both pages share one browser context (Web Locks and IndexedDB are per origin). Tab 1 starts a
 // crypt and holds the run lock. Tab 2 opens the app, confirms the same notes and chooses
-// "Continue your crypt". The run is held by tab 1, so tab 2 shows the read-only screen.
+// the desk stairs. The run is held by tab 1, so tab 2 shows the read-only screen.
 //
 // In Playwright's Firefox, polling with expect(...).toBeVisible() around an axe scan crashes the
 // page. Tab 2 uses locator.waitFor() and one-shot reads instead.
@@ -42,9 +42,9 @@ test('read-only screen: no axe violations and focus on Take over here', async ({
   if (!held) throw new Error('Tab 1 never acquired a run lock');
 
   const other = await context.newPage();
-  // The saved crypt is on the desk's book stack, so tab 2 opens the desk, not the notes book.
+  // The desk stairs resume the saved crypt, so tab 2 opens the desk, not the notes book.
   await other.goto('/');
-  await other.getByRole('button', { name: 'Continue your crypt', exact: true }).click();
+  await other.getByRole('button', { name: ENTER_CRYPT_LABEL, exact: true }).click();
   await other.getByTestId('read-only-screen').waitFor();
   const takeOver = other.getByRole('button', { name: TAKE_OVER_LABEL, exact: true });
   await takeOver.waitFor();

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useMount } from '../../test-support/flow-dom';
 import { DeskScene } from './desk-scene';
+import { DESK_PROPS, deskPropFile } from './desk-props';
 
 function stubMatchMedia(reduced: boolean): void {
   vi.stubGlobal('matchMedia', (query: string) => ({
@@ -9,6 +10,7 @@ function stubMatchMedia(reduced: boolean): void {
     addEventListener: () => undefined,
     removeEventListener: () => undefined,
   }));
+  vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => undefined)));
 }
 
 const scene = (variant: 'hub' | 'book', viewport = { width: 1280, height: 720 }): React.JSX.Element => (
@@ -31,6 +33,7 @@ describe('DeskScene', () => {
     const sources = Array.from(root?.querySelectorAll('img') ?? []).map((i) => i.getAttribute('src'));
     expect(sources).toEqual([
       '/art/desk/desktop/background.webp',
+      ...DESK_PROPS.flatMap((prop) => [deskPropFile(prop), deskPropFile(prop, true)]).map((file) => `/art/desk/${file}`),
       '/art/desk/desktop/candle.webp',
       '/art/desk/desktop/foreground.webp',
     ]);

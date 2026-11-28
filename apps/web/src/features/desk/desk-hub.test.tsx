@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useMount } from '../../test-support/flow-dom';
 import { DeskHub } from './desk-hub';
 import { SAMPLE_LIST } from './sample-list';
@@ -26,9 +26,12 @@ function hub(shelf: readonly ShelfEntry[], extra: Partial<React.ComponentProps<t
 
 const text = (root: ParentNode): string => root.textContent ?? '';
 const spines = (root: ParentNode): HTMLButtonElement[] => Array.from(root.querySelectorAll<HTMLButtonElement>('.book-spine'));
+const open = (root: ParentNode, prop: string): void => act(() => root.querySelector<HTMLButtonElement>(`[data-prop="${prop}"]`)?.click());
 
 describe('DeskHub', () => {
   const mount = useMount();
+  beforeEach(() => vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => undefined))));
+  afterEach(() => vi.unstubAllGlobals());
 
   it('has one h1 and a Bring your notes link to the ingest route', () => {
     mount.render(hub([]));
@@ -41,6 +44,7 @@ describe('DeskHub', () => {
 
   it('says so when no crypt is saved, and shows no book card', () => {
     mount.render(hub([]));
+    open(mount.container, 'crypt-stack');
     expect(mount.container.querySelector('[data-testid="shelf-empty"]')?.textContent).toBe(
       'No crypts on this device yet. Bring your notes to start one.',
     );
@@ -51,6 +55,7 @@ describe('DeskHub', () => {
   it('offers all three sample crypts with the Sample crypt label and no review label', () => {
     const played = vi.fn();
     mount.render(hub([], { onPlaySample: played }));
+    open(mount.container, 'sample-chest');
     const buttons = Array.from(mount.container.querySelectorAll<HTMLButtonElement>('.sample-shelf__button'));
     expect(buttons.map((b) => b.querySelector('span')?.textContent)).toEqual([
       'Enter the crypt: The human heart',
@@ -63,8 +68,22 @@ describe('DeskHub', () => {
     expect(played).toHaveBeenCalledExactlyOnceWith('https');
   });
 
+  it('opens the same sample panel from the stairs and returns focus on close', async () => {
+    const onEnter = vi.fn(async () => ({ panel: 'samples' as const }));
+    mount.render(hub([], { onEnter }));
+    await act(async () => mount.container.querySelector<HTMLButtonElement>('[data-prop="crypt-stairs"]')?.click());
+    const dialog = mount.container.querySelector('dialog');
+    expect(dialog?.open).toBe(true);
+    expect(document.activeElement).toBe(dialog?.querySelector('h2'));
+    act(() => dialog?.querySelector('header button')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(mount.container.querySelector('dialog')).toBeNull();
+    expect(document.activeElement).toBe(mount.container.querySelector('[data-prop="crypt-stairs"]'));
+    expect(onEnter).toHaveBeenCalledOnce();
+  });
+
   it('shows a book per saved crypt, newest first, with the first selected', () => {
     mount.render(hub([entry(2), entry(0), entry(1)].sort((a, b) => b.createdAt - a.createdAt)));
+    open(mount.container, 'crypt-stack');
     const all = spines(mount.container);
     expect(all).toHaveLength(3);
     expect(all.map((b) => b.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
@@ -77,6 +96,7 @@ describe('DeskHub', () => {
 
   it('gives every spine picture empty alt text and the label as real text', () => {
     mount.render(hub([entry(0), entry(1), entry(2), entry(3), entry(4)]));
+    open(mount.container, 'crypt-stack');
     const pictures = Array.from(mount.container.querySelectorAll<HTMLImageElement>('.book-spine__art'));
     expect(pictures.map((p) => p.getAttribute('src'))).toEqual([
       '/art/desk/books/book-1.webp',
@@ -91,6 +111,7 @@ describe('DeskHub', () => {
   it('selects another book on click and asks the host for that book’s actions', () => {
     const actions = vi.fn((e: ShelfEntry) => <button type="button">{`act ${e.manifestId}`}</button>);
     mount.render(hub([entry(0), entry(1)], { renderBookActions: actions }));
+    open(mount.container, 'crypt-stack');
     expect(mount.container.querySelector('[data-testid="book-card"]')?.textContent).toContain('act crypt-0');
     act(() => spines(mount.container)[1]?.click());
     expect(spines(mount.container).map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'true']);
@@ -99,6 +120,7 @@ describe('DeskHub', () => {
 
   it('shows a review-due count only when one is known', () => {
     mount.render(hub([entry(0, { dueConceptCount: 2 }), entry(1)]));
+    open(mount.container, 'crypt-stack');
     const [first, second] = spines(mount.container);
     expect(first?.textContent).toContain('Review due: 2');
     expect(second?.textContent).not.toContain('Review due');
@@ -108,6 +130,7 @@ describe('DeskHub', () => {
 
   it('names each state in words, not by colour or icon alone', () => {
     mount.render(hub([entry(0, { status: 'escaped' }), entry(1, { status: 'left' })]));
+    open(mount.container, 'crypt-stack');
     const [escaped, left] = spines(mount.container);
     expect(escaped?.textContent).toContain('Escaped');
     expect(left?.textContent).toContain('Not finished');
@@ -118,6 +141,7 @@ describe('DeskHub', () => {
 
   it('keeps six books on the stack and puts the rest behind a disclosure', () => {
     mount.render(hub(Array.from({ length: 8 }, (_, n) => entry(n))));
+    open(mount.container, 'crypt-stack');
     const details = mount.container.querySelector('details');
     expect(details?.querySelector('summary')?.textContent).toBe('More crypts (2)');
     expect(details?.querySelectorAll('.book-spine')).toHaveLength(2);

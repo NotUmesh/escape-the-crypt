@@ -56,17 +56,20 @@ test.describe('the desk', () => {
     await page.goto('/');
     const bring = page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.hub.bringNotes });
     await bring.waitFor();
-    await page.getByTestId('shelf-empty').waitFor();
     expect(await page.locator('main').count()).toBe(1);
     expect(await regionCount(page)).toBe(1);
     await expect(bring).toHaveAttribute('href', '/ingest');
+    await scan(page);
+    await page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.shelfTitle }).click();
+    await page.getByTestId('shelf-empty').waitFor();
     await scan(page);
   });
 
   test('panels are opaque, so text never sits on art', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.hub.bringNotes }).waitFor();
-    const alphas = await page.locator('.fh-panel').evaluateAll((panels) =>
+    await page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.shelfTitle }).click();
+    const alphas = await page.locator('.fh-panel, .desk-menu__tag').evaluateAll((panels) =>
       panels.map((panel) => {
         const match = /rgba?\(([^)]+)\)/.exec(getComputedStyle(panel).backgroundColor);
         const parts = (match?.[1] ?? '').split(/[ ,/]+/).filter((part) => part !== '');
@@ -84,6 +87,7 @@ test.describe('the desk', () => {
     await answerSlot(page, first, correctAnswerFor(crypt, first.primaryQuestion));
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
     await page.goto('/');
+    await page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.shelfTitle }).click();
     await page.getByTestId('book-card').waitFor();
     await page.getByRole('button', { name: 'Continue your crypt', exact: true }).waitFor();
     await page.getByRole('button', { name: 'Start again', exact: true }).waitFor();
@@ -103,6 +107,39 @@ test.describe('the desk', () => {
     await page.keyboard.press('Enter');
     await page.locator('.ingest-paste textarea').waitFor();
     expect(new URL(page.url()).pathname).toBe('/ingest');
+  });
+
+  test('the stairs open sample scrolls when nothing can be resumed, and Escape restores focus', async ({ page, isMobile }) => {
+    await page.goto('/');
+    const stairs = page.getByRole('button', { name: ENTER_CRYPT_LABEL, exact: true });
+    await stairs.focus();
+    await page.keyboard.press('Enter');
+    const samples = page.getByRole('dialog', { name: FRONT_OF_HOUSE_COPY.hub.samplesTitle });
+    await expect(samples.getByTestId('sample-shelf').locator('li')).toHaveCount(3);
+    await expect(samples.getByRole('heading')).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(samples).toHaveCount(0);
+    await expect(stairs).toBeFocused();
+    if (isMobile) return;
+    await expect(page.locator('.desk-menu')).toHaveAttribute('data-mapped', 'true');
+    const hoverArt = page.locator('img[src$="prop-crypt-stairs-hover.webp"]');
+    await expect(hoverArt).toHaveAttribute('data-visible', 'true');
+    const chest = page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.samplesTitle });
+    const polygon = chest.locator('polygon');
+    await polygon.hover();
+    await expect(page.locator('img[src$="prop-sample-chest-hover.webp"]')).toHaveAttribute('data-visible', 'true');
+    await polygon.click();
+    await expect(samples).toBeVisible();
+    await scan(page);
+  });
+
+  test('the desk remains playable when scene metadata is unavailable', async ({ page }) => {
+    await page.route('**/art/desk/scene.json', (route) => route.abort());
+    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: FRONT_OF_HOUSE_COPY.hub.menuLabel })).toHaveAttribute('data-mapped', 'false');
+    await page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.samplesTitle, exact: true }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.getByTestId('sample-shelf').locator('li')).toHaveCount(3);
   });
 });
 
@@ -129,7 +166,7 @@ test.describe('the notes book', () => {
     const back = page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.bring.back });
     await expect(back).toHaveAttribute('href', '/');
     await back.click();
-    await page.getByTestId('shelf-empty').waitFor();
+    await page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.hub.bringNotes }).waitFor();
   });
 });
 
@@ -198,7 +235,7 @@ test.describe('the descent', () => {
     await answerSlot(page, first, correctAnswerFor(crypt, first.primaryQuestion));
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
     await page.goto('/');
-    await page.getByRole('button', { name: 'Continue your crypt', exact: true }).click();
+    await page.getByRole('button', { name: ENTER_CRYPT_LABEL, exact: true }).click();
     await page.locator('.room-screen__lock-button').first().waitFor();
     await expect(page.getByTestId('descent-gate')).toHaveCount(0);
     await expect(page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.descent.skip })).toHaveCount(0);

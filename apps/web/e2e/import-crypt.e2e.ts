@@ -2,10 +2,12 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import type { Browser, Page, TestInfo } from '@playwright/test';
-import { GENERATION_COPY, IMPORT_COPY, ROOM_PLAY_LABELS, renderError } from '@escape-the-crypt/core';
+import { FRONT_OF_HOUSE_COPY, GENERATION_COPY, IMPORT_COPY, ROOM_PLAY_LABELS, renderError } from '@escape-the-crypt/core';
 import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, skipDescent } from './crypt-helpers';
 import { installFakeWorker, SAMPLE_NOTES, WORKER_ORIGIN } from './fake-worker';
 import { buildSample, skipLock, startSample } from './sample-nav';
+import { DB_NAME, STORES } from '../src/state/storage/db';
+import type { EventRow } from '../src/state/storage/records';
 
 // Import is the counterpart of "Export a copy". The export is made in one browser context and
 // imported in a second, fresh one, which shares no storage with the first. In Playwright's Firefox,
@@ -32,6 +34,7 @@ async function freshPage(browser: Browser, like: Page, baseURL: string | undefin
 /** Plays one lock, then exports the crypt from the desk's book card and returns the file's path. */
 async function exportFromDesk(page: Page, testInfo: TestInfo, name: string): Promise<string> {
   await page.goto('/');
+  await openShelf(page);
   await page.getByTestId('book-card').waitFor();
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: EXPORT_BUTTON }).click()]);
   const path = testInfo.outputPath(name);
@@ -47,7 +50,44 @@ async function playOneLock(page: Page): Promise<void> {
   await page.locator('.room-screen__lock-button[data-status="solved"]').first().waitFor();
 }
 
-const chooseFile = (page: Page, path: string): Promise<void> => page.getByTestId('import-file').setInputFiles(path);
+/** The UI updates before the event is saved; don't leave the room while the write is pending. */
+async function waitForSavedSkip(page: Page, slotId: string): Promise<void> {
+  await expect.poll(() => page.evaluate(({ name, store, id }) => new Promise<boolean>((resolve, reject) => {
+    const request = indexedDB.open(name);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      const read = db.transaction(store).objectStore(store).getAll();
+      db.close();
+      read.onerror = () => reject(read.error);
+      read.onsuccess = () => resolve((read.result as EventRow[]).some(
+        ({ event }) => event.kind === 'Skipped' && event.slotId === id,
+      ));
+    };
+  }), { name: DB_NAME, store: STORES.events, id: slotId })).toBe(true);
+}
+
+const modal = (page: Page) => page.getByRole('dialog');
+async function openImport(page: Page): Promise<void> {
+  if (await page.getByTestId('import-crypt').count()) return;
+  if (await modal(page).count()) await modal(page).getByRole('button', { name: FRONT_OF_HOUSE_COPY.bring.back }).click();
+  await page.getByRole('button', { name: IMPORT_COPY.button, exact: true }).click();
+}
+async function openShelf(page: Page): Promise<void> {
+  if (await page.getByTestId('import-crypt').count()) {
+    const shelfLink = modal(page).getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.shelfTitle, exact: true });
+    if (await shelfLink.count()) {
+      await shelfLink.click();
+      return;
+    }
+    await modal(page).getByRole('button', { name: FRONT_OF_HOUSE_COPY.bring.back }).click();
+  }
+  await page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.shelfTitle, exact: true }).click();
+}
+async function chooseFile(page: Page, path: string): Promise<void> {
+  await openImport(page);
+  await page.getByTestId('import-file').setInputFiles(path);
+}
 const status = (page: Page) => page.getByTestId('import-status');
 const refusal = (kind: keyof typeof IMPORT_COPY.errors): string => renderError(IMPORT_COPY.errors[kind]);
 
@@ -59,10 +99,12 @@ test.describe('import a crypt', () => {
 
     const other = await freshPage(browser, page, baseURL);
     await other.goto('/');
+    await openShelf(other);
     await other.getByTestId('shelf-empty').waitFor();
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(IMPORT_COPY.done.active);
     await expect(other.getByTestId('shell-announcer')).toHaveText(IMPORT_COPY.done.active);
+    await openShelf(other);
     await other.getByTestId('book-card').waitFor();
     await expect(other.getByTestId('book-stack').locator('li')).toHaveCount(1);
     await expect(other.getByTestId('shelf-empty')).toHaveCount(0);
@@ -81,13 +123,16 @@ test.describe('import a crypt', () => {
     await startSample(page, 'printing-press', 'click');
     await skipLock(page, first, 'click');
     await page.locator('.room-screen__lock-button[data-status="settled"]').first().waitFor();
+    await waitForSavedSkip(page, first.slotId);
     const file = await exportFromDesk(page, testInfo, 'printing-press-export.json');
 
     const other = await freshPage(browser, page, baseURL);
     await other.goto('/');
+    await openShelf(other);
     await other.getByTestId('shelf-empty').waitFor();
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(IMPORT_COPY.done.active);
+    await openShelf(other);
     await other.getByTestId('book-card').waitFor();
     await other.getByRole('button', { name: 'Continue your crypt', exact: true }).click();
     // The restored room is the printing press's, with the lock settled as it was.
@@ -118,6 +163,7 @@ test.describe('import a crypt', () => {
     await other.goto('/');
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(IMPORT_COPY.done.active);
+    await openShelf(other);
     await other.getByTestId('book-card').waitFor();
     await other.getByRole('button', { name: 'Continue your crypt', exact: true }).click();
     await other.locator('.room-screen__lock-button[data-status="solved"]').first().waitFor();
@@ -137,6 +183,7 @@ test.describe('import a crypt', () => {
     await other.goto('/');
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(IMPORT_COPY.done.active);
+    await openShelf(other);
     await other.getByTestId('book-card').waitFor();
     // The resume buttons render a moment after the card; read the card only once they are there,
     // or a slow browser (seen on Firefox) captures a card without them and the comparison flakes.
@@ -146,7 +193,9 @@ test.describe('import a crypt', () => {
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(refusal('duplicate'));
     await expect(other.getByTestId('shell-announcer')).toHaveText(refusal('duplicate'));
-    expect(await other.getByTestId('book-card').innerText()).toBe(before);
+    await openShelf(other);
+    await expect(other.getByRole('button', { name: 'Continue your crypt' })).toBeVisible();
+    await expect(other.getByTestId('book-card')).toHaveText(before, { useInnerText: true });
     // Still exactly one book on the shelf.
     await expect(other.getByTestId('book-stack').locator('li')).toHaveCount(1);
     await other.context().close();
@@ -154,6 +203,7 @@ test.describe('import a crypt', () => {
 
   test('a damaged or foreign file is refused with the typed copy, and the shelf stays empty', async ({ page }, testInfo) => {
     await page.goto('/');
+    await openShelf(page);
     await page.getByTestId('shelf-empty').waitFor();
     const cases: { name: string; text: string; kind: keyof typeof IMPORT_COPY.errors }[] = [
       { name: 'not-json.json', text: 'this is not json', kind: 'not-json' },
@@ -166,6 +216,7 @@ test.describe('import a crypt', () => {
       await chooseFile(page, path);
       await expect(status(page)).toHaveText(refusal(kind));
       await expect(page.getByTestId('shell-announcer')).toHaveText(refusal(kind));
+      await openShelf(page);
       await expect(page.getByTestId('shelf-empty')).toBeVisible();
       // Neither the file's name nor its text is ever shown.
       expect(await page.locator('body').innerText()).not.toContain(name);
@@ -181,9 +232,11 @@ test.describe('import a crypt', () => {
     if (other === undefined) throw new Error('no browser');
     const fresh = await other.newPage();
     await fresh.goto('/');
+    await openShelf(fresh);
     await fresh.getByTestId('shelf-empty').waitFor();
     await chooseFile(fresh, damaged);
     await expect(status(fresh)).toHaveText(refusal('not-json'));
+    await openShelf(fresh);
     await expect(fresh.getByTestId('shelf-empty')).toBeVisible();
     await other.close();
   });
@@ -197,6 +250,7 @@ test.describe('import a crypt', () => {
 
     const other = await freshPage(browser, page, baseURL);
     await other.goto('/');
+    await openImport(other);
     await other.getByTestId('import-crypt').waitFor();
     await scan(other);
     await chooseFile(other, bad);
@@ -204,17 +258,18 @@ test.describe('import a crypt', () => {
     await scan(other);
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(IMPORT_COPY.done.active);
-    await other.getByTestId('book-card').waitFor();
     await scan(other);
 
     // The button is a real, named, keyboard-reachable control of at least 44 px.
-    const button = other.getByRole('button', { name: IMPORT_COPY.button, exact: true });
+    const button = other.getByRole('button', { name: IMPORT_COPY.chooseFile, exact: true });
     const box = await button.boundingBox();
     if (box === null) throw new Error('the import button has no layout box');
     expect(box.height).toBeGreaterThanOrEqual(44);
     expect(box.width).toBeGreaterThanOrEqual(44);
     await button.focus();
     expect(await button.evaluate((el) => el === document.activeElement)).toBe(true);
+    await openShelf(other);
+    await other.getByTestId('book-card').waitFor();
     await other.context().close();
   });
 });

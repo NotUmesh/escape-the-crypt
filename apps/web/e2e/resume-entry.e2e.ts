@@ -6,12 +6,11 @@ import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlot
 const CONTINUE_LABEL = 'Continue your crypt';
 
 /**
- * A saved crypt shows on the desk's book stack, so a return visit starts at `/`. The desk's own
- * "Bring your notes" link is the signal that the page has rendered.
+ * A saved crypt shows on the desk's book stack, so open Your crypts on the return visit.
  */
 async function backToDesk(page: Page): Promise<void> {
   await page.goto('/');
-  await page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.hub.bringNotes }).waitFor();
+  await page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.shelfTitle }).click();
 }
 
 test('an unfinished run offers "Continue your crypt" after a reload', async ({ page }) => {

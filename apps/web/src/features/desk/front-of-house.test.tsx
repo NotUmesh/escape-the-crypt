@@ -62,17 +62,20 @@ describe('FrontOfHouse', () => {
   }
 
   describe('the desk (/)', () => {
+    beforeEach(() => vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => undefined))));
+
     it('shows the hub with a plain link to the notes book and no notes screen', () => {
       show('home');
-      const link = mount.container.querySelector('a.fh-button--primary');
+      const link = mount.container.querySelector('a[data-prop="notes-book"]');
       expect(link?.textContent).toBe(FRONT_OF_HOUSE_COPY.hub.bringNotes);
       expect(link?.getAttribute('href')).toBe('/ingest');
       expect(mount.container.querySelector('.ingest-paste textarea')).toBeNull();
       expect(mount.container.querySelectorAll('main')).toHaveLength(1);
     });
 
-    it('offers only the sample crypts that can be built, never with a review label', () => {
+    it('offers only the sample crypts that can be built, never with a review label', async () => {
       show('home');
+      await clickButton(mount.container, FRONT_OF_HOUSE_COPY.hub.samplesTitle);
       const text = mount.container.textContent ?? '';
       // Exactly the buildable samples are offered: a listed sample with no builder would not show.
       for (const entry of SAMPLE_LIST) {

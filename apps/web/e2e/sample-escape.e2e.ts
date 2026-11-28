@@ -1,16 +1,9 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import {
-  ENTER_CRYPT_LABEL,
-  FRONT_OF_HOUSE_COPY,
-  ROOM_PLAY_LABELS,
-  SAMPLE_CRYPT_LABEL,
-  SAMPLE_IDS,
-} from '@escape-the-crypt/core';
-import { SAMPLE_LIST } from '../src/features/desk/sample-list';
+import { ROOM_PLAY_LABELS, SAMPLE_IDS } from '@escape-the-crypt/core';
 import { openLockName, skipEndgameClip } from './crypt-helpers';
 import { answerByKeyboard, tabTo } from './keyboard-answers';
-import { button, buildSample, enterDoor } from './sample-nav';
+import { button, buildSample, enterDoor, startSample } from './sample-nav';
 
 // Every sample, played from the shelf to the Autopsy with the keyboard only, answering every question
 // correctly. The answers come from the manifest the same builder produces for the app.
@@ -23,24 +16,11 @@ async function continueEvidence(page: Page): Promise<void> {
 }
 
 for (const id of SAMPLE_IDS) {
-  const title = SAMPLE_LIST.find((entry) => entry.id === id)?.title ?? id;
   test(`keyboard only: ${id} from the shelf to the Autopsy`, async ({ page }) => {
     test.setTimeout(300_000);
     const crypt = buildSample(id);
 
-    // The shelf: Tab to the sample's button and press Enter.
-    await page.goto('/');
-    await tabTo(page, button(page, `${ENTER_CRYPT_LABEL}: ${title} ${SAMPLE_CRYPT_LABEL}`));
-    await page.keyboard.press('Enter');
-    // The descent: skip it with the keyboard when it plays.
-    await page.locator('.room-screen, [data-testid="descent-gate"]').first().waitFor();
-    const skip = button(page, FRONT_OF_HOUSE_COPY.descent.skip);
-    if ((await skip.count()) > 0) {
-      await tabTo(page, skip);
-      await page.keyboard.press('Enter');
-    }
-    await expect(page.getByTestId('descent-gate')).toHaveCount(0);
-    await page.locator('.room-screen__lock-button').first().waitFor();
+    await startSample(page, id, 'keyboard');
     await expect(page.locator('.room-screen__entrance-hint')).toHaveText(ROOM_PLAY_LABELS.chooseLock);
 
     // The rooms, in order. After the last, the final door.

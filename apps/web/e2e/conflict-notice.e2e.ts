@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { CONFLICT_NOTICE_COPY, GENERATION_COPY, chunkDocument, conflictLeftOut, conflictNext } from '@escape-the-crypt/core';
+import { CONFLICT_NOTICE_COPY, ENTER_CRYPT_LABEL, GENERATION_COPY, chunkDocument, conflictLeftOut, conflictNext } from '@escape-the-crypt/core';
 import { skipDescent } from './crypt-helpers';
 import { installFakeWorker, SAMPLE_NOTES } from './fake-worker';
 
@@ -99,7 +99,7 @@ test.describe('the conflict notice', () => {
     await generateAndEnter(page);
     await expect(notice(page)).toBeVisible();
     await page.goto('/');
-    await page.getByRole('button', { name: 'Continue your crypt', exact: true }).click();
+    await page.getByRole('button', { name: ENTER_CRYPT_LABEL, exact: true }).click();
     await page.locator('.room-screen__lock-button').first().waitFor();
     await expect(notice(page)).toHaveCount(0);
   });

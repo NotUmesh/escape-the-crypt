@@ -32,6 +32,13 @@
 .desk-scene[data-set='mobile'] .desk-scene__layer {
   object-position: top;
 }
+.desk-scene__prop {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.desk-scene__prop[data-visible='true'] {
+  opacity: 1;
+}
 /* Content sits above the art. Panels inside it are solid; the art is only ever seen around them. */
 .desk-scene__content {
   position: relative;
@@ -59,6 +66,9 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .desk-scene__prop {
+    transition: none;
+  }
   .desk-scene .flame__body {
     animation: none;
   }

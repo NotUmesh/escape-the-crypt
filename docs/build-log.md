@@ -1,5 +1,8 @@
 # Build log
 
+## Costume Step 4
+- Implemented outside Kiro with GitHub Copilot. The desk uses five named HTML controls over the layered props, with hover and focus lighting and a tagged fallback where full prop art is unavailable. The shelf, sample scrolls and import have parchment panels. The open notes book keeps its existing URL and workflow; the stairs continue the latest active crypt or open sample choices.
+
 ## Costume Step 3
 - Implemented outside Kiro with GitHub Copilot. The six room locks use a keyboard-modal overlay with the close-up on the left and parchment on the right, stacked on narrow screens. A stone action ledge holds the question actions; evidence replaces the question without moving to another surface. Lock controls remain HTML and use the existing judgments, hints, and evidence.
 
