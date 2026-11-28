@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { LanternToggle } from '../crypt/lantern-toggle';
 import { BookStack } from './book-stack';
@@ -20,13 +20,20 @@ export interface DeskHubProps {
   readonly onPlaySample: (id: string) => void;
   /** The buttons for the selected book (Continue, Start again, Export). The hub does not know what they do. */
   readonly renderBookActions?: (entry: ShelfEntry) => ReactNode;
+  /** "Import a crypt", shown with the shelf. The hub does not know what it does. */
+  readonly importSlot?: ReactNode;
+  /** A book to select, such as one that was just imported. Re-selects when it changes. */
+  readonly selectKey?: string;
   readonly viewport?: Size;
 }
 
 /** The desk: the title, "Bring your notes", the sample crypts and the book stack of saved crypts. */
-export function DeskHub({ shelf, samples, bringHref, onPlaySample, renderBookActions, viewport }: DeskHubProps): ReactNode {
+export function DeskHub({ shelf, samples, bringHref, onPlaySample, renderBookActions, importSlot, selectKey, viewport }: DeskHubProps): ReactNode {
   const copy = FRONT_OF_HOUSE_COPY.hub;
   const [picked, setPicked] = useState<string | null>(null);
+  useEffect(() => {
+    if (selectKey !== undefined) setPicked(selectKey);
+  }, [selectKey]);
   const selected = shelf.find((entry) => shelfKey(entry) === picked) ?? shelf[0];
   const label = selected === undefined ? null : bookLabel(selected);
   return (
@@ -57,6 +64,7 @@ export function DeskHub({ shelf, samples, bringHref, onPlaySample, renderBookAct
             {copy.shelfTitle}
           </h2>
           <p className="fh-note">{copy.shelfNote}</p>
+          {importSlot}
           {shelf.length === 0 ? (
             <p data-testid="shelf-empty">{copy.shelfEmpty}</p>
           ) : (

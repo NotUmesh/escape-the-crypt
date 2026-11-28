@@ -6,7 +6,7 @@ import { useMount, clickButton } from '../../test-support/flow-dom';
 import { createIdbStore } from '../ingest/notes-store-idb';
 import { startEventsFor } from '../../state/storage/persistence-arbitraries';
 import { saveCrypt } from '../../state/storage/crypt-repository';
-import { appendEvent, createRun, loadEvents, loadRun } from '../../state/storage/run-repository';
+import { appendEvent, createRun, loadEvents, loadRun, setRunStatus } from '../../state/storage/run-repository';
 import type { RestoreDeps, RestoredRun } from '../../state/storage/restore-run';
 import {
   CONTINUE_LABEL,
@@ -170,5 +170,44 @@ describe('ResumeEntry', () => {
     expect(run.ok && run.value.status).toBe('left');
     expect(await loadEvents(factory, 'run-1')).toEqual(before);
     expect(started).toEqual([null]);
+  });
+});
+
+describe('ResumeEntry for one run', () => {
+  const mount = useMount();
+  beforeAll(() => {
+    vi.stubGlobal('IDBKeyRange', FakeIDBKeyRange);
+  });
+  afterAll(() => {
+    vi.unstubAllGlobals();
+  });
+  const noop = (): void => undefined;
+
+  it('offers the run it was given, not the newest active run', async () => {
+    const factory = new IDBFactory();
+    await seed(factory, 'older', 1);
+    await createRun(factory, { runId: 'newer', manifestId: MANIFEST_ID, settings: SETTINGS, createdAt: 2 });
+    let restored: RestoredRun | null = null;
+    mount.render(<ResumeEntry deps={depsFor(factory)} runId="older" onContinue={(r) => (restored = r)} onStartAgain={noop} />);
+    await waitForTestId(mount.container, 'resume-entry');
+    await clickButton(mount.container, CONTINUE_LABEL);
+    await waitFor(() => restored !== null);
+    expect((restored as RestoredRun | null)?.run.runId).toBe('older');
+  });
+
+  it('offers nothing for a run that has escaped, or one that does not exist', async () => {
+    const factory = new IDBFactory();
+    await seed(factory, 'done', 1);
+    await setRunStatus(factory, 'done', 'escaped');
+    mount.render(<ResumeEntry deps={depsFor(factory)} runId="done" onContinue={noop} onStartAgain={noop} />);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 60));
+    });
+    expect(mount.container.querySelector('[data-testid="resume-entry"]')).toBeNull();
+    mount.render(<ResumeEntry deps={depsFor(factory)} runId="missing" onContinue={noop} onStartAgain={noop} />);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 60));
+    });
+    expect(mount.container.querySelector('[data-testid="resume-entry"]')).toBeNull();
   });
 });

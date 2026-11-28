@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { restoreRun } from '../../state/storage/restore-run';
 import type { RestoreDeps, RestoredRun } from '../../state/storage/restore-run';
 import type { RunRecord } from '../../state/storage/records';
-import { findResumable, setRunStatus } from '../../state/storage/run-repository';
+import { findResumable, loadRun, setRunStatus } from '../../state/storage/run-repository';
 import type { StorageErrorKind } from '../../state/storage/storage-error';
 import type { RunSettings } from '@escape-the-crypt/core';
 import type { BuiltCrypt } from '../../state/room-binding';
@@ -64,6 +64,11 @@ export interface ResumeEntryProps {
   readonly onStartAgain: (crypt: BuiltCrypt | null, settings?: RunSettings) => void;
   /** When set, a failed restore is read through the host's announcer, not a region of its own. */
   readonly announce?: (message: string) => void;
+  /**
+   * The run to offer. Without it the most recent active run is offered. With it, only that run, and
+   * only while it is active: a desk with several books offers each book its own run.
+   */
+  readonly runId?: string;
 }
 
 function generatedCrypt(restored: RestoredRun): BuiltCrypt | null {
@@ -81,7 +86,7 @@ function generatedCrypt(restored: RestoredRun): BuiltCrypt | null {
  * Looks up the most recent active run when it mounts. Shows nothing when there is none or the
  * lookup fails, so the start screen keeps only its own buttons.
  */
-export function ResumeEntry({ deps, onContinue, onStartAgain, announce }: ResumeEntryProps): ReactNode {
+export function ResumeEntry({ deps, onContinue, onStartAgain, announce, runId }: ResumeEntryProps): ReactNode {
   const { factory, notesStore, buildSample } = deps;
   const [run, setRun] = useState<RunRecord | null>(null);
   const [failure, setFailure] = useState<StorageErrorKind | null>(null);
@@ -90,13 +95,20 @@ export function ResumeEntry({ deps, onContinue, onStartAgain, announce }: Resume
 
   useEffect(() => {
     alive.current = true;
-    void findResumable(factory).then((found) => {
+    const lookup =
+      runId === undefined
+        ? findResumable(factory)
+        : loadRun(factory, runId).then((loaded) => ({
+            ok: true as const,
+            value: loaded.ok && loaded.value.status === 'active' ? loaded.value : null,
+          }));
+    void lookup.then((found) => {
       if (alive.current && found.ok) setRun(found.value);
     });
     return () => {
       alive.current = false;
     };
-  }, [factory]);
+  }, [factory, runId]);
 
   useEffect(() => {
     if (failure !== null) announce?.(restoreFailureText(failure));

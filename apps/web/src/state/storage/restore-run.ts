@@ -1,10 +1,10 @@
-import { apply, initial } from '@escape-the-crypt/core';
+import { apply, initial, sampleIdForManifestId } from '@escape-the-crypt/core';
 import type { Chunk, Event, Result, SampleCryptError, SampleCryptResult, State } from '@escape-the-crypt/core';
 import type { NotesStore } from '../../features/ingest/notes-store';
 import type { BindingModel } from '../room-binding-model';
 import { buildFirstQuestionByConcept } from '../room-assets';
 import type { RoomAssets } from '../room-assets';
-import { buildSampleCrypt } from '../sample-crypt-source';
+import { buildCryptForSample } from '../../features/crypt/sample-sources';
 import { loadCrypt } from './crypt-repository';
 import { notesChunks } from './notes-chunks';
 import type { CryptRecord, RunRecord } from './records';
@@ -16,7 +16,7 @@ export interface RestoreDeps {
   readonly factory: IDBFactory | undefined;
   /** The Notes_Store adapter; read only. */
   readonly notesStore: NotesStore;
-  /** Supplies the chunks of the bundled sample crypt. Defaults to the bundled builder. */
+  /** Supplies the chunks of the bundled sample crypt. Defaults to the bundled sample whose manifest ID the crypt has. */
   readonly buildSample?: () => Result<SampleCryptResult, SampleCryptError>;
 }
 
@@ -31,11 +31,13 @@ export interface RestoredRun {
 type Chunks = ReadonlyMap<string, Chunk>;
 
 async function sampleChunks(deps: RestoreDeps, crypt: CryptRecord): Promise<StorageResult<Chunks>> {
-  const built = (deps.buildSample ?? buildSampleCrypt)();
+  const sampleId = sampleIdForManifestId(crypt.manifestId);
+  const build = deps.buildSample ?? (sampleId === null ? null : buildCryptForSample(sampleId));
+  if (build === null) return storageError('record-unreadable');
+  const built = build();
   if (!built.ok || built.value.manifest.manifestId !== crypt.manifestId) return storageError('record-unreadable');
   return { ok: true, value: built.value.chunks };
 }
-
 /**
  * Rebuilds a run from storage. Reads the run, its crypt and its events, then folds the events
  * with `initial` and `apply` only. Writes nothing. Never throws.

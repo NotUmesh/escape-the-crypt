@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Chunk } from '@escape-the-crypt/core';
 import type { CryptStartContext } from '../crypt/crypt-start-context';
@@ -19,7 +19,11 @@ import type { FrontOfHouseRoute } from './screen-flow';
 import { SettingsSlot } from './settings-slot';
 import { ShellAnnouncer } from './shell-announcer';
 import { StartActions } from './start-actions';
-import { interimShelfLoader, useShelf } from './use-shelf';
+import { ImportCrypt } from './import-crypt';
+import { useShelf } from './use-shelf';
+import type { ShelfLoader } from './use-shelf';
+import { listShelf } from '../../state/storage/shelf-repository';
+import type { ImportedCrypt } from '../../state/storage/import-result';
 import type { ShelfEntry } from './shelf-entry';
 
 export interface FrontOfHouseNotes {
@@ -69,8 +73,23 @@ export function FrontOfHouseStart({
   onJudgeCode,
 }: FrontOfHouseStartProps): ReactNode {
   const screen = screenFor({ route, generation: context.generation.status, phase: 'not-started', descending: false });
-  const loader = useMemo(() => interimShelfLoader(context.deps.factory), [context.deps.factory]);
+  // The shelf reloads when `shelfVersion` changes: after an import, the new book is read from storage.
+  const [shelfVersion, setShelfVersion] = useState(0);
+  const [importedKey, setImportedKey] = useState<string | undefined>(undefined);
+  const factory = context.deps.factory;
+  const loader = useMemo<ShelfLoader>(
+    () => async () => {
+      void shelfVersion;
+      const listed = await listShelf(factory);
+      return listed.ok ? listed.value : [];
+    },
+    [factory, shelfVersion],
+  );
   const shelf = useShelf(loader);
+  const onImported = useCallback((imported: ImportedCrypt): void => {
+    setImportedKey(imported.manifestId);
+    setShelfVersion((version) => version + 1);
+  }, []);
   const samples = useMemo(() => playableSamples(), []);
 
   // What is said here is stale once a run starts or the learner leaves.
@@ -85,7 +104,14 @@ export function FrontOfHouseStart({
   const renderBookActions = (entry: ShelfEntry): ReactNode =>
     entry.runId === null ? null : (
       <>
-        <ResumeEntry deps={deps} onContinue={onContinue} onStartAgain={onStartAgain} announce={announce} />
+        <ResumeEntry
+          key={entry.runId}
+          runId={entry.runId}
+          deps={deps}
+          onContinue={onContinue}
+          onStartAgain={onStartAgain}
+          announce={announce}
+        />
         <BookExport runId={entry.runId} deps={deps} onStatus={announce} />
       </>
     );
@@ -99,6 +125,8 @@ export function FrontOfHouseStart({
           bringHref={ingestHref}
           onPlaySample={context.playSample}
           renderBookActions={renderBookActions}
+          importSlot={<ImportCrypt deps={deps} onImported={onImported} announce={announce} />}
+          selectKey={importedKey}
         />
       ) : null}
       {route === 'ingest' ? (

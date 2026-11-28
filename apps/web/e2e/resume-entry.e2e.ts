@@ -45,10 +45,9 @@ test('after the run escapes, a reload shows no resume entry', async ({ page }) =
   await expect(page.getByTestId('escape-view')).toBeVisible();
 
   await backToDesk(page);
-  // The shelf loads from IndexedDB after the page renders. The first test shows the entry appears
-  // for an unfinished run; here the shelf is given time to load before the absence is checked.
-  await page.waitForTimeout(750);
-  await expect(page.getByTestId('shelf-empty')).toBeVisible();
+  // The escaped crypt stays on the shelf, marked as escaped, with nothing to continue.
+  await page.getByTestId('book-card').waitFor();
+  await expect(page.getByTestId('book-card')).toContainText(FRONT_OF_HOUSE_COPY.book.status.escaped);
   await expect(page.getByTestId('resume-entry')).toHaveCount(0);
   await expect(page.getByRole('button', { name: CONTINUE_LABEL })).toHaveCount(0);
 });
