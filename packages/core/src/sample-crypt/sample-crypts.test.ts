@@ -178,8 +178,5 @@ describe.each(NEW_SAMPLES)('sample crypt %s places every lock type', (id) => {
   });
 });
 
-describe('sample crypt human-heart', () => {
-  // human-heart still places only the rune cipher and the séance board. Widening it moves the
-  // number of final-door seals, which tests under apps/web/src/state pin; see the phase 3 report.
-  it.todo('places all six lock types (waits for a decision on the state tests that pin its shape)');
-});
+// Not tested here: "human-heart places all six lock types". It stays the two-type starter (rune cipher
+// and séance board) by decision; https and printing-press carry all six.

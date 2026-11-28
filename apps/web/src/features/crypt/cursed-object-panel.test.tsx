@@ -18,12 +18,13 @@ const CONTENT: CryptContent = {
   },
   concepts: {},
 };
-function view(dispatch = vi.fn(), removed: string | null = null) {
+function view(dispatch = vi.fn(), removed: string | null = null, announce = vi.fn()) {
   return (
     <LockPanelTestProvider
       content={CONTENT}
       payload={PAYLOAD}
       dispatch={dispatch}
+      announce={announce}
       appliedHint={removed === null ? null : { questionId: 'q1', effect: { kind: 'remove-option', optionId: removed } }}
     >
       <CursedObjectPanel slotId="s1" questionId="q1" questionType="cursed-object" />
@@ -72,6 +73,21 @@ describe('CursedObjectPanel (keyboard only)', () => {
       press(group, 'ArrowDown');
       expect(radios(mount.container).find((r) => r.checked)?.value).not.toBe('o2');
     }
+  });
+  it('takes a hint used after the panel opened: removes the item, clears a choice on it, and announces it', () => {
+    const announce = vi.fn();
+    const dispatch = vi.fn();
+    mount.render(view(dispatch, null, announce));
+    activate(radios(mount.container).find((r) => r.value === 'o2') as HTMLInputElement);
+    expect(radios(mount.container).find((r) => r.value === 'o2')?.checked).toBe(true);
+    mount.render(view(dispatch, 'o2', announce));
+    const removed = radios(mount.container).find((r) => r.value === 'o2') as HTMLInputElement;
+    expect(removed.disabled).toBe(true);
+    expect(removed.checked).toBe(false);
+    expect(mount.container.textContent).toContain(ROOM_PLAY_LABELS.removedByHint);
+    expect(announce).toHaveBeenCalledWith(LOCK_PANEL_LABELS.itemHinted('Ventricle'));
+    activate(buttonByText(mount.container, ROOM_PLAY_LABELS.submitAnswer));
+    expect(dispatch).not.toHaveBeenCalled();
   });
   it('shows a fallback when the payload is missing', () => {
     mount.render(

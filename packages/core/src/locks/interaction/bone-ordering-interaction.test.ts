@@ -2,7 +2,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { boneOrderingArb } from '../../test-support/lock-interaction-arbitraries';
 import { judge } from '../bone-ordering';
-import { boneOrderingSubmission, initBoneOrderingDraft, moveBone } from './bone-ordering-interaction';
+import { applyBoneHint, boneOrderingSubmission, initBoneOrderingDraft, moveBone } from './bone-ordering-interaction';
 import type { BoneOrderingDraft } from './bone-ordering-interaction';
 import * as moduleExports from './bone-ordering-interaction';
 
@@ -61,7 +61,34 @@ describe('bone ordering interaction', () => {
     expect(moveBone(base, 'y', 'up').order).toEqual(['y', 'p', 'x']);
   });
   it('exports nothing that returns the key', () => {
-    expect(Object.keys(moduleExports).sort()).toEqual(['boneOrderingSubmission', 'initBoneOrderingDraft', 'moveBone']);
+    expect(Object.keys(moduleExports).sort()).toEqual(['applyBoneHint', 'boneOrderingSubmission', 'initBoneOrderingDraft', 'moveBone']);
+  });
+  it('Property 8: a hint used part way through an answer never makes the answer invalid', () => {
+    const moves = fc.array(fc.tuple(fc.nat({ max: 9 }), fc.constantFrom('up', 'down')), { maxLength: 20 });
+    fc.assert(
+      fc.property(boneOrderingArb, fc.nat({ max: 9 }), moves, ({ question, seed }, pick, steps) => {
+        let draft = initBoneOrderingDraft(question, null, seed);
+        for (const [i, dir] of steps) draft = moveBone(draft, draft.order[i % draft.order.length] ?? '', dir);
+        const boneId = question.keyOrder[pick % question.keyOrder.length] ?? '';
+        const hint = { kind: 'lock-first-bone', boneId } as const;
+        const hinted = applyBoneHint(draft, question, hint);
+        expect(hinted.order.indexOf(boneId)).toBe(question.keyOrder.indexOf(boneId));
+        expect([...hinted.order].sort()).toEqual([...question.itemIds].sort());
+        expect(hinted.order.filter((id) => id !== boneId)).toEqual(draft.order.filter((id) => id !== boneId));
+        expect(judge(question, answerOf(hinted), hint)).not.toBe('invalid');
+        expect(applyBoneHint(hinted, question, hint)).toBe(hinted);
+        // Moving afterwards still never breaks the hint.
+        const after = steps.reduce((d, [i, dir]) => moveBone(d, d.order[i % d.order.length] ?? '', dir), hinted);
+        expect(judge(question, answerOf(after), hint)).not.toBe('invalid');
+      }),
+    );
+  });
+  it('ignores a hint of another kind, or for an unknown bone', () => {
+    const d = initBoneOrderingDraft({ itemIds: ['a', 'b', 'c'], keyOrder: ['a', 'b', 'c'] }, null, 's');
+    const q = { itemIds: ['a', 'b', 'c'], keyOrder: ['a', 'b', 'c'] };
+    expect(applyBoneHint(d, q, null)).toBe(d);
+    expect(applyBoneHint(d, q, { kind: 'remove-option', optionId: 'a' })).toBe(d);
+    expect(applyBoneHint(d, q, { kind: 'lock-first-bone', boneId: 'zzz' })).toBe(d);
   });
   it('Property 7: is total', () => {
     fc.assert(

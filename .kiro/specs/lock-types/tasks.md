@@ -214,12 +214,12 @@ Rules for every task:
   - If no change is needed, record "no change needed" in the task output and edit nothing.
   - _Requirements: 2.7, 2.8, 2.13_
 
-- [ ] 12. Human-heart sample widened to six types (Phase 3)
-  - [ ] 12.1 Widen `sample-crypt/human-heart.ts`
+- [x] 12. Human-heart sample widened to six types (Phase 3) (closed by decision: not widened, human-heart stays the two-type starter)
+  - [x] 12.1 Widen `sample-crypt/human-heart.ts` (not done by decision)
     - Read `samples/questions/human-heart.json`, then set the fixed selection tables to the design's layout: two rooms with two Lock_Slots each (rune-cipher and séance-board; bone-ordering and bound-threads) and a final door with cursed-object, combination-dial and one more question. Choose the question IDs by reading the file; add Alternates of a different type where the file holds suitable questions.
     - Build every question through the Core_Mapper. Keep `status` as a draft value. Return a typed error that names the question ID if a quote does not resolve. Split a `human-heart-layout.ts` constants file if the builder passes about 300 lines.
     - _Requirements: 12.1, 12.2, 12.4, 12.5, 12.6, 12.8, 12.17, 15.5_
-  - [ ] 12.2 Update `human-heart.test.ts` and dependent tests and fixtures
+  - [x] 12.2 Update `human-heart.test.ts` and dependent tests and fixtures (not needed: the shape is unchanged)
     - Update every test, fixture and e2e file that assumes one room, two Lock_Slots and three final-door questions (including `apps/web/src/test-support/` bundle fixtures and any Playwright helper that reads only `hh-slot-1` and `hh-slot-2`).
     - Add a property test: **Property 11: Sample crypts are complete, resolvable and escapable** for this sample (passes `validateManifestForPublish` and `parseCryptBundle`, all six types present, every `evidenceRefs` ID is an excerpt chunk ID, every quote resolves, options entries match payload IDs with display text and none for the dial, skipping every question reaches `escaped`).
     - **Validates: Requirements 11.5, 12.2, 12.3, 12.14, 12.15**
@@ -254,38 +254,38 @@ Rules for every task:
     - Write a unit test that `buildCryptForSample` builds a crypt for each sample ID and returns a typed error for an unknown ID. Add a code comment that resume of an https or printing-press run fails with the existing `record-unreadable` error.
     - _Requirements: 12.9, 12.10, 12.11, 12.12, 15.3_
 
-- [ ] 16. Checkpoint - Phase 3
+- [x] 16. Checkpoint - Phase 3
   - Run only the targeted tests of tasks 11 to 15, then `pnpm typecheck` and `pnpm lint`. Confirm the structure check passes.
   - Report to the user that resume of a saved https or printing-press run returns `record-unreadable` because `restoreRun` in `apps/web/src/state/` rebuilds only human-heart, and that the Sample_Hub wiring that passes the chosen ID to `buildCryptForSample` is the hub integration's job.
   - Run `git pull --rebase` immediately before committing. Ensure all tests pass, ask the user if questions arise.
   - _Requirements: 12.12, 14.1, 14.6, 1.3_
 
-- [ ] 17. Playwright per lock type (Phase 4)
-  - [ ] 17.1 Write the bone ordering e2e test
+- [x] 17. Playwright per lock type (Phase 4)
+  - [x] 17.1 Write the bone ordering e2e test
     - Open the lock, answer correctly by keyboard (Tab, Alt+Arrow, Enter), check the Evidence_Panel shows the excerpt, explanation and "Source excerpt matched". Run on `chromium`, `firefox` and `pixel`. On `pixel`, answer by tap and check every control is at least 44 by 44 px.
     - _Requirements: 13.3, 13.4_
-  - [ ] 17.2 Write the bound threads e2e test
+  - [x] 17.2 Write the bound threads e2e test
     - Same checks as 17.1 for the select, tie and undo flow.
     - _Requirements: 13.3, 13.4_
-  - [ ] 17.3 Write the combination dial e2e test
+  - [x] 17.3 Write the combination dial e2e test
     - Same checks as 17.1, using the Wheels and the typed entry.
     - _Requirements: 13.3, 13.4_
-  - [ ] 17.4 Write the cursed object e2e test
+  - [x] 17.4 Write the cursed object e2e test
     - Same checks as 17.1 for the radio group.
     - _Requirements: 13.3, 13.4_
 
-- [ ] 18. Accessibility checks (Phase 4)
-  - [ ] 18.1 Write the axe check for each new panel
+- [x] 18. Accessibility checks (Phase 4)
+  - [x] 18.1 Write the axe check for each new panel
     - Follow `crypt-axe.e2e.ts`: open each of the four Lock_Panels and assert no axe violations.
     - _Requirements: 13.5_
 
-- [ ] 19. Sample crypt end-to-end (Phase 4)
-  - [ ] 19.1 Write the all-correct escape test for each sample
+- [x] 19. Sample crypt end-to-end (Phase 4)
+  - [x] 19.1 Write the all-correct escape test for each sample
     - For `human-heart`, `https` and `printing-press`: start the run through `buildCryptForSample` (the same path the Sample_Hub uses; no picker), answer every question correctly with answers read from the manifest in test code and not from the screen, and reach `escaped`. Put shared helpers in a new helper file.
     - **Property 11: Sample crypts are complete, resolvable and escapable**
     - **Validates: Requirements 12.15**
     - _Requirements: 13.6, 12.15_
-  - [ ] 19.2 Write the all-skipped escape test for each sample
+  - [x] 19.2 Write the all-skipped escape test for each sample
     - For the same three samples, skip or challenge every question and reach `escaped`. Reuse the helpers from 19.1.
     - **Property 11: Sample crypts are complete, resolvable and escapable**
     - **Validates: Requirements 12.15**

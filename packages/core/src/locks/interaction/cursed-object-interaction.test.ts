@@ -2,7 +2,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { cursedObjectArb } from '../../test-support/lock-interaction-arbitraries';
 import { judge } from '../cursed-object';
-import { chooseItem, clearChoice, cursedObjectSubmission, initCursedObjectDraft } from './cursed-object-interaction';
+import { applyRemoveHint, chooseItem, clearChoice, cursedObjectSubmission, initCursedObjectDraft } from './cursed-object-interaction';
 import * as moduleExports from './cursed-object-interaction';
 
 describe('cursed object interaction', () => {
@@ -48,7 +48,26 @@ describe('cursed object interaction', () => {
     expect(cursedObjectSubmission(clearChoice(chooseItem(d, 'a'))).ready).toBe(false);
     expect(chooseItem(d, 'zzz')).toBe(d);
   });
+  it('Property 8: a hint used part way through an answer never makes a ready answer invalid, and clears a choice it removes', () => {
+    fc.assert(
+      fc.property(cursedObjectArb, fc.nat({ max: 9 }), fc.nat({ max: 9 }), ({ question, seed }, chosenAt, removeAt) => {
+        const chosen = question.optionIds[chosenAt % question.optionIds.length] ?? '';
+        const removable = question.optionIds.filter((id) => id !== question.oddOneOutId);
+        const optionId = removable[removeAt % removable.length] ?? '';
+        const hint = { kind: 'remove-option', optionId } as const;
+        const before = chooseItem(initCursedObjectDraft(question, null, seed), chosen);
+        const hinted = applyRemoveHint(before, hint);
+        expect(hinted.removedId).toBe(optionId);
+        expect(hinted.chosenId).toBe(chosen === optionId ? null : chosen);
+        expect(applyRemoveHint(hinted, hint)).toBe(hinted);
+        expect(chooseItem(hinted, optionId)).toBe(hinted);
+        const sub = cursedObjectSubmission(hinted);
+        if (sub.ready) expect(judge(question, sub.submission, hint)).not.toBe('invalid');
+        else expect(hinted.chosenId).toBeNull();
+      }),
+    );
+  });
   it('exports nothing that returns the key', () => {
-    expect(Object.keys(moduleExports).sort()).toEqual(['chooseItem', 'clearChoice', 'cursedObjectSubmission', 'initCursedObjectDraft']);
+    expect(Object.keys(moduleExports).sort()).toEqual(['applyRemoveHint', 'chooseItem', 'clearChoice', 'cursedObjectSubmission', 'initCursedObjectDraft']);
   });
 });

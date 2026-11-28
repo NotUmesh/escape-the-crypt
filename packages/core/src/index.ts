@@ -203,10 +203,11 @@ export type { HintEffectSpec, ThreadPair } from './types';
 export type { BoneOrderingQuestion, BoundThreadsQuestion, CombinationDialQuestion, CursedObjectQuestion } from './locks/judge-registry';
 export type { InteractionSubmission } from './locks/interaction/interaction-result';
 export { displayOrder, displayOrderAvoiding } from './locks/interaction/display-order';
-export { initBoneOrderingDraft, moveBone, boneOrderingSubmission } from './locks/interaction/bone-ordering-interaction';
+export { initBoneOrderingDraft, applyBoneHint, moveBone, boneOrderingSubmission } from './locks/interaction/bone-ordering-interaction';
 export type { BoneOrderingDraft, BoneDirection } from './locks/interaction/bone-ordering-interaction';
 export {
   initBoundThreadsDraft,
+  applyThreadHint,
   selectLeft,
   tieRight,
   undoThread,
@@ -226,6 +227,7 @@ export {
 export type { CombinationDialDraft, Wheel, WheelDirection } from './locks/interaction/combination-dial-interaction';
 export {
   initCursedObjectDraft,
+  applyRemoveHint,
   chooseItem,
   clearChoice,
   cursedObjectSubmission,

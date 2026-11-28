@@ -3,13 +3,14 @@ import type { KeyboardEvent, ReactNode } from 'react';
 import {
   LOCK_PANEL_LABELS,
   ROOM_PLAY_LABELS,
+  applyRemoveHint,
   chooseItem,
   cursedObjectSubmission,
   initCursedObjectDraft,
 } from '@escape-the-crypt/core';
 import type { CursedObjectQuestion } from '@escape-the-crypt/core';
 import type { LockPanelContextValue } from './lock-panel-context';
-import { hintEffectFor, itemText, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
+import { hintEffectFor, itemText, useHintAnnouncement, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
 import type { LockPanelProps } from './lock-panel-registry';
 import './lock-panels.css';
 
@@ -30,10 +31,14 @@ interface BodyProps extends LockPanelProps {
 }
 function CursedObjectBody({ slotId, questionId, env, payload }: BodyProps): ReactNode {
   const announce = useLockAnnounce();
-  const [draft, setDraft] = useState(() => initCursedObjectDraft(payload, hintEffectFor(env, slotId, questionId), questionId));
+  const hint = hintEffectFor(env, slotId, questionId);
+  const [stored, setDraft] = useState(() => initCursedObjectDraft(payload, hint, questionId));
+  // The hint is read on every render, so one used part way through an answer still counts.
+  const draft = applyRemoveHint(stored, hint);
   const [showMessage, setShowMessage] = useState(false);
   const refs = useRef(new Map<string, HTMLInputElement>());
   const textOf = (id: string): string => itemText(env, questionId, id, LOCK_PANEL_LABELS.itemTextMissing);
+  useHintAnnouncement(hint, (h) => (h.kind === 'remove-option' ? LOCK_PANEL_LABELS.itemHinted(textOf(h.optionId)) : ''));
 
   function select(id: string): void {
     const next = chooseItem(draft, id);

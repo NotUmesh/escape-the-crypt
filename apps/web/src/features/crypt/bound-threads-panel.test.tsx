@@ -21,12 +21,13 @@ const CONTENT: CryptContent = {
   },
   concepts: {},
 };
-function view(dispatch = vi.fn(), hintPair: [string, string] | null = null) {
+function view(dispatch = vi.fn(), hintPair: [string, string] | null = null, announce = vi.fn()) {
   return (
     <LockPanelTestProvider
       content={CONTENT}
       payload={PAYLOAD}
       dispatch={dispatch}
+      announce={announce}
       appliedHint={hintPair === null ? null : { questionId: 'q1', effect: { kind: 'tie-thread', pair: hintPair } }}
     >
       <BoundThreadsPanel slotId="s1" questionId="q1" questionType="bound-threads" />
@@ -101,6 +102,24 @@ describe('BoundThreadsPanel (keyboard only)', () => {
     mount.render(view(vi.fn(), ['l2', 'r2']));
     expect(mount.container.textContent).toContain(LOCK_PANEL_LABELS.tiedByHint);
     expect(mount.container.querySelector('[aria-label^="Undo"]')).toBeNull();
+  });
+  it('takes a hint used after the panel opened: unties a crossed thread, ties the pair, announces it and keeps it', () => {
+    const dispatch = vi.fn();
+    const announce = vi.fn();
+    mount.render(view(dispatch, null, announce));
+    tie(mount.container, 'l2', 'r1');
+    expect(byLabel(mount.container, 'Atrium, tied to Carries blood out')).toBeDefined();
+    mount.render(view(dispatch, ['l2', 'r2'], announce));
+    expect(byLabel(mount.container, 'Atrium, tied to Receives blood')).toBeDefined();
+    expect(byLabel(mount.container, 'Carries blood out, not tied')).toBeDefined();
+    expect(mount.container.textContent).toContain(LOCK_PANEL_LABELS.tiedByHint);
+    expect(mount.container.querySelector('[aria-label^="Undo"]')).toBeNull();
+    expect(announce).toHaveBeenCalledWith(LOCK_PANEL_LABELS.threadHinted('Atrium', 'Receives blood'));
+    tie(mount.container, 'l1', 'r1');
+    tie(mount.container, 'l3', 'r3');
+    submit(mount.container);
+    const action = dispatch.mock.calls[0]?.[0] as { submission: { pairs: string[][] } };
+    expect([...action.submission.pairs].sort()).toEqual([['l1', 'r1'], ['l2', 'r2'], ['l3', 'r3']]);
   });
   it('shows a fallback when the payload is missing', () => {
     mount.render(

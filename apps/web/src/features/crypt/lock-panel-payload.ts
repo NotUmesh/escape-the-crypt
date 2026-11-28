@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect, useRef } from 'react';
 import type {
   BoneOrderingQuestion,
   BoundThreadsQuestion,
@@ -66,6 +66,24 @@ export function useLockPayload<T extends PayloadLockType>(
 export function hintEffectFor(env: LockPanelContextValue, slotId: string, questionId: string): HintEffectSpec | null {
   const hint = env.appliedHintFor(slotId);
   return hint !== null && hint.questionId === questionId ? (hint.effect ?? null) : null;
+}
+
+/**
+ * Announces a hint that arrives while the panel is open (the learner pressed Hint). A hint already
+ * applied when the panel mounts, as after a restore, is not announced again.
+ */
+export function useHintAnnouncement(hint: HintEffectSpec | null, message: (hint: HintEffectSpec) => string): void {
+  const announce = useLockAnnounce();
+  const key = hint === null ? null : JSON.stringify(hint);
+  const seen = useRef<string | null>(key);
+  const latest = useRef(message);
+  latest.current = message;
+  useEffect(() => {
+    if (key === seen.current) return;
+    seen.current = key;
+    const text = hint === null ? '' : latest.current(hint);
+    if (text !== '') announce(text);
+  }, [key, hint, announce]);
 }
 
 /** The text of one option, or a plain fallback when the content lacks it. */

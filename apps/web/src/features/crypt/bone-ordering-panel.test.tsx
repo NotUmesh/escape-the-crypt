@@ -96,6 +96,28 @@ describe('BoneOrderingPanel (keyboard only)', () => {
     activate(pinnedUp);
     expect(shownOrder(mount.container)[0]).toBe(TEXTS['b1']);
   });
+  it('takes a hint used after the panel opened: fixes the bone, announces it, and submits it in place', () => {
+    const dispatch = vi.fn();
+    const announce = vi.fn();
+    mount.render(view(dispatch, announce));
+    // The learner moves a bone first, then asks for the hint.
+    const firstBone = rows(mount.container)[0]?.querySelector('button') as HTMLElement;
+    activate(firstBone);
+    mount.render(view(dispatch, announce, 'b1'));
+    expect(shownOrder(mount.container)[0]).toBe(TEXTS['b1']);
+    expect(mount.container.textContent).toContain(LOCK_PANEL_LABELS.boneFixed);
+    expect(rows(mount.container)[0]?.querySelector('button')?.getAttribute('aria-disabled')).toBe('true');
+    expect(announce).toHaveBeenCalledWith(LOCK_PANEL_LABELS.boneHinted(TEXTS['b1'] ?? ''));
+    arrange(mount.container);
+    activate(buttonByText(mount.container, ROOM_PLAY_LABELS.submitAnswer));
+    expect(dispatch).toHaveBeenCalledWith({ type: 'submitAnswer', slotId: 's1', submission: { order: PAYLOAD.keyOrder } });
+  });
+  it('does not announce a hint that was already applied when the panel opened', () => {
+    const announce = vi.fn();
+    mount.render(view(vi.fn(), announce, 'b1'));
+    mount.render(view(vi.fn(), announce, 'b1'));
+    expect(announce).not.toHaveBeenCalled();
+  });
   it('shows a fallback when the payload is missing', () => {
     mount.render(
       <LockPanelTestProvider content={CONTENT} payload={null} dispatch={vi.fn()}>

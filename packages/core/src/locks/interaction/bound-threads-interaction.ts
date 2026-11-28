@@ -45,6 +45,29 @@ export function initBoundThreadsDraft(
   };
 }
 
+/**
+ * The draft with a hint taken into account. A `tie-thread` hint ties its pair and fixes it. A thread
+ * the learner had tied to either of those two items is untied first, so every item stays in at most
+ * one thread. Idempotent, so a panel can call it on every render and a hint used part way through an
+ * answer still counts. Any other hint changes nothing.
+ */
+export function applyThreadHint(draft: BoundThreadsDraft, hint: HintEffectSpec | null): BoundThreadsDraft {
+  if (hint === null || hint.kind !== 'tie-thread') return draft;
+  const [left, right] = hint.pair;
+  if (!draft.leftIds.includes(left) || !draft.rightOrder.includes(right)) return draft;
+  const fixed = draft.hintedPair;
+  if (fixed !== null && fixed[0] === left && fixed[1] === right && draft.pairs.some(([l, r]) => l === left && r === right)) {
+    return draft;
+  }
+  const kept = draft.pairs.filter(([l, r]) => l !== left && r !== right);
+  return {
+    ...draft,
+    pairs: [...kept, [left, right]],
+    hintedPair: [left, right],
+    selectedLeft: draft.selectedLeft === left ? null : draft.selectedLeft,
+  };
+}
+
 export function isLeftTied(draft: BoundThreadsDraft, leftId: string): boolean {
   return draft.pairs.some(([l]) => l === leftId);
 }

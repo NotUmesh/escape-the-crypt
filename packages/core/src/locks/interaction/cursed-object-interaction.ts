@@ -20,6 +20,17 @@ export function initCursedObjectDraft(
   return { itemIds: displayOrder(payload.optionIds, seed), chosenId: null, removedId };
 }
 
+/**
+ * The draft with a hint taken into account. A `remove-option` hint removes its item, and clears the
+ * choice if that item was chosen. Idempotent, so a panel can call it on every render and a hint used
+ * part way through an answer still counts. Any other hint changes nothing.
+ */
+export function applyRemoveHint(draft: CursedObjectDraft, hint: HintEffectSpec | null): CursedObjectDraft {
+  if (hint === null || hint.kind !== 'remove-option' || !draft.itemIds.includes(hint.optionId)) return draft;
+  if (draft.removedId === hint.optionId) return draft;
+  return { ...draft, removedId: hint.optionId, chosenId: draft.chosenId === hint.optionId ? null : draft.chosenId };
+}
+
 /** Unknown and removed items give back the same draft. */
 export function chooseItem(draft: CursedObjectDraft, itemId: string): CursedObjectDraft {
   if (itemId === draft.removedId || !draft.itemIds.includes(itemId)) return draft;

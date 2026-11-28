@@ -396,3 +396,4 @@ Run on 2026-11-28 over the working tree. HEAD was 60bb6ba at the start; during t
 - `CHECK_VERSION` is `'2026-11-27.5'` (`packages/core/src/checks/registry.ts:4`).
 - Structure check passed: every source file is within the limit. The longest Phase 6 source files are `orchestrator.ts` (296 lines), `copy-banned-words.test.ts` (280), `cli.test.ts` (268), `boundary.test.ts` (255) and `conflict-stage.test.ts` (253).
 - Paid re-record with `--conflict-check on`: the command was given to the user and not run.
+Decision (lock types phase 3): human-heart stays the two-type starter (rune cipher and séance board), not widened. Widening it changed the room count or the final-door seal count that tests under apps/web/src/state pin, and those tests belong to the other machine. https and printing-press each place all six lock types. The `restoreRun` and `import-run.ts` change that lets a saved https or printing-press run resume goes to the Default chat on this machine.

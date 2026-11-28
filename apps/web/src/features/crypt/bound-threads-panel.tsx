@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import {
   LOCK_PANEL_LABELS,
   ROOM_PLAY_LABELS,
+  applyThreadHint,
   boundThreadsSubmission,
   initBoundThreadsDraft,
   isLeftTied,
@@ -14,7 +15,7 @@ import {
 import type { BoundThreadsQuestion } from '@escape-the-crypt/core';
 import { threadStateName } from './accessible-names';
 import type { LockPanelContextValue } from './lock-panel-context';
-import { hintEffectFor, itemText, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
+import { hintEffectFor, itemText, useHintAnnouncement, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
 import type { LockPanelProps } from './lock-panel-registry';
 import './lock-panels.css';
 
@@ -36,7 +37,10 @@ interface BodyProps extends LockPanelProps {
 }
 function BoundThreadsBody({ slotId, questionId, env, payload }: BodyProps): ReactNode {
   const announce = useLockAnnounce();
-  const [draft, setDraft] = useState(() => initBoundThreadsDraft(payload, hintEffectFor(env, slotId, questionId), questionId));
+  const hint = hintEffectFor(env, slotId, questionId);
+  const [stored, setDraft] = useState(() => initBoundThreadsDraft(payload, hint, questionId));
+  // The hint is read on every render, so one used part way through an answer still counts.
+  const draft = applyThreadHint(stored, hint);
   const [message, setMessage] = useState<string | null>(null);
   const leftButtons = useRef(new Map<string, HTMLButtonElement>());
   const refocusLeft = useRef<string | null>(null);
@@ -44,8 +48,9 @@ function BoundThreadsBody({ slotId, questionId, env, payload }: BodyProps): Reac
     if (refocusLeft.current === null) return;
     leftButtons.current.get(refocusLeft.current)?.focus();
     refocusLeft.current = null;
-  }, [draft]);
+  }, [stored]);
   const textOf = (id: string): string => itemText(env, questionId, id, LOCK_PANEL_LABELS.itemTextMissing);
+  useHintAnnouncement(hint, (h) => (h.kind === 'tie-thread' ? LOCK_PANEL_LABELS.threadHinted(textOf(h.pair[0]), textOf(h.pair[1])) : ''));
   const partnerOfLeft = (id: string): string | undefined => draft.pairs.find(([l]) => l === id)?.[1];
   const partnerOfRight = (id: string): string | undefined => draft.pairs.find(([, r]) => r === id)?.[0];
 

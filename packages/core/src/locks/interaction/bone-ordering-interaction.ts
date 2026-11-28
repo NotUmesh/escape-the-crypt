@@ -38,6 +38,26 @@ export function initBoneOrderingDraft(
 }
 
 /**
+ * The draft with a hint taken into account. A `lock-first-bone` hint fixes its bone at its key
+ * position; the other bones keep the order the learner gave them. Idempotent, so a panel can call it
+ * on every render and a hint used part way through an answer still counts. Any other hint changes nothing.
+ */
+export function applyBoneHint(
+  draft: BoneOrderingDraft,
+  payload: BoneOrderingQuestion,
+  hint: HintEffectSpec | null,
+): BoneOrderingDraft {
+  if (hint === null || hint.kind !== 'lock-first-bone') return draft;
+  const keyIndex = payload.keyOrder.indexOf(hint.boneId);
+  if (keyIndex < 0 || !draft.order.includes(hint.boneId)) return draft;
+  if (draft.pinnedId === hint.boneId && draft.order.indexOf(hint.boneId) === keyIndex) return draft;
+  const rest = draft.order.filter((id) => id !== hint.boneId);
+  const order = [...rest];
+  order.splice(Math.min(keyIndex, order.length), 0, hint.boneId);
+  return { order, pinnedId: hint.boneId };
+}
+
+/**
  * Moves one bone a step. It swaps with the nearest bone in that direction, jumping over the
  * pinned bone so the pinned bone never leaves its place. Out of range, unknown and pinned
  * bones give back the same draft.

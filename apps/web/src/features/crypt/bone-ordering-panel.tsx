@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
-import { LOCK_PANEL_LABELS, ROOM_PLAY_LABELS, boneOrderingSubmission, initBoneOrderingDraft, moveBone } from '@escape-the-crypt/core';
+import { LOCK_PANEL_LABELS, ROOM_PLAY_LABELS, applyBoneHint, boneOrderingSubmission, initBoneOrderingDraft, moveBone } from '@escape-the-crypt/core';
 import type { BoneDirection, BoneOrderingQuestion } from '@escape-the-crypt/core';
 import { boneMoveName } from './accessible-names';
 import type { LockPanelContextValue } from './lock-panel-context';
-import { hintEffectFor, itemText, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
+import { hintEffectFor, itemText, useHintAnnouncement, useLockAnnounce, useLockPanelContext, useLockPayload } from './lock-panel-payload';
 import type { LockPanelProps } from './lock-panel-registry';
 import './lock-panels.css';
 
@@ -26,18 +26,20 @@ interface BodyProps extends LockPanelProps {
 }
 function BoneOrderingBody({ slotId, questionId, env, payload }: BodyProps): ReactNode {
   const announce = useLockAnnounce();
-  const [draft, setDraft] = useState(() =>
-    initBoneOrderingDraft(payload, hintEffectFor(env, slotId, questionId), questionId),
-  );
+  const textOf = (id: string): string => itemText(env, questionId, id, LOCK_PANEL_LABELS.itemTextMissing);
+  const hint = hintEffectFor(env, slotId, questionId);
+  const [stored, setDraft] = useState(() => initBoneOrderingDraft(payload, hint, questionId));
+  // The hint is read on every render, so one used part way through an answer still counts.
+  const draft = applyBoneHint(stored, payload, hint);
+  useHintAnnouncement(hint, (h) => (h.kind === 'lock-first-bone' ? LOCK_PANEL_LABELS.boneHinted(textOf(h.boneId)) : ''));
   const buttons = useRef(new Map<string, HTMLButtonElement>());
   const refocus = useRef<string | null>(null);
   useEffect(() => {
     if (refocus.current === null) return;
     buttons.current.get(refocus.current)?.focus();
     refocus.current = null;
-  }, [draft]);
+  }, [stored]);
   const total = draft.order.length;
-  const textOf = (id: string): string => itemText(env, questionId, id, LOCK_PANEL_LABELS.itemTextMissing);
 
   function move(id: string, direction: BoneDirection): void {
     const next = moveBone(draft, id, direction);

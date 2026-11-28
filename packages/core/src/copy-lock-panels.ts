@@ -12,6 +12,7 @@ export const LOCK_PANEL_LABELS = {
   moveUp: 'Move up',
   moveDown: 'Move down',
   boneFixed: 'Fixed by the hint',
+  boneHinted: (text: string): string => `Hint: ${text} is fixed in place.`,
   boneMoved: (text: string, position: number, total: number): string => `${text}, now ${position} of ${total}`,
   boneBlocked: (text: string): string => `${text} can't move that way.`,
   // Bound threads
@@ -21,6 +22,7 @@ export const LOCK_PANEL_LABELS = {
   threadsNoneTied: 'No pairs tied yet.',
   undo: 'Undo',
   tiedByHint: 'Tied by the hint',
+  threadHinted: (left: string, right: string): string => `Hint: ${left} is tied to ${right}.`,
   chooseLeftFirst: 'Choose an item on the left first.',
   tieEveryLeft: 'Tie every item on the left before you submit.',
   rightAlreadyTied: 'That item is already tied. Undo its pair first.',
@@ -38,5 +40,6 @@ export const LOCK_PANEL_LABELS = {
   unitLine: (unit: string): string => `Unit: ${unit}`,
   wheelNow: (name: string, digit: number): string => `${name}, now ${digit}`,
   // Cursed object
+  itemHinted: (text: string): string => `Hint: ${text} is removed.`,
   cursedGroupLabel: 'Choose the one that does not belong',
 } as const;

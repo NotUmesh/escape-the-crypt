@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import {
@@ -9,27 +7,14 @@ import {
   ROOM_PLAY_LABELS,
   SAMPLE_CRYPT_LABEL,
   SAMPLE_IDS,
-  getSampleBuilder,
 } from '@escape-the-crypt/core';
-import type { SampleCryptResult, SampleQuestionsFile } from '@escape-the-crypt/core';
 import { SAMPLE_LIST } from '../src/features/desk/sample-list';
 import { openLockName } from './crypt-helpers';
 import { answerByKeyboard, tabTo } from './keyboard-answers';
+import { button, buildSample } from './sample-nav';
 
 // Every sample, played from the shelf to the Autopsy with the keyboard only, answering every question
 // correctly. The answers come from the manifest the same builder produces for the app.
-const SAMPLES = fileURLToPath(new URL('../../../samples/', import.meta.url));
-
-function build(id: string): SampleCryptResult {
-  const notes = readFileSync(`${SAMPLES}${id}.txt`, 'utf8');
-  const file = JSON.parse(readFileSync(`${SAMPLES}questions/${id}.json`, 'utf8')) as SampleQuestionsFile;
-  const builder = getSampleBuilder(id);
-  if (!builder.ok) throw new Error(`no builder for ${id}`);
-  const built = builder.value(notes, file);
-  if (!built.ok) throw new Error(`${id} failed: ${built.error.kind}`);
-  return built.value;
-}
-const button = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 
 async function continueEvidence(page: Page): Promise<void> {
   await expect(page.locator('.evidence-panel__result[data-result="correct"]')).toBeVisible();
@@ -42,7 +27,7 @@ for (const id of SAMPLE_IDS) {
   const title = SAMPLE_LIST.find((entry) => entry.id === id)?.title ?? id;
   test(`keyboard only: ${id} from the shelf to the Autopsy`, async ({ page }) => {
     test.setTimeout(300_000);
-    const crypt = build(id);
+    const crypt = buildSample(id);
 
     // The shelf: Tab to the sample's button and press Enter.
     await page.goto('/');

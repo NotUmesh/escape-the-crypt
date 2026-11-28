@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { boundThreadsArb } from '../../test-support/lock-interaction-arbitraries';
 import { judge } from '../bound-threads';
 import type { BoundThreadsQuestion } from '../bound-threads';
-import { boundThreadsSubmission, initBoundThreadsDraft, selectLeft, tieRight, undoThread } from './bound-threads-interaction';
+import { applyThreadHint, boundThreadsSubmission, initBoundThreadsDraft, selectLeft, tieRight, undoThread } from './bound-threads-interaction';
 import type { BoundThreadsDraft } from './bound-threads-interaction';
 import * as moduleExports from './bound-threads-interaction';
 
@@ -88,9 +88,41 @@ describe('bound threads interaction', () => {
     expect(d.pairs).toEqual([['l0', 'r0']]);
     expect(undoThread(d, 'l0')).toBe(d);
   });
+  it('Property 8: a hint used part way through an answer keeps the threads one-to-one and never makes a ready answer invalid', () => {
+    const op = fc.record({ kind: fc.constantFrom('left', 'right', 'undo'), index: fc.nat({ max: 7 }) });
+    fc.assert(
+      fc.property(boundThreadsArb, fc.nat({ max: 9 }), fc.array(op, { maxLength: 40 }), ({ question, seed }, pick, ops) => {
+        let d = initBoundThreadsDraft(question, null, seed);
+        for (const o of ops) {
+          if (o.kind === 'left') d = selectLeft(d, question.leftIds[o.index % question.leftIds.length] ?? '');
+          else if (o.kind === 'right') {
+            const r = tieRight(d, question.rightIds[o.index % question.rightIds.length] ?? '');
+            if (r.ok) d = r.draft;
+          } else d = undoThread(d, question.leftIds[o.index % question.leftIds.length] ?? '');
+        }
+        const pair = question.keyPairs[pick % question.keyPairs.length] ?? ['', ''];
+        const hint = { kind: 'tie-thread', pair } as const;
+        const hinted = applyThreadHint(d, hint);
+        expect(hinted.pairs).toContainEqual(pair);
+        expect(new Set(hinted.pairs.map(([l]) => l)).size).toBe(hinted.pairs.length);
+        expect(new Set(hinted.pairs.map(([, r]) => r)).size).toBe(hinted.pairs.length);
+        expect(applyThreadHint(hinted, hint)).toBe(hinted);
+        expect(undoThread(hinted, pair[0])).toBe(hinted);
+        const sub = boundThreadsSubmission(hinted);
+        if (sub.ready) expect(judge(question, sub.submission, hint)).not.toBe('invalid');
+      }),
+    );
+  });
+  it('unties a thread the learner had made to the hinted items before tying the hinted pair', () => {
+    const base = initBoundThreadsDraft(q, null, 's');
+    const crossed = tie(tie(base, 'l0', 'r1'), 'l1', 'r0');
+    const hinted = applyThreadHint(crossed, { kind: 'tie-thread', pair: ['l0', 'r0'] });
+    expect(hinted.pairs).toEqual([['l0', 'r0']]);
+    expect(applyThreadHint(crossed, null)).toBe(crossed);
+  });
   it('exports nothing that returns the key', () => {
     expect(Object.keys(moduleExports).sort()).toEqual([
-      'boundThreadsSubmission', 'initBoundThreadsDraft', 'isLeftTied', 'isRightTied', 'selectLeft', 'tieRight', 'undoThread',
+      'applyThreadHint', 'boundThreadsSubmission', 'initBoundThreadsDraft', 'isLeftTied', 'isRightTied', 'selectLeft', 'tieRight', 'undoThread',
     ]);
   });
 });
