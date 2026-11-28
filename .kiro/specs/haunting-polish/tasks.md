@@ -155,7 +155,7 @@ Rules for every task:
     - No request to another origin, no AI provider call.
     - _Requirements: 2.2, 2.3, 10.9, 16.9, 16.10, 16.11_
 
-- [ ] 10. Checkpoint B: full suites and build log
+- [x] 10. Checkpoint B: full suites and build log
   - Run `vitest run --maxWorkers=50%` in `apps/web` and `packages/core` only if a shared helper changed (none is expected). Run `playwright test --workers=2` in `apps/web` with the port free.
   - Take one screenshot per moment with reduced motion on and off from the Playwright run and note each in `docs/build-log.md`. Record real counts and every failure.
   - Write the unmet Open_Decisions into the build log as "unmet, waits for confirmation".
