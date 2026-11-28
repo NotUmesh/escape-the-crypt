@@ -159,6 +159,13 @@ function threadsQ(n: number): CheckableQuestion {
 const SYNTHETIC_CASES: Partial<Record<CheckId, () => readonly CheckFailure[]>> = {
   'pair-count': () => synth([threadsQ(2)]),
   'duplicate-steps': () => synth([bone({ steps: ['Ribosomes', 'ribosomes  ', 'Nucleus'] })]),
+  'steps-listed-in-prompt': () =>
+    synth([
+      bone({
+        prompt: 'According to your notes, put Ribosomes, Golgi and Membrane in order.',
+        steps: ['Ribosomes', 'Golgi', 'Membrane'],
+      }),
+    ]),
   'duplicate-answer-in-room': duplicateAnswerCase,
   'quote-too-long': () =>
     synth([

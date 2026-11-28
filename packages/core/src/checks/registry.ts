@@ -1,7 +1,7 @@
 import type { CheckRegistration } from './types';
 
 /** Change whenever the set or behaviour of Code_Checks changes. */
-export const CHECK_VERSION = '2026-11-27.5';
+export const CHECK_VERSION = '2026-11-28.1';
 
 const shared = (id: CheckRegistration['id']): CheckRegistration => ({
   id,
@@ -82,6 +82,7 @@ export const CHECK_REGISTRY: readonly CheckRegistration[] = [
   bone('step-count'),
   bone('duplicate-steps'),
   bone('no-explicit-sequence-marker-in-quotes'),
+  bone('steps-listed-in-prompt'),
   // Deliberate flip (task 31.2): bound-threads checks now exist and runChecks calls them.
   threads('pair-count'),
   threads('not-one-to-one'),
@@ -93,6 +94,7 @@ export const CHECK_REGISTRY: readonly CheckRegistration[] = [
   // Deliberate flip (task 35.2): combination-dial checks now exist and runChecks calls them.
   // No registry entry is left unimplemented; lock-type-not-supported stays registered (Req 3.5).
   dial('missing-units'),
+  dial('units-reveal-number'),
   dial('number-not-in-quote'),
   dial('range-not-in-quote'),
   dial('template-not-allowlisted'),

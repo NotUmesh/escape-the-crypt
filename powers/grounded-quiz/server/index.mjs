@@ -19894,7 +19894,7 @@ function parseAuthoringQuestion(value) {
 }
 
 // packages/core/src/checks/registry.ts
-var CHECK_VERSION = "2026-11-27.5";
+var CHECK_VERSION = "2026-11-28.1";
 var shared = (id) => ({
   id,
   scope: "shared",
@@ -19967,6 +19967,7 @@ var CHECK_REGISTRY = [
   bone("step-count"),
   bone("duplicate-steps"),
   bone("no-explicit-sequence-marker-in-quotes"),
+  bone("steps-listed-in-prompt"),
   // Deliberate flip (task 31.2): bound-threads checks now exist and runChecks calls them.
   threads("pair-count"),
   threads("not-one-to-one"),
@@ -19978,6 +19979,7 @@ var CHECK_REGISTRY = [
   // Deliberate flip (task 35.2): combination-dial checks now exist and runChecks calls them.
   // No registry entry is left unimplemented; lock-type-not-supported stays registered (Req 3.5).
   dial("missing-units"),
+  dial("units-reveal-number"),
   dial("number-not-in-quote"),
   dial("range-not-in-quote"),
   dial("template-not-allowlisted"),
@@ -20212,7 +20214,7 @@ function resolveQuote(chunks, chunkId, quote) {
 // packages/core/src/checks/evidence.ts
 var MAX_QUOTE_WORDS = 25;
 var NEGATION_PATTERN = /\b(?:not|never|except|incorrect|false)\b|\b(?:isn't|aren't|doesn't)\b/i;
-var CURSED_OBJECT_EXEMPTION = /which (?:one|of these) .* not\b/i;
+var CURSED_OBJECT_EXEMPTION = /\bwhich\b.*\bnot\b/i;
 function checkQuoteLength(quote, questionId) {
   const words = quote.trim().split(/\s+/).filter(Boolean).length;
   return words > MAX_QUOTE_WORDS ? { checkId: "quote-too-long", questionId } : null;
@@ -20267,6 +20269,16 @@ function checkDuplicateSteps(question) {
   const keys = question.steps.map(duplicateKey);
   return new Set(keys).size !== keys.length ? [{ checkId: "duplicate-steps", questionId: question.id }] : [];
 }
+function checkStepsListedInPrompt(question) {
+  const prompt = duplicateKey(question.prompt);
+  const positions = question.steps.map((step) => {
+    const key2 = duplicateKey(step);
+    return key2.length > 0 ? prompt.indexOf(key2) : -1;
+  }).filter((at) => at >= 0);
+  if (positions.length < 2) return [];
+  const inOrder = positions.every((at, i) => i === 0 || at > positions[i - 1]);
+  return inOrder ? [{ checkId: "steps-listed-in-prompt", questionId: question.id }] : [];
+}
 function checkSequenceMarker(question, context) {
   const resolved = question.evidence.filter((e) => resolvesUniquely(context, e));
   if (resolved.length === 0) return [];
@@ -20285,6 +20297,7 @@ function boneOrderingChecks(question, context) {
   failures.push(
     ...checkStepCount(question),
     ...checkDuplicateSteps(question),
+    ...checkStepsListedInPrompt(question),
     ...checkSequenceMarker(question, context)
   );
   return failures;
@@ -20403,6 +20416,10 @@ function checkMissingUnits(q) {
   const units = q.units;
   return typeof units === "string" && units.trim() !== "" ? [] : fail("missing-units", q);
 }
+function checkUnitsRevealNumber(q) {
+  const units = q.units;
+  return typeof units === "string" && /[0-9]/.test(units) ? fail("units-reveal-number", q) : [];
+}
 function checkNumberNotInQuote(q, context) {
   const answer = answerOf(q);
   if (answer["kind"] !== "exact") return [];
@@ -20467,6 +20484,7 @@ function combinationDialChecks(q, context) {
   const notAllowlisted = checkTemplateNotAllowlisted(q);
   failures.push(
     ...checkMissingUnits(q),
+    ...checkUnitsRevealNumber(q),
     ...checkNumberNotInQuote(q, context),
     ...checkRangeNotInQuote(q, context),
     ...notAllowlisted,
@@ -21996,6 +22014,10 @@ var HINTS = {
     problem: 'None of the quotes states an order (no "first", "then", "next", numbering and so on).',
     fix: "Only ask for an order the notes state outright. Otherwise set the question aside."
   },
+  "steps-listed-in-prompt": {
+    problem: "The prompt names two or more steps in the right order, so it gives the answer away.",
+    fix: 'Describe the process without naming the steps in order, for example "Put the stages of the life cycle in order."'
+  },
   "pair-count": {
     problem: "A matching question needs 3 or 4 pairs.",
     fix: "Use 3 or 4 pairs, each with its own quote."
@@ -22035,6 +22057,10 @@ var HINTS = {
   "missing-units": {
     problem: "A combination dial question has no units. The dial shows them next to the number.",
     fix: 'Set `units` to what is counted or measured, for example "chambers" or "beats per minute". Use "(no units)" only when the number really has none.'
+  },
+  "units-reveal-number": {
+    problem: 'The units contain a number. They are shown next to the dial, so a unit such as "July 20" gives the answer away.',
+    fix: 'Keep numbers out of `units`. Put the number only in the answer, and describe the unit in words, for example "day of July".'
   },
   "number-not-in-quote": {
     problem: 'The exact number does not appear, as written in the notes, in any evidence quote. "970" does not count as 97, and a computed number does not count.',

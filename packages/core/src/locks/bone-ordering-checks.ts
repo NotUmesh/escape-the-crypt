@@ -15,6 +15,7 @@ const SEQUENCE_MARKER =
   /\b(?:first(?:ly)?|secondly|second,|thirdly|third,|next|then|finally|lastly|afterwards?|after that|subsequently|step\s*\d+|starting (?:at|with|from)|begins? with)\b|(?:^|\s)\(?\d{1,2}[.)]\s/i;
 
 type StepsInput = Pick<BoneOrderingAuthoringQuestion, 'id' | 'steps'>;
+type PromptStepsInput = Pick<BoneOrderingAuthoringQuestion, 'id' | 'steps' | 'prompt'>;
 type EvidenceInput = Pick<BoneOrderingAuthoringQuestion, 'id' | 'evidence'>;
 
 function duplicateKey(text: string): string {
@@ -33,6 +34,25 @@ export function checkDuplicateSteps(question: StepsInput): readonly CheckFailure
   return new Set(keys).size !== keys.length
     ? [{ checkId: 'duplicate-steps', questionId: question.id }]
     : [];
+}
+
+/**
+ * `steps-listed-in-prompt`: the prompt must not give the order away. Fires when two or
+ * more step texts appear in the prompt and every step found appears in key order.
+ * `steps` is the key order, so a prompt that names steps in that order hands over
+ * (part of) the answer.
+ */
+export function checkStepsListedInPrompt(question: PromptStepsInput): readonly CheckFailure[] {
+  const prompt = duplicateKey(question.prompt);
+  const positions = question.steps
+    .map((step) => {
+      const key = duplicateKey(step);
+      return key.length > 0 ? prompt.indexOf(key) : -1;
+    })
+    .filter((at) => at >= 0);
+  if (positions.length < 2) return [];
+  const inOrder = positions.every((at, i) => i === 0 || at > positions[i - 1]!);
+  return inOrder ? [{ checkId: 'steps-listed-in-prompt', questionId: question.id }] : [];
 }
 
 /**
@@ -68,6 +88,7 @@ export function boneOrderingChecks(
   failures.push(
     ...checkStepCount(question),
     ...checkDuplicateSteps(question),
+    ...checkStepsListedInPrompt(question),
     ...checkSequenceMarker(question, context),
   );
   return failures;

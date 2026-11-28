@@ -97,6 +97,15 @@ export function checkMissingUnits(q: Q): readonly CheckFailure[] {
   return typeof units === 'string' && units.trim() !== '' ? [] : fail('missing-units', q);
 }
 
+/**
+ * `units-reveal-number`: the units are shown next to the dial, so they must not
+ * carry a number (for example answer 20 with units "July 20").
+ */
+export function checkUnitsRevealNumber(q: Q): readonly CheckFailure[] {
+  const units: unknown = (q as unknown as { units?: unknown }).units;
+  return typeof units === 'string' && /[0-9]/.test(units) ? fail('units-reveal-number', q) : [];
+}
+
 /** `number-not-in-quote`: an exact answer must appear verbatim in a resolved quote. */
 export function checkNumberNotInQuote(q: Q, context: QuoteContext): readonly CheckFailure[] {
   const answer = answerOf(q);
@@ -197,6 +206,7 @@ export function combinationDialChecks(q: Q, context: QuoteContext): readonly Che
   const notAllowlisted = checkTemplateNotAllowlisted(q);
   failures.push(
     ...checkMissingUnits(q),
+    ...checkUnitsRevealNumber(q),
     ...checkNumberNotInQuote(q, context),
     ...checkRangeNotInQuote(q, context),
     ...notAllowlisted,

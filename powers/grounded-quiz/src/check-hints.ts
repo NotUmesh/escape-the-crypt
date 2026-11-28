@@ -102,6 +102,10 @@ const HINTS: Readonly<Partial<Record<CheckId, CheckHint>>> = {
     problem: 'None of the quotes states an order (no "first", "then", "next", numbering and so on).',
     fix: 'Only ask for an order the notes state outright. Otherwise set the question aside.',
   },
+  'steps-listed-in-prompt': {
+    problem: 'The prompt names two or more steps in the right order, so it gives the answer away.',
+    fix: 'Describe the process without naming the steps in order, for example "Put the stages of the life cycle in order."',
+  },
   'pair-count': {
     problem: 'A matching question needs 3 or 4 pairs.',
     fix: 'Use 3 or 4 pairs, each with its own quote.',
@@ -141,6 +145,10 @@ const HINTS: Readonly<Partial<Record<CheckId, CheckHint>>> = {
   'missing-units': {
     problem: 'A combination dial question has no units. The dial shows them next to the number.',
     fix: 'Set `units` to what is counted or measured, for example "chambers" or "beats per minute". Use "(no units)" only when the number really has none.',
+  },
+  'units-reveal-number': {
+    problem: 'The units contain a number. They are shown next to the dial, so a unit such as "July 20" gives the answer away.',
+    fix: 'Keep numbers out of `units`. Put the number only in the answer, and describe the unit in words, for example "day of July".',
   },
   'number-not-in-quote': {
     problem: 'The exact number does not appear, as written in the notes, in any evidence quote. "970" does not count as 97, and a computed number does not count.',

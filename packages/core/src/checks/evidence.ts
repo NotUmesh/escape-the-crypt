@@ -8,8 +8,11 @@ export const MAX_QUOTE_WORDS = 25;
 /** Negation markers that make a prompt a negative question. */
 const NEGATION_PATTERN = /\b(?:not|never|except|incorrect|false)\b|\b(?:isn't|aren't|doesn't)\b/i;
 
-/** Cursed-object prompts may ask "which one is not ..." (odd one out). */
-const CURSED_OBJECT_EXEMPTION = /which (?:one|of these) .* not\b/i;
+/**
+ * Cursed-object prompts may ask "which one is not ..." or "which item does not
+ * belong ..." (odd one out): the negation is the mechanic, not a trick.
+ */
+const CURSED_OBJECT_EXEMPTION = /\bwhich\b.*\bnot\b/i;
 
 function checkQuoteLength(quote: string, questionId: string): CheckFailure | null {
   const words = quote.trim().split(/\s+/).filter(Boolean).length;
@@ -77,7 +80,7 @@ export function checkBannedPhrase(
 
 /**
  * Flags negation markers in the prompt only. A cursed-object prompt of the
- * form "which one/of these ... not" is exempt.
+ * form "which ... not" is exempt.
  */
 export function checkNegativeQuestion(
   prompt: string,
