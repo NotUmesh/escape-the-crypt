@@ -205,11 +205,15 @@ describe('the Phase 6 gates never lower a check', () => {
     expect(on.counts.conceptsTooThin).toBeGreaterThanOrEqual(1);
   });
 
-  it('Phase 6 leaves the quote limits, the Check_ID list and CHECK_VERSION unchanged', () => {
+  // The 2026-11-28 crypt-keeper review added two Code_Checks and bumped CHECK_VERSION, so this
+  // pins what "never lower" means: the quote limits are unchanged and every earlier Check_ID is
+  // still registered and blocking. Checks may be added; none may be removed or made advisory.
+  it('Phase 6 keeps the quote limits and never removes or weakens a Check_ID', () => {
     expect(MIN_QUOTE_WORDS).toBe(4);
     expect(MAX_QUOTE_WORDS).toBe(25);
-    expect(CHECK_VERSION).toBe('2026-11-27.5');
-    expect(CHECK_REGISTRY.map((c) => c.id)).toEqual([
+    expect(CHECK_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}\.\d+$/);
+    const registered = new Map(CHECK_REGISTRY.map((c) => [c.id as string, c.severity]));
+    const before: readonly string[] = [
       'quote-not-found',
       'quote-ambiguous',
       'quote-too-short',
@@ -250,6 +254,10 @@ describe('the Phase 6 gates never lower a check', () => {
       'template-value-mismatch',
       'model-written-expression',
       'dial-range-prompt',
-    ]);
+    ];
+    for (const id of before) {
+      expect(registered.has(id), `${id} is still registered`).toBe(true);
+      if (id !== 'alternate-off-concept') expect(registered.get(id), `${id} stays blocking`).toBe('blocking');
+    }
   });
 });
