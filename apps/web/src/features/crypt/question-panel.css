@@ -36,9 +36,38 @@
   font-size: 1.125rem;
 }
 
+/* Every button in a lock panel shares the design-system button treatment (the design-critic
+   review found Move up/down, Submit, Hint, Skip and Challenge rendering as browser-default grey).
+   :where() keeps specificity at zero, so panel-specific rules still win. */
+.question-panel :where(button) {
+  box-sizing: border-box;
+  padding: 0.5rem 1rem;
+  background: var(--stone-950);
+  color: var(--bone-50);
+  border: 1px solid var(--spectre-300);
+  border-radius: 4px;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.question-panel :where(button[aria-pressed='true']) {
+  background: var(--stone-800);
+  border-width: 2px;
+}
+
+.question-panel :where(button:disabled, button[aria-disabled='true']) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .question-panel :where(button, input, select, textarea):focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+}
+
+.question-panel__close {
+  display: block;
+  margin: 0.75rem 0 0 auto;
 }
 
 .question-controls {

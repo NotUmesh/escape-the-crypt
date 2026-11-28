@@ -19,7 +19,7 @@
 }
 .run-settings__option {
   display: grid;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: 1.25rem auto 1fr;
   align-items: center;
   gap: 0.25rem 0.75rem;
   min-height: 44px;
@@ -38,10 +38,20 @@
 .run-settings__label {
   font-weight: 600;
 }
-/* A switched-off length reads as unavailable from its text, not from colour alone. */
+/* A switched-off length reads as unavailable from its own text ("Not available for these notes"),
+   not from colour alone; it is dimmed, never struck through (strike-through hurts legibility). */
 .run-settings__option[data-disabled] {
   cursor: not-allowed;
-  text-decoration: line-through;
+  opacity: 0.7;
+}
+/* Narrow screens: the detail line sits under the label, aligned with it, not under the radio. */
+@media (max-width: 30rem) {
+  .run-settings__option {
+    grid-template-columns: 1.25rem 1fr;
+  }
+  .run-settings__detail {
+    grid-column: 2;
+  }
 }
 .run-settings__note {
   margin: 0.25rem 0 0;

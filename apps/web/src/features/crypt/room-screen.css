@@ -6,15 +6,22 @@
 .room-screen__title {
   font-family: var(--font-title);
   color: var(--bone-50);
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem;
 }
 
+.room-screen__position,
 .room-screen__sample-label,
 .room-screen__hints,
 .room-screen__status,
 .room-screen__challenged {
   font-family: var(--font-body);
   color: var(--stone-300);
+  /* design-system.md: body text at least 18px on desktop, 16px on phones. */
+  font-size: 1.125rem;
+  line-height: 1.5;
 }
+
 
 .room-screen__locks {
   display: flex;
@@ -103,6 +110,11 @@
 
 /* Phone_Viewport: width divided by height below 0.75. */
 @media (max-aspect-ratio: 749/1000) {
+  .room-screen__position,
+  .room-screen__sample-label,
+  .room-screen__hints,
+  .room-screen__status,
+  .room-screen__challenged,
   .room-screen__lock-button,
   .room-screen__return-button,
   .room-screen__panel-slot,

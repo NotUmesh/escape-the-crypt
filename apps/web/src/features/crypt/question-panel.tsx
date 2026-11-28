@@ -83,6 +83,11 @@ function PanelShell({
         createElement(LockPanel, { slotId, questionId, questionType })
       )}
       {children}
+      {awaitingContinue ? null : (
+        <button type="button" className="question-panel__close" onClick={onClose}>
+          {ROOM_PLAY_LABELS.closePanel}
+        </button>
+      )}
     </section>
   );
 }

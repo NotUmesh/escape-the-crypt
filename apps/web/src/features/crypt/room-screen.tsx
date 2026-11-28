@@ -134,9 +134,9 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
 
   return (
     <section className="room-screen" aria-labelledby="room-screen-title">
-      <h2 id="room-screen-title" className="room-screen__title" ref={titleRef} tabIndex={-1}>
+      <h1 id="room-screen-title" className="room-screen__title" ref={titleRef} tabIndex={-1}>
         {room === undefined ? '' : roomDisplayName(roomIndex)}
-      </h2>
+      </h1>
       {rooms > 1 ? <p className="room-screen__position">{ROOM_PLAY_LABELS.roomOf(roomIndex + 1, rooms)}</p> : null}
       {shortened && roomIndex === 0 ? (
         <p className="room-screen__shortened" data-testid="crypt-shortened">

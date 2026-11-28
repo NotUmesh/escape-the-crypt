@@ -8,7 +8,7 @@ const STATUSES: readonly SlotStatus[] = ['open', 'solved', 'settled', 'challenge
 const LOCK_TABLE: ReadonlyArray<readonly [SlotStatus, string]> = [
   ['open', 'Rune tablet: rune cipher, unsolved'],
   ['solved', 'Rune tablet: rune cipher, solved'],
-  ['settled', 'Rune tablet: rune cipher, settled, excluded from score'],
+  ['settled', 'Rune tablet: rune cipher, settled, not solved'],
   ['challenged', 'Rune tablet: rune cipher, challenged, excluded from score'],
 ];
 
@@ -23,7 +23,7 @@ const RETURN_TABLE: ReadonlyArray<readonly [boolean, SlotStatus, string]> = [
   [false, 'open', 'Returning question, unsolved'],
   [true, 'open', 'Returning question: Review, unsolved'],
   [false, 'solved', 'Returning question, solved'],
-  [true, 'settled', 'Returning question: Review, settled, excluded from score'],
+  [true, 'settled', 'Returning question: Review, settled, not solved'],
   [false, 'challenged', 'Returning question, challenged, excluded from score'],
 ];
 

@@ -131,3 +131,8 @@ a.fh-button {
   align-items: center;
   text-decoration: none;
 }
+
+/* The export status line has no text until an export runs; don't leave an empty gap under the button. */
+.book-export .fh-note:empty {
+  display: none;
+}

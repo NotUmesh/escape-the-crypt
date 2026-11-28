@@ -138,6 +138,10 @@ test.describe('import a crypt', () => {
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(IMPORT_COPY.done.active);
     await other.getByTestId('book-card').waitFor();
+    // The resume buttons render a moment after the card; read the card only once they are there,
+    // or a slow browser (seen on Firefox) captures a card without them and the comparison flakes.
+    await expect(other.getByRole('button', { name: 'Continue your crypt' }).first()).toBeVisible();
+    await expect(other.getByRole('button', { name: 'Start again' }).first()).toBeVisible();
     const before = await other.getByTestId('book-card').innerText();
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(refusal('duplicate'));

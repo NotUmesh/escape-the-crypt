@@ -6,8 +6,12 @@ export interface PlacedSeal extends ViewportPoint {
   readonly labelAbove: boolean;
 }
 
-/** Vertical step between rows of seals: a 44 px control and a 2 px gap. */
-const ROW_STEP_PX = MIN_HIT_PX + 2;
+/**
+ * Vertical step between rows of seals: a 44 px control plus room for one line of status label
+ * (about 18 px at 0.875rem). With only a 2 px gap, a wrapped "Not yet answered" label ran into the
+ * next seal's ring and hid the status text, which is the seal's non-colour cue.
+ */
+const ROW_STEP_PX = MIN_HIT_PX + 22;
 
 function insidePolygon(polygon: readonly ViewportPoint[], p: ViewportPoint): boolean {
   let result = false;

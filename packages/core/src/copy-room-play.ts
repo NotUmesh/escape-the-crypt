@@ -7,7 +7,7 @@ import { JUDGE_ACCESS_DENIED_COPY } from './copy-judge';
 
 /** Requirement 1.3: shown beside "Enter the crypt". */
 export const SAMPLE_CRYPT_LINE =
-  "Questions from your own notes are coming later. For now, this is a sample crypt.";
+  'Want to try one first? A ready-made sample crypt needs no notes.';
 
 /** Requirement 1.6: always visible while a run is on screen. */
 export const SAMPLE_CRYPT_LABEL = 'Sample crypt';
@@ -78,7 +78,7 @@ export const ROOM_START_ERROR_COPY: Readonly<Record<RoomStartErrorKind, ErrorCop
 export const FINAL_DOOR_STATUS_LABELS: Readonly<Record<SlotStatus, string>> = {
   open: 'Not yet answered',
   solved: 'Solved',
-  settled: 'Excluded from score',
+  settled: 'Not solved',
   challenged: 'Challenged: excluded from score',
 };
 
@@ -115,6 +115,8 @@ export const REVIEW_PASSED_LABEL = 'Blind model review passed';
 
 export const ROOM_PLAY_LABELS = {
   openAutopsy: 'Open the Autopsy',
+  /** Visible close control on an open lock (touch users have no Escape key). Closing keeps the draft. */
+  closePanel: 'Close',
   playAgain: 'Play again',
   submitAnswer: 'Submit answer',
   hint: 'Hint',
@@ -189,7 +191,7 @@ export function roomDisplayName(orderIndex: number): string {
 export const SLOT_STATUS_WORDS: Readonly<Record<SlotStatus, string>> = {
   open: 'unsolved',
   solved: 'solved',
-  settled: 'settled, excluded from score',
+  settled: 'settled, not solved',
   challenged: 'challenged, excluded from score',
 };
 
@@ -212,6 +214,8 @@ export const RUN_SETUP_COPY = {
   },
   /** Why the longer lengths are switched off for these notes. */
   onlyShort: 'Your notes are short enough for a Short crypt.',
+  /** Shown in a switched-off length's own row, so its state reads from text, not only from dimming. */
+  unavailable: 'Not available for these notes',
   difficultyLegend: 'How many hints?',
   difficulties: {
     apprentice: { label: 'Apprentice', detail: '3 hints. Rune tablets show how many letters the answer has.' },

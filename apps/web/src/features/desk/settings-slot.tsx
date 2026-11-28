@@ -59,6 +59,7 @@ export function SettingsSlot(props: Partial<SettingsSlotProps>): ReactNode {
                 <span className="run-settings__label">{copy.lengths[option].label}</span>
                 <span className="run-settings__detail" id={detailId}>
                   {copy.lengths[option].detail}
+                  {disabled ? <span className="run-settings__unavailable">{` · ${copy.unavailable}`}</span> : null}
                 </span>
               </label>
             );

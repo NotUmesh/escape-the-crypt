@@ -163,7 +163,7 @@ describe('Room-play copy', () => {
     expect(FINAL_DOOR_STATUS_LABELS).toEqual({
       open: 'Not yet answered',
       solved: 'Solved',
-      settled: 'Excluded from score',
+      settled: 'Not solved',
       challenged: 'Challenged: excluded from score',
     });
     expect(CITATION_COPY.sampleParagraph(3)).toBe('Paragraph 3 of the sample notes');

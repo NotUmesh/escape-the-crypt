@@ -120,7 +120,7 @@ describe('RoomScreen', () => {
 
   it('headlines the room with its display name by order, never the roomId', async () => {
     await setup(mount);
-    const heading = mount.container.querySelector('h2')?.textContent ?? '';
+    const heading = mount.container.querySelector('h1')?.textContent ?? '';
     expect(binding.state?.currentRoomId).toBe('hh-room-1');
     expect(heading).toBe('Burial chamber');
     expect(heading).not.toContain('hh-room-1');
