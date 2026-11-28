@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { usePrefersReducedMotion } from './lantern-context';
+import { usePrefersReducedMotion } from '../use-prefers-reduced-motion';
 import './quill-mark.css';
 
 /**

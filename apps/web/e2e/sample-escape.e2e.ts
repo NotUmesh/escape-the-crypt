@@ -2,16 +2,15 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import {
   ENTER_CRYPT_LABEL,
-  FINAL_DOOR_BUTTON_TEXT,
   FRONT_OF_HOUSE_COPY,
   ROOM_PLAY_LABELS,
   SAMPLE_CRYPT_LABEL,
   SAMPLE_IDS,
 } from '@escape-the-crypt/core';
 import { SAMPLE_LIST } from '../src/features/desk/sample-list';
-import { openLockName } from './crypt-helpers';
+import { openLockName, skipEndgameClip } from './crypt-helpers';
 import { answerByKeyboard, tabTo } from './keyboard-answers';
-import { button, buildSample } from './sample-nav';
+import { button, buildSample, enterDoor } from './sample-nav';
 
 // Every sample, played from the shelf to the Autopsy with the keyboard only, answering every question
 // correctly. The answers come from the manifest the same builder produces for the app.
@@ -61,8 +60,7 @@ for (const id of SAMPLE_IDS) {
         await expect(button(page, openLockName(next.stationType))).toBeVisible();
       }
     }
-    await tabTo(page, button(page, FINAL_DOOR_BUTTON_TEXT));
-    await page.keyboard.press('Enter');
+    await enterDoor(page, 'keyboard');
     const door = crypt.manifest.finalDoor.slots;
     await expect(page.locator('.final-door__seal')).toHaveCount(door.length);
     for (const [index, slot] of door.entries()) {
@@ -76,6 +74,7 @@ for (const id of SAMPLE_IDS) {
 
     // The escape view, then the Autopsy.
     await expect(page.getByTestId('escape-view')).toBeVisible();
+    await skipEndgameClip(page);
     await tabTo(page, button(page, ROOM_PLAY_LABELS.openAutopsy));
     await page.keyboard.press('Enter');
     await page.getByTestId('autopsy-view').waitFor();

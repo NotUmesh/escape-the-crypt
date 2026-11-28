@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, GENERATION_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { answerSlot, buildSampleCrypt, correctAnswerFor, roomOneSlots, skipDescent, submitAnswer } from './crypt-helpers';
+import { answerSlot, buildSampleCrypt, correctAnswerFor, roomOneSlots, skipDescent, skipEndgameClip, submitAnswer } from './crypt-helpers';
 import { installFakeWorker, SAMPLE_NOTES, WORKER_ORIGIN } from './fake-worker';
 import type { FakeStep } from './fake-worker';
 
@@ -71,6 +71,7 @@ test('generated crypt: progress, polls, play to the escape view with notes citat
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
   }
   await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+  await skipEndgameClip(page);
   for (const doorSlot of crypt.manifest.finalDoor.slots) {
     await page.locator('.final-door__seal-button').first().click();
     await submitAnswer(page, correctAnswerFor(crypt, doorSlot.question));

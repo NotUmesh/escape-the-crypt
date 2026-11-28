@@ -18,7 +18,6 @@ import { GhostList } from './ghost-list';
 import { LockCloseUp } from './lock-closeup';
 import { panelSideFor } from './panel-side';
 import type { PanelSide } from './panel-side';
-import { LanternToggle } from './lantern-toggle';
 import { isPhoneViewport } from './scene-layout';
 import { useRoomArt } from './use-room-art';
 import type { SceneLoader } from './use-scene';
@@ -147,7 +146,6 @@ export function RoomScreen({ state, dispatch, notices = NO_NOTICES, renderPanel,
       {state.settings.hintAllowance > 0 ? (
         <p className="room-screen__hints">{ROOM_PLAY_LABELS.hintsLeft(state.remainingHints)}</p>
       ) : null}
-      <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
       {sceneState.status === 'ready' && artRoom !== null && drawn.length > 0 ? (
         <ArtStage
           artRoom={artRoom}

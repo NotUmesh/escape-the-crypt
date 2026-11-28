@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, FRONT_OF_HOUSE_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, submitAnswer } from './crypt-helpers';
+import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, skipEndgameClip, submitAnswer } from './crypt-helpers';
 
 const CONTINUE_LABEL = 'Continue your crypt';
 
@@ -37,6 +37,7 @@ test('after the run escapes, a reload shows no resume entry', async ({ page }) =
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
   }
   await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+  await skipEndgameClip(page);
   for (const doorSlot of crypt.manifest.finalDoor.slots) {
     await page.locator('.final-door__seal-button').first().click();
     await submitAnswer(page, correctAnswerFor(crypt, doorSlot.question));

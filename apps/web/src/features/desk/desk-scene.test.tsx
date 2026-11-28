@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { LanternProvider } from '../crypt/lantern-context';
 import { useMount } from '../../test-support/flow-dom';
 import { DeskScene } from './desk-scene';
 
@@ -13,18 +12,15 @@ function stubMatchMedia(reduced: boolean): void {
 }
 
 const scene = (variant: 'hub' | 'book', viewport = { width: 1280, height: 720 }): React.JSX.Element => (
-  <LanternProvider>
-    <DeskScene variant={variant} viewport={viewport}>
-      <p>content</p>
-    </DeskScene>
-  </LanternProvider>
+  <DeskScene variant={variant} viewport={viewport}>
+    <p>content</p>
+  </DeskScene>
 );
 
 describe('DeskScene', () => {
   const mount = useMount();
   afterEach(() => {
     vi.unstubAllGlobals();
-    window.localStorage.clear();
   });
 
   it('uses the desktop set with a 2x background and the foreground in a landscape window', () => {
@@ -50,26 +46,14 @@ describe('DeskScene', () => {
     expect(sources).toEqual(['/art/desk/mobile/background.webp', '/art/desk/mobile/candle.webp']);
   });
 
-  it('draws the candle flame in code and the vignette when lantern mode is off', () => {
+  it('draws the candle flame in code', () => {
     stubMatchMedia(false);
     mount.render(scene('hub'));
     expect(mount.container.querySelector('[data-flame="ambient"]')).not.toBeNull();
-    expect(mount.container.querySelector('.desk-scene__vignette')).not.toBeNull();
-  });
-
-  it('removes the vignette and the push-in in lantern mode', () => {
-    stubMatchMedia(false);
-    window.localStorage.setItem('escape-the-crypt:lantern', 'on');
-    mount.render(scene('book'));
-    const root = mount.container.querySelector('[data-testid="desk-scene"]');
-    expect(root?.getAttribute('data-lantern')).toBe('true');
-    expect(root?.getAttribute('data-push')).toBe('false');
-    expect(mount.container.querySelector('.desk-scene__vignette')).toBeNull();
   });
 
   it('pushes in on the book screen only, and not under reduced motion', () => {
     stubMatchMedia(false);
-    window.localStorage.setItem('escape-the-crypt:lantern', 'off');
     mount.render(scene('book'));
     expect(mount.container.querySelector('[data-testid="desk-scene"]')?.getAttribute('data-push')).toBe('true');
     mount.render(scene('hub'));

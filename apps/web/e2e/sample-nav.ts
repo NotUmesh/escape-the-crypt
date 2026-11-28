@@ -12,7 +12,7 @@ import {
 } from '@escape-the-crypt/core';
 import type { CryptManifest, LockType, SampleCryptResult, SampleQuestionsFile } from '@escape-the-crypt/core';
 import { SAMPLE_LIST } from '../src/features/desk/sample-list';
-import { openLockName } from './crypt-helpers';
+import { openLockName, skipEndgameClip } from './crypt-helpers';
 import { tabTo } from './keyboard-answers';
 
 // Shared navigation for the sample crypts: start one from the shelf, skip to any question by lock
@@ -78,6 +78,7 @@ export async function nextRoom(page: Page, mode: InputMode): Promise<void> {
 }
 export async function enterDoor(page: Page, mode: InputMode): Promise<void> {
   await press(page, button(page, FINAL_DOOR_BUTTON_TEXT), mode);
+  await skipEndgameClip(page);
   await page.locator('.final-door__seal-button').first().waitFor();
 }
 export async function skipFirstSeal(page: Page, mode: InputMode): Promise<void> {

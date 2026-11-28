@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, FINAL_DOOR_STATUS_LABELS, ROOM_PLAY_LABELS, SAMPLE_IDS } from '@escape-the-crypt/core';
+import { skipEndgameClip } from './crypt-helpers';
 import { button, enterDoor, modeFor, panelButton, panelSlot, press, startSample } from './sample-nav';
 import type { InputMode } from './sample-nav';
 
@@ -72,6 +73,7 @@ for (const how of ['skip', 'challenge'] as const) {
       }
 
       await expect(page.getByTestId('escape-view')).toBeVisible();
+      await skipEndgameClip(page);
       await press(page, button(page, ROOM_PLAY_LABELS.openAutopsy), mode);
       await page.getByTestId('autopsy-view').waitFor();
 

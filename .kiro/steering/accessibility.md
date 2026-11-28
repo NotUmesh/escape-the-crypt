@@ -7,8 +7,8 @@ fileMatchPattern: ["apps/web/src/**/*.tsx", "apps/web/src/**/*.css"]
 
 Target WCAG 2.2 AA. Accessibility is part of "done", not a later pass.
 
-## Lantern mode
-A setting (remembered locally) that removes the atmosphere overlay and shows everything fully lit. It is the default when `prefers-reduced-motion` is on. The game must be fully playable in lantern mode.
+## Contrast and motion
+Keep text and controls readable at all times. Follow `prefers-reduced-motion` automatically and offer a way to skip clips.
 
 ## No drag required (WCAG 2.5.7)
 - Bone ordering: visible "move up" / "move down" buttons on every item. Drag is an optional extra.

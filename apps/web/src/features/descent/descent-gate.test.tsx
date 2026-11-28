@@ -2,6 +2,7 @@ import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useMount } from '../../test-support/flow-dom';
 import { DescentGate } from './descent-gate';
+import type { DescentGateProps } from './descent-gate';
 
 function stubReducedMotion(reduced: boolean): void {
   vi.stubGlobal('matchMedia', (query: string) => ({
@@ -16,7 +17,7 @@ describe('DescentGate', () => {
   const mount = useMount();
   const onDone = vi.fn();
   const announce = vi.fn();
-  const gate = (variant: 'clips' | 'fade' = 'clips'): React.JSX.Element => (
+  const gate = (variant: DescentGateProps['variant'] = 'clips'): React.JSX.Element => (
     <DescentGate variant={variant} onDone={onDone} announce={announce} />
   );
   const video = (): HTMLVideoElement | null => mount.container.querySelector('video');
@@ -131,13 +132,24 @@ describe('DescentGate', () => {
       expect(onDone).toHaveBeenCalledExactlyOnceWith('reduced-motion');
     });
 
-    it('skips the fade too, without an announcement', () => {
-      mount.render(gate('fade'));
+    it.each(['fade', 'final-door', 'escape'] as const)('skips %s without an announcement', (variant) => {
+      mount.render(gate(variant));
       expect(mount.container.innerHTML).toBe('');
       expect(announce).not.toHaveBeenCalled();
       expect(onDone).toHaveBeenCalledExactlyOnceWith('reduced-motion');
     });
-  });
+    });
+
+    it.each(['final-door', 'escape'] as const)('plays %s once and falls through when its media is missing', (variant) => {
+      mount.render(gate(variant));
+      expect(Array.from(video()?.querySelectorAll('source') ?? []).map((s) => s.getAttribute('src'))).toEqual([
+        `/art/motion/${variant}.webm`,
+        `/art/motion/${variant}.mp4`,
+      ]);
+      fire(video(), 'error');
+      act(() => vi.advanceTimersByTime(1500));
+      expect(onDone).toHaveBeenCalledExactlyOnceWith('error');
+    });
 
   describe('fade', () => {
     it('is a hidden sheet that never takes a click, and ends within half a second', () => {

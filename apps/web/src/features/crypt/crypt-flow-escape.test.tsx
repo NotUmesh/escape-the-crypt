@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { act, createElement } from 'react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildHumanHeartSampleCrypt, ROOM_ANNOUNCEMENT_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
+import { buildHumanHeartSampleCrypt, FRONT_OF_HOUSE_COPY, ROOM_ANNOUNCEMENT_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import type { HumanHeartQuestionsFile, SampleCryptResult, State } from '@escape-the-crypt/core';
 import { useRoomBinding } from '../../state/room-binding';
 import type { RoomBinding } from '../../state/room-binding';
@@ -40,7 +40,7 @@ function realBinding(): RoomBinding {
 }
 
 function flow(useBinding: () => RoomBinding = realBinding): ReactNode {
-  return createElement(CryptFlow, { useBinding, loadSceneImpl: failedSceneLoader });
+  return createElement(CryptFlow, { useBinding, loadSceneImpl: failedSceneLoader, renderStart: () => null });
 }
 
 function send(action: RoomAction): void {
@@ -63,7 +63,7 @@ describe('CryptFlow escape evidence', () => {
   beforeEach(() => {
     calls.mockClear();
   });
-  it('keeps the escaping answer\'s Evidence_Panel until a local Continue, then shows the escape view; playAgain resets', async () => {
+  it('plays each clip after its live transition, keeps escape evidence accessible, and does not replay a restored clip', async () => {
     const dispatched: RoomAction[] = [];
     mount.render(
       flow(() => {
@@ -78,6 +78,8 @@ describe('CryptFlow escape evidence', () => {
       }),
     );
     const region = (): string => mount.container.querySelector('[data-testid="room-live-region"]')?.textContent ?? '';
+    const video = (): HTMLVideoElement | null => mount.container.querySelector('.descent__video');
+    const inert = (): boolean => mount.container.querySelector('main')?.hasAttribute('inert') === true;
 
     async function reachLastDoorAnswer(): Promise<void> {
       if (binding.state?.status !== 'in progress') send({ type: 'startRun' });
@@ -98,6 +100,8 @@ describe('CryptFlow escape evidence', () => {
       }
       const door = binding.state;
       if (door === null || !door.atFinalDoor) throw new Error('not at the final door');
+      expect(video()?.getAttribute('poster')).toBe('/art/motion/final-door-poster.webp');
+      expect(inert()).toBe(true);
       const open = openSlotIds(door);
       for (const slotId of open.slice(0, -1)) send({ type: 'skip', slotId });
       expect(binding.state?.status).toBe('in progress');
@@ -106,8 +110,12 @@ describe('CryptFlow escape evidence', () => {
       const slot = binding.state?.finalDoor.slots.find((s) => s.status === 'open');
       if (slot === undefined) throw new Error('no open door slot');
       await flushScene();
-    const seal = mount.container.querySelector<HTMLButtonElement>('.final-door__seal-button');
+      act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
+      const seal = mount.container.querySelector<HTMLButtonElement>('.final-door__seal-button');
       if (seal === null) throw new Error('no seal button');
+      expect(video()).toBeNull();
+      expect(inert()).toBe(false);
+      expect(document.activeElement).toBe(seal);
       await act(async () => seal.click());
       // The last seal can be a returning question, so look through every question in the manifest.
       const questions = [
@@ -142,14 +150,15 @@ describe('CryptFlow escape evidence', () => {
     // The escaping answer's Evidence_Panel stays, with its excerpt and Citation_Label; no escape view yet.
     const panel = mount.container.querySelector<HTMLElement>('.evidence-panel');
     expect(panel).not.toBeNull();
+    expect(video()).toBeNull();
+    expect(inert()).toBe(false);
     expect(panel?.querySelector('.evidence-panel__excerpt blockquote')?.textContent?.length).toBeGreaterThan(0);
     expect(panel?.querySelector('.evidence-panel__citation')?.textContent).toMatch(/^Paragraph \d+ of the sample notes$/);
     expect(mount.container.querySelector('[data-testid="escape-view"]')).toBeNull();
     expect(document.activeElement).toBe(panel);
     // Only Continue is offered: no hint, skip, challenge or answer control.
-    // The Lantern toggle is a view setting, not a play control.
     const names = Array.from(mount.container.querySelectorAll('button')).map((b) => b.textContent);
-    expect(names.filter((n) => n !== ROOM_PLAY_LABELS.lanternToggle)).toEqual([ROOM_PLAY_LABELS.continue]);
+    expect(names).toEqual([ROOM_PLAY_LABELS.continue]);
     expect(mount.container.querySelector('input')).toBeNull();
     const escapedAnnouncement = region();
     const escapedAnnounced = (): number =>
@@ -170,6 +179,11 @@ describe('CryptFlow escape evidence', () => {
 
     expect(mount.container.querySelector('.evidence-panel')).toBeNull();
     expect(mount.container.querySelector('[data-testid="escape-view"]')).not.toBeNull();
+    expect(video()?.getAttribute('poster')).toBe('/art/motion/escape-poster.webp');
+    expect(inert()).toBe(true);
+    await clickButton(mount.container, FRONT_OF_HOUSE_COPY.descent.skip);
+    expect(video()).toBeNull();
+    expect(inert()).toBe(false);
     expect(document.activeElement).toBe(buttonByText(mount.container, ROOM_PLAY_LABELS.openAutopsy));
     expect(region()).toBe(escapedAnnouncement);
     expect(escapedAnnounced()).toBe(1);
@@ -182,5 +196,14 @@ describe('CryptFlow escape evidence', () => {
     expect(binding.state?.status).toBe('escaped');
     expect(mount.container.querySelector('.evidence-panel')).not.toBeNull();
     expect(mount.container.querySelector('[data-testid="escape-view"]')).toBeNull();
+
+    const restored = { ...binding, eventLog: structuredClone(binding.eventLog) };
+    mount.render(createElement('div'));
+    mount.render(flow(() => restored));
+    await flushScene();
+    expect(video()).toBeNull();
+    await clickButton(mount.container, ROOM_PLAY_LABELS.continue);
+    expect(video()).toBeNull();
+    expect(inert()).toBe(false);
   });
 });

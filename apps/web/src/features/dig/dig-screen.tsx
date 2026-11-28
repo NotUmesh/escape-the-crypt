@@ -1,8 +1,6 @@
 import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { GENERATION_COPY } from '@escape-the-crypt/core';
-import { LanternToggle } from '../crypt/lantern-toggle';
-import { useLantern } from '../crypt/lantern-context';
 import { FRONT_OF_HOUSE_COPY, formatElapsed } from '@escape-the-crypt/core';
 import { isGenerating } from '../generate/generation-flow';
 import type { GenerationState } from '../generate/generation-flow';
@@ -39,7 +37,6 @@ export function DigScreen({ state, onCancel, notes, stages, announce, now }: Dig
   const generating = isGenerating(state);
   const seconds = useElapsed(generating, now);
   const minutes = Math.floor(seconds / 60);
-  const { lantern } = useLantern();
   const labelId = useId();
   const timerLabelId = useId();
   const rows = digStageRows(stages);
@@ -61,12 +58,9 @@ export function DigScreen({ state, onCancel, notes, stages, announce, now }: Dig
   }, [generating, activeId, announce]);
 
   return (
-    <div className="dig" data-testid="dig-screen" data-lantern={lantern ? 'true' : 'false'}>
+    <div className="dig" data-testid="dig-screen">
       <Cavern />
       <main className="dig__content">
-        <div className="dig__tools">
-          <LanternToggle label={FRONT_OF_HOUSE_COPY.hub.lantern} />
-        </div>
         <section className="fh-panel dig__panel" aria-labelledby={labelId}>
           <h1 className="fh-title" id={labelId}>
             {copy.title}

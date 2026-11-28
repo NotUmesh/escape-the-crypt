@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, ROOM_ANNOUNCEMENT_COPY, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { enterCrypt, waitForArtStage } from './crypt-helpers';
+import { enterCrypt, skipEndgameClip, waitForArtStage } from './crypt-helpers';
 import { answerOpenPanel, continueButton, expectAnnounced, openFirstLock } from './haunting-flows';
 
 // Haunting polish: each motion moment with motion allowed and with reduced motion. The names are read
@@ -67,6 +67,7 @@ for (const motion of ['no-preference', 'reduce'] as const) {
         await expect(continueButton(page)).toHaveCount(0);
       }
       await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+      await skipEndgameClip(page);
       const seals = page.locator('.final-door__seal-button');
       await seals.first().waitFor();
       // The due ghost is drawn at the door until its returning question is answered.
@@ -100,12 +101,14 @@ for (const motion of ['no-preference', 'reduce'] as const) {
         await continueButton(page).click();
       }
       await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+      await skipEndgameClip(page);
       await page.locator('.final-door__seal-button').first().waitFor();
       for (let guard = 0; guard < 8 && (await page.locator('.final-door__seal-button').count()) > 0; guard += 1) {
         await page.locator('.final-door__seal-button').first().click();
         await answerOpenPanel(page, true);
         await continueButton(page).click();
       }
+      await skipEndgameClip(page);
       await page.getByRole('button', { name: ROOM_PLAY_LABELS.openAutopsy, exact: true }).click();
       const view = page.getByTestId('autopsy-view');
       await view.waitFor();

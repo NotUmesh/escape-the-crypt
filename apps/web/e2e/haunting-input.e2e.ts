@@ -4,13 +4,11 @@ import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import { openAutopsy, skipRooms, skipSealsToEscape } from './haunting-flows';
 import { enterDoor, panelSlot, startSample } from './sample-nav';
 
-// The atmosphere never gets in the way: no overlay part takes a click or a key press, the tab order is
-// the page order, focus can be seen on every stop, and playing a sample makes no request that leaves the
-// origin (and so no AI provider call).
+// Decorative art never takes the pointer or focus; playing a sample never calls an AI provider.
 const HIT_SELECTORS = {
-  room: '.room-hotspot, .room-screen__lock-button, .lantern-toggle',
+  room: '.room-hotspot, .room-screen__lock-button',
   panel: '.question-panel button, .question-panel input, .question-panel [role="spinbutton"]',
-  seals: '.final-door__seal-button, .lantern-toggle',
+  seals: '.final-door__seal-button',
 };
 
 /** The control under the middle of each match is the control, never an overlay part. */
@@ -49,7 +47,7 @@ async function expectTabOrder(page: Page, label: string): Promise<void> {
     tabbable.forEach((el, i) => el.setAttribute('data-tabi', String(i)));
     return tabbable.map((el) => el.getAttribute('aria-label') ?? el.textContent?.trim().slice(0, 24) ?? el.tagName);
   });
-  expect(expected.length, `${label}: tabbable elements`).toBeGreaterThan(2);
+  expect(expected.length, `${label}: tabbable elements`).toBeGreaterThan(1);
   const stops: { index: number; boundary: boolean; visible: boolean; ring: boolean; name: string }[] = [];
   // One more press than there are controls: the extra stop is the page boundary, where focus leaves and wraps.
   for (let i = 0; i < Math.min(expected.length + 1, 41); i += 1) {
@@ -80,20 +78,13 @@ async function expectTabOrder(page: Page, label: string): Promise<void> {
   expect(real.filter((s) => !s.visible || !s.ring).map((s) => s.name), `${label}: stops without a visible focus`).toEqual([]);
 }
 
-test.describe('the overlay is drawn', () => {
+test.describe('motion allowed', () => {
   test.use({ reducedMotion: 'no-preference' });
 
-  test('no overlay part takes the pointer, in the room, the panel and at the door', async ({ page }) => {
+  test('the pointer reaches controls in the room, the panel and at the door', async ({ page }) => {
     await startSample(page, 'https', 'click');
-    const overlay = page.locator('[data-testid="atmosphere"]');
-    await expect(overlay).toHaveCount(1);
-    for (const part of ['.atmosphere', '.atmosphere > span']) {
-      const events = await page.locator(part).evaluateAll((els) => els.map((el) => getComputedStyle(el).pointerEvents));
-      expect(events.length).toBeGreaterThan(0);
-      expect(new Set(events), part).toEqual(new Set(['none']));
-    }
     const room = await pointerReaches(page, HIT_SELECTORS.room);
-    expect(room.checked).toBeGreaterThanOrEqual(3);
+    expect(room.checked).toBeGreaterThanOrEqual(2);
     expect(room.misses).toEqual([]);
 
     await page.locator('.room-hotspot').first().click();
@@ -106,13 +97,12 @@ test.describe('the overlay is drawn', () => {
     await skipRooms(page, 'click');
     await enterDoor(page, 'click');
     const door = await pointerReaches(page, HIT_SELECTORS.seals);
-    expect(door.checked).toBeGreaterThanOrEqual(4);
+    expect(door.checked).toBeGreaterThanOrEqual(3);
     expect(door.misses).toEqual([]);
   });
 
-  test('a click and a key press reach a lock with the overlay on', async ({ page }) => {
+  test('a click and a key press reach a lock', async ({ page }) => {
     await startSample(page, 'https', 'click');
-    await expect(page.locator('[data-testid="atmosphere"]')).toHaveCount(1);
     const lock = page.locator('.room-hotspot').first();
     await lock.click();
     await expect(panelSlot(page).locator('.question-panel')).toBeVisible();

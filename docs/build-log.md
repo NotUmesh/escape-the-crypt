@@ -1,5 +1,9 @@
 # Build log
 
+## Costume Step 0
+- Implemented outside Kiro with GitHub Copilot. Removed the Lantern toggle and atmosphere overlays; retained painted art, candles, ghosts, contrast backing, and automatic reduced motion.
+- Connected the shipped final-door and escape clips to the existing skippable transition, with escape after the last answer's evidence. No game rules or worker behavior changed.
+
 ## 2026-11-23
 - Repo created, structure set up.
 - Kiro: 

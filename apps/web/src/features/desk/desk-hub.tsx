@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { LanternToggle } from '../crypt/lantern-toggle';
 import { BookStack } from './book-stack';
 import { StatusIcon } from './book-spine';
 import { DeskScene } from './desk-scene';
@@ -39,9 +38,6 @@ export function DeskHub({ shelf, samples, bringHref, onPlaySample, renderBookAct
   return (
     <DeskScene variant="hub" viewport={viewport}>
       <main className="desk-hub">
-        <div className="desk-hub__tools">
-          <LanternToggle label={copy.lantern} />
-        </div>
         <section className="fh-panel desk-hub__intro" aria-labelledby="desk-hub-title">
           <h1 className="fh-title" id="desk-hub-title">
             {copy.title}

@@ -1,12 +1,7 @@
 import type { ReactNode } from 'react';
 
-const SPECKS = [8, 19, 31, 44, 58, 69, 81, 92] as const;
-
 /**
- * The cavern behind the dig, drawn in code: rock silhouettes, a low mist and a few falling specks.
- * It is decoration only (`aria-hidden`, no pointer events) and never sits behind text without a
- * solid panel. Colours come from tokens in dig.css; lantern mode and reduced motion switch the
- * mist and the specks off there.
+ * Decorative rock silhouettes behind the dig's solid panel.
  */
 export function Cavern(): ReactNode {
   return (
@@ -20,10 +15,6 @@ export function Cavern(): ReactNode {
         <path className="cavern__wall cavern__wall--right" d="M1200 70L1140 210L1175 350L1110 480L1160 600H1200Z" />
         <path className="cavern__floor" d="M0 600V520L140 500L300 530L480 505L700 535L900 505L1060 530L1200 510V600Z" />
       </svg>
-      <span className="cavern__mist" />
-      {SPECKS.map((left) => (
-        <span key={left} className="cavern__speck" style={{ left: `${left}%`, animationDelay: `${(left % 7) * -1.3}s` }} />
-      ))}
     </div>
   );
 }

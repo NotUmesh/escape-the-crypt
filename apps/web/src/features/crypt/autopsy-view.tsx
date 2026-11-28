@@ -7,7 +7,6 @@ import type { RoomAssets } from '../../state/room-assets';
 import { withConceptTitles } from './autopsy-titles';
 import type { AutopsyEntryView } from './autopsy-titles';
 import { FinalDoorSection } from './final-door-section';
-import { LanternToggle } from './lantern-toggle';
 import { QuillMark } from './quill-mark';
 import { resolveExcerpt } from './evidence-text';
 import { ShareCard } from '../share/share-card';
@@ -193,7 +192,6 @@ export function AutopsyView({ state, assets, dispatch, announce, sampleTitle = S
       <header className="autopsy-view__head">
         <h2 id="autopsy-heading">{ROOM_PLAY_LABELS.autopsyHeading}</h2>
         <QuillMark />
-        <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
       </header>
       <CountsSection counts={view.counts} />
       <ShareCard

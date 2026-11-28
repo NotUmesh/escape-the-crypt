@@ -83,6 +83,7 @@ export function CryptRunView({
         assets={binding.assets}
         rejection={binding.rejection}
         eventLog={binding.eventLog}
+        loadSceneImpl={loadSceneImpl}
       />
     ) : (
       <RoomScreen

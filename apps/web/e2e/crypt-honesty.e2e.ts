@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, submitAnswer } from './crypt-helpers';
+import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, skipEndgameClip, submitAnswer } from './crypt-helpers';
 
 const FORBIDDEN = ['Human-reviewed', 'Blind model review passed'];
 const CITATION = /^Paragraph \d+ of the sample notes$/;
@@ -43,6 +43,7 @@ test('a full run shows no review labels, only sample-notes citations, and stays 
   }
 
   await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+  await skipEndgameClip(page);
   await expectNoForbiddenLabels(page);
   const doorSlots = crypt.manifest.finalDoor.slots;
   for (const [index, doorSlot] of doorSlots.entries()) {
@@ -57,6 +58,7 @@ test('a full run shows no review labels, only sample-notes citations, and stays 
   }
 
   await expect(page.getByTestId('escape-view')).toBeVisible();
+  await skipEndgameClip(page);
   await expectNoForbiddenLabels(page);
   await page.getByRole('button', { name: ROOM_PLAY_LABELS.openAutopsy, exact: true }).click();
   await page.getByTestId('autopsy-view').waitFor();

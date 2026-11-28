@@ -17,9 +17,9 @@ import { DescentLayer, useDescent } from './crypt-descent';
 import { CryptRunView } from './crypt-run-view';
 import { buildCryptForSample } from './sample-sources';
 import type { RenderStart } from './crypt-start-context';
-import { LanternProvider } from './lantern-context';
 import { RunConflictNotice } from './conflict-notice';
 import { useGeneratedNotices } from './use-generated-notices';
+import { useEndgameClips } from './use-endgame-clips';
 import { LiveRegion } from './live-region';
 import { LockAnnounceContext } from './lock-panel-payload';
 import { ReadOnlyScreenContainer } from '../start/read-only-screen';
@@ -34,7 +34,6 @@ import { useRunChoice } from '../desk/use-run-choice';
 import type { SceneLoader } from './use-scene';
 import { DEFAULT_SAMPLE_ID, sampleTitleFor } from '../desk/sample-list';
 import './crypt-stage.css';
-
 
 export interface CryptFlowProps {
   /** Loads each room's Scene_File. Tests inject one. */
@@ -92,6 +91,12 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   const [autopsyRequested, setAutopsyRequested] = useState(false);
   // View-only flag: true once the learner closed the Evidence_Panel of the escaping answer. Holds no game state.
   const [escapeEvidenceDismissed, setEscapeEvidenceDismissed] = useState(false);
+  const completeEscape = useEndgameClips(
+    state,
+    binding.eventLog,
+    binding.assets !== null && (state?.finalDoor.slots.some((slot) => slot.evidencePanelOpen) ?? false),
+    beginDescent,
+  );
   const [messages, setMessages] = useState<readonly string[]>(NO_MESSAGES);
   const announceFromPanel = useCallback((message: string): void => setMessages([message]), []);
   const previous = useRef<AnnounceTracker>(EMPTY_TRACKER);
@@ -219,7 +224,10 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
       autopsyRequested={autopsyRequested}
       onOpenAutopsy={() => setAutopsyRequested(true)}
       escapeEvidenceDismissed={escapeEvidenceDismissed}
-      onEscapeEvidenceDismissed={() => setEscapeEvidenceDismissed(true)}
+      onEscapeEvidenceDismissed={() => {
+        completeEscape();
+        setEscapeEvidenceDismissed(true);
+      }}
       announce={announceFromPanel}
       sampleTitle={sampleTitleFor(playedSample.current)}
     />
@@ -286,9 +294,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
 export function CryptFlow(props: CryptFlowProps): ReactNode {
   return (
     <CryptErrorBoundary>
-      <LanternProvider>
-        <CryptFlowInner {...props} />
-      </LanternProvider>
+      <CryptFlowInner {...props} />
     </CryptErrorBoundary>
   );
 }

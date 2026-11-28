@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { usePrefersReducedMotion } from '../crypt/lantern-context';
+import { usePrefersReducedMotion } from '../use-prefers-reduced-motion';
 import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
-import { DESCENT_CLIPS } from './clip-sources';
-import type { DescentClip } from './clip-sources';
+import { DESCENT_CLIPS, endgameClips } from './clip-sources';
+import type { DescentClip, EndgameClip } from './clip-sources';
 import { useDescentSequence } from './use-descent-sequence';
 import type { DescentEnd } from './use-descent-sequence';
 import './descent.css';
@@ -11,9 +11,9 @@ import './descent.css';
 export interface DescentGateProps {
   /**
    * `clips` plays the two clips, for a newly generated or newly started crypt.
-   * `fade` is the short fade used when "Continue your crypt" goes straight in.
+   * `fade` resumes a crypt; `final-door` and `escape` each play a single clip.
    */
-  readonly variant: 'clips' | 'fade';
+  readonly variant: 'clips' | 'fade' | EndgameClip;
   /** Called once when the descent is over. The host then lifts `inert` and moves focus into the room. */
   readonly onDone: (reason: DescentEnd) => void;
   /** Sends text to the one live region on screen. */
@@ -23,7 +23,9 @@ export interface DescentGateProps {
 
 const FADE_MS = 400;
 
-function Clips({ onDone, announce, clips }: Required<Pick<DescentGateProps, 'clips'>> & Omit<DescentGateProps, 'variant' | 'clips'>): ReactNode {
+function Clips({
+  onDone, announce, clips, label,
+}: Required<Pick<DescentGateProps, 'clips'>> & Omit<DescentGateProps, 'variant' | 'clips'> & { readonly label: string }): ReactNode {
   const copy = FRONT_OF_HOUSE_COPY.descent;
   const sequence = useDescentSequence({ clipCount: clips.length, onDone });
   const skipRef = useRef<HTMLButtonElement | null>(null);
@@ -42,7 +44,7 @@ function Clips({ onDone, announce, clips }: Required<Pick<DescentGateProps, 'cli
   const clip = clips[Math.min(sequence.index, clips.length - 1)];
   if (clip === undefined) return null;
   return (
-    <div className="descent" role="region" aria-label={copy.label} data-testid="descent-gate" data-clip={sequence.index}>
+    <div className="descent" role="region" aria-label={label} data-testid="descent-gate" data-clip={sequence.index}>
       {/* Decorative and silent: no audio track, no controls. The Skip button is the way out. */}
       <video
         key={sequence.index}
@@ -84,7 +86,7 @@ function Fade({ onDone }: Pick<DescentGateProps, 'onDone'>): ReactNode {
  * the descent and finishes at once. The fade never takes input (pointer events pass through) and the
  * clips always have a Skip button, so nothing blocks the learner.
  */
-export function DescentGate({ variant, onDone, announce, clips = DESCENT_CLIPS }: DescentGateProps): ReactNode {
+export function DescentGate({ variant, onDone, announce, clips }: DescentGateProps): ReactNode {
   const reduced = usePrefersReducedMotion();
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
@@ -96,5 +98,15 @@ export function DescentGate({ variant, onDone, announce, clips = DESCENT_CLIPS }
     doneRef.current('reduced-motion');
   }, [reduced, variant]);
   if (reduced) return null;
-  return variant === 'fade' ? <Fade onDone={onDone} /> : <Clips onDone={onDone} announce={announce} clips={clips} />;
+  if (variant === 'fade') return <Fade onDone={onDone} />;
+  const copy = FRONT_OF_HOUSE_COPY.descent;
+  const label = variant === 'clips' ? copy.label : variant === 'final-door' ? copy.finalDoor : copy.escape;
+  return (
+    <Clips
+      onDone={onDone}
+      announce={variant === 'clips' ? announce : undefined}
+      clips={clips ?? (variant === 'clips' ? DESCENT_CLIPS : endgameClips(variant))}
+      label={label}
+    />
+  );
 }

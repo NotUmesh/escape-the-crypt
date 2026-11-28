@@ -8,7 +8,6 @@ import { realScene, slotOf } from '../../test-support/scene-fixtures';
 import { ghostName } from './accessible-names';
 import { ArtStage } from './art-stage';
 import type { ArtStageProps } from './art-stage';
-import { LanternProvider } from './lantern-context';
 
 const SCENE = realScene();
 const LIT = slotOf('rune-cipher', { slotId: 's1', status: 'solved', candleLit: true });
@@ -23,19 +22,15 @@ function reduceMotion(reduce: boolean): void {
   }));
 }
 function view(props: Partial<ArtStageProps>): ReactNode {
-  return createElement(
-    LanternProvider,
-    null,
-    createElement(ArtStage, {
-      artRoom: 'burial-chamber',
-      scene: SCENE,
-      slots: [LIT],
-      cleared: false,
-      log: vi.fn(),
-      viewport: { width: 1280, height: 720 },
-      ...props,
-    }),
-  );
+  return createElement(ArtStage, {
+    artRoom: 'burial-chamber',
+    scene: SCENE,
+    slots: [LIT],
+    cleared: false,
+    log: vi.fn(),
+    viewport: { width: 1280, height: 720 },
+    ...props,
+  });
 }
 afterEach(() => vi.unstubAllGlobals());
 

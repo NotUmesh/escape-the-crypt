@@ -66,12 +66,9 @@ test('paste flow: confirm is explained while empty, text stays plain, only parag
 
 test('paste flow with the keyboard only', async ({ page }) => {
   await page.goto('/ingest');
-  // The book's own controls come first, in visual order: the way back to the desk, then the lantern
-  // toggle. The paste box is the third stop.
+  // The way back to the desk comes first, then the paste box.
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: FRONT_OF_HOUSE_COPY.bring.back })).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.lantern })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.locator('.ingest-paste textarea')).toBeFocused();
   await page.keyboard.type(`${P1}\n\n${P2}\n\n${P3}`);

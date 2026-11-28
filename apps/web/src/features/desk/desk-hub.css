@@ -5,10 +5,6 @@
   max-width: 60rem;
   margin: 0 auto;
 }
-.desk-hub__tools {
-  display: flex;
-  justify-content: flex-end;
-}
 .desk-hub__intro {
   display: grid;
   gap: 0.75rem;
@@ -68,14 +64,9 @@
 @media (min-width: 56rem) {
   .desk-hub {
     grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
-    grid-template-areas:
-      'tools tools'
-      'intro shelf';
+    grid-template-areas: 'intro shelf';
     justify-content: space-between;
     max-width: none;
-  }
-  .desk-hub__tools {
-    grid-area: tools;
   }
   .desk-hub__intro {
     grid-area: intro;

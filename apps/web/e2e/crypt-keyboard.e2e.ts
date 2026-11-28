@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import type { CorrectAnswer } from './crypt-helpers';
-import { buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots } from './crypt-helpers';
+import { buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, skipEndgameClip } from './crypt-helpers';
 
 const MAX_TABS = 80;
 
@@ -101,6 +101,7 @@ test('keyboard only: hint, skip and challenge, with focus moving into each panel
   const door = page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true });
   await tabTo(page, door);
   await page.keyboard.press('Enter');
+  await skipEndgameClip(page);
   const seal = page.locator('.final-door__seal-button').first();
   await tabTo(page, seal);
   await page.keyboard.press('Enter');

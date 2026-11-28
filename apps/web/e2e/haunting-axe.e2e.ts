@@ -4,10 +4,8 @@ import type { Page } from '@playwright/test';
 import { openAutopsy, skipRooms, skipSealsToEscape } from './haunting-flows';
 import { enterDoor, startSample } from './sample-nav';
 
-// Axe on every screen the haunting polish touches: the room with the overlay drawn, the room in Lantern
-// mode, the final door, the escape view, and the Autopsy (with the quill and the toggle) after its fade
-// and under reduced motion. Axe reports text drawn over an image as "incomplete", not as a violation;
-// the contrast of the text that sits over the art is checked from the tokens in overlay-contrast.test.ts.
+// Axe reports text drawn over an image as "incomplete"; ghost-contrast.test.ts also checks
+// the solid backing colours against the text tokens.
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 async function scan(page: Page, label: string): Promise<void> {
@@ -19,38 +17,25 @@ async function scan(page: Page, label: string): Promise<void> {
     label,
   ).toEqual([]);
 }
-const toggle = (page: Page) => page.locator('button.lantern-toggle');
-const overlay = (page: Page) => page.locator('[data-testid="atmosphere"]');
 
 test.describe('motion allowed', () => {
   test.use({ reducedMotion: 'no-preference' });
 
-  test('the room, with the overlay drawn and Lantern mode off', async ({ page }) => {
+  test('the room', async ({ page }) => {
     await startSample(page, 'https', 'click');
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'false');
-    await expect(overlay(page)).toHaveCount(1);
-    await scan(page, 'room, overlay present');
-  });
-
-  test('the room, in Lantern mode', async ({ page }) => {
-    await startSample(page, 'https', 'click');
-    await toggle(page).click();
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'true');
-    await expect(overlay(page)).toHaveCount(0);
-    await scan(page, 'room, Lantern mode');
+    await scan(page, 'room');
   });
 
   test('the final door and the escape view', async ({ page }) => {
     await startSample(page, 'human-heart', 'click');
     await skipRooms(page, 'click');
     await enterDoor(page, 'click');
-    await expect(overlay(page)).toHaveCount(1);
-    await scan(page, 'final door, overlay present');
+    await scan(page, 'final door');
     await skipSealsToEscape(page, 'click');
     await scan(page, 'escape view');
   });
 
-  test('the Autopsy, after its fade, with the quill and the toggle', async ({ page }) => {
+  test('the Autopsy, after its fade, with the quill', async ({ page }) => {
     await startSample(page, 'human-heart', 'click');
     await skipRooms(page, 'click');
     await enterDoor(page, 'click');
@@ -59,7 +44,6 @@ test.describe('motion allowed', () => {
     const view = page.getByTestId('autopsy-view');
     await expect.poll(() => view.evaluate((el) => getComputedStyle(el).opacity), { timeout: 3000 }).toBe('1');
     await expect(page.locator('.autopsy-view .quill-mark')).toHaveAttribute('aria-hidden', 'true');
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'false');
     await scan(page, 'Autopsy, after the fade');
   });
 });
@@ -67,7 +51,7 @@ test.describe('motion allowed', () => {
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 
-  test('the Autopsy with the quill at rest and the toggle pressed', async ({ page }) => {
+  test('the Autopsy with the quill at rest', async ({ page }) => {
     await startSample(page, 'human-heart', 'click');
     await skipRooms(page, 'click');
     await enterDoor(page, 'click');
@@ -76,13 +60,11 @@ test.describe('reduced motion', () => {
     // Nothing moves: the page is drawn at once and the quill shows its finished stroke.
     await expect(page.getByTestId('autopsy-view')).toHaveCSS('opacity', '1');
     await expect(page.locator('.quill-mark__stroke')).toHaveCSS('animation-name', 'none');
-    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'true');
-    await scan(page, 'Autopsy, reduced motion, toggle pressed');
+    await scan(page, 'Autopsy, reduced motion');
   });
 
-  test('the room and the escape view in Lantern mode by default', async ({ page }) => {
+  test('the room and the escape view', async ({ page }) => {
     await startSample(page, 'human-heart', 'click');
-    await expect(overlay(page)).toHaveCount(0);
     await scan(page, 'room, reduced motion');
     await skipRooms(page, 'click');
     await enterDoor(page, 'click');

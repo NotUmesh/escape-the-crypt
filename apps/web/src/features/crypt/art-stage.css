@@ -74,11 +74,6 @@
   transform: none;
 }
 
-/* Lantern_Mode: every layer fully lit (Requirement 12.4). The overlays are not mounted at all. */
-.art-stage[data-lantern='true'] .art-layer {
-  filter: none;
-}
-
 .art-stage__controls {
   position: absolute;
   inset: 0;

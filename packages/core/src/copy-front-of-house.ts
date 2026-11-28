@@ -18,7 +18,6 @@ export const FRONT_OF_HOUSE_COPY = {
     shelfEmpty: 'No crypts on this device yet. Bring your notes to start one.',
     moreCrypts: (n: number): string => `More crypts (${n})`,
     samplesTitle: 'Sample crypts',
-    lantern: 'Lantern mode',
   },
   book: {
     fromNotes: 'Crypt from your notes',
@@ -62,6 +61,8 @@ export const FRONT_OF_HOUSE_COPY = {
   descent: {
     label: 'Descending into the crypt',
     announce: 'Descending into the crypt.',
+    finalDoor: 'The final door opens',
+    escape: 'Escaping the crypt',
     skip: 'Skip',
   },
 } as const;

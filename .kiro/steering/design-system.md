@@ -13,7 +13,7 @@ Light is progress. The crypt starts cold teal and dark; every correct answer lig
 - **Crypt (below):** cold stone rooms with lock objects. Warms room by room as candles light.
 
 ## Always-lit rule (non-negotiable)
-Question panels, answer options, the evidence panel, navigation and every focused element are always fully lit and readable. Atmosphere layers (darkness, vignette, grain, mist, cursor glow) have `pointer-events: none`, never cover a question panel, and update via CSS variables or refs, never full React re-renders.
+Question panels, answer options, the evidence panel, navigation and every focused element are always fully lit and readable. Use solid backing for readable content over painted art rather than dimming the scene with an atmosphere overlay.
 
 ## Palette (CSS variables in `apps/web/src/styles/tokens.css`)
 - `--stone-950` #0e0d0c background · `--stone-800` #2a2623 surfaces · `--stone-300` #b8afa6 secondary text
@@ -29,7 +29,7 @@ Question panels, answer options, the evidence panel, navigation and every focuse
 - Titles only: Cinzel / Cinzel Decorative. Never for questions or options.
 
 ## Art: what is code, what is art
-- **Built in code:** every piece of UI (panels, buttons, inputs, text), candle flames and glow, ghosts, grain, vignette, mist, the sigil, focus rings.
+- **Built in code:** every piece of UI (panels, buttons, inputs, text), candle flames and glow, ghosts, the sigil, focus rings.
 - **AI-generated layers** (disclosed in `ASSETS.md`, prompts logged in `docs/art/`): room backgrounds, the desk, lock objects, the exit door. Each is a separate transparent layer so code can light, parallax and animate it.
 - No lettering, numbers or UI baked into art. Art is decoration; nothing needed to answer lives only in an image.
 - 2.5D parallax from layers, at most a few pixels of movement.

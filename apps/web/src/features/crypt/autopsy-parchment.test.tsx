@@ -82,7 +82,7 @@ describe('AutopsyView in the DOM', () => {
     return createElement(AutopsyView, { state, assets: binding.assets, dispatch: vi.fn() });
   }
   const mount = useMount();
-  it('keeps the heading, the counts, the entries and Play again, with no overlay', () => {
+  it('keeps the heading, the counts, the entries and Play again', () => {
     mount.render(createElement(Harness));
     act(() => binding.dispatch({ type: 'startRun' }));
     const view = mount.container.querySelector('[data-testid="autopsy-view"]') as HTMLElement;
@@ -90,26 +90,12 @@ describe('AutopsyView in the DOM', () => {
     expect(view.querySelectorAll('[data-testid^="autopsy-count-"]')).toHaveLength(5);
     expect(view.querySelectorAll('.autopsy-entry').length).toBeGreaterThan(0);
     expect(Array.from(view.querySelectorAll('button')).some((b) => b.textContent === ROOM_PLAY_LABELS.playAgain)).toBe(true);
-    expect(mount.container.querySelector('[data-testid="atmosphere"]')).toBeNull();
   });
-  it('puts the quill (hidden from assistive technology) and the Lantern toggle beside the heading', () => {
+  it('puts the quill beside the heading and hides it from assistive technology', () => {
     mount.render(createElement(Harness));
     act(() => binding.dispatch({ type: 'startRun' }));
     const head = mount.container.querySelector('.autopsy-view__head') as HTMLElement;
-    expect(Array.from(head.children).map((c) => c.tagName.toLowerCase() + (c.classList.contains('lantern-toggle') ? '.toggle' : ''))).toEqual([
-      'h2',
-      'svg',
-      'button.toggle',
-    ]);
+    expect(Array.from(head.children).map((c) => c.tagName.toLowerCase())).toEqual(['h2', 'svg']);
     expect(head.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
-    expect(head.querySelector('button')?.textContent).toBe(ROOM_PLAY_LABELS.lanternToggle);
-    expect(head.querySelector('button')?.getAttribute('aria-pressed')).not.toBeNull();
-    // The toggle comes before the Play again button, so the tab order follows the page.
-    const buttons = Array.from(mount.container.querySelectorAll('.autopsy-view button'));
-    expect(buttons[0]).toBe(head.querySelector('button'));
-    expect(buttons.at(-1)?.textContent).toBe(ROOM_PLAY_LABELS.playAgain);
-  });
-  it('shows the pressed toggle on parchment as ink with a second ring, never gold', () => {
-    expect(PARCHMENT).toMatch(/\.autopsy-view \.lantern-toggle\[aria-pressed='true'\]\s*\{[^}]*border-color:\s*var\(--ink-900\)[^}]*box-shadow:[^}]*--parchment-100[^}]*--ink-900/);
   });
 });

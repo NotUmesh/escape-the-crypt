@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { AUTOPSY_LABELS, FINAL_DOOR_BUTTON_TEXT, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
 import type { SampleCryptResult } from '@escape-the-crypt/core';
-import { buildSampleCrypt, enterCrypt } from './crypt-helpers';
+import { buildSampleCrypt, enterCrypt, skipEndgameClip } from './crypt-helpers';
 
 const WRONG_RUNE_TEXT = 'zzzxq';
 
@@ -87,6 +87,7 @@ test('all answers wrong: ghosts appear, return at the final door, and the escape
   // The final door is always reachable.
   const pendingAtDoor = await page.locator('.ghost-list__ghost').count();
   await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+  await skipEndgameClip(page);
   await expect(page.getByTestId('final-door-seals')).toBeVisible();
   const reserved = crypt.manifest.finalDoor.slots.length;
   const seals = await page.locator('.final-door__seal').count();
@@ -114,6 +115,7 @@ test('all answers wrong: ghosts appear, return at the final door, and the escape
 
   // Escape view, then the Autopsy.
   await expect(escape).toBeVisible();
+  await skipEndgameClip(page);
   await page.getByRole('button', { name: ROOM_PLAY_LABELS.openAutopsy, exact: true }).click();
   await page.getByTestId('autopsy-view').waitFor();
   const labels = Object.values(AUTOPSY_LABELS);

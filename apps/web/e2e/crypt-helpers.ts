@@ -89,6 +89,12 @@ export async function skipDescent(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
 }
 
+export async function skipEndgameClip(page: Page): Promise<void> {
+  const gate = page.getByTestId('descent-gate');
+  if ((await gate.count()) > 0) await page.keyboard.press('Escape');
+  await expect(gate).toHaveCount(0);
+}
+
 /** From the start of the app: paste notes, confirm them, choose "Enter the crypt", then skip the descent. */
 export async function enterCrypt(page: Page): Promise<void> {
   await page.goto('/ingest');

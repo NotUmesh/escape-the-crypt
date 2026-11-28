@@ -15,7 +15,7 @@ import {
 import { installFakeWorker, SAMPLE_NOTES, WORKER_ORIGIN } from './fake-worker';
 
 // The screens before the crypt: the desk, the open book, the dig and the descent. Each is scanned
-// with axe, in lantern mode on and off, on desktop and on a phone (the Pixel 7 project). In
+// with axe on desktop and on a phone (the Pixel 7 project). In
 // Playwright's Firefox, polling with expect(...).toBeVisible() around an axe scan can crash the
 // page, so the waits around a scan use locator.waitFor() and one-shot reads.
 
@@ -42,17 +42,6 @@ async function scan(page: Page): Promise<void> {
   expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([]);
 }
 
-/** Scans the screen as it is, then again with lantern mode on. */
-async function scanBothLights(page: Page): Promise<void> {
-  const lantern = page.getByRole('button', { name: FRONT_OF_HOUSE_COPY.hub.lantern });
-  await scan(page);
-  await lantern.click();
-  await expect(lantern).toHaveAttribute('aria-pressed', 'true');
-  await scan(page);
-  await lantern.click();
-  await expect(lantern).toHaveAttribute('aria-pressed', 'false');
-}
-
 async function confirmNotes(page: Page, text: string): Promise<void> {
   await page.goto('/ingest');
   await page.locator('.ingest-paste textarea').fill(text);
@@ -71,7 +60,7 @@ test.describe('the desk', () => {
     expect(await page.locator('main').count()).toBe(1);
     expect(await regionCount(page)).toBe(1);
     await expect(bring).toHaveAttribute('href', '/ingest');
-    await scanBothLights(page);
+    await scan(page);
   });
 
   test('panels are opaque, so text never sits on art', async ({ page }) => {
@@ -99,7 +88,7 @@ test.describe('the desk', () => {
     await page.getByRole('button', { name: 'Continue your crypt', exact: true }).waitFor();
     await page.getByRole('button', { name: 'Start again', exact: true }).waitFor();
     expect(await regionCount(page)).toBe(1);
-    await scanBothLights(page);
+    await scan(page);
   });
 
   test('keyboard: Tab reaches the link to the notes book and Enter opens it', async ({ page }) => {
@@ -118,11 +107,11 @@ test.describe('the desk', () => {
 });
 
 test.describe('the notes book', () => {
-  test('before and after Confirm: axe clean in both lights, one live region, settings then actions', async ({ page }) => {
+  test('before and after Confirm: axe clean, one live region, settings then actions', async ({ page }) => {
     await page.goto('/ingest');
     await page.locator('.ingest-paste textarea').waitFor();
     expect(await regionCount(page)).toBe(1);
-    await scanBothLights(page);
+    await scan(page);
     await confirmNotes(page, NOTES_TEXT);
     await page.getByTestId('settings-slot').waitFor();
     expect(await regionCount(page)).toBe(1);
@@ -132,7 +121,7 @@ test.describe('the notes book', () => {
       return settings !== null && actions !== null && Boolean(settings.compareDocumentPosition(actions) & Node.DOCUMENT_POSITION_FOLLOWING);
     });
     expect(order).toBe(true);
-    await scanBothLights(page);
+    await scan(page);
   });
 
   test('"Back to the desk" is a plain link to the hub', async ({ page }) => {
@@ -154,7 +143,7 @@ test.describe('the dig', () => {
     await expect(page.getByTestId('dig-stage-list')).toHaveCount(0);
     expect(await regionCount(page)).toBe(1);
     await expect(page.locator('[aria-live]')).toHaveText(GENERATION_COPY.progress);
-    await scanBothLights(page);
+    await scan(page);
     await page.getByRole('button', { name: GENERATION_COPY.cancel, exact: true }).click();
     await page.getByTestId('start-actions').waitFor();
     await expect(page.locator('[aria-live]')).toHaveText(GENERATION_COPY.cancelled);
@@ -169,7 +158,7 @@ test.describe('the dig', () => {
     await page.getByText(copy.what, { exact: true }).waitFor({ timeout: 15_000 });
     await page.getByRole('button', { name: GENERATION_COPY.sampleOffer }).waitFor();
     expect(await regionCount(page)).toBe(1);
-    await scanBothLights(page);
+    await scan(page);
   });
 });
 

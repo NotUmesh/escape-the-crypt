@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { Flame } from '../crypt/flame';
-import { useLantern } from '../crypt/lantern-context';
+import { usePrefersReducedMotion } from '../use-prefers-reduced-motion';
 import { useElementSize, useWindowViewport } from '../crypt/use-stage-size';
 import {
   DESK_ANCHOR_Y,
@@ -27,15 +27,14 @@ const ART = '/art/desk';
 
 /**
  * The desk as art layers behind the screen's own panels. The art is decoration: it has no text,
- * no controls and `aria-hidden`, and the candle flame is drawn in code. Lantern mode removes the
- * vignette and the flicker; reduced motion removes the push-in and the flicker.
+ * no controls and `aria-hidden`, and the candle flame is drawn in code.
  */
 export function DeskScene({ variant, children, viewport }: DeskSceneProps): ReactNode {
   const window = useWindowViewport(viewport);
   const set = deskSetFor(window);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const stage = useElementSize(stageRef, window);
-  const { lantern, reducedMotion } = useLantern();
+  const reducedMotion = usePrefersReducedMotion();
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
   const onFail = useCallback((file: string): void => setFailed((prev) => new Set(prev).add(file)), []);
 
@@ -44,7 +43,7 @@ export function DeskScene({ variant, children, viewport }: DeskSceneProps): Reac
   const scale = coverScale(source, stage);
   const candle = useMemo(() => coverPoint(DESK_CANDLE_POINT[set], source, stage, anchorY), [set, source, stage, anchorY]);
   const book = useMemo(() => coverPoint(DESK_BOOK_POINT[set], source, stage, anchorY), [set, source, stage, anchorY]);
-  const pushes = variant === 'book' && !lantern && !reducedMotion;
+  const pushes = variant === 'book' && !reducedMotion;
   const stageStyle = { '--push-origin': `${Math.round(book.x)}px ${Math.round(book.y)}px` } as CSSProperties;
   const img = (file: string, className: string, srcSet?: string): ReactNode =>
     failed.has(file) ? null : (
@@ -64,7 +63,6 @@ export function DeskScene({ variant, children, viewport }: DeskSceneProps): Reac
       data-testid="desk-scene"
       data-set={set}
       data-variant={variant}
-      data-lantern={lantern ? 'true' : 'false'}
       data-push={pushes ? 'true' : 'false'}
     >
       <div className="desk-scene__stage" ref={stageRef} style={stageStyle} aria-hidden="true">
@@ -78,7 +76,6 @@ export function DeskScene({ variant, children, viewport }: DeskSceneProps): Reac
           <Flame kind="ambient" x={candle.x} y={candle.y} scale={1.4} frameWidth={source.width * scale} ignite={false} />
         ) : null}
         {set === 'desktop' ? img('desktop/foreground.webp', 'desk-scene__foreground') : null}
-        {lantern ? null : <span className="desk-scene__vignette" />}
       </div>
       <div className="desk-scene__content">{children}</div>
     </div>

@@ -175,9 +175,7 @@ describe('FinalDoor escaped', () => {
     mount.render(createElement(FinalDoor, { escaped: true, onOpenAutopsy: () => (opened += 1) }));
     const view = mount.container.querySelector('[data-testid="escape-view"]');
     expect(view?.textContent).toContain(ESCAPE_COPY.message);
-    // The Lantern toggle is a display setting, not a game control: one is there, and one other button.
-    expect(mount.container.querySelectorAll('button.lantern-toggle')).toHaveLength(1);
-    const buttons = Array.from(mount.container.querySelectorAll<HTMLButtonElement>('button:not(.lantern-toggle)'));
+    const buttons = Array.from(mount.container.querySelectorAll<HTMLButtonElement>('button'));
     expect(buttons).toHaveLength(1);
     expect(buttons[0]?.textContent).toBe(ROOM_PLAY_LABELS.openAutopsy);
     expect(mount.container.querySelector('.final-door__seal-button')).toBeNull();

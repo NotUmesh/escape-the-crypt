@@ -164,7 +164,6 @@ export const ROOM_PLAY_LABELS = {
   showExcerpt: 'Show source excerpt',
   hideExcerpt: 'Hide source excerpt',
   excerptUnavailable: 'No source excerpt is available for this concept.',
-  lanternToggle: 'Lantern mode',
 } as const;
 
 /** Names of the lock objects, keyed by lock type (Requirement 10.3). */

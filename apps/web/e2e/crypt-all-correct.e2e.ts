@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { AUTOPSY_LABELS, FINAL_DOOR_BUTTON_TEXT, FINAL_DOOR_STATUS_LABELS, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, submitAnswer } from './crypt-helpers';
+import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, roomOneSlots, skipEndgameClip, submitAnswer } from './crypt-helpers';
 
 test('all answers correct: every evidence panel, the final door and the Autopsy', async ({ page }) => {
   const crypt = buildSampleCrypt();
@@ -14,6 +14,7 @@ test('all answers correct: every evidence panel, the final door and the Autopsy'
 
   // The final door: open it, then answer every open seal in manifest order.
   await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+  await skipEndgameClip(page);
   const doorSlots = crypt.manifest.finalDoor.slots;
   await expect(page.locator('.final-door__seal')).toHaveCount(doorSlots.length);
   for (const [index, doorSlot] of doorSlots.entries()) {
@@ -32,6 +33,7 @@ test('all answers correct: every evidence panel, the final door and the Autopsy'
   // Escape view, then the Autopsy.
   await expect(page.locator('.evidence-panel')).toHaveCount(0);
   await expect(page.getByTestId('escape-view')).toBeVisible();
+  await skipEndgameClip(page);
   await page.getByRole('button', { name: ROOM_PLAY_LABELS.openAutopsy, exact: true }).click();
   await page.getByTestId('autopsy-view').waitFor();
 

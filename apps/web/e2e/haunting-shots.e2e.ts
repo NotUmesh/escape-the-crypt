@@ -2,7 +2,6 @@ import { mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
-import { FINAL_DOOR_BUTTON_TEXT } from '@escape-the-crypt/core';
 import { enterCrypt, waitForArtStage } from './crypt-helpers';
 import { answerOpenPanel, continueButton, openAutopsy, openFirstLock, skipRooms, skipSealsToEscape } from './haunting-flows';
 import { enterDoor, startSample } from './sample-nav';
@@ -75,7 +74,7 @@ if (ENABLED) {
           await continueButton(page).click();
           await expect(continueButton(page)).toHaveCount(0);
         }
-        await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+        await enterDoor(page, 'click');
         const seals = page.locator('.final-door__seal-button');
         await seals.first().waitFor();
         const leaving = page.locator('[data-ghost][data-state="leaving"]');

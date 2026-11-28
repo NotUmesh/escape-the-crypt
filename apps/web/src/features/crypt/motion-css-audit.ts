@@ -13,9 +13,6 @@ export interface FlatRule {
 const AMBIENT_LOOPS: ReadonlySet<string> = new Set([
   'flame-flicker',
   'ghost-drift',
-  'atmosphere-drift',
-  'dig-mist-drift',
-  'dig-speck-fall',
 ]);
 const ANIMATABLE: ReadonlySet<string> = new Set([
   'opacity',

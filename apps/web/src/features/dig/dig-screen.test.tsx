@@ -120,7 +120,7 @@ describe('DigScreen', () => {
     render();
     const main = mount.container.querySelector('main') as HTMLElement;
     const panel = main.querySelector('.fh-panel') as HTMLElement;
-    const outside = Array.from(main.querySelectorAll('h1, p, span, li, button')).filter((el) => !panel.contains(el) && !el.closest('.dig__tools'));
+    const outside = Array.from(main.querySelectorAll('h1, p, span, li, button')).filter((el) => !panel.contains(el));
     expect(outside).toEqual([]);
   });
 

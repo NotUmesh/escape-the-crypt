@@ -2,7 +2,6 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import type { LockSlotState, LockType, Outcome_Notice } from '@escape-the-crypt/core';
 import { artEffectsFrom } from './art-effects';
-import { AtmosphereLayer } from './atmosphere-layer';
 import { ArtImage } from './art-image';
 import type { ArtContext } from './art-image';
 import type { ArtFailureLog } from './art-failure-log';
@@ -12,7 +11,7 @@ import { Flame } from './flame';
 import { GhostLayer } from './ghost-layer';
 import type { GhostItem } from './ghost-list';
 import { HotspotButton } from './hotspot-button';
-import { useLantern } from './lantern-context';
+import { usePrefersReducedMotion } from '../use-prefers-reduced-motion';
 import { LockLayer, lightImageFile, shouldDrawFlame } from './lock-layer';
 import { momentsForStage } from './motion-moments';
 import { chooseBlock, isPhoneViewport, layoutScene } from './scene-layout';
@@ -82,7 +81,7 @@ export function ArtStage({
     [phone, windowSize, block.size],
   );
   const stage = useElementSize(stageRef, fallback);
-  const { lantern, reducedMotion } = useLantern();
+  const reducedMotion = usePrefersReducedMotion();
   useParallax(stageRef, !reducedMotion);
   const layout = useMemo(() => layoutScene(scene, slots, stage, phone), [scene, slots, stage, phone]);
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
@@ -103,7 +102,6 @@ export function ArtStage({
     pendingConceptIds: new Set(ghosts.map((g) => g.conceptId)),
   });
   const doorAnimates = cleared && roomId !== undefined && effects.clearedRooms.has(roomId);
-  const litCount = slots.filter((s) => shouldDrawFlame(s.status, s.candleLit)).length;
   const stageStyle = {
     ...(phone ? {} : { aspectRatio: `${block.size[0]} / ${block.size[1]}` }),
     '--parallax-background': String(block.parallax.background),
@@ -121,7 +119,6 @@ export function ArtStage({
       data-testid="art-stage"
       data-cropped={layout.cropped ? 'true' : 'false'}
       data-directory={layout.directory}
-      data-lantern={lantern ? 'true' : 'false'}
       data-parallax={reducedMotion ? 'off' : 'on'}
       data-reduced-motion={reducedMotion ? 'true' : 'false'}
       data-moment={moments.length === 0 ? undefined : moments.map((m) => m.kind).join(' ')}
@@ -186,7 +183,6 @@ export function ArtStage({
         spiritCandleCount={spiritCandleCount}
         effects={effects}
       />
-      {lantern ? null : <AtmosphereLayer lit={slots.length === 0 ? 0 : litCount / slots.length} />}
       <div className="art-stage__controls">
         {overlay?.(layout)}
         {onActivate === undefined ? null : layout.locks.map((lock) => (

@@ -22,5 +22,12 @@ export const DESCENT_CLIPS: readonly DescentClip[] = [
   },
 ];
 
+export type EndgameClip = 'final-door' | 'escape';
+
+export function endgameClips(clip: EndgameClip): readonly DescentClip[] {
+  const path = `/art/motion/${clip}`;
+  return [{ webm: `${path}.webm`, mp4: `${path}.mp4`, poster: `${path}-poster.webp` }];
+}
+
 /** How long a clip may take to become playable before the descent gives up on it (ms). */
 export const CAN_PLAY_TIMEOUT_MS = 1500;

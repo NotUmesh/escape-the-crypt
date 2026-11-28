@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { LanternToggle } from '../crypt/lantern-toggle';
 import { DeskScene } from './desk-scene';
 import type { Size } from './desk-scene-layout';
 import { FRONT_OF_HOUSE_COPY } from '@escape-the-crypt/core';
@@ -47,7 +46,6 @@ export function BringNotesScreen({
             <a className="fh-button" href={backHref}>
               {copy.bring.back}
             </a>
-            <LanternToggle label={copy.hub.lantern} />
           </div>
           <h1 className="fh-title bring__title">{copy.bring.title}</h1>
           <div className="book-pages" data-testid="book-pages">

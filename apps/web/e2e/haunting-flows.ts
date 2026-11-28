@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { buildSampleCrypt, correctAnswerFor } from './crypt-helpers';
+import { buildSampleCrypt, correctAnswerFor, skipEndgameClip } from './crypt-helpers';
 import type { CorrectAnswer } from './crypt-helpers';
 import { button, enterDoor, press } from './sample-nav';
 import type { InputMode } from './sample-nav';
@@ -95,6 +95,7 @@ export async function skipSealsToEscape(page: Page, mode: InputMode): Promise<vo
     await skipOne(page, page.locator('.final-door__seal-button').first(), mode);
   }
   await expect(page.getByTestId('escape-view')).toBeVisible();
+  await skipEndgameClip(page);
 }
 /** Enters the final door and skips every seal, until the escape view shows. */
 export async function skipDoorToEscape(page: Page, mode: InputMode): Promise<void> {

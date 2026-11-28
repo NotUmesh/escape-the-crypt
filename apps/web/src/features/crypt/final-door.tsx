@@ -7,7 +7,6 @@ import type { RoomAssets } from '../../state/room-assets';
 import { doorButtonName, sealName } from './accessible-names';
 import type { Viewport } from './crop-mapping';
 import { DoorStage } from './door-stage';
-import { LanternToggle } from './lantern-toggle';
 import { LockCloseUp } from './lock-closeup';
 import { isPhoneViewport } from './scene-layout';
 import { SealList } from './final-door-seals';
@@ -74,7 +73,6 @@ function EscapedDoor({ onOpenAutopsy, state, loadSceneImpl, viewport }: EscapedF
       <button ref={buttonRef} type="button" className="final-door__button" onClick={onOpenAutopsy}>
         {ROOM_PLAY_LABELS.openAutopsy}
       </button>
-      <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
     </section>
   );
 }
@@ -155,7 +153,6 @@ function PlayingDoor({
   return (
     <section className="final-door" data-testid="final-door">
       <p>{OPEN_TEXT}</p>
-      <LanternToggle label={ROOM_PLAY_LABELS.lanternToggle} />
       {/* While the scene loads no seal is drawn, so a click cannot land on a seal that is about to move. */}
       {art.sceneState.status === 'loading' ? null : art.sceneState.status === 'ready' && art.artRoom !== null ? (
         <DoorStage

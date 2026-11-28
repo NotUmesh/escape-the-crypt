@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { FINAL_DOOR_BUTTON_TEXT, ROOM_PLAY_LABELS } from '@escape-the-crypt/core';
-import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, openLockName, roomOneSlots, submitAnswer } from './crypt-helpers';
+import { answerSlot, buildSampleCrypt, correctAnswerFor, enterCrypt, openLockName, roomOneSlots, skipEndgameClip, submitAnswer } from './crypt-helpers';
 
 // Requirement 25.5: no axe violations on the room with the question open, with the evidence open,
 // at the final door and on the Autopsy.
@@ -43,6 +43,7 @@ async function solveRoomOne(page: Page): Promise<void> {
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
   }
   await page.getByRole('button', { name: FINAL_DOOR_BUTTON_TEXT, exact: true }).click();
+  await skipEndgameClip(page);
 }
 
 test('final door', async ({ page }) => {
@@ -62,6 +63,7 @@ test('autopsy', async ({ page }) => {
     await page.getByRole('button', { name: ROOM_PLAY_LABELS.continue, exact: true }).click();
   }
   await expect(page.getByTestId('escape-view')).toBeVisible();
+  await skipEndgameClip(page);
   await page.getByRole('button', { name: ROOM_PLAY_LABELS.openAutopsy, exact: true }).click();
   await page.getByTestId('autopsy-view').waitFor();
   // The page fades in over 600 ms. A scan during the fade reads blended colours, so it waits for the fade to end.

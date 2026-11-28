@@ -188,7 +188,7 @@ test.describe('import a crypt', () => {
     await other.close();
   });
 
-  test('the import control is axe clean on an empty desk, after a success and after a refusal, with the lantern on and off', async ({ page, browser, baseURL }, testInfo) => {
+  test('the import control is axe clean on an empty desk, after a success and after a refusal', async ({ page, browser, baseURL }, testInfo) => {
     await enterCrypt(page);
     await playOneLock(page);
     const file = await exportFromDesk(page, testInfo, 'axe-export.json');
@@ -198,21 +198,14 @@ test.describe('import a crypt', () => {
     const other = await freshPage(browser, page, baseURL);
     await other.goto('/');
     await other.getByTestId('import-crypt').waitFor();
-    const lantern = other.getByRole('button', { name: 'Lantern mode' });
-    const scanBoth = async (): Promise<void> => {
-      await scan(other);
-      await lantern.click();
-      await scan(other);
-      await lantern.click();
-    };
-    await scanBoth();
+    await scan(other);
     await chooseFile(other, bad);
     await expect(status(other)).toHaveText(refusal('not-json'));
-    await scanBoth();
+    await scan(other);
     await chooseFile(other, file);
     await expect(status(other)).toHaveText(IMPORT_COPY.done.active);
     await other.getByTestId('book-card').waitFor();
-    await scanBoth();
+    await scan(other);
 
     // The button is a real, named, keyboard-reachable control of at least 44 px.
     const button = other.getByRole('button', { name: IMPORT_COPY.button, exact: true });

@@ -1,53 +1,74 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { DescentGate } from '../descent/descent-gate';
+import type { EndgameClip } from '../descent/clip-sources';
 
-export type DescentVariant = 'clips' | 'fade';
+export type DescentVariant = 'clips' | 'fade' | EndgameClip;
 
-const FOCUS_TARGETS = '.room-hotspot, .room-screen__lock-button';
+const ROOM_TARGETS = '.room-hotspot, .room-screen__lock-button';
 const MAX_FRAMES = 30;
 
-/** Moves focus to the first lock in the room once it is drawn, unless the learner already focused something there. */
-function focusRoom(): void {
+function focusDestination(variant: DescentVariant): () => void {
+  const screen = variant === 'escape' ? '.final-door--escaped' : variant === 'final-door' ? '.final-door' : '.room-screen';
+  const selector = variant === 'escape' ? '.final-door__button' : variant === 'final-door' ? '.final-door__seal-button' : ROOM_TARGETS;
+  const focus = (): boolean => {
+    const destination = document.querySelector(screen);
+    if (destination?.contains(document.activeElement)) return true;
+    const target = destination?.querySelector<HTMLElement>(selector);
+    if (target == null) return false;
+    target.focus();
+    return true;
+  };
+  const destination = document.querySelector(screen);
+  if (variant === 'final-door' && destination !== null) {
+    // The clips can end before the room art (or its fallback) has drawn the seals.
+    const observer = new MutationObserver(() => {
+      if (document.activeElement !== document.body || focus()) observer.disconnect();
+    });
+    if (!focus()) observer.observe(destination, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }
   let frames = 0;
+  let frame = 0;
   const attempt = (): void => {
-    const room = document.querySelector('.room-screen');
-    if (room !== null && room.contains(document.activeElement) && document.activeElement !== room) return;
-    const target = document.querySelector<HTMLElement>(FOCUS_TARGETS);
-    if (target !== null) {
-      target.focus();
-      return;
-    }
+    if (focus()) return;
     frames += 1;
-    if (frames < MAX_FRAMES) requestAnimationFrame(attempt);
+    if (frames < MAX_FRAMES) frame = requestAnimationFrame(attempt);
   };
   attempt();
+  return () => cancelAnimationFrame(frame);
 }
 
 export interface Descent {
   readonly variant: DescentVariant | null;
-  readonly begin: (variant: DescentVariant) => void;
+  readonly begin: (variant: DescentVariant, then?: DescentVariant) => void;
   readonly end: () => void;
 }
 
 /** Which descent is up over a freshly started run. It is view state only; the run does not know about it. */
 export function useDescent(enabled: boolean): Descent {
   const [variant, setVariant] = useState<DescentVariant | null>(null);
-  const focusAfter = useRef(false);
+  const focusAfter = useRef<DescentVariant | null>(null);
+  const following = useRef<DescentVariant | null>(null);
   const begin = useCallback(
-    (next: DescentVariant): void => {
-      if (enabled) setVariant(next);
+    (next: DescentVariant, then?: DescentVariant): void => {
+      if (!enabled) return;
+      following.current = then ?? null;
+      setVariant(next);
     },
     [enabled],
   );
   const end = useCallback((): void => {
-    focusAfter.current = true;
-    setVariant(null);
-  }, []);
+    const next = following.current;
+    following.current = null;
+    if (next === null) focusAfter.current = variant;
+    setVariant(next);
+  }, [variant]);
   useEffect(() => {
-    if (variant !== null || !focusAfter.current) return;
-    focusAfter.current = false;
-    focusRoom();
+    const destination = focusAfter.current;
+    if (variant !== null || destination === null) return;
+    focusAfter.current = null;
+    return focusDestination(destination);
   }, [variant]);
   return { variant, begin, end };
 }
@@ -83,7 +104,7 @@ export function DescentLayer({ variant, onDone, announce, landmark, children }: 
           {children}
         </div>
       )}
-      {variant === null ? null : <DescentGate variant={variant} onDone={onDone} announce={announce} />}
+      {variant === null ? null : <DescentGate key={variant} variant={variant} onDone={onDone} announce={announce} />}
     </>
   );
 }
