@@ -12,7 +12,7 @@ import {
   type CassetteFile,
 } from '@escape-the-crypt/core';
 import { evalProviderErrorText, liveEvalProvider, parseEvalProvider, type EvalOverrides } from './eval-provider';
-import { loadNotes, parseAllowedLockTypes, settingsFor } from './eval-settings';
+import { loadNotes, parseAllowedLockTypes, parseConflictCheck, settingsFor } from './eval-settings';
 import { runExportRatings } from './export-ratings';
 import { runHoldout } from './holdout';
 import { runImportRatings } from './import-ratings';
@@ -23,8 +23,8 @@ import { summarise } from './report';
 import { runDevSet } from './run-dev-set';
 
 // Kept importable from here: tests and the Gemini contract test use them.
-export { parseAllowedLockTypes, settingsFor } from './eval-settings';
-export type { LockTypeListError } from './eval-settings';
+export { parseAllowedLockTypes, parseConflictCheck, settingsFor } from './eval-settings';
+export type { ConflictCheckError, LockTypeListError } from './eval-settings';
 
 export interface Io {
   readonly out: (line: string) => void;
@@ -52,13 +52,14 @@ function parseArgs(argv: readonly string[]): { mode: string; args: Args } {
 
 const USAGE = [
   'Usage (from the repository root):',
-  '  pnpm --filter @escape-the-crypt/worker eval record [--provider openai|gemini] --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <name.json> [--only dev-01,dev-02] [--allowed-lock-types rune-cipher,seance-board]',
-  '  pnpm --filter @escape-the-crypt/worker eval replay [--provider openai|gemini] --model <id> [--policy default|legacy|both] [--length short|standard|long] [--inspect [seance-board|rune-cipher]] [--only ...] [--allowed-lock-types ...]',
+  '  pnpm --filter @escape-the-crypt/worker eval record [--provider openai|gemini] --model <id> --input-usd-per-mtok <n> --output-usd-per-mtok <n> --cap-usd <n> --ledger <name.json> [--only dev-01,dev-02] [--allowed-lock-types rune-cipher,seance-board] [--conflict-check on|off]',
+  '  pnpm --filter @escape-the-crypt/worker eval replay [--provider openai|gemini] --model <id> [--policy default|legacy|both] [--length short|standard|long] [--inspect [seance-board|rune-cipher]] [--only ...] [--allowed-lock-types ...] [--conflict-check on|off]',
+  '--conflict-check on|off (default off) runs the conflict check stage; off keeps the recorded cassettes replaying exactly as before. It applies to record and replay.',
   '--allowed-lock-types takes a comma-separated list of rune-cipher, seance-board, bone-ordering, bound-threads, cursed-object, combination-dial. Default: the evaluation list in config.ts. It applies to record and replay.',
   '--provider openai|gemini (default openai) applies to record and replay. Gemini cassettes live in cassettes/dev-gemini/<model>/, OpenAI ones in cassettes/dev/; replay reads only its own folder.',
   'record reads OPENAI_API_KEY or GEMINI_API_KEY from the environment and never writes it anywhere.',
   'Rater tooling (dev or holdout result files; no model calls):',
-  '  eval export-ratings --result <result.json> [--out <ratings.csv>] [--blind]',
+  '  eval export-ratings --result <result.json> [--out <ratings.csv>] [--with-results]',
   '  eval import-ratings --result <result.json> --csv <rater-1.csv> [--csv <rater-2.csv>]',
   'The final test set has its own once-only mode, `eval holdout`; run it with no arguments to read its usage.',
 ].join('\n');
@@ -92,6 +93,12 @@ export async function main(
         ? `Unknown lock type "${lockTypes.error.value}". Nothing was called.`
         : 'The lock type list is empty. Nothing was called.',
     );
+    io.out(USAGE);
+    return 1;
+  }
+  const conflict = parseConflictCheck(args['conflict-check']);
+  if (!conflict.ok) {
+    io.out(`Unknown --conflict-check value "${conflict.error.value}"; use on or off. Nothing was called.`);
     io.out(USAGE);
     return 1;
   }
@@ -131,7 +138,7 @@ export async function main(
         saveCassette: () => undefined,
         live: null,
         ledger: makeMockLedger({ dailyCapUsd: 1_000_000 }),
-        settings: settingsFor(modelId, prices, lockTypes.value, length),
+        settings: settingsFor(modelId, prices, lockTypes.value, length, conflict.value),
         providerName,
         checkVersion: CHECK_VERSION,
         policy,
@@ -153,6 +160,7 @@ export async function main(
     providerName,
     modelId,
     lockTypes: lockTypes.value,
+    conflictCheck: conflict.value,
     set: 'dev',
     ledgerName: args['ledger'],
     cassettesDir,

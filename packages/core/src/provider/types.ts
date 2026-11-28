@@ -1,4 +1,4 @@
-export type ProviderStage = 'concept-extraction' | 'generation' | 'review';
+export type ProviderStage = 'concept-extraction' | 'generation' | 'review' | 'conflict-check';
 
 export interface ProviderRequest {
   readonly stage: ProviderStage;

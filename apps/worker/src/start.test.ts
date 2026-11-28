@@ -197,6 +197,8 @@ describe('start: DISABLED_LOCK_TYPES', () => {
   it('passes the filtered list, not the constant, to pipelineSettings', () => {
     const source = readFileSync(fileURLToPath(new URL('./start.ts', import.meta.url)), 'utf8');
     expect(source).toMatch(/allowedLockTypes:\s*cfg\.allowedLockTypes/);
+    expect(source).toMatch(/conflictCheck:\s*true/);
+    expect(source).toMatch(/sufficiency:\s*false/);
     expect(source).not.toContain('ALLOWED_LOCK_TYPES');
   });
 });

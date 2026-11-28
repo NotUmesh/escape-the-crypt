@@ -2,6 +2,7 @@ import { z } from '../zod';
 import { CryptContentEntrySchema, CryptContentSchema } from '../mapper/crypt-content';
 import { CryptManifestSchema, QuestionSpecSchema } from '../runtime/manifest-schema';
 import { PIPELINE_STAGES } from '../pipeline/pipeline-progress';
+import type { PipelineNotices } from '../pipeline/pipeline-notices';
 
 /**
  * The worker's HTTP bodies, as one contract for the worker (which builds them) and the web
@@ -41,10 +42,38 @@ export const UnplacedAcceptedSchema = z.strictObject({
   content: CryptContentEntrySchema,
 });
 
+const PassageSchema = z.strictObject({ chunkId: z.string().min(1), quote: z.string().min(1) });
+
+/** Mirrors `ExcludedConcept` in `pipeline/conflict-stage.ts`. */
+export const ExcludedConceptSchema = z.strictObject({
+  conceptId: z.string().min(1),
+  conceptTitle: z.string(),
+  source: z.enum(['code', 'model']),
+  passages: z.tuple([PassageSchema, PassageSchema]),
+});
+
+/** Mirrors `SufficiencyNotice` in `pipeline/sufficiency.ts`. */
+export const SufficiencyNoticeSchema = z.strictObject({
+  goodConcepts: z.number().int().nonnegative(),
+  conceptsNeeded: z.number().int().nonnegative(),
+  requestedRooms: z.number().int().nonnegative(),
+  builtRooms: z.number().int().nonnegative(),
+});
+
+/**
+ * Optional, and sent only to clients that ask with `?notices=1`: a client built before it parses
+ * the bundle strictly and would refuse the extra field.
+ */
+export const JobNoticesSchema = z.strictObject({
+  excluded: z.array(ExcludedConceptSchema),
+  sufficiency: SufficiencyNoticeSchema.nullable(),
+});
+
 export const JobBundleSchema = z.strictObject({
   manifest: CryptManifestSchema,
   content: CryptContentSchema,
   unplacedAccepted: z.array(UnplacedAcceptedSchema),
+  notices: JobNoticesSchema.optional(),
 });
 
 /** `message` is the worker's plain-language copy. The web shows its own copy instead. */
@@ -90,6 +119,11 @@ type DeepReadonly<T> = T extends readonly (infer U)[]
   : T extends object
     ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
     : T;
+
+/** Compile-time checks: the schemas and the pipeline types accept each other's values. */
+type Equivalent<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+const noticesMatchTypes: Equivalent<DeepReadonly<z.infer<typeof JobNoticesSchema>>, PipelineNotices> = true;
+void noticesMatchTypes;
 
 export type JobBundle = DeepReadonly<z.infer<typeof JobBundleSchema>>;
 export type JobFailureBody = DeepReadonly<z.infer<typeof JobFailureSchema>>;

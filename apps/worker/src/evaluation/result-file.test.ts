@@ -1,3 +1,6 @@
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { EvaluationResultSchema, parseEvaluationResult, resultFileName, type EvaluationResult } from './result-file';
@@ -12,7 +15,7 @@ const candidateArb = fc.record({
   conceptId: id,
   role: fc.constantFrom('primary' as const, 'alternate' as const),
   lockType: fc.constantFrom('rune-cipher', 'seance-board'),
-  result: fc.constantFrom('accepted' as const, 'code-check-rejected' as const, 'review-rejected' as const, 'not-reviewed' as const),
+  result: fc.constantFrom('accepted' as const, 'code-check-rejected' as const, 'review-rejected' as const, 'not-reviewed' as const, 'conflict-rejected' as const),
   checkIds: fc.array(fc.constantFrom('quote-not-found', 'duplicate-options', 'negative-question'), { maxLength: 3 }),
   reviewReason: fc.option(fc.constantFrom('unknown-label', 'label-mismatch', 'answer-mismatch'), { nil: null }),
   mapperReason: fc.option(fc.constantFrom('hint-mismatch', 'check-failed:quote-too-long'), { nil: null }),
@@ -32,6 +35,7 @@ const noteArb = fc.record({
   concepts: fc.array(fc.record({ conceptIndex: fc.nat({ max: 20 }), conceptId: id, generation: fc.constantFrom('questions', 'no-lock', 'schema-rejected') }), { maxLength: 4 }),
   candidates: fc.array(candidateArb, { maxLength: 6 }),
   codeCheckRejections: fc.dictionary(fc.constantFrom('quote-not-found', 'option-count'), nat),
+  conflict: fc.record({ roomsChecked: nat, roomsUnchecked: nat, conceptsExcluded: nat, reportsIgnored: nat }),
   room: fc.option(
     fc.record({
       slots: fc.array(
@@ -60,6 +64,7 @@ const resultArb: fc.Arbitrary<EvaluationResult> = fc.record({
   modelId: fc.constantFrom('gpt-5.4-mini', 'synthetic'),
   temperature: fc.constantFrom(0, 0.2),
   checkVersion: fc.constant('2026-11-27.1'),
+  conflictCheck: fc.boolean(),
   assemblyPolicy: fc.record({ promoteAlternates: fc.boolean(), dedupeAnswers: fc.boolean() }),
   prices: fc.record({ inputUsdPerMTok: usd, outputUsdPerMTok: usd }),
   budget: fc.record({ capUsd: usd, spentBeforeUsd: usd, spentThisRunUsd: usd, reservationRefused: fc.boolean() }),
@@ -87,6 +92,45 @@ describe('Property: evaluation result files round-trip', () => {
       }),
       { numRuns: 20 },
     );
+  });
+});
+
+describe('conflict check fields are additive', () => {
+  it('an older file with none of the new fields parses with off and zero counts', () => {
+    fc.assert(
+      fc.property(resultArb, (result) => {
+        const older: Record<string, unknown> = JSON.parse(JSON.stringify(result));
+        delete older['conflictCheck'];
+        for (const note of older['notes'] as Record<string, unknown>[]) delete note['conflict'];
+        const parsed = parseEvaluationResult(older);
+        expect(parsed.ok).toBe(true);
+        if (!parsed.ok) return;
+        expect(parsed.value.conflictCheck).toBe(false);
+        for (const note of parsed.value.notes) {
+          expect(note.conflict).toEqual({ roomsChecked: 0, roomsUnchecked: 0, conceptsExcluded: 0, reportsIgnored: 0 });
+        }
+      }),
+      { numRuns: 30 },
+    );
+  });
+
+  it('rejects a negative or extra conflict count', () => {
+    const note = fc.sample(noteArb, 1)[0]!;
+    const base = fc.sample(resultArb, 1)[0]!;
+    const bad = { ...base, notes: [{ ...note, conflict: { roomsChecked: -1, roomsUnchecked: 0, conceptsExcluded: 0, reportsIgnored: 0 } }] };
+    expect(parseEvaluationResult(bad).ok).toBe(false);
+    const extra = { ...base, notes: [{ ...note, conflict: { roomsChecked: 0, roomsUnchecked: 0, conceptsExcluded: 0, reportsIgnored: 0, text: 'x' } }] };
+    expect(parseEvaluationResult(extra).ok).toBe(false);
+  });
+
+  it('every existing evaluation result file still parses (read only)', () => {
+    const dir = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'eval', 'results');
+    if (!existsSync(dir)) return;
+    for (const name of readdirSync(dir).filter((n) => n.endsWith('.json') && !n.startsWith('ledger'))) {
+      const raw = JSON.parse(readFileSync(join(dir, name), 'utf8')) as unknown;
+      if (typeof raw !== 'object' || raw === null || !('schemaVersion' in raw)) continue;
+      expect({ name, ok: parseEvaluationResult(raw).ok }).toEqual({ name, ok: true });
+    }
   });
 });
 

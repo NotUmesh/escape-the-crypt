@@ -5,7 +5,9 @@ import type { PipelineOptions } from './orchestrator';
 /** One handler per stage. Returns the JSON the model would return, or a full failure result. */
 export type StageHandler = (request: ProviderRequest) => unknown;
 
-export type StageHandlers = Readonly<Record<ProviderStage, StageHandler>>;
+export type StageHandlers = Readonly<
+  Record<Exclude<ProviderStage, 'conflict-check'>, StageHandler> & { 'conflict-check'?: StageHandler }
+>;
 
 export interface ScriptedProvider extends Provider {
   readonly requests: ProviderRequest[];
@@ -35,7 +37,11 @@ export function makeScriptedProvider(handlers: StageHandlers): ScriptedProvider 
     async complete(request): Promise<ProviderResult> {
       requests.push(request);
       try {
-        const out = handlers[request.stage](request);
+        const handler = handlers[request.stage];
+        if (handler === undefined) {
+          return { ok: false, error: { kind: 'provider-error', retryable: false } };
+        }
+        const out = handler(request);
         if (isProviderResult(out)) return out;
         return { ok: true, json: out, usage: USAGE };
       } catch {

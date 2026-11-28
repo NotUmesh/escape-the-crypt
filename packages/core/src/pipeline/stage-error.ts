@@ -18,4 +18,6 @@ export type PipelineStageError =
   /** The model-facing JSON schema could not be built. A code defect, not a model failure. */
   | { readonly kind: 'schema-not-representable'; readonly stage: ProviderStage }
   /** The caller's signal was aborted before a reservation or call could start. */
-  | { readonly kind: 'cancelled' };
+  | { readonly kind: 'cancelled' }
+  /** Every room the conflict check attempted failed, so nothing could be checked clean. */
+  | { readonly kind: 'conflict-check-failed' };

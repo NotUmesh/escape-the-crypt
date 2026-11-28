@@ -1,5 +1,12 @@
 import { sha256 } from '@noble/hashes/sha2.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import type { PreparedDocument } from './prepare-input';
+
+/** The base manifest ID for a prepared document: `crypt-` plus the first 16 hex of its digest. */
+export function manifestIdOf(doc: PreparedDocument): string {
+  for (const chunk of doc.chunks.values()) return `crypt-${chunk.documentDigest.slice(0, 16)}`;
+  return 'crypt-empty';
+}
 
 /** JSON with object keys sorted, so equal content always serialises to the same string. */
 function stableJson(value: unknown): string {

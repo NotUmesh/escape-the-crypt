@@ -49,7 +49,7 @@ describe('lock type IDs', () => {
       .readdirSync(dir)
       .filter((f) => f.endsWith('.ts') && !f.endsWith('.test.ts'))
       .map((f) => f.slice(0, -'.ts'.length))
-      .filter((n) => n !== 'judge-registry' && !n.endsWith('-checks'))
+      .filter((n) => n !== 'judge-registry' && n !== 'answer-statement' && !n.endsWith('-checks'))
       .sort();
     expect(names).toEqual(EXPECTED);
   });

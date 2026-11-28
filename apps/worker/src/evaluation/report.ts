@@ -8,6 +8,8 @@ export interface LockTypeSummary {
   reviewRejected: number;
   /** Questions that passed Code_Checks but were never reviewed (a stop before review). */
   notReviewed: number;
+  /** Questions whose concept the conflict check excluded because the notes conflict on it. */
+  conflictRejected: number;
   /** Blocking Check_ID -> questions failing it (a question counts once per Check_ID). */
   byCheckId: Record<string, number>;
   /** Review rejection kind -> questions. */
@@ -48,6 +50,7 @@ const emptyType = (): LockTypeSummary => ({
   codeCheckRejected: 0,
   reviewRejected: 0,
   notReviewed: 0,
+  conflictRejected: 0,
   byCheckId: {},
   byReviewReason: {},
   byPlacement: {},
@@ -91,6 +94,8 @@ export function summarise(notes: readonly NoteRun[]): DevSetSummary {
       } else if (c.result === 'review-rejected') {
         t.reviewRejected += 1;
         bump(t.byReviewReason, c.reviewReason ?? 'unknown');
+      } else if (c.result === 'conflict-rejected') {
+        t.conflictRejected += 1;
       } else {
         t.notReviewed += 1;
       }

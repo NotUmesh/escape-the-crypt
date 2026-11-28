@@ -1,0 +1,156 @@
+{
+  "checkVersion": "2026-11-27.5",
+  "entries": [
+    {
+      "digest": "c03e01ac00be97c87e577501942a97960ef2d23db76b0e7257cddd1928578af3",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "concepts": [
+            {
+              "label": "Time for the Moon to orbit Earth",
+              "chunkIds": [
+                "chk_21c60b15f118_3"
+              ],
+              "quotes": [
+                "The Moon takes about 27 days to orbit Earth."
+              ]
+            },
+            {
+              "label": "Tidal locking",
+              "chunkIds": [
+                "chk_21c60b15f118_5"
+              ],
+              "quotes": [
+                "This is called tidal locking."
+              ]
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "79d83a296878487b56918da92e8ea5c19f76366f4bed58b447f2cfa1ca75e03d",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state the number.",
+          "primary": {
+            "lockType": "combination-dial",
+            "prompt": "According to your notes, about how many days does the Moon take to orbit Earth?",
+            "answer": {
+              "kind": "exact",
+              "value": 27
+            },
+            "units": "days",
+            "evidence": [
+              {
+                "chunkId": "chk_21c60b15f118_3",
+                "quote": "The Moon takes about 27 days to orbit Earth."
+              }
+            ],
+            "explanation": "Your notes say about 27 days."
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "d28d0ab7a110a50a877c85b698fb3ce5dca8751a45d69288b94630f79378ce4b",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "justification": "The notes state this plainly.",
+          "primary": {
+            "lockType": "rune-cipher",
+            "prompt": "According to your notes, the Moon spins once on its axis in the time it takes to orbit once. This is called tidal ______.",
+            "answer": "locking",
+            "aliases": [],
+            "caseSensitive": false,
+            "evidence": [
+              {
+                "chunkId": "chk_21c60b15f118_5",
+                "quote": "This is called tidal locking."
+              }
+            ],
+            "explanation": "Your notes call this tidal locking.",
+            "hint": null
+          },
+          "alternate": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "ede22df8c01124ea1e9e029544215b7abe28abf0eaa1e65ef0bad26e0a4bbe7d",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "27",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "c485a78f3cc5998c38b481464f7c235f39464d430d7bbae6d04d00074d0c22e6",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "answer": "locking",
+          "optionLabels": null
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    },
+    {
+      "digest": "32e42bb70f88efae4baa8bb335edcd24fb23f08278ce0e20d669c0494b34e0d8",
+      "origin": "synthetic",
+      "response": {
+        "ok": true,
+        "json": {
+          "results": [
+            {
+              "questionId": "q1",
+              "conflict": true,
+              "paragraph": 7,
+              "quote": "One orbit of the Moon around Earth takes about 35 days."
+            },
+            {
+              "questionId": "q2",
+              "conflict": false,
+              "paragraph": null,
+              "quote": null
+            }
+          ]
+        },
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 50
+        }
+      }
+    }
+  ]
+}

@@ -17,7 +17,12 @@ export interface ConceptGenerationOutcome {
   readonly generation: GenerationOutcome;
 }
 
-export type CandidateResult = 'accepted' | 'code-check-rejected' | 'review-rejected' | 'not-reviewed';
+export type CandidateResult =
+  | 'accepted'
+  | 'code-check-rejected'
+  | 'review-rejected'
+  | 'not-reviewed'
+  | 'conflict-rejected';
 
 /** Where an accepted question ended up after room assembly; null for a rejected question. */
 export type Placement =

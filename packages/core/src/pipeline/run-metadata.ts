@@ -9,6 +9,7 @@ export type TimedStage =
   | 'generation'
   | 'code-checks'
   | 'review'
+  | 'conflict-check'
   | 'assembly';
 
 export const TIMED_STAGES: readonly TimedStage[] = [
@@ -17,6 +18,7 @@ export const TIMED_STAGES: readonly TimedStage[] = [
   'generation',
   'code-checks',
   'review',
+  'conflict-check',
   'assembly',
 ];
 
@@ -47,6 +49,18 @@ export interface PipelineRunCounts {
   mapperRejected: number;
   /** Concepts the Leak_Scan removed from the room at assembly. */
   leakDroppedConcepts: number;
+  /** Concepts left out for citing too little source text (sufficiency). */
+  conceptsTooThin: number;
+  /** Concepts counted just before final assembly. */
+  goodConcepts: number;
+  /** Provisional rooms the conflict check reviewed. */
+  conflictRoomsChecked: number;
+  /** Provisional rooms whose conflict check failed. */
+  conflictRoomsUnchecked: number;
+  /** Concepts excluded because the notes conflict on them. */
+  conceptsExcludedByConflict: number;
+  /** Conflict reports dropped because they did not resolve or failed a guard. */
+  conflictReportsIgnored: number;
 }
 
 export function newCounts(): PipelineRunCounts {
@@ -62,6 +76,12 @@ export function newCounts(): PipelineRunCounts {
     discarded: 0,
     mapperRejected: 0,
     leakDroppedConcepts: 0,
+    conceptsTooThin: 0,
+    goodConcepts: 0,
+    conflictRoomsChecked: 0,
+    conflictRoomsUnchecked: 0,
+    conceptsExcludedByConflict: 0,
+    conflictReportsIgnored: 0,
   };
 }
 
@@ -102,7 +122,12 @@ export interface MetadataInput {
   readonly outcomes: RunOutcomes;
 }
 
-const PROVIDER_STAGES: readonly ProviderStage[] = ['concept-extraction', 'generation', 'review'];
+const PROVIDER_STAGES: readonly ProviderStage[] = [
+  'concept-extraction',
+  'generation',
+  'review',
+  'conflict-check',
+];
 
 /** Pure. Copies its inputs so later mutation of the accumulators cannot change the result. */
 export function buildRunMetadata(input: MetadataInput): PipelineRunMetadata {

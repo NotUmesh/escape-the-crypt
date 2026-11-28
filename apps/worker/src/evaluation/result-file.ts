@@ -40,6 +40,15 @@ export const NoteRunSchema = z.strictObject({
   ),
   candidates: z.array(CandidateOutcomeSchema),
   codeCheckRejections: z.record(z.string(), nonNegInt),
+  /** Added with the conflict check. Counts only; older result files parse as zeros. */
+  conflict: z
+    .strictObject({
+      roomsChecked: nonNegInt,
+      roomsUnchecked: nonNegInt,
+      conceptsExcluded: nonNegInt,
+      reportsIgnored: nonNegInt,
+    })
+    .default({ roomsChecked: 0, roomsUnchecked: 0, conceptsExcluded: 0, reportsIgnored: 0 }),
   room: z
     .strictObject({
       slots: z.array(
@@ -69,6 +78,8 @@ export const EvaluationResultSchema = z.strictObject({
   modelId: z.string().min(1),
   temperature: z.number(),
   checkVersion: z.string().min(1),
+  /** Added with the conflict check; older result files parse as off. */
+  conflictCheck: z.boolean().default(false),
   assemblyPolicy: z.strictObject({ promoteAlternates: z.boolean(), dedupeAnswers: z.boolean() }),
   prices: z.strictObject({ inputUsdPerMTok: usd, outputUsdPerMTok: usd }),
   budget: z.strictObject({

@@ -54,8 +54,26 @@ export function parseAllowedLockTypes(
   return { ok: true, value: out };
 }
 
-export function settingsFor(modelId: string, prices: TokenPrices, allowedLockTypes: readonly LockType[] = EVAL_ALLOWED_LOCK_TYPES, length?: RunLength): PipelineSettings {
+export type ConflictCheckError = { readonly kind: 'invalid-conflict-check'; readonly value: string };
+
+/** Parses `--conflict-check on|off`. Absent means off, so replay of the recorded cassettes is unchanged. */
+export function parseConflictCheck(
+  raw: string | undefined,
+): { readonly ok: true; readonly value: boolean } | { readonly ok: false; readonly error: ConflictCheckError } {
+  if (raw === undefined || raw === 'off') return { ok: true, value: false };
+  if (raw === 'on') return { ok: true, value: true };
+  return { ok: false, error: { kind: 'invalid-conflict-check', value: raw } };
+}
+
+export function settingsFor(
+  modelId: string,
+  prices: TokenPrices,
+  allowedLockTypes: readonly LockType[] = EVAL_ALLOWED_LOCK_TYPES,
+  length?: RunLength,
+  conflictCheck = false,
+): PipelineSettings {
   return {
+    conflictCheck,
     ...(length === undefined ? {} : { target: cryptTargetFor(length) }),
     modelId,
     temperature: GENERATION_TEMPERATURE,

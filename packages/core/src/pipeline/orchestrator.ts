@@ -15,7 +15,7 @@ import {
 } from './candidate-outcomes';
 import { runCodeCheckStage } from './code-check-stage';
 import { conceptsForTarget } from './concept-spread';
-import { assembleForTarget } from './crypt-assembly';
+import { runAssemblyPhase } from './orchestrator-conflict';
 import { progressReporter, type PipelineProgress } from './pipeline-progress';
 import { tallyReviews } from './review-tally';
 import { extractConcepts, type ExtractedConcept } from './concept-extraction';
@@ -25,10 +25,10 @@ import {
   type GeneratedConceptQuestions,
   type GenerationOptions,
 } from './generation';
-import { prepareDocument, type PreparedDocument } from './prepare-input';
+import type { PipelineNotices } from './pipeline-notices';
+import { prepareDocument } from './prepare-input';
 import { recordCalls } from './recording-provider';
 import {
-  type AssemblyConcept,
   type AssemblyPolicy,
   type RoomAssemblyError,
   type UnplacedAccepted,
@@ -93,6 +93,8 @@ export interface PipelineResult {
   /** Accepted questions without a room slot. Not in the manifest, not playable. */
   readonly unplacedAccepted: readonly UnplacedAccepted[];
   readonly metadata: PipelineRunMetadata;
+  /** Absent, not empty, when there is nothing to report. */
+  readonly notices?: PipelineNotices;
 }
 
 /** Closed set. Kinds and stage names only: no notes, prompts or model output. */
@@ -112,11 +114,6 @@ interface Candidate {
 
 type Slot<T> = { readonly skipped: true } | { readonly skipped: false; readonly value: T };
 const SKIPPED = { skipped: true } as const;
-
-function manifestIdOf(doc: PreparedDocument): string {
-  for (const chunk of doc.chunks.values()) return `crypt-${chunk.documentDigest.slice(0, 16)}`;
-  return 'crypt-empty';
-}
 
 /**
  * Notes text in, published room out. Stages run in order: prepare, concept extraction,
@@ -269,31 +266,31 @@ export async function runRoomPipeline(
   if (aborted()) return cancelled();
   if (halt.error !== null) return fail(halt.error);
 
-  const assemblyConcepts: AssemblyConcept[] = concepts.map((concept, i) => ({
-    conceptId: concept.conceptId,
-    label: concept.label,
-    primary: accepted[i]?.[0] ?? null,
-    alternate: accepted[i]?.[1] ?? null,
-  }));
   progress.stage('assembling');
-  const assembled = await timed('assembly', () =>
-    assembleForTarget(
-      { manifestId: manifestIdOf(doc), document: doc, concepts: assemblyConcepts, ...(options.assemblyPolicy && { policy: options.assemblyPolicy }) },
-      options.target,
-    ),
-  );
-  if (!assembled.ok) return fail(assembled.error);
-  recordPlacements(outcomes, assembled.value);
-  counts.mapperRejected = assembled.value.mapperRejections.length;
-  counts.leakDroppedConcepts = assembled.value.leakDroppedConceptIds.length;
+  const built = await runAssemblyPhase({
+    doc,
+    concepts,
+    accepted,
+    provider: recorder.provider,
+    options: stageOptions,
+    counts,
+    outcomes,
+    timed,
+  });
+  if (!built.ok) return fail(built.error);
+  const { assembly, notices } = built.value;
+  recordPlacements(outcomes, assembly);
+  counts.mapperRejected = assembly.mapperRejections.length;
+  counts.leakDroppedConcepts = assembly.leakDroppedConceptIds.length;
 
   return {
     ok: true,
     value: {
-      manifest: assembled.value.manifest,
-      content: assembled.value.content,
-      unplacedAccepted: assembled.value.unplacedAccepted,
+      manifest: assembly.manifest,
+      content: assembly.content,
+      unplacedAccepted: assembly.unplacedAccepted,
       metadata: metadata(),
+      ...(notices !== undefined && { notices }),
     },
   };
 }

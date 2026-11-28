@@ -67,6 +67,22 @@
     "42.5 Write property test for the effective set": {
       "status": "passed",
       "lastRunTimestamp": 1795852960883
+    },
+    "44.4 Write property test for the code conflict scan": {
+      "status": "passed",
+      "lastRunTimestamp": 1795856116790
+    },
+    "44.12 Write property test for notices": {
+      "status": "passed",
+      "lastRunTimestamp": 1795856837240
+    },
+    "44.16 Write property tests for the pipeline-level conflict behaviour": {
+      "status": "passed",
+      "lastRunTimestamp": 1795857409516
+    },
+    "44.17 Write the budget and concurrency property test and the unchanged-rules test": {
+      "status": "passed",
+      "lastRunTimestamp": 1795857432403
     }
   },
   "executionHistory": {
@@ -2603,6 +2619,297 @@
         "executionId": "635aae23-f9c4-463c-acc6-83b17faf995a",
         "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
         "timestamp": 1795853918527
+      }
+    ],
+    "44.1 Widen `ProviderStage` and the run metadata (no behaviour)": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795855780188
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795855875311
+      }
+    ],
+    "44.2 Implement `statedAnswerOf`": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795855876027
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856045908
+      }
+    ],
+    "44.3 Implement the code-first conflict scan": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795855876636
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856046636
+      }
+    ],
+    "44.4 Write property test for the code conflict scan": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856047433
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856163185
+      }
+    ],
+    "44.5 Implement the conflict prompt": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856048233
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856162688
+      }
+    ],
+    "44.9 Add the learner-facing copy": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856048846
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856162823
+      }
+    ],
+    "44.6 Implement report resolution in code": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856164225
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856307201
+      }
+    ],
+    "44.7 Write property test for report resolution": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856307344
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856447409
+      }
+    ],
+    "44.8 Implement the per-room model call": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856307862
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856448144
+      }
+    ],
+    "44.10 Implement the conflict stage": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856448465
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856685804
+      }
+    ],
+    "44.11 Add the notices schema and types to core": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856685960
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856778171
+      }
+    ],
+    "44.12 Write property test for notices": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856778268
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857116661
+      }
+    ],
+    "44.13 Wire the conflict stage into the orchestrator": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795856778718
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857116847
+      }
+    ],
+    "44.14 Add `?notices=1` and turn the stage on in the worker": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857117010
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857317836
+      }
+    ],
+    "44.15 Add the `adv-18` synthetic cassette test (`pipeline:conflict-check`)": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857117189
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857318145
+      }
+    ],
+    "44.16 Write property tests for the pipeline-level conflict behaviour": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857319058
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857444561
+      }
+    ],
+    "44.17 Write the budget and concurrency property test and the unchanged-rules test": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857319718
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857445286
+      }
+    ],
+    "44.18 Extend the boundary test to the new pipeline files": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857446089
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857501679
+      }
+    ],
+    "44.19 Wire the conflict check into the evaluation CLI and result file": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857446958
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857501846
+      },
+      {
+        "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857788045
+      },
+      {
+        "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857973730
+      }
+    ],
+    "44.21 Confirm `CHECK_VERSION` is unchanged": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857501963
+      },
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857597553
+      }
+    ],
+    "44.20 Golden contract fixture: write the expected diff, then STOP for the owner": [
+      {
+        "executionId": "281004ec-3b21-4c02-bcaa-7302f7434aac",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857502072
+      },
+      {
+        "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857787949
+      },
+      {
+        "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795857973903
+      },
+      {
+        "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795858210474
+      }
+    ],
+    "44. Phase 6: conflict check": [
+      {
+        "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795858210560
+      }
+    ],
+    "45. Checkpoint - conflict check group": [
+      {
+        "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795858210704
+      },
+      {
+        "executionId": "7af9e0e1-96a7-440d-a000-8664264091e5",
+        "chatSessionId": "sess_a86d89f0-c3db-4243-8986-fa08266de316",
+        "timestamp": 1795859331890
       }
     ]
   }

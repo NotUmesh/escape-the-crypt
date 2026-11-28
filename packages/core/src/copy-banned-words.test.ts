@@ -29,6 +29,13 @@ import {
   SAMPLE_CRYPT_LABEL,
   SAMPLE_CRYPT_LINE,
 } from './copy';
+import {
+  conflictLeftOut,
+  conflictNext,
+  conflictPassage,
+  cryptSetAside,
+  cryptSufficiency,
+} from './copy-conflict';
 import type { Chunk, SourceLocation } from './types';
 
 /** Collects every string reachable from a catalogue value. */
@@ -245,6 +252,20 @@ describe('Property 20: Banned words never appear in labels or copy', () => {
         for (const t of texts) expect(findBanned(t), t).toEqual([]);
       }),
     );
+  });
+
+  /** **Validates: Requirements 8.4, 11.2** */
+  it('has no banned phrase in conflict and crypt-length messages, including plural and empty values', () => {
+    const texts = [
+      conflictLeftOut(''),
+      conflictLeftOut('Tides'),
+      conflictPassage(0),
+      conflictPassage(1),
+      conflictPassage(2),
+      conflictNext,
+      ...[0, 1, 2, 5].flatMap((n) => [cryptSufficiency(n, 3, n, 3), cryptSetAside(n, 3)]),
+    ];
+    for (const t of texts) expect(findBanned(t), t).toEqual([]);
   });
 
   /** **Validates: Requirements 8.4, 11.2** */

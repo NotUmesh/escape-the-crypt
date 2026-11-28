@@ -7,8 +7,11 @@ import {
   JobErrorResponseSchema,
   JobStatusResponseSchema,
   parseCryptBundle,
+  runRoomPipeline,
+  type PipelineResult,
 } from '@escape-the-crypt/core';
 import { makeDeferredScriptedProvider } from './deferred-provider-test-support';
+import type { RunPipeline } from './job-runner';
 import {
   HEART_NOTES,
   HEART_SETTINGS,
@@ -40,6 +43,35 @@ const FIXTURE_PATH = fileURLToPath(
 );
 /** The job id is random per run; the fixture pins this value instead. */
 const FIXTURE_JOB_ID = 'job-contract-1';
+
+type PipelineNotices = NonNullable<PipelineResult['notices']>;
+
+/**
+ * The notice the real pipeline produced for adv-18 (27 days in paragraph 4, 35 days in paragraph 7
+ * of eval/adversarial/notes/adv-01-moon.txt). Chunk IDs are the code-assigned IDs of that notes text.
+ */
+const ADV18_NOTICES: PipelineNotices = {
+  excluded: [
+    {
+      conceptId: 'concept-1',
+      conceptTitle: 'Time for the Moon to orbit Earth',
+      source: 'model',
+      passages: [
+        { chunkId: 'chk_21c60b15f118_3', quote: 'The Moon takes about 27 days to orbit Earth.' },
+        { chunkId: 'chk_21c60b15f118_6', quote: 'One orbit of the Moon around Earth takes about 35 days.' },
+      ],
+    },
+  ],
+  sufficiency: null,
+};
+
+/** Runs the recorded heart pipeline, then attaches the notices. */
+function withNotices(notices: PipelineNotices): RunPipeline {
+  return async (notes, options) => {
+    const result = await runRoomPipeline(notes, options);
+    return result.ok ? { ok: true, value: { ...result.value, notices } } : result;
+  };
+}
 
 const idOf = (r: HttpResult): string => (r.json as { jobId: string }).jobId;
 
@@ -91,11 +123,24 @@ describe('completed job (real pipeline over the recorded cassette)', () => {
     const running = parseStatus(runningRes);
     gate.release();
     expect(running?.status).toBe('running');
+    // Task 44.20 (additive, contractVersion stays 2): the same completed job read with ?notices=1,
+    // carrying the real adv-18 notice. The chunk IDs and quotes are the output of the real
+    // conflict pipeline (core's captureConflictE2e over eval/adversarial/notes/adv-01-moon.txt).
+    const noticed = await startHarness({ runPipeline: withNotices(ADV18_NOTICES) });
+    const noticedId = idOf(await noticed.post(heartBody));
+    await noticed.waitDone(noticedId);
+    const noticedRes = await noticed.request(`/jobs/${noticedId}?notices=1`, { headers: { 'X-Session-Token': TOKEN } });
+    const withNoticesBody = parseStatus(noticedRes);
+    expect(withNoticesBody?.status).toBe('completed');
+    if (withNoticesBody?.status !== 'completed') return;
+    expect(parseCryptBundle(withNoticesBody.bundle).ok).toBe(true);
+    expect(withNoticesBody.bundle.notices).toEqual(ADV18_NOTICES);
     const golden = {
       contractVersion: 2,
       notesText: HEART_NOTES,
       response: { ...body, jobId: FIXTURE_JOB_ID },
       running: { request: 'GET /jobs/:id?progress=1', response: { ...running, jobId: FIXTURE_JOB_ID } },
+      notices: { request: 'GET /jobs/:id?notices=1', response: { ...withNoticesBody, jobId: FIXTURE_JOB_ID } },
     };
     const text = `${JSON.stringify(golden, null, 2)}\n`;
     if (process.env['UPDATE_CONTRACT'] === '1' || !existsSync(FIXTURE_PATH)) {

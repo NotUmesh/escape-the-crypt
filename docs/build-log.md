@@ -282,3 +282,117 @@ Lock types phase 3 checkpoint (samples), clean worktree at 4f1f710, Node 22.23.5
 | web e2e chromium, firefox, pixel (--workers=2) | 262 | 0 | 1 | skip is crypt-hotspots "door too small for placed seals"; sample-escape 9/9 (3 samples x 3 projects, keyboard only) |
 Samples: https and printing-press each place all six lock types across two rooms and a three-seal final door, built through the core mapper. human-heart is unchanged (rune cipher and séance board only): widening it changes the final-door seal count or the room count that tests under apps/web/src/state pin. https.json gained one rune cipher question (hs-q10), so the Phase 1 dataset counts are now 57 questions and 27 rune ciphers.
 Resume: a saved https or printing-press run still returns `record-unreadable` until `restoreRun` in apps/web/src/state/storage picks the sample from the manifest ID (needs the other machine; see the phase 3 report).
+
+## Task 44.20: golden contract fixture, owner step pending
+- State: `apps/worker/src/http/job-contract.test.ts` run without `UPDATE_CONTRACT` passes (6 of 6). `packages/core/src/test-support/contract/job-completed.json` is unmodified (`git status` shows no entry for it). No agent regenerated it (D14).
+- `git pull --rebase` was refused because the working tree holds uncommitted work. `git fetch` then showed no commits on `origin/main` beyond `HEAD` (`git log HEAD..origin/main` is empty), so there was nothing to rebase.
+- The test does not cover `?notices=1` today. The fixture has `contractVersion`, `notesText`, `response` and `running`. Running the update command alone changes nothing, because the test never produces a notices case. **The owner must first add the case to the test (draft below, not applied), then run the update.**
+- Expected diff the owner will see in `job-completed.json`: one new top-level key, `withNotices`, holding a completed body requested with `?notices=1`. `contractVersion`, `notesText`, `response` and `running` stay exactly as they are. Whether to bump `contractVersion` from 2 is the owner's call; the field is additive and optional, so the draft leaves it at 2.
+- Shape, from `packages/core/src/job-api/job-response-schema.ts` (strict objects): `bundle.notices = { excluded: ExcludedConcept[], sufficiency: SufficiencyNotice | null }`. `ExcludedConcept` is `{ conceptId, conceptTitle, source: 'code' | 'model', passages: [Passage, Passage] }` and `Passage` is `{ chunkId, quote }`. `sufficiency` is nullable, not optional: when there is no sufficiency notice the server sends `"sufficiency": null`, and the key is present. The whole `notices` key is absent when the client did not ask or the job has none (`routes-jobs.ts`, `jobBody`).
+- Example of the new case (the `manifest`, `content` and `unplacedAccepted` values are the same as in `response`, abbreviated here):
+
+```json
+"withNotices": {
+  "request": "GET /jobs/:id?notices=1",
+  "response": {
+    "jobId": "job-contract-1",
+    "status": "completed",
+    "bundle": {
+      "manifest": { "...": "same as response.bundle.manifest" },
+      "content": { "...": "same as response.bundle.content" },
+      "unplacedAccepted": [],
+      "notices": {
+        "excluded": [
+          {
+            "conceptId": "c1",
+            "conceptTitle": "Valves",
+            "source": "code",
+            "passages": [
+              { "chunkId": "k1", "quote": "one" },
+              { "chunkId": "k2", "quote": "two" }
+            ]
+          }
+        ],
+        "sufficiency": null
+      }
+    }
+  }
+}
+```
+
+  The `unplacedAccepted` value is whatever the recorded heart run yields; copy it from `response`. The chunk ids and quotes above are placeholders from `server-notices.test.ts`; the owner may prefer real heart-notes chunk ids and quotes so the web's quote check can resolve them.
+- Owner command (the package is `@escape-the-crypt/worker`; the test writes the fixture only when `UPDATE_CONTRACT=1` or the file is missing):
+
+```
+UPDATE_CONTRACT=1 pnpm --filter ./apps/worker exec vitest --run job-contract
+```
+
+  Equivalent: `pnpm --filter @escape-the-crypt/worker exec vitest --run job-contract` with the same variable set. On PowerShell: `$env:UPDATE_CONTRACT='1'; pnpm --filter ./apps/worker exec vitest --run job-contract; Remove-Item Env:UPDATE_CONTRACT`. Then review the diff, commit.
+- Draft test addition (NOT applied). It goes in `job-contract.test.ts`, in the first test, after `gate.release()` and before `const golden`. It needs `import { runRoomPipeline, type PipelineResult } from '@escape-the-crypt/core';` (extend the existing core import) and `import type { RunPipeline } from './job-runner';`:
+
+```ts
+    // Notices (Phase 6): a completed body for a client that asks with ?notices=1.
+    const NOTICES: NonNullable<PipelineResult['notices']> = {
+      excluded: [
+        {
+          conceptId: 'c1',
+          conceptTitle: 'Valves',
+          source: 'code',
+          passages: [
+            { chunkId: 'k1', quote: 'one' },
+            { chunkId: 'k2', quote: 'two' },
+          ],
+        },
+      ],
+      sufficiency: null,
+    };
+    const withNotices: RunPipeline = async (notes, options) => {
+      const result = await runRoomPipeline(notes, options);
+      return result.ok ? { ok: true, value: { ...result.value, notices: NOTICES } } : result;
+    };
+    const noticing = await startHarness({ runPipeline: withNotices });
+    const noticingId = idOf(await noticing.post(heartBody));
+    await noticing.waitDone(noticingId);
+    const noticingRes = await noticing.request(`/jobs/${noticingId}?notices=1`, { headers: { 'X-Session-Token': TOKEN } });
+    const noticed = parseStatus(noticingRes);
+    expect(noticed?.status).toBe('completed');
+    // ...and in `golden`, after `running`:
+    //   withNotices: { request: 'GET /jobs/:id?notices=1', response: { ...noticed, jobId: FIXTURE_JOB_ID } },
+```
+
+  The test must compare the new case against the committed file the same way the existing two are compared (the final `toEqual` already covers the whole `golden` object). Also update the comment above `FIXTURE_PATH` only if the owner wants to mention the new case. The web's contract test should then read `withNotices` and parse it with the strict schema.
+- This task stops here. The owner step is pending; nothing past it was done.
+
+## Task 44.21: `CHECK_VERSION` unchanged in Phase 6
+- `CHECK_VERSION` is `'2026-11-27.5'` in `packages/core/src/checks/registry.ts:4`, unchanged.
+- `git status` and `git diff` over `packages/core/src/checks/` show no change. Over `packages/core/src/locks/` they show only: `lock-types.test.ts` (modified, 1 line), and the new `answer-statement.ts` and `answer-statement.test.ts`. None of the six per-type files (`rune-cipher`, `seance-board`, `bone-ordering`, `bound-threads`, `cursed-object`, `combination-dial`) changed. The last commits touching `checks/` or `locks/` are from before Phase 6.
+- The only `checkVersion` lines in the uncommitted diff are two removed `checkVersion: CHECK_VERSION,` lines in pipeline files outside `checks/` and `locks/`; the constant's value did not change. No cassette file was touched by this task, so no bump and no cassette edit were needed.
+
+## Task 44.20: contract change (deliberate), contractVersion stays 2
+- New optional `notices` object in the completed bundle, sent only behind `?notices=1`. `contractVersion` stays 2 because the field is additive and optional behind a query: old clients never see it, and the web test (`apps/web/src/features/generate/job-contract.test.tsx` line 94) pins 2. The user decided this.
+- Third fixture case in `packages/core/src/test-support/contract/job-completed.json`, top-level key `notices` (the 44.20 note above suggested `withNotices`; the key actually written is `notices`, with `request: "GET /jobs/:id?notices=1"`). Its response is the real worker body for the heart notes with one excluded concept, "Time for the Moon to orbit Earth" (source `model`, `conceptId` `concept-1`), and the two passages from adv-18 over `eval/adversarial/notes/adv-01-moon.txt`: `chk_21c60b15f118_3` "The Moon takes about 27 days to orbit Earth." (paragraph 4) and `chk_21c60b15f118_6` "One orbit of the Moon around Earth takes about 35 days." (paragraph 7).
+- How the content is real: the ids and quotes were printed from a run of core's `captureConflictE2e()` (the real pipeline over the adv-18 cassette scenario) and pasted into `ADV18_NOTICES` in `apps/worker/src/http/job-contract.test.ts`. The case is built like the others: the real worker server answers `GET /jobs/:id?notices=1` for a job whose pipeline is the recorded heart pipeline with those notices attached (same wrapper as `server-notices.test.ts`). The bundle's rooms are therefore the heart crypt, not the moon crypt; only the notice is from adv-18.
+- Commands: `$env:UPDATE_CONTRACT='1'; pnpm --filter @escape-the-crypt/worker exec vitest --run job-contract --maxWorkers=50%; Remove-Item Env:UPDATE_CONTRACT` (once), then the same without the variable (6 passed). Web check, read-only: `pnpm exec vitest run src/features/generate/job-contract.test.tsx --maxWorkers=50%` in `apps/web` (3 passed).
+- Diff summary for `job-completed.json`: 253 insertions, 0 deletions, one hunk at line 245 (the new `notices` key at the end). `contractVersion` unchanged at 2; `response` and `running` untouched.
+- Also in this task: `conflict-stage.test.ts` gained a call-order test (the first provisional `assemble` call already lacks the code-excluded concepts, so the code scan ran first). `Passage.quote` stays `string` in `conflict-stage.ts`: the schema's non-empty rule would need a branded type, which ripples through `conflict-code.ts` and `conflict-report.ts`.
+- Resolved: done by the agent with the user's authorisation
+## Checkpoint 45: conflict check group (full table, including e2e)
+Run on 2026-11-28 over the working tree. HEAD was 60bb6ba at the start; during the checkpoint, other chats pushed 39757c6, 6f53ad5 and 957fd43, which were pulled with `--autostash`. Commands were run with `--maxWorkers=50%` (Vitest) and `--workers=2` (Playwright). Port 4173 was free before e2e.
+
+| Check | Result |
+|---|---|
+| `tsc --noEmit` packages/core | pass |
+| `tsc --noEmit` apps/worker | pass (re-run after 957fd43: pass) |
+| `tsc --noEmit` apps/web | pass |
+| `pnpm lint` (ESLint + structure) | first run: ESLint fail, 2 errors (`_c`, `_n` unused) in `apps/worker/src/evaluation/result-file.test.ts` (Phase 6, fixed); structure check run alone: passed. After the fix: pass |
+| vitest packages/core | first run: 1 failed / 1690 passed. `no-eval-results-writes.test.ts` flagged the literal results-folder path in a test title in `result-file.test.ts` (Phase 6, title reworded). After: 198 files, 1691 passed, 0 failed, 0 skipped |
+| vitest apps/worker | 37 files, 447 passed, 0 failed, 0 skipped; after 957fd43: 38 files, 465 passed |
+| vitest apps/web | 172 files, 1364 passed, 0 failed, 0 skipped |
+| worker build | pass (`dist/index.js` 1.9 MB) |
+| e2e (`--workers=2`) | full run: 253 passed, 9 failed, 1 skipped. Eight failures were `net::ERR_CONNECTION_REFUSED` at localhost:4173 (the preview server dropped mid-run); one was a 30 s wait for `descent-gate` (most likely `judge-access.e2e.ts`; the log was not kept to confirm). `--last-failed` re-run: 9 passed, 0 failed. None of the failing specs are Phase 6 files. |
+
+- Cassette e2e (`e2e-pipeline`, `bone-ordering-e2e`, `bound-threads-e2e`, `combination-dial-e2e`, `cursed-object-e2e`, `e2e-cassette-digest`, `conflict-check-e2e`): 7 files, 26 passed. No digest or test edits. `git diff --stat` over `test-support/cassettes` is empty; the only new file is the untracked `conflict-check-e2e.json`.
+- `git diff --numstat` over `test-support/contract`: `job-completed.json` 253 insertions, 0 deletions (the additive 44.20 `notices` case only). Not regenerated in this checkpoint.
+- `CHECK_VERSION` is `'2026-11-27.5'` (`packages/core/src/checks/registry.ts:4`).
+- Structure check passed: every source file is within the limit. The longest Phase 6 source files are `orchestrator.ts` (296 lines), `copy-banned-words.test.ts` (280), `cli.test.ts` (268), `boundary.test.ts` (255) and `conflict-stage.test.ts` (253).
+- Paid re-record with `--conflict-check on`: the command was given to the user and not run.

@@ -91,6 +91,9 @@ export async function runJob(deps: JobRunnerDeps, job: Job): Promise<void> {
         accepted: counts.accepted,
         discarded: counts.discarded,
         calls: result.value.metadata.calls.length,
+        conflictRoomsChecked: counts.conflictRoomsChecked,
+        conflictRoomsUnchecked: counts.conflictRoomsUnchecked,
+        conceptsExcludedByConflict: counts.conceptsExcludedByConflict,
       });
       return;
     }

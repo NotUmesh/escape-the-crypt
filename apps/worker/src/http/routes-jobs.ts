@@ -145,11 +145,13 @@ export async function handleCreateJob(
  * The status body. `progress` is added to a running job only when the client asked for it: a client
  * built before progress existed parses `running` strictly and would refuse the extra field.
  */
-function jobBody(job: Job, progress: PipelineProgress | undefined): JobStatusResponse {
+function jobBody(job: Job, progress: PipelineProgress | undefined, wantsNotices: boolean): JobStatusResponse {
   if (job.status === 'running' && progress !== undefined) return { jobId: job.id, status: 'running', progress };
   if (job.status === 'completed' && job.result !== null) {
-    const { manifest, content, unplacedAccepted } = job.result;
-    return { jobId: job.id, status: 'completed', bundle: { manifest, content, unplacedAccepted } };
+    const { manifest, content, unplacedAccepted, notices } = job.result;
+    // `notices` only for a client that asked (`?notices=1`) and only when there are some.
+    const withNotices = wantsNotices && notices !== undefined ? { notices } : {};
+    return { jobId: job.id, status: 'completed', bundle: { manifest, content, unplacedAccepted, ...withNotices } };
   }
   if (job.status === 'failed' || job.status === 'cancelled') {
     const kind = job.failure ?? (job.status === 'cancelled' ? 'cancelled' : 'generation-failed');
@@ -163,8 +165,14 @@ function jobBody(job: Job, progress: PipelineProgress | undefined): JobStatusRes
   }
   return { jobId: job.id, status: job.status };
 }
-function viewBody(view: JobView, progressOf: (jobId: string) => PipelineProgress | undefined): JobStatusResponse {
-  return view.kind === 'expired' ? { jobId: view.jobId, status: 'expired' } : jobBody(view.job, progressOf(view.job.id));
+function viewBody(
+  view: JobView,
+  progressOf: (jobId: string) => PipelineProgress | undefined,
+  wantsNotices: boolean,
+): JobStatusResponse {
+  return view.kind === 'expired'
+    ? { jobId: view.jobId, status: 'expired' }
+    : jobBody(view.job, progressOf(view.job.id), wantsNotices);
 }
 
 export function handleGetJob(
@@ -181,8 +189,10 @@ export function handleGetJob(
   const id = rawId.length > MAX_JOB_ID_LENGTH ? null : rawId;
   const view = id === null ? null : store.get(id, token);
   if (view === null) return sendNotFound(res, outcome);
-  const wantsProgress = new URL(req.url ?? '/', 'http://worker').searchParams.get('progress') === '1';
-  sendJson(res, outcome, 200, viewBody(view, (jobId) => (wantsProgress ? progress?.get(jobId) : undefined)));
+  const query = new URL(req.url ?? '/', 'http://worker').searchParams;
+  const wantsProgress = query.get('progress') === '1';
+  const wantsNotices = query.get('notices') === '1';
+  sendJson(res, outcome, 200, viewBody(view, (jobId) => (wantsProgress ? progress?.get(jobId) : undefined), wantsNotices));
 }
 
 /**

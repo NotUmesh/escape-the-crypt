@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EVAL_ALLOWED_LOCK_TYPES } from '../config';
-import { main, parseAllowedLockTypes, settingsFor, type Io } from './cli';
+import { main, parseAllowedLockTypes, parseConflictCheck, settingsFor, type Io } from './cli';
 import { DEV_CASSETTES_DIR, DEV_GEMINI_CASSETTES_DIR, DEV_NOTES_DIR, RESULTS_DIR, evaluationPaths } from './paths';
 
 const roots: string[] = [];
@@ -159,6 +159,64 @@ describe('evaluation CLI', () => {
     expect(out.lines.some((l) => l.includes('dev-01-x.txt: failed'))).toBe(true);
   });
 });
+describe('--conflict-check', () => {
+  const PRICES = { inputUsdPerMTok: 0, outputUsdPerMTok: 0 };
+  it('parses on and off, and defaults to off', () => {
+    expect(parseConflictCheck(undefined)).toEqual({ ok: true, value: false });
+    expect(parseConflictCheck('off')).toEqual({ ok: true, value: false });
+    expect(parseConflictCheck('on')).toEqual({ ok: true, value: true });
+  });
+  it('returns a typed error for any other value, including a bare flag', () => {
+    expect(parseConflictCheck('yes')).toEqual({ ok: false, error: { kind: 'invalid-conflict-check', value: 'yes' } });
+    expect(parseConflictCheck('true')).toEqual({ ok: false, error: { kind: 'invalid-conflict-check', value: 'true' } });
+  });
+  it('settingsFor passes it into the pipeline settings, off by default', () => {
+    expect(settingsFor('m', PRICES).conflictCheck).toBe(false);
+    expect(settingsFor('m', PRICES, EVAL_ALLOWED_LOCK_TYPES, undefined, true).conflictCheck).toBe(true);
+  });
+  it('record and replay reject an invalid value with exit 1 before any call', async () => {
+    for (const argv of [[...RECORD, '--conflict-check', 'maybe'], ['replay', '--model', 'm', '--conflict-check', 'maybe']]) {
+      const out = io();
+      expect(await main(argv, { OPENAI_API_KEY: 'k' }, fakeRepo(), out)).toBe(1);
+      expect(out.lines[0]).toBe('Unknown --conflict-check value "maybe"; use on or off. Nothing was called.');
+    }
+  });
+  it('record accepts on and off and moves on to the key check; replay accepts both', async () => {
+    for (const value of ['on', 'off']) {
+      const out = io();
+      expect(await main([...RECORD, '--conflict-check', value], {}, fakeRepo(), out)).toBe(1);
+      expect(out.lines).toEqual(['OPENAI_API_KEY is not set in this shell. Nothing was called.']);
+      expect(await main(['replay', '--model', 'm', '--conflict-check', value], {}, fakeRepo(), io())).toBe(0);
+    }
+  });
+  it('replay with the default off reproduces the recorded dev-01 digests, same as an explicit off', async () => {
+    const realRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
+    const digests = async (extra: readonly string[]): Promise<string[]> => {
+      const out = io();
+      expect(await main(['replay', '--model', 'gpt-5.4-mini', '--only', 'dev-01', ...extra], {}, realRoot, out)).toBe(0);
+      const json = out.lines.find((l) => l.startsWith('{')) ?? '{}';
+      return (JSON.parse(json) as { notes: { promptDigests: string[]; liveCalls: number }[] }).notes[0]?.promptDigests ?? [];
+    };
+    const cassette = JSON.parse(readFileSync(join(realRoot, 'packages/core/src/test-support/cassettes/dev/dev-01-vaccines.json'), 'utf8')) as { entries: { digest: string }[] };
+    const recorded = new Set(cassette.entries.map((e) => e.digest));
+    const byDefault = await digests([]);
+    expect(byDefault.length).toBeGreaterThan(0);
+    expect(byDefault.every((d) => recorded.has(d))).toBe(true);
+    expect(await digests(['--conflict-check', 'off'])).toEqual(byDefault);
+  });
+  it('is not changed by DISABLED_LOCK_TYPES', () => {
+    const saved = process.env['DISABLED_LOCK_TYPES'];
+    process.env['DISABLED_LOCK_TYPES'] = 'rune-cipher';
+    try {
+      expect(parseConflictCheck(undefined)).toEqual({ ok: true, value: false });
+      expect(settingsFor('m', PRICES).conflictCheck).toBe(false);
+    } finally {
+      if (saved === undefined) delete process.env['DISABLED_LOCK_TYPES'];
+      else process.env['DISABLED_LOCK_TYPES'] = saved;
+    }
+  });
+});
+
 describe('evaluation CLI ignores DISABLED_LOCK_TYPES', () => {
   const PRICES = { inputUsdPerMTok: 0.75, outputUsdPerMTok: 4.5 };
   /** Loads a fresh cli (and config) module graph with the variable set, then restores the shell value. */

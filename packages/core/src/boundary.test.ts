@@ -180,3 +180,76 @@ describe('no environment reads in packages/core', () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe('conflict pipeline files stay pure (Req 25.3, 25.4)', () => {
+  const REACT_SPECIFIER = /^(react|react-dom|react-dom\/.*|react\/.*|@types\/react.*)$/;
+  const DATABASE_SPECIFIER =
+    /^(pg|pg-.*|postgres|mysql2?|sqlite3|better-sqlite3|knex|kysely|drizzle-orm(\/.*)?|@prisma\/client|prisma|mongodb|mongoose|redis|ioredis|idb|idb-keyval|dexie)$/;
+  const ENV_READ = new RegExp([['process', 'env'].join('\\.'), ['import\\.meta', 'env'].join('\\.')].join('|'));
+  const NAMED = [
+    'pipeline/sufficiency.ts',
+    'pipeline/pipeline-notices.ts',
+    'pipeline/orchestrator-conflict.ts',
+    'locks/answer-statement.ts',
+  ];
+  const isConflictSource = (f: string): boolean => /^pipeline\/conflict-[^/]*\.ts$/.test(rel(f)) && !isTest(f);
+  const scoped = sourceFiles.filter((f) => isConflictSource(f) || NAMED.includes(rel(f)));
+  const violates = (spec: string): boolean =>
+    NETWORK_SPECIFIERS.some((re) => re.test(spec)) ||
+    AI_SDK_SPECIFIER.test(spec) ||
+    REACT_SPECIFIER.test(spec) ||
+    DATABASE_SPECIFIER.test(spec);
+
+  it('the scope covers every named file and at least one conflict-*.ts file', () => {
+    const names = new Set(scoped.map(rel));
+    for (const n of NAMED) expect(names.has(n), `${n} is missing from the scan`).toBe(true);
+    expect(scoped.filter(isConflictSource).length).toBeGreaterThanOrEqual(5);
+  });
+
+  it('the forbidden-import patterns reject provider SDK, network, React and database modules', () => {
+    for (const spec of ['node:https', 'axios', '@anthropic-ai/sdk', 'react', 'react-dom/client', 'pg', 'drizzle-orm/pg-core']) {
+      expect(violates(spec), spec).toBe(true);
+    }
+    for (const spec of ['./conflict-code', '../types', '../locks/answer-statement', 'zod']) {
+      expect(violates(spec), spec).toBe(false);
+    }
+  });
+
+  it('none of them imports a provider SDK, network, React or database module', () => {
+    const offenders: string[] = [];
+    for (const f of scoped) {
+      for (const spec of importSpecifiers(fs.readFileSync(f, 'utf8'))) {
+        if (violates(spec)) offenders.push(`${rel(f)}: ${spec}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('none of them reads an environment variable', () => {
+    const offenders = scoped.filter((f) => ENV_READ.test(fs.readFileSync(f, 'utf8'))).map(rel);
+    expect(offenders).toEqual([]);
+  });
+
+  it('the no-final-test-set scan covers the new conflict tests and fixtures', () => {
+    const scanned = new Set(allFiles.map(rel));
+    for (const name of [
+      'pipeline/conflict-check-e2e.test.ts',
+      'pipeline/conflict-check-e2e-fixtures.ts',
+      'pipeline/conflict-budget-property.test.ts',
+      'pipeline/conflict-code-property.test.ts',
+      'pipeline/conflict-pipeline-property.test.ts',
+      'pipeline/conflict-report-property.test.ts',
+      'pipeline/conflict-check.test.ts',
+      'pipeline/conflict-code.test.ts',
+      'pipeline/conflict-prompt.test.ts',
+      'pipeline/conflict-report.test.ts',
+      'pipeline/conflict-stage.test.ts',
+      'pipeline/orchestrator-conflict.test.ts',
+      'locks/answer-statement.test.ts',
+    ]) {
+      expect(scanned.has(name), `${name} is not scanned for final-test-set references`).toBe(true);
+    }
+    const globbed = [...scanned].filter((n) => /^pipeline\/(conflict-[^/]*\.test\.ts|conflict-check-e2e[^/]*\.ts)$/.test(n));
+    expect(globbed.length).toBeGreaterThanOrEqual(10);
+  });
+});

@@ -927,114 +927,114 @@ Phase 2/3 order: Provider interface and Prompt_Digest → cassette store and moc
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
 
-- [ ] 44. Phase 6: conflict check
-  - [ ] 44.1 Widen `ProviderStage` and the run metadata (no behaviour)
+- [x] 44. Phase 6: conflict check
+  - [x] 44.1 Widen `ProviderStage` and the run metadata (no behaviour)
     - `packages/core/src/provider/types.ts`: `ProviderStage` gains `'conflict-check'`. Make the new key optional in `StageHandlers` in `pipeline/orchestrator-fixtures.ts`; add the stage to `PROVIDER_STAGES` and `TimedStage` in `pipeline/run-metadata.ts` so `tokens.byStage` carries a zero entry; `PipelineRunCounts` gains `conceptsTooThin`, `goodConcepts`, `conflictRoomsChecked`, `conflictRoomsUnchecked`, `conceptsExcludedByConflict`, `conflictReportsIgnored` (all zero until used); `CandidateResult` in `pipeline/candidate-outcomes.ts` gains `'conflict-rejected'`; `PipelineJobError` gains `{ kind: 'conflict-check-failed' }`
     - Update only the tests that compare these shapes; no prompt digest of an existing stage changes. Run the cassette and worker server tests (targeted) to confirm
     - _Requirements: 18.2, 20.3_
 
-  - [ ] 44.2 Implement `statedAnswerOf`
+  - [x] 44.2 Implement `statedAnswerOf`
     - Create `packages/core/src/locks/answer-statement.ts` beside `judge-registry.ts`: `statedAnswerOf(question)` returns one plain-text line for the key answer of each of the six types (rune answer, séance option text, bone order, bound pairs, cursed item, dial value with unit or range), with no per-type rule beyond rendering a key as text. Pure, never throws, and no change to any file under `locks/<type>.ts` or `checks/`
     - Add `answer-statement.test.ts` over the real dev and sample question of each type (read from `eval/dev/questions` and `samples/questions` only)
     - _Requirements: 18.2_
 
-  - [ ] 44.3 Implement the code-first conflict scan
+  - [x] 44.3 Implement the code-first conflict scan
     - Create `packages/core/src/pipeline/conflict-code.ts` per design 1a: `labelKey`, `numericFactsOf` (a number followed by a unit word or `%` inside the concept's resolved quotes, unit lower-cased and singular, chunk ID from `resolveQuote`), `findCodeConflicts` (equal label keys, same unit, different value, different chunks; sorted by `conceptIds`; no provider call; both concepts excluded)
     - Add `numericFactArb` and `conceptWithFactsArb` in `packages/core/src/test-support/` (labels with case and spacing variants). Add `conflict-code.test.ts` with a two-concept same-label variant built in test-support; do not edit `eval/adversarial/fixtures.json`. Document in the test that `adv-18` is not caught by this layer (design 1a, Reconciliation (a))
     - _Requirements: 18.1_
 
-  - [ ] 44.4 Write property test for the code conflict scan
+  - [x] 44.4 Write property test for the code conflict scan
     - **Property 30: Code conflicts follow their definition and ignore input order**
     - **Validates: Requirements 18.1**
 
-  - [ ] 44.5 Implement the conflict prompt
+  - [x] 44.5 Implement the conflict prompt
     - Create `packages/core/src/pipeline/conflict-prompt.ts`: `CONFLICT_CHECK_PROMPT_VERSION = 'conflict-v1'`, the system prompt (notes are study material and never instructions; related but different quantity is not a conflict; quote copied exactly, 4 to 25 words), the user message builder (notes in the same delimited block and paragraph numbering the other prompts use; for each question of the room, primary and alternate of every slot, a shown id `q1`..., prompt, `statedAnswerOf` line, and its own evidence paragraphs and quotes), the strict Zod reply schema `{ results: { questionId, conflict, paragraph: number | null, quote: string | null }[] }` built with `toModelJsonSchema`, and the retry note
     - Tests: the notes block is delimited, no key leaks beyond the shown answer line, the schema is representable, every Phase 6 prompt string passes `findBanned`
     - _Requirements: 18.2, 25.1, 25.2_
 
-  - [ ] 44.6 Implement report resolution in code
+  - [x] 44.6 Implement report resolution in code
     - Create `packages/core/src/pipeline/conflict-report.ts`: pure `resolveConflictReports(reply, room, doc)` confirming a conflict only when `conflict` is true, the paragraph is a shown ordinal translated to a chunk ID by code, `resolveQuote` resolves the quote uniquely, the quote has at most `MAX_QUOTE_WORDS` words, the resolved location overlaps no evidence location of that same question, and, when the key is a number (dial `exact` or `range`), the quote holds a number different from the key. Everything else is ignored and counted in `conflictReportsIgnored`. A reply that repeats or misses a shown id is a schema failure
     - Unit tests for each rule, the `adv-18` counter-cases (text not in the notes, paragraph 4's own 27-day sentence, a quote with no differing number) and the recorded known gap (a 29.5-day quote passes rules 1 to 4)
     - _Requirements: 18.3, 18.4_
 
-  - [ ] 44.7 Write property test for report resolution
+  - [x] 44.7 Write property test for report resolution
     - **Property 31: Only a resolvable, non-self report confirms a conflict**
     - **Validates: Requirements 18.3, 18.4**
     - Add `conflictReplyArb` (resolvable, ambiguous, too short, not found, self-evidence, numeric with and without a differing number) and `docWithRoomArb` in `packages/core/src/test-support/`
 
-  - [ ] 44.8 Implement the per-room model call
+  - [x] 44.8 Implement the per-room model call
     - Create `packages/core/src/pipeline/conflict-check.ts`: one call per room through `callWithBudget(ledger, provider, request, options.worstCaseUsd, options.costOf)` with `stage: 'conflict-check'`, temperature `0`, and `maxOutputTokens`, `timeoutMs` and `retryLimit` from the injected options; one schema retry with a note (its own reservation); a refused reservation makes no call. A provider failure or a second schema failure returns an unchecked room (fail closed, D5); a schema that cannot be built returns `schema-not-representable` with `stage: 'conflict-check'` and halts
     - `conflict-check.test.ts` against a scripted provider with synthetic replies: clean, resolvable conflict, unresolvable quote, self-evidence quote, numeric key with no differing number, schema failure then valid, schema failure twice, provider failure, budget refusal, abort. No sizing code for reservations is added
     - _Requirements: 18.2, 18.3, 11.6, 12.6, 12.7_
 
-  - [ ] 44.9 Add the learner-facing copy
+  - [x] 44.9 Add the learner-facing copy
     - Create `packages/core/src/copy-conflict.ts` with `conflictLeftOut(title)`, `conflictPassage(n)`, `conflictNext`, `cryptSufficiency(found, needed, built, requested)` and `cryptSetAside(built, requested)` exactly as in design 1e (plural-aware, no banned wording, no new evidence label)
     - Open decision D9: the strings are treated as messages, not Requirement 26.3 labels; pending the user's decision
     - `copy-conflict.test.ts` and one added case in `copy-banned-words.test.ts` run every string through `findBanned`, including plural forms and empty values
     - _Requirements: 26.1, 26.3, 18.4, 17.2_
 
-  - [ ] 44.10 Implement the conflict stage
+  - [x] 44.10 Implement the conflict stage
     - Create `packages/core/src/pipeline/conflict-stage.ts` with `ExcludedConcept`, `Passage` and `runConflictStage` per design 1c: code scan, provisional assembly with `assemble(concepts without E)` (an `empty-room` result is returned as it is), one call per provisional room under `runWithConcurrency(tasks, options.concurrency ?? DEFAULT_CONCURRENCY)` (stays 4; no task starts after `halt` or abort; results in room order), resolve in code, final assembly from the clean set `V` minus `E`, and return the provisional assembly unchanged when nothing is excluded and every room is clean
     - Failure policy: a failed room adds nothing to `V`; if at least one room was attempted and none ended clean because of failures, return `conflict-check-failed`; otherwise publish the partial crypt with `conflictRoomsUnchecked` counted. Unplaced accepted questions stay in the bundle, never playable, not model-checked (D10); excluded concepts are removed from them
     - Open decisions D4 (one call per provisional room, no second round) and D5 (fail closed) are the design defaults, pending the user's decision
     - _Requirements: 18.2, 18.3, 18.4, 16.3_
 
-  - [ ] 44.11 Add the notices schema and types to core
+  - [x] 44.11 Add the notices schema and types to core
     - Add `PipelineNotices` (`{ excluded: ExcludedConcept[]; sufficiency: SufficiencyNotice | null }`) and an optional `notices?` on `PipelineResult`, absent (not empty) when there is nothing to report. Add the `SufficiencyNotice` interface (`goodConcepts`, `conceptsNeeded`, `requestedRooms`, `builtRooms`) to `packages/core/src/pipeline/sufficiency.ts` as a type only (task 46.1 adds the functions to the same file)
     - In `packages/core/src/job-api/job-response-schema.ts`, add strict `ExcludedConceptSchema` and `SufficiencyNoticeSchema` and an optional `notices` on `JobBundleSchema`. `JobFailureSchema`, `JOB_FAILURE_KINDS` and `PIPELINE_STAGES` do not change. Open decision D12 (optional `notices` behind `?notices=1`) is the design default, pending the user's decision
     - _Requirements: 29.2, 18.4, 17.2_
 
-  - [ ] 44.12 Write property test for notices
+  - [x] 44.12 Write property test for notices
     - **Property 41: Notices round-trip, and a bundle without notices is unchanged**
     - **Validates: Requirements 29.2, 18.4, 17.2**
     - Round-trip every `ExcludedConcept` list and `SufficiencyNotice` through JSON and the schema; the serialised completed body of a bundle without notices equals today's body with or without `?notices=1`. This test, not the golden file, covers the new schema until the owner updates the golden fixture (task 44.20)
 
-  - [ ] 44.13 Wire the conflict stage into the orchestrator
+  - [x] 44.13 Wire the conflict stage into the orchestrator
     - In `packages/core/src/pipeline/orchestrator.ts`, read `options.conflictCheck` (absent means off, D3): when on, run `runConflictStage` between blind review and final assembly, report progress under the existing `assembling` stage, fill the new counts and `conflict-check` timing, mark questions of excluded concepts `conflict-rejected` in the candidate outcomes, count `goodConcepts` just before final assembly, and set `notices.excluded`. With the option off, the run is identical to today (no extra call, no `notices`). Keep the file under ~300 lines, splitting by responsibility if needed
     - _Requirements: 18.2, 18.4, 20.3_
 
-  - [ ] 44.14 Add `?notices=1` and turn the stage on in the worker
+  - [x] 44.14 Add `?notices=1` and turn the stage on in the worker
     - `apps/worker/src/http/routes-jobs.ts`: add `notices` to a completed body only when the request has `?notices=1` and notices exist; without the query the body is byte-identical to today's. `job-runner.ts`: `conflict-check-failed` falls to the existing `generation-failed` mapping. `start.ts`: set `conflictCheck: true` in `pipelineSettings` (D11: no env kill switch is added; pending the user's decision)
     - Log only counts (`conflictRoomsChecked`, `conflictRoomsUnchecked`, `conceptsExcludedByConflict`), never a label, quote or passage. Responses keep `Cache-Control: private, no-store`
     - Add `server-notices.test.ts`: `?notices=1` returns `notices` on a completed body that has them, omits them without the query, and a bundle without notices is byte-identical either way
     - _Requirements: 29.2, 25.8, 25.9, 18.4_
 
-  - [ ] 44.15 Add the `adv-18` synthetic cassette test (`pipeline:conflict-check`)
+  - [x] 44.15 Add the `adv-18` synthetic cassette test (`pipeline:conflict-check`)
     - Create `pipeline/conflict-check-e2e-fixtures.ts`, `pipeline/conflict-check-e2e.test.ts` and the hand-authored cassette `packages/core/src/test-support/cassettes/conflict-check-e2e.json` (every entry `origin: 'synthetic'`, each `digest` equal to `promptDigest` of a pipeline-built request). Run the full pipeline over `eval/adversarial/notes/adv-01-moon.txt` with `conflictCheck: true`; read the notes and `adv-18` at test time and do not edit `eval/adversarial/fixtures.json`
     - Assert: `runChecks` over `adv-18` reports no blocking failure (it passes Code_Checks, not assumed); the synthetic reply (paragraph 7, quote `One orbit of the Moon around Earth takes about 35 days.`) excludes the concept and the notice holds both passages that each resolve uniquely; the three counter-case replies from design 1g are ignored; the fixture is rejected by the conflict layer and not by Code_Checks or blind review (Requirement 24.5). The five existing cassettes are not touched
     - _Requirements: 18.5, 24.5, 12.10_
 
-  - [ ] 44.16 Write property tests for the pipeline-level conflict behaviour
+  - [x] 44.16 Write property tests for the pipeline-level conflict behaviour
     - **Property 32: Excluded concepts never reach the published output**
     - **Validates: Requirements 18.4, 16.3**
     - **Property 33: With nothing to exclude, the conflict stage changes nothing**
     - **Validates: Requirements 18.2**
     - Scripted providers and the mock ledger from `orchestrator-fixtures.ts` and `budget/mock-ledger.ts`; no real provider
 
-  - [ ] 44.17 Write the budget and concurrency property test and the unchanged-rules test
+  - [x] 44.17 Write the budget and concurrency property test and the unchanged-rules test
     - **Property 34: Conflict calls respect the budget, concurrency and cancellation rules**
     - **Validates: Requirements 18.2, 12.6, 12.7, 12.8, 11.6, 16.7**
     - Test only: first attempts equal the number of provisional rooms, in-flight calls never exceed 4, a refused reservation makes no call, no call starts after abort, and the `BudgetLedger` interface keys and `DEFAULT_CONCURRENCY` (4) are unchanged and no reservation-sizing code was added
 
-  - [ ] 44.18 Extend the boundary test to the new pipeline files
+  - [x] 44.18 Extend the boundary test to the new pipeline files
     - Extend `packages/core/src/boundary.test.ts` so `pipeline/conflict-*.ts`, `pipeline/sufficiency.ts` and `locks/answer-statement.ts` import no provider SDK, network, React or database module and read no environment variable
     - _Requirements: 25.3, 25.4_
 
-  - [ ] 44.19 Wire the conflict check into the evaluation CLI and result file
+  - [x] 44.19 Wire the conflict check into the evaluation CLI and result file
     - `apps/worker/src/evaluation/cli.ts`: add `--conflict-check on|off`, default `off`, passed into `PipelineOptions` by `settingsFor`, so replay of the recorded dev cassettes keeps working exactly as today. `result-file.ts`: additive fields with Zod defaults so older result files still parse: run-level `conflictCheck: boolean`, a per-note `conflict` object (counts only: rooms checked, rooms unchecked, concepts excluded, reports ignored) and `'conflict-rejected'` as a candidate `result` value. The adversarial report counts a `pipeline:conflict-check` fixture as rejected by the expected layer only when the Conflict_Checker rejects it
     - Extend `cli.test.ts` (parse, default off, ignores `DISABLED_LOCK_TYPES`) and `result-file.test.ts` (an older file with none of the new fields still parses; the new fields round-trip). No paid call
     - _Requirements: 20.3, 24.5, 26.5_
 
-  - [ ] 44.20 Golden contract fixture: write the expected diff, then STOP for the owner
+  - [x] 44.20 Golden contract fixture: write the expected diff, then STOP for the owner
     - Do NOT regenerate `packages/core/src/test-support/contract/job-completed.json` and never run `UPDATE_CONTRACT=1` or any command that rewrites it (Open decision D14). Read `apps/worker/src/http/job-contract.test.ts` and run it without `UPDATE_CONTRACT` to confirm it still passes; confirm with `git status` that the fixture is unmodified
     - Write into `docs/build-log.md` the expected diff the owner will see: a third completed-body case requested with `?notices=1` holding one excluded concept (the new `notices` object with its two passages), the existing two cases unchanged, plus the exact owner command `UPDATE_CONTRACT=1 pnpm --filter ./apps/worker exec vitest --run job-contract` followed by "review the diff, commit". Then STOP this task and tell the user the owner step is pending; do not continue past it on the owner's behalf
     - _Requirements: 29.2, 18.4_
 
-  - [ ] 44.21 Confirm `CHECK_VERSION` is unchanged
+  - [x] 44.21 Confirm `CHECK_VERSION` is unchanged
     - Confirm with `git diff` that no file under `packages/core/src/checks/` or `packages/core/src/locks/<type>.ts` changed in Phase 6 and that `CHECK_VERSION` is untouched (the design says no Code_Check changes). If any Code_Check or registry entry did change, bump `CHECK_VERSION` in the same change, update only the `checkVersion` field in cassette files, and record it in `docs/build-log.md`. Record the result either way
     - _Requirements: 3.2, 3.5_
 
-- [ ] 45. Checkpoint - conflict check group
+- [x] 45. Checkpoint - conflict check group
   - Ensure all tests pass, ask the user if questions arise.
   - CPU rule: run the full core and worker suites with `--maxWorkers=50%`; no e2e here
   - Remind the user that the golden fixture step in task 44.20 is theirs

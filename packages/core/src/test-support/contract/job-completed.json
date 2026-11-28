@@ -242,5 +242,258 @@
         "total": 6
       }
     }
+  },
+  "notices": {
+    "request": "GET /jobs/:id?notices=1",
+    "response": {
+      "jobId": "job-contract-1",
+      "status": "completed",
+      "bundle": {
+        "manifest": {
+          "manifestId": "crypt-62a99254e222d538-f6fa8b8f",
+          "rooms": [
+            {
+              "roomId": "room-1",
+              "lockSlots": [
+                {
+                  "slotId": "room-1-slot-rune-cipher",
+                  "stationType": "rune-cipher",
+                  "conceptId": "concept-1",
+                  "primaryQuestion": {
+                    "questionId": "concept-1-primary",
+                    "lockType": "rune-cipher",
+                    "payload": {
+                      "answer": "atrioventricular",
+                      "aliases": [
+                        "AV"
+                      ],
+                      "caseSensitive": false
+                    },
+                    "evidenceRefs": [
+                      "chk_62a99254e222_5"
+                    ],
+                    "hintEffect": {
+                      "kind": "reveal-first-letter",
+                      "firstLetter": "a",
+                      "length": 16
+                    }
+                  },
+                  "alternateQuestion": {
+                    "questionId": "concept-1-alternate",
+                    "lockType": "seance-board",
+                    "payload": {
+                      "optionIds": [
+                        "a",
+                        "b",
+                        "c"
+                      ],
+                      "keyOptionId": "b"
+                    },
+                    "evidenceRefs": [
+                      "chk_62a99254e222_5"
+                    ],
+                    "hintEffect": {
+                      "kind": "remove-option",
+                      "optionId": "a"
+                    }
+                  }
+                },
+                {
+                  "slotId": "room-1-slot-seance-board",
+                  "stationType": "seance-board",
+                  "conceptId": "concept-2",
+                  "primaryQuestion": {
+                    "questionId": "concept-2-primary",
+                    "lockType": "seance-board",
+                    "payload": {
+                      "optionIds": [
+                        "a",
+                        "b",
+                        "c",
+                        "d"
+                      ],
+                      "keyOptionId": "b"
+                    },
+                    "evidenceRefs": [
+                      "chk_62a99254e222_3",
+                      "chk_62a99254e222_4"
+                    ],
+                    "hintEffect": {
+                      "kind": "remove-option",
+                      "optionId": "a"
+                    }
+                  },
+                  "alternateQuestion": {
+                    "questionId": "concept-2-alternate",
+                    "lockType": "rune-cipher",
+                    "payload": {
+                      "answer": "left ventricle",
+                      "aliases": [],
+                      "caseSensitive": false
+                    },
+                    "evidenceRefs": [
+                      "chk_62a99254e222_4"
+                    ],
+                    "hintEffect": {
+                      "kind": "reveal-first-letter",
+                      "firstLetter": "l",
+                      "length": 14
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "finalDoor": {
+            "slots": []
+          }
+        },
+        "content": {
+          "questions": {
+            "concept-1-primary": {
+              "prompt": "According to your notes, the valves between the atria and ventricles are called the ______ valves.",
+              "excerpts": [
+                {
+                  "chunkId": "chk_62a99254e222_5",
+                  "quote": "The valves between the atria and ventricles are called the atrioventricular valves, or AV valves"
+                }
+              ],
+              "explanation": "Your notes call them the atrioventricular (AV) valves: the tricuspid on the right and the mitral on the left."
+            },
+            "concept-1-alternate": {
+              "prompt": "According to your notes, which atrioventricular valve is on the left side of the heart?",
+              "options": {
+                "a": "The tricuspid valve",
+                "b": "The mitral valve",
+                "c": "The aortic valve"
+              },
+              "excerpts": [
+                {
+                  "chunkId": "chk_62a99254e222_5",
+                  "quote": "the tricuspid valve on the right and the mitral valve on the left",
+                  "optionId": "a"
+                },
+                {
+                  "chunkId": "chk_62a99254e222_5",
+                  "quote": "the tricuspid valve on the right and the mitral valve on the left",
+                  "optionId": "b"
+                },
+                {
+                  "chunkId": "chk_62a99254e222_5",
+                  "quote": "The pulmonary valve and the aortic valve sit where blood leaves the ventricles.",
+                  "optionId": "c"
+                }
+              ],
+              "explanation": "The mitral valve is the AV valve on the left; the aortic valve is where blood leaves a ventricle."
+            },
+            "concept-2-primary": {
+              "prompt": "According to your notes, which chamber pumps oxygen-rich blood to the body?",
+              "options": {
+                "a": "Right atrium",
+                "b": "Left ventricle",
+                "c": "Right ventricle",
+                "d": "Left atrium"
+              },
+              "excerpts": [
+                {
+                  "chunkId": "chk_62a99254e222_3",
+                  "quote": "The right atrium receives oxygen-poor blood returning from the body.",
+                  "optionId": "a"
+                },
+                {
+                  "chunkId": "chk_62a99254e222_4",
+                  "quote": "The left ventricle pumps oxygen-rich blood out to the rest of the body.",
+                  "optionId": "b"
+                },
+                {
+                  "chunkId": "chk_62a99254e222_3",
+                  "quote": "The right ventricle pumps that blood to the lungs",
+                  "optionId": "c"
+                },
+                {
+                  "chunkId": "chk_62a99254e222_4",
+                  "quote": "The left atrium receives oxygen-rich blood from the lungs.",
+                  "optionId": "d"
+                }
+              ],
+              "explanation": "The left ventricle pumps oxygen-rich blood to the body; the other chambers receive blood or pump it to the lungs."
+            },
+            "concept-2-alternate": {
+              "prompt": "According to your notes, the chamber with the thickest muscular wall, because it pumps blood the farthest, is the ______.",
+              "excerpts": [
+                {
+                  "chunkId": "chk_62a99254e222_4",
+                  "quote": "Because it pumps blood the farthest, the left ventricle has the thickest muscular wall"
+                }
+              ],
+              "explanation": "Paragraph 5 links the left ventricle's thick wall to pumping blood to the whole body."
+            }
+          },
+          "concepts": {
+            "concept-1": {
+              "title": "Heart valves"
+            },
+            "concept-2": {
+              "title": "Heart chambers"
+            }
+          }
+        },
+        "unplacedAccepted": [
+          {
+            "conceptId": "concept-3",
+            "conceptTitle": "Heartbeat origin",
+            "question": {
+              "questionId": "concept-3-primary",
+              "lockType": "rune-cipher",
+              "payload": {
+                "answer": "sinoatrial node",
+                "aliases": [
+                  "SA node"
+                ],
+                "caseSensitive": false
+              },
+              "evidenceRefs": [
+                "chk_62a99254e222_8"
+              ],
+              "hintEffect": {
+                "kind": "reveal-first-letter",
+                "firstLetter": "s",
+                "length": 15
+              }
+            },
+            "content": {
+              "prompt": "According to your notes, each heartbeat starts with an electrical signal from the ______, the heart's natural pacemaker.",
+              "excerpts": [
+                {
+                  "chunkId": "chk_62a99254e222_8",
+                  "quote": "Each heartbeat starts with an electrical signal from the sinoatrial node"
+                }
+              ],
+              "explanation": "Paragraph 9 names the sinoatrial node."
+            }
+          }
+        ],
+        "notices": {
+          "excluded": [
+            {
+              "conceptId": "concept-1",
+              "conceptTitle": "Time for the Moon to orbit Earth",
+              "source": "model",
+              "passages": [
+                {
+                  "chunkId": "chk_21c60b15f118_3",
+                  "quote": "The Moon takes about 27 days to orbit Earth."
+                },
+                {
+                  "chunkId": "chk_21c60b15f118_6",
+                  "quote": "One orbit of the Moon around Earth takes about 35 days."
+                }
+              ]
+            }
+          ],
+          "sufficiency": null
+        }
+      }
+    }
   }
 }

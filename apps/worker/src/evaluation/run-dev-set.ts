@@ -105,6 +105,12 @@ export async function runDevSet(deps: DevSetDeps): Promise<DevSetRun> {
       concepts: metadata.outcomes.concepts.map((c) => ({ ...c })),
       candidates: metadata.outcomes.candidates.map((c) => ({ ...c, checkIds: [...c.checkIds] })),
       codeCheckRejections: { ...metadata.counts.codeCheckRejections },
+      conflict: {
+        roomsChecked: metadata.counts.conflictRoomsChecked,
+        roomsUnchecked: metadata.counts.conflictRoomsUnchecked,
+        conceptsExcluded: metadata.counts.conceptsExcludedByConflict,
+        reportsIgnored: metadata.counts.conflictReportsIgnored,
+      },
       room: result.ok
         ? {
             slots: result.value.manifest.rooms.flatMap((r) =>

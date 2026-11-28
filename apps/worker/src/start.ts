@@ -104,6 +104,9 @@ export async function start(env: Env, opts: StartOptions = {}): Promise<StartRes
       worstCaseUsd: configuredWorstCaseUsd(prices),
       costOf: (usage: ProviderUsage) => (prices === undefined ? Number.POSITIVE_INFINITY : costOfUsage(usage, prices)),
       allowedLockTypes: cfg.allowedLockTypes,
+      // The worker turns the conflict check on (no env kill switch). Sufficiency stays off until its task.
+      conflictCheck: true,
+      sufficiency: false,
     },
     webOrigin: cfg.webOrigin,
     now,
