@@ -1,5 +1,7 @@
 import { chunkDocument } from '@escape-the-crypt/core';
 import type { Chunk, CryptBundle, Result, RunSettings, SampleCryptResult } from '@escape-the-crypt/core';
+import { checkedNotices } from './generated-notices';
+import type { CryptNotices, WorkerNotices } from './generated-notices';
 
 /** The text the worker is sent: the confirmed chunks' text, one paragraph each. */
 export function notesTextFromChunks(chunks: readonly Chunk[]): string {
@@ -12,6 +14,8 @@ export type GeneratedCrypt = SampleCryptResult & {
   readonly documentDigest?: string;
   /** The settings the learner chose when generating. */
   readonly settings?: RunSettings;
+  /** What was left out and why, checked against the learner's notes. Absent when nothing was. */
+  readonly notices?: CryptNotices;
 };
 
 export type GeneratedCryptError = { readonly kind: 'excerpt-chunk-unknown' };
@@ -26,6 +30,7 @@ export function buildGeneratedCrypt(
   notesText: string,
   documentDigest?: string,
   settings?: RunSettings,
+  workerNotices?: WorkerNotices,
 ): Result<GeneratedCrypt, GeneratedCryptError> {
   const chunks = new Map<string, Chunk>();
   for (const chunk of chunkDocument({ sourceType: 'paste', text: notesText, originalText: notesText })) {
@@ -36,6 +41,7 @@ export function buildGeneratedCrypt(
       if (!chunks.has(excerpt.chunkId)) return { ok: false, error: { kind: 'excerpt-chunk-unknown' } };
     }
   }
+  const notices = checkedNotices(workerNotices, chunks);
   return {
     ok: true,
     value: {
@@ -44,6 +50,7 @@ export function buildGeneratedCrypt(
       chunks,
       source: 'notes',
       ...(settings === undefined ? {} : { settings }),
+      ...(notices === undefined ? {} : { notices }),
       ...(documentDigest === undefined || documentDigest === '' ? {} : { documentDigest }),
     },
   };

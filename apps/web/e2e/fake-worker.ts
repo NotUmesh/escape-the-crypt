@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { Page, Route } from '@playwright/test';
-import { buildHumanHeartSampleCrypt } from '@escape-the-crypt/core';
+import { buildHumanHeartSampleCrypt, chunkDocument } from '@escape-the-crypt/core';
 import { FAKE_WORKER_ORIGIN } from '../playwright.config';
-import type { HumanHeartQuestionsFile, JobErrorResponse, JobFailureKindName } from '@escape-the-crypt/core';
+import type { HumanHeartQuestionsFile, JobBundle, JobErrorResponse, JobFailureKindName } from '@escape-the-crypt/core';
 import { ackBody, completedBody as completedStatusBody, failureBody, plainBody } from '../src/test-support/worker-bodies';
 
 /** The origin playwright.config.ts gives the e2e build as VITE_WORKER_URL. Nothing listens there. */
@@ -17,7 +17,8 @@ export const SAMPLE_NOTES = readFileSync(`${SAMPLES}human-heart.txt`, 'utf8');
 /** What the fake answers to one `GET /jobs/:id`. */
 export type FakeStep =
   | { readonly status: 'queued' | 'running' | 'cancelling' | 'expired' }
-  | { readonly status: 'completed' }
+  /** `leftOut`: the title of a concept the worker says it left out. Sent only to a client that asks with `?notices=1`. */
+  | { readonly status: 'completed'; readonly leftOut?: string }
   | { readonly status: 'failed' | 'cancelled'; readonly failure: JobFailureKindName };
 
 export interface SeenRequest {
@@ -44,12 +45,37 @@ const CORS = {
 /** The worker's 404 body (sendError). */
 const NOT_FOUND = JSON.stringify({ error: 'not-found', message: 'Nothing is here.' } satisfies JobErrorResponse);
 
+/** The first words of a chunk: a quote that is really in it. */
+const firstWords = (text: string): string => text.split(/\s+/).slice(0, 8).join(' ');
+
+/** A notice naming `title` as left out, with two real passages of the posted notes. */
+function conflictNotices(notesText: string, title: string): NonNullable<JobBundle['notices']> {
+  const [, first, second] = chunkDocument({ sourceType: 'paste', text: notesText, originalText: notesText });
+  if (first === undefined || second === undefined) throw new Error('the notes need three paragraphs for a conflict notice');
+  return {
+    excluded: [
+      {
+        conceptId: 'c-left-out',
+        conceptTitle: title,
+        source: 'model',
+        passages: [
+          { chunkId: first.id, quote: firstWords(first.text) },
+          { chunkId: second.id, quote: firstWords(second.text) },
+        ],
+      },
+    ],
+    sufficiency: null,
+  };
+}
+
 /** A completed worker response built from the notes text the app posted, so chunk IDs match. */
-function completedBody(notesText: string): string {
+function completedBody(notesText: string, leftOut?: string): string {
   const file = JSON.parse(readFileSync(`${SAMPLES}questions/human-heart.json`, 'utf8')) as HumanHeartQuestionsFile;
   const built = buildHumanHeartSampleCrypt(notesText, file);
   if (!built.ok) throw new Error(`fake bundle failed: ${built.error.kind}`);
-  return JSON.stringify(completedStatusBody({ manifest: built.value.manifest, content: built.value.content }));
+  return JSON.stringify(
+    completedStatusBody({ manifest: built.value.manifest, content: built.value.content }, undefined, leftOut === undefined ? undefined : conflictNotices(notesText, leftOut)),
+  );
 }
 
 /**
@@ -102,7 +128,9 @@ export async function installFakeWorker(
       if (step === undefined) {
         await json(route, 404, NOT_FOUND);
       } else if (step.status === 'completed') {
-        await json(route, 200, completedBody(postedNotes));
+        // Like the real worker: notices only for a client that asks for them.
+        const asked = new URL(request.url()).searchParams.get('notices') === '1';
+        await json(route, 200, completedBody(postedNotes, asked ? step.leftOut : undefined));
       } else if (step.status === 'failed' || step.status === 'cancelled') {
         await json(route, 200, JSON.stringify(failureBody(step.status, step.failure)));
       } else {

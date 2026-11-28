@@ -79,8 +79,8 @@ describe('getJob', () => {
     const { client, calls } = setup(() => jsonResponse(200, plainBody('queued')));
     await client.getJob('a/b c');
     const { url, init } = calls[0] as Call;
-    // ?progress=1 asks for the stage and counts (contract version 2); an older worker ignores it.
-    expect(url).toBe(`${ORIGIN}/jobs/a%2Fb%20c?progress=1`);
+    // ?progress=1 asks for the stage and counts (contract version 2), ?notices=1 for what was left out; an older worker ignores both.
+    expect(url).toBe(`${ORIGIN}/jobs/a%2Fb%20c?progress=1&notices=1`);
     expect(init.method).toBe('GET');
     expect(init.body).toBeUndefined();
     expect(init.headers).toEqual({ 'X-Session-Token': TOKEN });

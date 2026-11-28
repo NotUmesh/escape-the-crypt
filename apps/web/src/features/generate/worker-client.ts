@@ -1,4 +1,5 @@
 import { JobAckResponseSchema, JobStatusResponseSchema, parseCryptBundle } from '@escape-the-crypt/core';
+import type { WorkerNotices } from './generated-notices';
 import type { CryptBundle, GenerationFailureKind, JobAckResponse, JobProgress, JobStatusResponse, Result, RunLength } from '@escape-the-crypt/core';
 
 /** Worker job states the client hands back. No response body ever travels in an error. */
@@ -6,7 +7,8 @@ export type JobState =
   | { readonly kind: 'queued' }
   /** `progress`: stage and real counts, when the worker reports them (contract version 2). */
   | { readonly kind: 'running'; readonly progress?: JobProgress }
-  | { readonly kind: 'completed'; readonly bundle: CryptBundle }
+  /** `notices`: what the worker left out and why, when it sent any (asked for with `?notices=1`). */
+  | { readonly kind: 'completed'; readonly bundle: CryptBundle; readonly notices?: WorkerNotices }
   | { readonly kind: 'failed'; readonly failure: GenerationFailureKind }
   | { readonly kind: 'cancelled' }
   | { readonly kind: 'expired' };
@@ -93,7 +95,8 @@ function toJobState(body: JobStatusResponse): WorkerResult<JobState> {
       // The schema checked the shape; this is the deeper gate (publish checks, content cross-check).
       const parsed = parseCryptBundle({ manifest: body.bundle.manifest, content: body.bundle.content });
       if (!parsed.ok) return fail(invalid('bundle', parsed.error.kind));
-      return { ok: true, value: { kind: 'completed', bundle: parsed.value } };
+      const notices = body.bundle.notices;
+      return { ok: true, value: { kind: 'completed', bundle: parsed.value, ...(notices === undefined ? {} : { notices }) } };
     }
   }
 }/** A client for the generation worker. Never throws; never logs; no cookies are sent. */
@@ -169,8 +172,9 @@ export function createWorkerClient(options: WorkerClientOptions): WorkerClient {
     },
     getJob(jobId) {
       return request(
-        // ?progress=1 asks for the stage and counts; a worker that predates them ignores it.
-        `/jobs/${encodeURIComponent(jobId)}?progress=1`,
+        // ?progress=1 asks for the stage and counts, ?notices=1 for what was left out and why; a worker
+        // that predates either ignores it.
+        `/jobs/${encodeURIComponent(jobId)}?progress=1&notices=1`,
         { method: 'GET', headers: { 'X-Session-Token': sessionToken } },
         (json) => {
           const parsed = JobStatusResponseSchema.safeParse(json);

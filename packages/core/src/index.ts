@@ -244,3 +244,5 @@ export { buildPrintingPressSampleCrypt, PRINTING_PRESS_CONCEPT_TITLES } from './
 export { getSampleBuilder, isSampleId, sampleIdForManifestId, SAMPLE_IDS, SAMPLE_MANIFEST_IDS } from './sample-crypt/sample-registry';
 export type { SampleBuilder, SampleId, UnknownSampleError } from './sample-crypt/sample-registry';
 export { IMPORT_COPY, IMPORT_ERROR_KINDS, type ImportErrorKind } from './copy-import';
+export { conflictLeftOut, conflictNext, conflictPassage } from './copy-conflict';
+export { CONFLICT_NOTICE_COPY } from './copy-conflict-notice';

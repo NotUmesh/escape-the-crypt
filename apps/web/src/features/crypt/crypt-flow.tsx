@@ -18,6 +18,8 @@ import { CryptRunView } from './crypt-run-view';
 import { buildCryptForSample } from './sample-sources';
 import type { RenderStart } from './crypt-start-context';
 import { LanternProvider } from './lantern-context';
+import { RunConflictNotice } from './conflict-notice';
+import { useGeneratedNotices } from './use-generated-notices';
 import { LiveRegion } from './live-region';
 import { LockAnnounceContext } from './lock-panel-payload';
 import { ReadOnlyScreenContainer } from '../start/read-only-screen';
@@ -136,6 +138,7 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
   );
   const generationState = generation.state;
   const readyCrypt = generation.crypt;
+  const heldNotices = useGeneratedNotices(generationState.status, readyCrypt);
   // A finished job starts room 1 of the generated crypt through the same binding as the sample.
   useEffect(() => {
     if (generationState.status !== 'ready') return;
@@ -253,6 +256,13 @@ function CryptFlowInner({ useBinding = usePersistedRoomBinding, loadSceneImpl, n
           exportSlot={exportSlotFor(binding, state, deps, renderStart === undefined ? undefined : announceFromPanel)}
         />
       ) : null}
+      <RunConflictNotice
+        held={heldNotices}
+        state={state}
+        running={phase === 'running'}
+        announce={announceFromPanel}
+        ready={descent.variant === null}
+      />
       <LockAnnounceContext.Provider value={announceFromPanel}>{view}</LockAnnounceContext.Provider>
     </>
   );

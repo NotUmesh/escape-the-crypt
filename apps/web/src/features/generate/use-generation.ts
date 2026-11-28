@@ -153,7 +153,7 @@ export function useGeneration(options: GenerationOptions): Generation {
         pollErrors = 0;
         const job = result.value;
         if (job.kind === 'completed') {
-          const crypt = buildGeneratedCrypt(job.bundle, notesText, documentDigest, settings);
+          const crypt = buildGeneratedCrypt(job.bundle, notesText, documentDigest, settings, job.notices);
           if (!crypt.ok) {
             finish({ type: 'bundleRejected' });
             return;

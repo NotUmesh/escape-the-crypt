@@ -48,7 +48,7 @@ describe('worker contract: the real completed response plays in the web app', ()
     expect(started).toEqual({ ok: true, value: { jobId: jobId(), status: 'queued' } });
     if (!started.ok) return;
     const polled = await client.getJob(started.value.jobId);
-    expect(seen).toEqual(['POST /jobs', `GET /jobs/${jobId()}?progress=1`]);
+    expect(seen).toEqual(['POST /jobs', `GET /jobs/${jobId()}?progress=1&notices=1`]);
     expect(polled.ok).toBe(true);
     if (!polled.ok || polled.value.kind !== 'completed') throw new Error('the golden response must read as completed');
 

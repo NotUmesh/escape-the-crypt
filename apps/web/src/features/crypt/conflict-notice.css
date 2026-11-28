@@ -1,0 +1,56 @@
+/* The conflict notice: one solid panel in normal flow above the room, tokens only. */
+.conflict-notice {
+  box-sizing: border-box;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--stone-800);
+  color: var(--bone-50);
+  border: 1px solid var(--stone-300);
+  border-radius: 4px;
+  font-family: var(--font-body);
+}
+.conflict-notice__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-title);
+  font-size: 1.125rem;
+}
+.conflict-notice__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+.conflict-notice p {
+  margin: 0;
+}
+.conflict-notice .conflict-notice__next {
+  margin-top: 0.75rem;
+  color: var(--stone-300);
+}
+.conflict-notice__passages summary {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--spectre-300);
+  text-decoration: underline;
+}
+.conflict-notice__passages summary:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.conflict-notice__passage {
+  margin: 0.5rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--stone-300);
+}
+.conflict-notice__passage blockquote {
+  margin: 0;
+}
+.conflict-notice__passage figcaption {
+  margin-top: 0.25rem;
+  color: var(--stone-300);
+  font-size: 0.9375rem;
+}

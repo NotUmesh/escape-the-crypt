@@ -2,6 +2,7 @@
 import type {
   CryptBundle,
   JobAckResponse,
+  JobBundle,
   JobFailureKindName,
   JobStatusResponse,
 } from '@escape-the-crypt/core';
@@ -47,10 +48,20 @@ export function failureBody(
   return checkedStatus({ jobId, status, failure: { kind, message: FAKE_FAILURE_MESSAGE } });
 }
 
-export function completedBody(bundle: CryptBundle, jobId = FAKE_JOB_ID): JobStatusResponse {
+/** `notices`: what a worker sends only to a client that asked with `?notices=1`. */
+export function completedBody(
+  bundle: CryptBundle,
+  jobId = FAKE_JOB_ID,
+  notices?: NonNullable<JobBundle['notices']>,
+): JobStatusResponse {
   return checkedStatus({
     jobId,
     status: 'completed',
-    bundle: { manifest: bundle.manifest, content: bundle.content, unplacedAccepted: [] },
+    bundle: {
+      manifest: bundle.manifest,
+      content: bundle.content,
+      unplacedAccepted: [],
+      ...(notices === undefined ? {} : { notices }),
+    },
   });
 }
