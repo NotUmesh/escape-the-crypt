@@ -272,3 +272,13 @@ Vitest ran with `--maxWorkers=50%`. No e2e suite was run.
 - `eval holdout` is the only way to run the final test set. It refuses when the results folder already holds a holdout result or `ledger-holdout.json`, or without `--confirm-final-run`. It has not been run.
 - Deliberate guard change: `apps/worker/src/boundary.test.ts` used to forbid any mention of the holdout folder path. It now allows exactly one file, `evaluation/paths.ts`, and `holdout-isolation.test.ts` checks that no other mode reads that folder. The holdout notes are assumed to sit in a `notes` subfolder, like the dev set; this is unconfirmed.
 - The result file's `set` field is now `dev` or `holdout`, and an optional `ratings` section was added; older result files still parse.
+
+Lock types phase 3 checkpoint (samples), clean worktree at 4f1f710, Node 22.23.5:
+| run | passed | failed | skipped | notes |
+| --- | --- | --- | --- | --- |
+| lint, typecheck | ok | 0 | 0 | |
+| vitest packages/core (--maxWorkers=50%) | 1628 (186 files) | 0 | 1 todo | todo: human-heart places all six types, waits for a decision |
+| vitest apps/web (--maxWorkers=50%) | 1364 (172 files) | 0 | 0 | |
+| web e2e chromium, firefox, pixel (--workers=2) | 262 | 0 | 1 | skip is crypt-hotspots "door too small for placed seals"; sample-escape 9/9 (3 samples x 3 projects, keyboard only) |
+Samples: https and printing-press each place all six lock types across two rooms and a three-seal final door, built through the core mapper. human-heart is unchanged (rune cipher and séance board only): widening it changes the final-door seal count or the room count that tests under apps/web/src/state pin. https.json gained one rune cipher question (hs-q10), so the Phase 1 dataset counts are now 57 questions and 27 rune ciphers.
+Resume: a saved https or printing-press run still returns `record-unreadable` until `restoreRun` in apps/web/src/state/storage picks the sample from the manifest ID (needs the other machine; see the phase 3 report).
